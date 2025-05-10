@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=4 format=3 uid="uid://bglxmufyvymb8"]
+
+[ext_resource type="Script" path="res://scripts/resources/character_data.gd" id="1_j8pwy"]
+[ext_resource type="Resource" uid="uid://dywjbuxb5q0rk" path="res://resources/skills/fireball.tres" id="2_j1a1r"]
+[ext_resource type="Resource" uid="uid://dhg7yq5wm8vn8" path="res://resources/skills/minor_heal.tres" id="3_w0ynk"]
+
+[resource]
+script = ExtResource("1_j8pwy")
+character_name = "魔法师"
+description = "一位掌握魔法奥义的法师。"
+max_hp = 80
+current_hp = 80
+max_mp = 80
+current_mp = 80
+attack = 5
+defense = 4
+speed = 6
+skills = Array[Resource("res://scripts/resources/skill_data.gd")]([ExtResource("2_j1a1r"), ExtResource("3_w0ynk")])
+color = Color(0.196078, 0.286275, 0.8, 1)
