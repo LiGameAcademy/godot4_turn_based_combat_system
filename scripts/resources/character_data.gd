@@ -13,6 +13,9 @@ class_name CharacterData
 @export var defense: int = 5
 @export var speed: int = 7
 
+@export var magic_attack: int = 10  # 魔法攻击力
+@export var magic_defense: int = 10 # 魔法防御力
+
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
 

@@ -20,6 +20,8 @@ var max_mp: int:
 var attack: int
 var defense: int
 var speed: int
+var magic_attack: int = 0  # 魔法攻击力
+var magic_defense: int = 0 # 魔法防御力
 
 # 引用场景中的节点
 @onready var hp_bar : ProgressBar = %HPBar
@@ -56,14 +58,16 @@ func initialize_from_data(data: CharacterData):
 	self.character_data = data
 	
 	# 初始化属性
-	self.character_name = data.character_name
-	self.max_hp = data.max_hp
-	self.current_hp = data.current_hp
-	self.max_mp = data.max_mp
-	self.current_mp = data.current_mp
-	self.attack = data.attack
-	self.defense = data.defense
-	self.speed = data.speed
+	character_name = data.character_name
+	max_hp = data.max_hp
+	current_hp = data.current_hp
+	max_mp = data.max_mp
+	current_mp = data.current_mp
+	attack = data.attack
+	defense = data.defense
+	speed = data.speed
+	magic_attack = data.magic_attack
+	magic_defense = data.magic_defense
 	
 	# 更新视觉表现
 	update_visual()
