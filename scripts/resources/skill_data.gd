@@ -4,23 +4,23 @@ class_name SkillData
 ## --- 核心要素枚举 ---
 ## 效果类型
 enum EffectType {
-    DAMAGE,       ## 造成伤害
-    HEAL,         ## 恢复HP
-    APPLY_STATUS, ## 施加状态 (Buff/Debuff)
-    CONTROL,      ## 控制效果 (如眩晕)
-    SPECIAL       ## 特殊，可能需要自定义逻辑
+	DAMAGE,       ## 造成伤害
+	HEAL,         ## 恢复HP
+	APPLY_STATUS, ## 施加状态 (Buff/Debuff)
+	CONTROL,      ## 控制效果 (如眩晕)
+	SPECIAL       ## 特殊，可能需要自定义逻辑
 }
 
 ## 目标类型
 enum TargetType {
-    NONE,                   ## 无需目标 (例如自身buff)
-    ENEMY_SINGLE,           ## 敌方单体
-    ENEMY_ALL,              ## 敌方全体
-    ALLY_SINGLE,            ## 我方单体 (不含自己)
-    ALLY_ALL,               ## 我方全体 (不含自己)
-    SELF,                   ## 施法者自己
-    ALLY_SINGLE_INC_SELF,   ## 我方单体 (含自己)
-    ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
+	NONE,                   ## 无需目标 (例如自身buff)
+	ENEMY_SINGLE,           ## 敌方单体
+	ENEMY_ALL,              ## 敌方全体
+	ALLY_SINGLE,            ## 我方单体 (不含自己)
+	ALLY_ALL,               ## 我方全体 (不含自己)
+	SELF,                   ## 施法者自己
+	ALLY_SINGLE_INC_SELF,   ## 我方单体 (含自己)
+	ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
 }
 
 ## --- 导出的属性 ---
@@ -43,4 +43,4 @@ enum TargetType {
 
 ## 检查是否能施放技能
 func can_cast(caster_current_mp: int) -> bool:
-    return caster_current_mp >= mp_cost
+	return caster_current_mp >= mp_cost

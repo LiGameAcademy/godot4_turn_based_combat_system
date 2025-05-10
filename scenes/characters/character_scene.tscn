@@ -42,4 +42,17 @@ grow_vertical = 2
 text = "HP: 100/100"
 horizontal_alignment = 1
 
+[node name="MPBar" type="ProgressBar" parent="Container"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 25)
+layout_mode = 2
+show_percentage = false
+
+[node name="MPLabel" type="Label" parent="Container/MPBar"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "MP: 100/100"
+
 [node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]

@@ -1,49 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://bvnf2raqi3v41"]
+[gd_scene load_steps=9 format=3 uid="uid://bvnf2raqi3v41"]
 
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character_scene.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
+[ext_resource type="PackedScene" uid="uid://bhofqlwlav887" path="res://scenes/ui/action_menu.tscn" id="2_lbt8a"]
 [ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="2_rl52j"]
+[ext_resource type="PackedScene" uid="uid://dytp20hph55tl" path="res://scenes/ui/skill_select_menu.tscn" id="3_2wmvw"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
+[ext_resource type="PackedScene" uid="uid://b3kx6r5a7lfil" path="res://scenes/ui/target_selection_menu.tscn" id="4_ww1p6"]
 [ext_resource type="Script" uid="uid://boqbvmqrbyse" path="res://scripts/core/battle_manager.gd" id="5_o3k7m"]
 
 [node name="BattleScene" type="Node2D"]
 script = ExtResource("1_ugm31")
-
-[node name="BattleUI" type="CanvasLayer" parent="."]
-layer = 128
-
-[node name="ActionPanel" type="Panel" parent="BattleUI"]
-anchors_preset = -1
-anchor_left = 0.726
-anchor_top = 0.764
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -6.35199
-offset_top = -4.07205
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="BattleUI/ActionPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="AttackButton" type="Button" parent="BattleUI/ActionPanel/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-text = "Attack"
-
-[node name="DefendButton" type="Button" parent="BattleUI/ActionPanel/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-text = "Defend"
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1152.0
@@ -56,6 +23,34 @@ offset_top = 50.0
 offset_right = 1102.0
 offset_bottom = 450.0
 color = Color(0.14902, 0.137255, 0.188235, 1)
+
+[node name="BattleUI" type="CanvasLayer" parent="."]
+layer = 128
+
+[node name="ActionMenu" parent="BattleUI" instance=ExtResource("2_lbt8a")]
+anchor_left = 0.72
+anchor_top = 0.771
+anchor_bottom = 1.0
+offset_left = -4.44006
+offset_top = 65.392
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="SkillSelectMenu" parent="BattleUI" instance=ExtResource("3_2wmvw")]
+visible = false
+
+[node name="TargetSelectionMenu" parent="BattleUI" instance=ExtResource("4_ww1p6")]
+visible = false
+
+[node name="BattleInfo" type="Label" parent="BattleUI"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "战斗信息显示栏"
 
 [node name="PlayerArea" type="Node2D" parent="."]
 position = Vector2(250, 300)

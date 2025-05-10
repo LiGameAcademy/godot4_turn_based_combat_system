@@ -30,18 +30,18 @@ func set_item_button_enabled(enabled: bool) -> void:
 	item_button.disabled = !enabled
 
 # 获取焦点时，默认选中攻击按钮
-func grab_focus() -> void:
+func setup_default_focus() -> void:
 	attack_button.grab_focus()
 
 # 信号处理函数
 func _on_attack_button_pressed() -> void:
-	emit_signal("attack_pressed")
+	attack_pressed.emit()
 
 func _on_defend_button_pressed() -> void:
-	emit_signal("defend_pressed")
+	defend_pressed.emit()
 
 func _on_skill_button_pressed() -> void:
-	emit_signal("skill_pressed")
+	skill_pressed.emit()
 
 func _on_item_button_pressed() -> void:
-	emit_signal("item_pressed")
+	item_pressed.emit()

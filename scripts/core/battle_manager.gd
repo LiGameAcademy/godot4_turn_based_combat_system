@@ -3,10 +3,6 @@ extends Node
 class_name BattleManager
 
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
-# 预加载UI实例
-const SKILL_SELECT_MENU_SCENE := preload("res://scenes/ui/skill_select_menu.tscn")
-const TARGET_SELECTION_MENU_SCENE := preload("res://scenes/ui/target_selection_menu.tscn")
-const ACTION_MENU_SCENE := preload("res://scenes/ui/action_menu.tscn")
 
 # 战斗状态枚举
 enum BattleState {
@@ -32,11 +28,6 @@ var enemy_characters: Array[Character] = []
 var turn_queue: Array = []
 var current_turn_character: Character = null
 
-# 引用UI实例
-var skill_select_menu: SkillSelectMenu
-var target_selection_menu: TargetSelectionMenu
-var action_menu: ActionMenu
-
 ## 当前选中的技能
 var current_selected_skill : SkillData = null
 
@@ -44,6 +35,10 @@ var current_selected_skill : SkillData = null
 signal battle_state_changed(new_state)
 signal turn_changed(character)
 signal battle_ended(is_victory)
+# 添加额外信号用于与UI交互
+signal player_action_required(character) # 通知UI玩家需要行动
+signal enemy_action_executed(attacker, target, damage) # 敌人执行了行动
+signal character_stats_changed(character) # 角色状态变化
 
 func _ready():
 	set_state(BattleState.IDLE)
@@ -73,14 +68,13 @@ func set_state(new_state: BattleState):
 			next_turn()
 			
 		BattleState.PLAYER_TURN:
-			# 激活玩家输入界面
+			# 通知UI需要玩家输入
 			print("玩家回合：等待输入...")
-			show_action_ui(true)  # 显示行动按钮
+			player_action_required.emit(current_turn_character)
 			
 		BattleState.ENEMY_TURN:
 			# 执行敌人AI
 			print("敌人回合：", current_turn_character.character_name, " 思考中...")
-			show_action_ui(false)  # 隐藏行动按钮
 			# 延迟一下再执行AI，避免敌人行动过快
 			await get_tree().create_timer(1.0).timeout
 			execute_enemy_ai()
@@ -144,7 +138,7 @@ func register_characters():
 	
 	print("已注册 ", player_characters.size(), " 名玩家角色和 ", enemy_characters.size(), " 名敌人")
 
-# 玩家选择行动
+# 玩家选择行动 - 由BattleScene调用
 func player_select_action(action_type: String, target = null):
 	if current_state != BattleState.PLAYER_TURN:
 		return
@@ -204,8 +198,12 @@ func execute_attack(attacker: Character, target: Character):
 	# 简单的伤害计算
 	var damage = target.take_damage(attacker.attack - target.defense)
 	
-	# 更新UI信息
-	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
+	# 发出敌人行动执行信号
+	if enemy_characters.has(attacker):
+		enemy_action_executed.emit(attacker, target, damage)
+		
+	# 发出角色状态变化信号
+	character_stats_changed.emit(target)
 
 	# 显示伤害数字
 	spawn_damage_number(target.global_position, damage, Color.RED)
@@ -220,10 +218,10 @@ func execute_defend(character: Character):
 	print(character.character_name, " 选择防御，受到的伤害将减少")
 	character.set_defending(true)
 	
-	# 更新UI信息
-	update_battle_info(character.character_name + " 进入防御状态，将受到减少的伤害!")
+	# 发出角色状态变化信号
+	character_stats_changed.emit(character)
 
-## 执行技能
+## 执行技能 - 由BattleScene调用
 func execute_skill(caster: Character, targets: Array[Character], skill_data: SkillData) -> void:
 	print(caster.character_name + "使用技能：" + skill_data.skill_name)
 
@@ -231,6 +229,9 @@ func execute_skill(caster: Character, targets: Array[Character], skill_data: Ski
 	if !caster.use_mp(skill_data.mp_cost):
 		print("错误：MP不足，无法释放技能！")
 		return
+	
+	# 发出角色状态变化信号
+	character_stats_changed.emit(caster)
 	
 	# 根据技能类型执行不同的效果
 	match skill_data.effect_type:
@@ -339,53 +340,12 @@ func remove_character(character: Character):
 	print(character.character_name, " 已从战斗中移除")
 	check_battle_end_condition()
 
-func show_action_ui(visible: bool):
-	if action_menu:
-		action_menu.visible = visible
-
-func update_battle_info(text: String):
-	var info_label = get_node_or_null("../BattleUI/BattleInfo")
-	if info_label:
-		info_label.text = text
-
 ## 生成伤害数字
 func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
 	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(damage_number)
 	damage_number.global_position = position + Vector2(0, -50)
 	damage_number.show_number(str(amount), color)
-
-func _initialize_ui() -> void:
-	# 实例化并配置技能选择菜单
-	skill_select_menu = SKILL_SELECT_MENU_SCENE.instantiate()
-	add_child(skill_select_menu)
-	skill_select_menu.skill_selected.connect(_on_skill_selected)
-	skill_select_menu.skill_selection_cancelled.connect(_on_skill_selection_cancelled)
-	skill_select_menu.hide()
-
-	# 实例化并配置目标选择菜单
-	target_selection_menu = TARGET_SELECTION_MENU_SCENE.instantiate()
-	add_child(target_selection_menu)
-	target_selection_menu.target_selected.connect(_on_target_selected)
-	target_selection_menu.target_selection_cancelled.connect(_on_target_selection_cancelled)
-	target_selection_menu.hide()
-
-	# 实例化单独的ActionMenu场景
-	action_menu = ACTION_MENU_SCENE.instantiate()
-	var battle_ui = get_node_or_null("../BattleUI")
-	if battle_ui:
-		battle_ui.add_child(action_menu)
-		# 设置位置和大小
-		action_menu.anchor_left = 0.726
-		action_menu.anchor_top = 0.764
-		action_menu.anchor_right = 1.0
-		action_menu.anchor_bottom = 1.0
-		action_menu.hide()
-
-		action_menu.attack_pressed.connect(_on_action_menu_attack_pressed)
-		action_menu.defend_pressed.connect(_on_action_menu_defend_pressed)
-		action_menu.skill_pressed.connect(_on_skill_button_pressed)
-		action_menu.item_pressed.connect(_on_item_button_pressed)
 
 # 伤害类技能
 func _execute_damage_skill(caster: Character, targets: Array[Character], skill: SkillData):
@@ -404,6 +364,9 @@ func _execute_damage_skill(caster: Character, targets: Array[Character], skill: 
 		
 		# 显示伤害数字
 		spawn_damage_number(target.global_position, damage_dealt, Color.RED)
+		
+		# 发出角色状态变化信号
+		character_stats_changed.emit(target)
 		
 		print(target.character_name + " 受到 " + str(damage_dealt) + " 点伤害")
 
@@ -425,6 +388,9 @@ func _execute_heal_skill(caster: Character, targets: Array[Character], skill: Sk
 		# 显示治疗数字
 		spawn_damage_number(target.global_position, heal_amount, Color.GREEN)
 		
+		# 发出角色状态变化信号
+		character_stats_changed.emit(target)
+		
 		print(target.character_name + " 恢复了 " + str(heal_amount) + " 点生命值")
 
 # 状态类技能
@@ -438,7 +404,7 @@ func _execute_special_skill(caster: Character, targets: Array[Character], skill:
 	pass
 
 # 获取有效的敌方目标列表（过滤掉已倒下的角色）
-func _get_valid_enemy_targets() -> Array[Character]:
+func get_valid_enemy_targets() -> Array[Character]:
 	var valid_targets: Array[Character] = []
 	
 	for enemy in enemy_characters:
@@ -449,7 +415,7 @@ func _get_valid_enemy_targets() -> Array[Character]:
 
 # 获取有效的友方目标列表
 # include_self: 是否包括施法者自己
-func _get_valid_ally_targets(include_self: bool) -> Array[Character]:
+func get_valid_ally_targets(include_self: bool = false) -> Array[Character]:
 	var valid_targets: Array[Character] = []
 	
 	for ally in player_characters:
@@ -458,62 +424,8 @@ func _get_valid_ally_targets(include_self: bool) -> Array[Character]:
 	
 	return valid_targets
 
-# 打开技能选择菜单
-func _open_skill_menu() -> void:
-	if current_turn_character == null || current_state != BattleState.PLAYER_TURN:
-		return
-		
-	skill_select_menu.show_menu(current_turn_character.character_data.skills, current_turn_character.current_mp)
-
-# 显示玩家行动菜单
-func _show_action_menu() -> void:
-	# 确保当前是玩家角色的回合
-	if current_turn_character == null || !_is_player_character(current_turn_character):
-		return
-		
-	# 隐藏其他可能显示的菜单
-	if skill_select_menu:
-		skill_select_menu.hide()
-	if target_selection_menu:
-		target_selection_menu.hide()
-		
-	# 显示行动菜单并更新状态
-	if action_menu:
-		# 更新菜单状态
-		_update_action_menu_state()
-		# 显示菜单
-		action_menu.show()
-		# 获取焦点
-		action_menu.grab_focus()
-		
-	# 设置状态为玩家回合
-	set_state(BattleState.PLAYER_TURN)
-	
-	# 显示当前角色的回合提示
-	print_rich("[color=yellow]%s 的回合，请选择行动[/color]" % current_turn_character.character_name)
-	
-# 更新行动菜单状态
-func _update_action_menu_state() -> void:
-	# 这个辅助方法用于更新行动菜单上各按钮的状态
-	# 例如，如果角色MP为0，可能需要禁用"技能"按钮
-	
-	if action_menu:
-		# 示例：根据MP是否足够来启用/禁用技能按钮
-		var has_enough_mp_for_any_skill = false
-		
-		for skill in current_turn_character.character_data.skills:
-			if current_turn_character.current_mp >= skill.mp_cost:
-				has_enough_mp_for_any_skill = true
-				break
-				
-		action_menu.set_skill_button_enabled(has_enough_mp_for_any_skill)
-		
-		# 示例：根据是否有物品来启用/禁用物品按钮
-		var has_usable_items = false # 这里需要根据实际的物品系统来实现
-		action_menu.set_item_button_enabled(has_usable_items)
-
 # 判断角色是否为玩家角色
-func _is_player_character(character: Character) -> bool:
+func is_player_character(character: Character) -> bool:
 	return player_characters.has(character)
 
 ## 订阅角色信号
@@ -543,103 +455,3 @@ func _on_character_died(character: Character) -> void:
 	
 	# 检查战斗是否结束
 	check_battle_end_condition()	
-
-func _on_skill_selected(skill : SkillData) -> void:
-	current_selected_skill = skill
-
-	# 根据技能目标类型决定下一步操作
-	match skill.target_type:
-		SkillData.TargetType.SELF:
-			# 自身技能无需选择目标
-			execute_skill(current_turn_character, [current_turn_character], skill)
-		
-		SkillData.TargetType.ENEMY_SINGLE:
-			# 显示敌人目标选择菜单
-			var valid_targets = _get_valid_enemy_targets()
-			target_selection_menu.show_targets(valid_targets)
-		
-		SkillData.TargetType.ENEMY_ALL:
-			# 群体敌人技能无需选择目标
-			execute_skill(current_turn_character, _get_valid_enemy_targets(), skill)
-		
-		SkillData.TargetType.ALLY_SINGLE:
-			# 显示我方(不含自己)目标选择菜单
-			var valid_targets = _get_valid_ally_targets(false)
-			target_selection_menu.show_targets(valid_targets)
-		
-		SkillData.TargetType.ALLY_SINGLE_INC_SELF:
-			# 显示我方(含自己)目标选择菜单
-			var valid_targets = _get_valid_ally_targets(true)
-			target_selection_menu.show_targets(valid_targets)
-		
-		SkillData.TargetType.ALLY_ALL:
-			# 群体我方(不含自己)技能
-			execute_skill(current_turn_character, _get_valid_ally_targets(false), skill)
-		
-		SkillData.TargetType.ALLY_ALL_INC_SELF:
-			# 群体我方(含自己)技能
-			execute_skill(current_turn_character, _get_valid_ally_targets(true), skill)
-		
-		_:
-			print("未处理的目标类型: ", skill.target_type)
-			_on_skill_selection_cancelled()
-
-func _on_skill_selection_cancelled() -> void:
-	# 重置当前选中的技能
-	current_selected_skill = null
-	
-	# 返回到玩家行动选择状态
-	_show_action_menu()
-	
-	# 设置状态为玩家回合
-	set_state(BattleState.PLAYER_TURN)
-
-# 当玩家选择了技能目标时调用
-func _on_target_selected(target: Character) -> void:
-	# 确保有选中的技能
-	if current_selected_skill == null:
-		push_error("选择了目标但没有当前技能")
-		return
-	
-	# 单体技能处理
-	if current_selected_skill.target_type == SkillData.TargetType.ENEMY_SINGLE || \
-	   current_selected_skill.target_type == SkillData.TargetType.ALLY_SINGLE || \
-	   current_selected_skill.target_type == SkillData.TargetType.ALLY_SINGLE_INC_SELF:
-		execute_skill(current_turn_character, [target], current_selected_skill)
-	else:
-		push_error("非单体技能不应该调用单体目标选择")
-
-# 当玩家取消目标选择时调用
-func _on_target_selection_cancelled() -> void:
-	# 返回技能选择菜单
-	current_selected_skill = null
-	_open_skill_menu()
-
-# 添加按钮信号处理函数
-func _on_action_menu_attack_pressed() -> void:
-	# 处理攻击按钮
-	if current_state == BattleState.PLAYER_TURN:
-		# 选择第一个存活的敌人作为目标
-		var target = null
-		for enemy in enemy_characters:
-			if enemy.is_alive():
-				target = enemy
-				break
-				
-		if target:
-			player_select_action("attack", target)
-
-func _on_action_menu_defend_pressed() -> void:
-	# 处理防御按钮
-	if current_state == BattleState.PLAYER_TURN:
-		player_select_action("defend")
-
-func _on_skill_button_pressed() -> void:
-	# 处理技能按钮
-	if current_state == BattleState.PLAYER_TURN:
-		_open_skill_menu()
-
-func _on_item_button_pressed() -> void:
-	# 处理物品按钮（将来实现）
-	if current_state == BattleState.PLAYER_TURN:
-		print("物品功能尚未实现")
