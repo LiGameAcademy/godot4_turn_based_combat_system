@@ -1,4 +1,4 @@
-extends Resource
+extends RefCounted
 class_name EffectProcessor
 
 ## 效果处理器引用
@@ -13,25 +13,24 @@ func _init(battle_mgr = null, visual_fx = null):
 ## 处理效果 - 主要接口方法
 ## 返回格式: 字典格式的结果 {"target1": {"damage": 50}, "target2": {"damage": 30}}
 func process_effect(effect_data: Dictionary, caster: Character, targets: Array) -> Dictionary:
-	# 子类实现具体逻辑
-	push_warning("调用了基类EffectProcessor的process_effect，没有实际效果")
+	push_error("EffectProcessor.process_effect() 必须被子类重写")
 	return {}
 
 ## 获取效果处理器ID
 func get_processor_id() -> String:
-	# 子类应当覆盖此方法返回唯一ID
-	return "base_processor"
+	push_error("EffectProcessor.get_processor_id() 必须被子类重写")
+	return "base"
 
 ## 获取效果描述 (用于UI显示)
 func get_effect_description(effect_data: Dictionary) -> String:
-	# 子类应当覆盖此方法生成描述
-	return "未定义效果"
+	push_error("EffectProcessor.get_effect_description() 必须被子类重写")
+	return "未知效果"
 
 ## 通用辅助方法
 ## 发送视觉效果请求 (如果存在视觉效果处理器)
 func request_visual_effect(effect_type: String, target, params: Dictionary = {}):
-	if visual_effects and visual_effects.has_method("play_" + effect_type + "_effect"):
-		visual_effects.call("play_" + effect_type + "_effect", target, params)
+	if battle_manager and battle_manager.skill_system:
+		battle_manager.skill_system.visual_effect_requested.emit(effect_type, target, params)
 	
 ## 生成伤害数字
 func spawn_damage_number(position: Vector2, amount: int, color: Color = Color.RED):

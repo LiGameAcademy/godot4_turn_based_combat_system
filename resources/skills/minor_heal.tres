@@ -23,5 +23,6 @@ description = "恢复目标20点生命值。"
 mp_cost = 10
 target_type = 6
 effects = Array[ExtResource("1_ytemu")]([SubResource("Resource_6jcy7")])
+element = 7
 cast_animation = ""
 hit_animation = ""

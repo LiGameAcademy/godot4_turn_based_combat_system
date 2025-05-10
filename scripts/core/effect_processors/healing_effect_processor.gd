@@ -10,40 +10,43 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("heal_cast", caster)
+	request_visual_effect("heal_cast", caster, {})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
-		await Engine.get_main_loop().create_timer(0.3).timeout
 	
 	for target in targets:
-		if target.current_hp <= 0:  # 不能治疗已死亡的角色
-			print("%s 已倒下，无法接受治疗。" % target.character_name)
+		if target.current_hp <= 0:
 			continue
-		
+			
 		# 计算治疗量
-		var healing = calculate_healing(caster, target, effect_data)
+		var heal_amount = calculate_healing(caster, target, effect_data)
 		
-		# 播放治疗效果动画
-		request_visual_effect("heal", target)
+		# 播放治疗效果
+		request_visual_effect("heal", target, {})
+		
+		# 生成治疗数字
+		request_visual_effect("damage_number", target, {
+			"damage": heal_amount,
+			"color": Color(0.3, 1.0, 0.3),
+			"prefix": "+"
+		})
 		
 		# 应用治疗
-		var actual_healed = target.heal(healing)
+		target.heal(heal_amount)
 		
-		# 显示治疗数字
-		spawn_damage_number(target.global_position, actual_healed, Color.GREEN)
-		
-		# 发出角色状态变化信号
+		# 角色状态变化信号
 		if battle_manager and battle_manager.has_signal("character_stats_changed"):
 			battle_manager.character_stats_changed.emit(target)
 		
 		# 记录结果
 		if not results.has(target):
 			results[target] = {}
-		results[target]["heal"] = actual_healed
+		results[target]["heal_amount"] = heal_amount
 		
-		print_rich("[color=green]%s 恢复了 %d 点生命值！[/color]" % [target.character_name, actual_healed])
+		# 显示治疗信息
+		print_rich("[color=green]%s 恢复了 %d 点生命值[/color]" % [target.character_name, heal_amount])
 	
 	return results
 
@@ -52,13 +55,16 @@ func calculate_healing(caster: Character, target: Character, effect_data: Dictio
 	# 获取基础治疗量
 	var power = effect_data.get("power", 10)
 	
-	# 治疗量通常更依赖施法者的魔法攻击力
-	var base_healing = power + (caster.magic_attack * 1.0)
+	# 基于魔法攻击力计算治疗量
+	var base_healing = power + (caster.magic_attack * 0.7)
 	
-	# 随机浮动 (±5%)
-	var random_factor = randf_range(0.95, 1.05)
+	# 加入随机浮动因素 (±15%)
+	var random_factor = randf_range(0.85, 1.15)
+	
+	# 计算最终治疗量
 	var final_healing = base_healing * random_factor
 	
+	# 确保至少治疗1点
 	return max(1, round(final_healing))
 
 ## 获取效果描述

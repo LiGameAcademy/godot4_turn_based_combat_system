@@ -2,30 +2,33 @@
 extends Node
 class_name BattleVisualEffects
 
+# 引入ElementTypes
+const ElementTypes = preload("res://scripts/core/ElementTypes.gd")
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
-# 元素颜色映射 (为元素系统预留)
-const ELEMENT_COLORS = {
-	0: Color(1, 1, 1),      # NONE - 白色
-	1: Color(1, 0.5, 0.2),  # FIRE - 红橙色
-	2: Color(0.3, 0.7, 1),  # WATER - 湖蓝色
-	3: Color(0.6, 0.4, 0.1), # EARTH - 棕色
-	4: Color(0.8, 1, 1),    # AIR - 淡蓝色
-	5: Color(1, 1, 0.7),    # LIGHT - 淡黄色
-	6: Color(0.6, 0.2, 0.8)  # DARK - 紫色
-}
+# 元素颜色映射
+var ELEMENT_COLORS = {}
+
+func _ready():
+	# 初始化元素颜色
+	for element in ElementTypes.Element.keys():
+		var element_value = ElementTypes.Element[element]
+		ELEMENT_COLORS[element_value] = ElementTypes.get_element_color(element_value)
 
 # 生成伤害数字
-func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
+func spawn_damage_number(position: Vector2, amount: int, color: Color, prefix: String = "") -> void:
 	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(damage_number)
 	damage_number.global_position = position + Vector2(0, -50)
-	damage_number.show_number(str(amount), color)
+	
+	# 如果有前缀，则添加到显示文本
+	var display_text = prefix + str(amount)
+	damage_number.show_number(display_text, color)
 	
 # 播放施法动画
 func play_cast_effect(caster: Character, params: Dictionary = {}) -> void:
 	var element = params.get("element", 0)
-	var element_color = ELEMENT_COLORS[element]
+	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
 	
 	var tween = create_tween()
 	# 角色短暂发光效果，使用元素颜色
@@ -53,7 +56,7 @@ func play_heal_cast_effect(caster: Character, params: Dictionary = {}) -> void:
 # 播放命中动画
 func play_hit_effect(target: Character, params: Dictionary = {}) -> void:
 	var element = params.get("element", 0)
-	var element_color = ELEMENT_COLORS[element]
+	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
 	
 	var tween = create_tween()
 	
@@ -68,6 +71,46 @@ func play_hit_effect(target: Character, params: Dictionary = {}) -> void:
 	
 	# 恢复正常颜色
 	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.1)
+	
+	# 如果有指定动画，则播放
+	if target.has_method("play_animation") and "animation" in params:
+		target.play_animation(params["animation"])
+
+# 播放克制效果命中
+func play_effective_hit_effect(target: Character, params: Dictionary = {}) -> void:
+	var element = params.get("element", 0)
+	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
+	
+	var tween = create_tween()
+	
+	# 更强烈的颜色和晃动，表现克制效果
+	tween.tween_property(target, "modulate", Color(2.0, 0.5, 0.5), 0.1)
+	tween.tween_property(target, "modulate", Color(1.0, 1.0, 1.0), 0.1)
+	
+	var original_pos = target.position
+	tween.tween_property(target, "position", original_pos + Vector2(10, 0), 0.05)
+	tween.tween_property(target, "position", original_pos - Vector2(10, 0), 0.05)
+	tween.tween_property(target, "position", original_pos, 0.05)
+	
+	# 如果有指定动画，则播放
+	if target.has_method("play_animation") and "animation" in params:
+		target.play_animation(params["animation"])
+
+# 播放抵抗效果命中
+func play_ineffective_hit_effect(target: Character, params: Dictionary = {}) -> void:
+	var element = params.get("element", 0)
+	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
+	
+	var tween = create_tween()
+	
+	# 轻微视觉反馈，表现抵抗效果
+	tween.tween_property(target, "modulate", Color(0.7, 0.7, 1.0), 0.1)
+	tween.tween_property(target, "modulate", Color(1.0, 1.0, 1.0), 0.1)
+	
+	# 几乎不晃动，表示伤害被抵抗
+	var original_pos = target.position
+	tween.tween_property(target, "position", original_pos + Vector2(2, 0), 0.05)
+	tween.tween_property(target, "position", original_pos, 0.05)
 	
 	# 如果有指定动画，则播放
 	if target.has_method("play_animation") and "animation" in params:
