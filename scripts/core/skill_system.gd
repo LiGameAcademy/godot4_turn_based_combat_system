@@ -16,8 +16,8 @@ var effect_processors = {}
 
 # 要加载的处理器路径
 const PROCESSORS = {
-	"damage": "res://scripts/core/damage_effect_processor.gd",
-	"heal": "res://scripts/core/healing_effect_processor.gd"
+	"damage": "res://scripts/core/effect_processors/damage_effect_processor.gd",
+	"heal": "res://scripts/core/effect_processors/healing_effect_processor.gd"
 }
 
 func _init(battle_mgr = null, visual_fx = null):
@@ -117,3 +117,81 @@ func generate_skill_description(skill_data: SkillData) -> String:
 		desc += " (消耗MP: " + str(skill_data.mp_cost) + ")"
 	
 	return desc
+
+# === 目标选择系统 ===
+
+# 获取有效的敌方目标列表
+func get_valid_enemy_targets() -> Array[Character]:
+	if not battle_manager:
+		return []
+		
+	var enemies : Array[Character] = []
+	for enemy in battle_manager.enemy_characters:
+		if enemy.is_alive():
+			enemies.append(enemy)
+			
+	return enemies
+
+# 获取有效的友方目标列表
+func get_valid_ally_targets(include_current_turn_character: bool = false) -> Array[Character]:
+	if not battle_manager:
+		return []
+		
+	var allies : Array[Character] = []
+	var current = battle_manager.current_turn_character
+	
+	for ally in battle_manager.player_characters:
+		if ally.is_alive() and (include_current_turn_character or ally != current):
+			allies.append(ally)
+			
+	return allies
+
+# 根据技能获取目标
+func get_targets_for_skill(skill: SkillData) -> Array[Character]:
+	if not battle_manager or not battle_manager.current_turn_character:
+		return []
+		
+	var current_turn_character = battle_manager.current_turn_character
+	var targets: Array[Character] = []
+	
+	match skill.target_type:
+		SkillData.TargetType.NONE:
+			# 无目标技能
+			pass
+			
+		SkillData.TargetType.SELF:
+			# 自身为目标
+			targets = [current_turn_character]
+			
+		SkillData.TargetType.ENEMY_SINGLE:
+			# 选择单个敌人（在实际游戏中应由玩家交互选择）
+			# 此处简化为自动选择第一个活着的敌人
+			var valid_targets = get_valid_enemy_targets()
+			if !valid_targets.is_empty():
+				targets = [valid_targets[0]]
+				
+		SkillData.TargetType.ENEMY_ALL:
+			# 所有活着的敌人
+			targets = get_valid_enemy_targets()
+			
+		SkillData.TargetType.ALLY_SINGLE:
+			# 选择单个友方（不包括自己）
+			# 简化为自动选择第一个活着的友方
+			var valid_targets = get_valid_ally_targets(false)
+			if !valid_targets.is_empty():
+				targets = [valid_targets[0]]
+				
+		SkillData.TargetType.ALLY_ALL:
+			# 所有活着的友方（不包括自己）
+			targets = get_valid_ally_targets(false)
+			
+		SkillData.TargetType.ALLY_SINGLE_INC_SELF:
+			# 选择单个友方（包括自己）
+			# 简化为选择自己
+			targets = [current_turn_character]
+			
+		SkillData.TargetType.ALLY_ALL_INC_SELF:
+			# 所有活着的友方（包括自己）
+			targets = get_valid_ally_targets(true)
+	
+	return targets
