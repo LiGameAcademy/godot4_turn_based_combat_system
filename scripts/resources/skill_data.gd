@@ -2,14 +2,6 @@ extends Resource
 class_name SkillData
 
 ## --- 核心要素枚举 ---
-## 效果类型
-enum EffectType {
-	DAMAGE,       ## 造成伤害
-	HEAL,         ## 恢复HP
-	APPLY_STATUS, ## 施加状态 (Buff/Debuff)
-	CONTROL,      ## 控制效果 (如眩晕)
-	SPECIAL       ## 特殊，可能需要自定义逻辑
-}
 
 ## 目标类型
 enum TargetType {
@@ -23,24 +15,47 @@ enum TargetType {
 	ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
 }
 
+## 元素类型 (为后续属性系统预留)
+enum ElementType {
+	NONE,
+	FIRE,
+	WATER,
+	EARTH,
+	AIR,
+	LIGHT,
+	DARK
+}
+
 ## --- 导出的属性 ---
 @export var skill_id: StringName = &"new_skill" # 内部ID，用StringName效率略高
 @export var skill_name: String = "新技能"       # UI显示名称
 @export_multiline var description: String = "技能描述..." # UI显示描述
 
-@export_group("消耗与效果")
+@export_group("消耗与目标")
 @export var mp_cost: int = 5
-@export var effect_type: EffectType = EffectType.DAMAGE
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE
-@export var power: int = 10 # 技能威力 (用于伤害/治疗计算)
+
+@export_group("效果设置")
+@export var effects: Array[SkillEffect] = []
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
+@export var cast_animation: String = "" # 施法动画名
+@export var hit_animation: String = "" # 命中动画名
 # 未来可扩展其他视觉和音效选项
-# @export var animation_name: StringName # 施法动画名 (如果角色动画器中有)
 # @export var vfx_scene: PackedScene # 技能特效场景
-# @export var sfx: AudioStream # 技能音效
+# @export var cast_sfx: AudioStream # 施法音效
+# @export var hit_sfx: AudioStream # 命中音效
 
 ## 检查是否能施放技能
 func can_cast(caster_current_mp: int) -> bool:
 	return caster_current_mp >= mp_cost
+
+## 获取技能效果数组 (确保向后兼容)
+func get_effects() -> Array:
+	# 将所有SkillEffect对象转换为字典
+	var result = []
+	for effect in effects:
+		if effect:
+			result.append(effect.to_dict())
+	return result
