@@ -1,13 +1,11 @@
-# scripts/core/skill_system.gd
 extends Node
 class_name SkillSystem
-
-# 类型定义
-enum VisualEffectType {CAST, HIT, HEAL, STATUS, EFFECTIVE_HIT, INEFFECTIVE_HIT, DAMAGE_NUMBER}
 
 # 系统引用
 var battle_manager : BattleManager = null
 var visual_effects : BattleVisualEffects= null
+
+var effect_processors = {}		## 效果处理器
 
 # 信号
 signal skill_executed(caster, targets, skill, results)
@@ -15,9 +13,6 @@ signal visual_effect_requested(effect_type, target, params)
 signal effect_applied(effect_type, source, target, result)
 signal status_applied(status, source, target)
 #signal status_removed(status, target)
-
-# 引用和资源
-var effect_processors = {}
 
 func _init(battle_mgr = null, visual_fx = null):
 	battle_manager = battle_mgr
@@ -30,26 +25,6 @@ func _init(battle_mgr = null, visual_fx = null):
 	visual_effect_requested.connect(_on_visual_effect_requested)
 	
 	print("SkillSystem初始化完成")
-
-# 在初始化方法中注册新的效果处理器
-func _init_effect_processors():
-	# 注册处理器
-	register_effect_processor(DamageEffectProcessor.new(self, visual_effects))
-	register_effect_processor(HealingEffectProcessor.new(self, visual_effects))
-	register_effect_processor(StatusEffectProcessor.new(self, visual_effects))
-	register_effect_processor(ControlEffectProcessor.new(self, visual_effects))
-
-# 处理视觉效果请求
-func _on_visual_effect_requested(effect_type: String, target, params: Dictionary = {}):
-	if not visual_effects or not is_instance_valid(target):
-		return
-		
-	# 分发到适当的视觉效果方法
-	if visual_effects.has_method("play_" + effect_type + "_effect"):
-		var method = "play_" + effect_type + "_effect"
-		visual_effects.call(method, target, params)
-	else:
-		push_warning("SkillSystem: 未找到视觉效果方法 play_" + effect_type + "_effect")
 
 # 执行技能
 func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = []) -> Dictionary:
@@ -83,11 +58,11 @@ func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = 
 	# 等待短暂时间（供动画播放）
 	if Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
-	
+
 	# 处理直接效果
 	var effect_results = {}
 	if !skill.direct_effects.is_empty():
-		effect_results = apply_effects(skill.direct_effects, caster, targets)
+		effect_results = await apply_effects(skill.direct_effects, caster, targets)
 	
 	# 处理状态效果
 	var status_results = {}
@@ -137,7 +112,7 @@ func apply_effect(effect: SkillEffectData, source: Character, target: Character)
 	
 	if processor:
 		# 使用处理器处理效果
-		var result = processor.process_effect(effect, source, target)
+		var result = await processor.process_effect(effect, source, target)
 		
 		# 发出信号
 		effect_applied.emit(effect.effect_type, source, target, result)
@@ -167,7 +142,7 @@ func apply_effects(effects: Array, source: Character, targets: Array) -> Diction
 		all_results[target] = {}
 		
 		for effect in effects:
-			var result = apply_effect(effect, source, target)
+			var result = await apply_effect(effect, source, target)
 			for key in result:
 				all_results[target][key] = result[key]
 	
@@ -220,47 +195,6 @@ func apply_status(status: SkillStatusData, source: Character, target: Character,
 	
 	return true
 
-# 私有方法: 触发视觉效果
-func _trigger_visual_effect(effect: SkillEffectData, _source: Character, target: Character, result: Dictionary) -> void:
-	if !visual_effects:
-		return
-	
-	match effect.effect_type:
-		SkillEffectData.EffectType.DAMAGE:
-			if visual_effects.has_method("play_damage_effect"):
-				visual_effects.play_damage_effect(target, {
-					"amount": result.get("amount", 0),
-					"element": result.get("element", 0)
-				})
-		
-		SkillEffectData.EffectType.HEAL:
-			if visual_effects.has_method("play_heal_effect"):
-				visual_effects.play_heal_effect(target, {
-					"amount": result.get("amount", 0)
-				})
-		
-		SkillEffectData.EffectType.CONTROL:
-			if visual_effects.has_method("play_control_applied"):
-				visual_effects.play_control_applied(target, {
-					"control_type": result.get("control_type", "stun")
-				})
-		
-		SkillEffectData.EffectType.ATTRIBUTE_MODIFY:
-			if visual_effects.has_method("play_attribute_modify_effect"):
-				visual_effects.play_attribute_modify_effect(target, {
-					"attribute": result.get("attribute", "none"),
-					"value": result.get("value", 0),
-					"is_percent": result.get("is_percent", false)
-				})
-	
-	# 如果效果有自定义视觉效果
-	if effect.visual_effect != "":
-		if visual_effects.has_method("play_custom_effect"):
-			visual_effects.play_custom_effect(target, {
-				"effect_name": effect.visual_effect,
-				"effect_params": effect.params
-			})
-
 # 获取技能的目标
 func get_targets_for_skill(caster: Character, skill: SkillData) -> Array:
 	if !battle_manager:
@@ -304,53 +238,6 @@ func get_targets_for_skill(caster: Character, skill: SkillData) -> Array:
 	
 	return targets
 
-# 获取有效的敌方目标
-func _get_valid_enemy_targets(caster: Character) -> Array:
-	if !battle_manager:
-		return []
-	
-	var targets = []
-	var enemy_list = []
-	
-	# 确定敌人列表
-	if battle_manager.is_player_character(caster):
-		enemy_list = battle_manager.enemy_characters
-	else:
-		enemy_list = battle_manager.player_characters
-	
-	# 过滤出存活的敌人
-	for enemy in enemy_list:
-		if enemy.is_alive():
-			targets.append(enemy)
-	
-	return targets
-
-# 获取有效的友方目标
-func _get_valid_ally_targets(caster: Character, include_self: bool = true) -> Array:
-	if !battle_manager:
-		return []
-	
-	var targets = []
-	var ally_list = []
-	
-	# 确定友方列表
-	if battle_manager.is_player_character(caster):
-		ally_list = battle_manager.player_characters
-	else:
-		ally_list = battle_manager.enemy_characters
-	
-	# 过滤出存活的友方
-	for ally in ally_list:
-		if ally.is_alive() and (include_self or ally != caster):
-			targets.append(ally)
-	
-	return targets
-
-# 请求播放动画
-func _request_animation(character: Character, animation_name: String) -> void:
-	if character.has_method("play_animation"):
-		character.play_animation(animation_name)
-
 ## 注册效果处理器
 func register_effect_processor(processor: EffectProcessor):
 	var processor_id = processor.get_processor_id()
@@ -375,6 +262,124 @@ func get_processor_id_for_effect(effect: SkillEffectData) -> String:
 		_:
 			return "unknown"
 
-# 获取战斗管理器
+## 获取战斗管理器
 func get_battle_manager():
 	return battle_manager
+
+## 获取有效的敌方单位
+func get_valid_enemy_targets(caster: Character) -> Array:
+	return _get_valid_enemy_targets(caster)
+
+## 获取有效的友方单位
+func get_valid_ally_targets(caster: Character, include_self: bool = true) -> Array:
+	return _get_valid_ally_targets(caster, include_self)
+
+## 私有方法: 触发视觉效果
+func _trigger_visual_effect(effect: SkillEffectData, _source: Character, target: Character, result: Dictionary) -> void:
+	if !visual_effects:
+		return
+	
+	match effect.effect_type:
+		SkillEffectData.EffectType.DAMAGE:
+			if visual_effects.has_method("play_damage_effect"):
+				visual_effects.play_damage_effect(target, {
+					"amount": result.get("amount", 0),
+					"element": result.get("element", 0)
+				})
+		
+		SkillEffectData.EffectType.HEAL:
+			if visual_effects.has_method("play_heal_effect"):
+				visual_effects.play_heal_effect(target, {
+					"amount": result.get("amount", 0)
+				})
+		
+		SkillEffectData.EffectType.CONTROL:
+			if visual_effects.has_method("play_control_applied"):
+				visual_effects.play_control_applied(target, {
+					"control_type": result.get("control_type", "stun")
+				})
+		
+		SkillEffectData.EffectType.ATTRIBUTE_MODIFY:
+			if visual_effects.has_method("play_attribute_modify_effect"):
+				visual_effects.play_attribute_modify_effect(target, {
+					"attribute": result.get("attribute", "none"),
+					"value": result.get("value", 0),
+					"is_percent": result.get("is_percent", false)
+				})
+	
+	# 如果效果有自定义视觉效果
+	if effect.visual_effect != "":
+		if visual_effects.has_method("play_custom_effect"):
+			visual_effects.play_custom_effect(target, {
+				"effect_name": effect.visual_effect,
+				"effect_params": effect.params
+			})
+
+# 在初始化方法中注册新的效果处理器
+func _init_effect_processors():
+	# 注册处理器
+	register_effect_processor(DamageEffectProcessor.new(self, visual_effects))
+	register_effect_processor(HealingEffectProcessor.new(self, visual_effects))
+	register_effect_processor(StatusEffectProcessor.new(self, visual_effects))
+	register_effect_processor(ControlEffectProcessor.new(self, visual_effects))
+
+## 获取有效的敌方目标
+func _get_valid_enemy_targets(caster: Character) -> Array:
+	if !battle_manager:
+		return []
+	
+	var targets = []
+	var enemy_list = []
+	
+	# 确定敌人列表
+	if battle_manager.is_player_character(caster):
+		enemy_list = battle_manager.enemy_characters
+	else:
+		enemy_list = battle_manager.player_characters
+	
+	# 过滤出存活的敌人
+	for enemy in enemy_list:
+		if enemy.is_alive():
+			targets.append(enemy)
+	
+	return targets
+
+## 获取有效的友方目标
+func _get_valid_ally_targets(caster: Character, include_self: bool = true) -> Array:
+	if !battle_manager:
+		return []
+	
+	var targets = []
+	var ally_list = []
+	
+	# 确定友方列表
+	if battle_manager.is_player_character(caster):
+		ally_list = battle_manager.player_characters
+	else:
+		ally_list = battle_manager.enemy_characters
+	
+	# 过滤出存活的友方
+	for ally in ally_list:
+		if ally.is_alive() and (include_self or ally != caster):
+			targets.append(ally)
+	
+	return targets
+
+## 请求播放动画
+## [param character] 角色
+## [param animation_name] 动画名称
+func _request_animation(character: Character, animation_name: String) -> void:
+	if character.has_method("play_animation"):
+		character.play_animation(animation_name)
+
+## 处理视觉效果请求
+func _on_visual_effect_requested(effect_type: String, target, params: Dictionary = {}):
+	if not visual_effects or not is_instance_valid(target):
+		return
+		
+	# 分发到适当的视觉效果方法
+	if visual_effects.has_method("play_" + effect_type + "_effect"):
+		var method = "play_" + effect_type + "_effect"
+		visual_effects.call(method, target, params)
+	else:
+		push_warning("SkillSystem: 未找到视觉效果方法 play_" + effect_type + "_effect")

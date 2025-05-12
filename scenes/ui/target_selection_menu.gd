@@ -11,7 +11,7 @@ signal target_selection_cancelled
 @onready var cancel_button: Button = %CancelButton
 
 ## 数据存储
-var available_targets: Array[Character] = []
+var available_targets: Array = []
 var selected_target_index: int = -1
 
 func _ready() -> void:
@@ -33,7 +33,7 @@ func _ready() -> void:
 	select_button.disabled = true
 
 ## 显示可选目标
-func show_targets(targets: Array[Character]) -> void:
+func show_targets(targets: Array) -> void:
 	self.available_targets = targets
 	target_list.clear()
 	selected_target_index = -1

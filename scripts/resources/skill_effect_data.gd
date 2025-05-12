@@ -31,10 +31,10 @@ enum EffectType {
 
 ## 属性修改参数
 @export_group("属性修改参数", "attr_")
-@export var attr_target: String = "attack"  # 目标属性
-@export var attr_value: float = 0       # 修改值
-@export var attr_is_percent: bool = false  # 是否为百分比修改
-@export var attr_duration: int = 0      # 持续回合
+@export var attr_target: String = "attack"  ## 目标属性
+@export var attr_value: float = 0       	## 修改值
+@export var attr_is_percent: bool = false  	## 是否为百分比修改
+@export var attr_duration: int = 0      	## 持续回合
 
 ## 控制效果参数
 @export_group("控制效果参数", "control_")

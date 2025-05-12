@@ -1,4 +1,5 @@
 extends Node2D
+class_name BattleScene
 
 @onready var battle_manager: BattleManager = %BattleManager
 
@@ -100,7 +101,7 @@ func _on_character_stats_changed(_character: Character) -> void:
 func _on_action_menu_attack_pressed() -> void:
 	if battle_manager.current_state == BattleManager.BattleState.PLAYER_TURN:
 		# 选择第一个存活的敌人作为目标
-		var valid_targets = battle_manager.skill_system.get_valid_enemy_targets()
+		var valid_targets = battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_character)
 		if !valid_targets.is_empty():
 			var target = valid_targets[0] # 这里简化为直接选择第一个敌人
 			battle_manager.player_select_action("attack", target)
@@ -133,7 +134,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 			
 		SkillData.TargetType.SINGLE_ENEMY:
 			# 显示敌人目标选择菜单
-			var valid_targets = battle_manager.skill_system.get_valid_enemy_targets()
+			var valid_targets = battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_character)
 			if !valid_targets.is_empty():
 				target_selection_menu.show_targets(valid_targets)
 			else:
@@ -142,7 +143,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 		
 		SkillData.TargetType.SINGLE_ALLY:
 			# 显示我方(不含自己)目标选择菜单
-			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(false)
+			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(battle_manager.current_turn_character, false)
 			if !valid_targets.is_empty():
 				target_selection_menu.show_targets(valid_targets)
 			else:
@@ -151,7 +152,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 		
 		SkillData.TargetType.ALL:  # 处理包含自己的单体友方目标选择
 			# 显示我方(含自己)目标选择菜单
-			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(true)
+			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(battle_manager.current_turn_character, true)
 			if !valid_targets.is_empty():
 				target_selection_menu.show_targets(valid_targets)
 			else:

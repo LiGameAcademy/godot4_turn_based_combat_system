@@ -222,6 +222,13 @@ func process_control_effects_end_turn():
 func process_status_effects_end_of_round() -> void:
 	combat_manager.process_status_effects_end_of_round()
 
+## 获取攻击力
+func get_modified_attack() -> int:
+	return attack
+
+func get_modified_defense() -> int:
+	return defense
+
 func _on_hp_changed(new_hp : int, maximum_hp: int) -> void:
 	if not hp_bar:
 		return

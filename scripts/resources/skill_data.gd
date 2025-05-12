@@ -27,9 +27,9 @@ enum TargetType {
 @export var element: int = 0                        # 元素类型 (使用ElementTypes中的值)
 
 @export_group("效果设置")
-@export var direct_effects: Array[SkillEffectData] = [] ## 直接效果
-@export var statuses: Array[SkillStatusData] = [] ## 可能附加的状态
-@export var status_chances: Array[float] = []      ## 对应状态的应用几率(0-1)
+@export var direct_effects: Array[SkillEffectData] = [] 	## 直接效果
+@export var statuses: Array[SkillStatusData] = [] 			## 可能附加的状态
+@export var status_chances: Array[float] = []      			## 对应状态的应用几率(0-1)
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
