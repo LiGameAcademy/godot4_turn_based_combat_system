@@ -31,7 +31,7 @@ func play_cast_effect(caster: Character, params: Dictionary = {}) -> void:
 	# 角色短暂发光效果，使用元素颜色
 	tween.tween_property(caster, "modulate", element_color.lightened(0.5), 0.2)
 	tween.tween_property(caster, "modulate", Color(1, 1, 1), 0.2)
-	
+
 	# 这里可以播放施法音效
 	# AudioManager.play_sfx("spell_cast")
 	
@@ -75,8 +75,8 @@ func play_hit_effect(target: Character, params: Dictionary = {}) -> void:
 
 # 播放克制效果命中
 func play_effective_hit_effect(target: Character, params: Dictionary = {}) -> void:
-	var element = params.get("element", 0)
-	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
+	#var element = params.get("element", 0)
+	#var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
 	
 	var tween = create_tween()
 	
@@ -95,8 +95,8 @@ func play_effective_hit_effect(target: Character, params: Dictionary = {}) -> vo
 
 # 播放抵抗效果命中
 func play_ineffective_hit_effect(target: Character, params: Dictionary = {}) -> void:
-	var element = params.get("element", 0)
-	var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
+	#var element = params.get("element", 0)
+	#var element_color = ELEMENT_COLORS.get(element, Color(1, 1, 1))
 	
 	var tween = create_tween()
 	
@@ -134,7 +134,7 @@ func play_heal_effect(target: Character, params: Dictionary = {}) -> void:
 
 # 状态效果应用视觉反馈
 func play_status_effect(target: Character, params: Dictionary = {}) -> void:
-	var status_type = params.get("status_type", "buff")
+	#var status_type = params.get("status_type", "buff")
 	var is_positive = params.get("is_positive", true)
 	
 	var effect_color = Color(0.7, 1, 0.7) if is_positive else Color(1, 0.7, 0.7)
@@ -172,25 +172,25 @@ func reset_visual_effects(character: Character) -> void:
 	character.modulate = Color(1, 1, 1)
 
 # 添加状态效果应用的视觉特效方法
-func play_status_effect_applied(target: Character, effect_data: StatusEffectData) -> void:
+func play_status_effect_applied(target: Character, effect_data: SkillStatusData) -> void:
 	# 根据状态效果类型设置适当的颜色
 	var color = Color.WHITE
 	var is_positive = false
 	
 	match effect_data.effect_type:
-		StatusEffectData.EffectType.BUFF:
+		SkillStatusData.EffectType.BUFF:
 			color = Color(0.2, 0.8, 0.2)  # 绿色
 			is_positive = true
-		StatusEffectData.EffectType.DEBUFF:
+		SkillStatusData.EffectType.DEBUFF:
 			color = Color(0.8, 0.2, 0.2)  # 红色
 			is_positive = false
-		StatusEffectData.EffectType.DOT:
+		SkillStatusData.EffectType.DOT:
 			color = Color(0.8, 0.5, 0.2)  # 橙色
 			is_positive = false
-		StatusEffectData.EffectType.HOT:
+		SkillStatusData.EffectType.HOT:
 			color = Color(0.2, 0.8, 0.8)  # 青色
 			is_positive = true
-		StatusEffectData.EffectType.CONTROL:
+		SkillStatusData.EffectType.CONTROL:
 			color = Color(0.8, 0.2, 0.8)  # 紫色
 			is_positive = false
 	
@@ -202,13 +202,13 @@ func play_status_effect_applied(target: Character, effect_data: StatusEffectData
 	
 	# 此外，也可以添加特定于效果类型的特殊视觉效果
 	match effect_data.effect_type:
-		StatusEffectData.EffectType.CONTROL:
+		SkillStatusData.EffectType.CONTROL:
 			# 控制效果特殊视觉效果 - 例如星星环绕
 			_play_control_effect(target)
-		StatusEffectData.EffectType.HOT:
+		SkillStatusData.EffectType.HOT:
 			# 治疗特殊视觉效果 - 上升的绿色粒子
 			_play_hot_effect(target)
-		StatusEffectData.EffectType.DOT:
+		SkillStatusData.EffectType.DOT:
 			# 持续伤害特殊视觉效果 - 例如毒气效果
 			_play_dot_effect(target)
 
@@ -348,7 +348,7 @@ func play_control_applied(target: Node2D, params: Dictionary = {}):
 		particles.queue_free()
 
 # 播放控制效果抵抗时的视觉效果
-func play_control_resist(target: Node2D, params: Dictionary = {}):
+func play_control_resist(target: Node2D, _params: Dictionary = {}):
 	# 创建粒子效果 - 灰色表示抵抗
 	var particles = create_particle_effect(Color.DARK_GRAY, 10, 0.8, 0.4)
 	target.add_child(particles)

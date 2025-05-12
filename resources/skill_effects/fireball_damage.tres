@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillEffectData" load_steps=2 format=3 uid="uid://bglfmsusvr2f5"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_1f2vj"]
+
+[resource]
+script = ExtResource("1_1f2vj")
+effect_type = 1
+visual_effect = "fire_impact"
+sound_effect = "fire_explosion"
+damage_amount = 25
+damage_element = 1
+damage_power_scale = 1.2
+damage_is_dot = false
+heal_amount = 10
+heal_power_scale = 0.5
+heal_is_hot = false
+attr_target = "attack"
+attr_value = 0.0
+attr_is_percent = false
+attr_duration = 0
+control_type = "stun"
+control_duration = 1
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+special_type = "none"
+special_params = {}
+power = 25
+element = 1
+status_id = ""
+status_duration = 3
+status_chance = 1.0

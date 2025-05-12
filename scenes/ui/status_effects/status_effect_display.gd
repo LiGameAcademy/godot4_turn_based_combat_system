@@ -24,21 +24,21 @@ func initialize(target_character: Character) -> void:
     for effect in character.active_status_effects:
         _add_effect_icon(effect)
 
-func _add_effect_icon(effect: StatusEffect) -> void:
+func _add_effect_icon(effect) -> void:
     var icon_instance = status_icon_scene.instantiate()
     add_child(icon_instance)
     icon_instance.initialize(effect)
     
     effect_icons[effect.data.effect_id] = icon_instance
 
-func _on_status_effect_added(effect: StatusEffect) -> void:
+func _on_status_effect_added(effect) -> void:
     _add_effect_icon(effect)
 
-func _on_status_effect_updated(effect: StatusEffect) -> void:
+func _on_status_effect_updated(effect) -> void:
     if effect.data.effect_id in effect_icons:
         effect_icons[effect.data.effect_id].update_display()
 
-func _on_status_effect_removed(effect: StatusEffect) -> void:
+func _on_status_effect_removed(effect) -> void:
     if effect.data.effect_id in effect_icons:
         var icon = effect_icons[effect.data.effect_id]
         icon.play_remove_animation()

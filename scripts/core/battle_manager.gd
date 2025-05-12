@@ -248,8 +248,8 @@ func execute_skill(caster: Character, skill_data: SkillData) -> void:
 		return
 	
 	# 获取技能目标 - 现在由SkillSystem处理
-	var targets = skill_system.get_targets_for_skill(skill_data)
-	if targets.is_empty() and skill_data.target_type != SkillData.TargetType.NONE:
+	var targets = skill_system.get_targets_for_skill(caster, skill_data)
+	if targets.is_empty() and skill_data.target_type != SkillData.TargetType.SELF:
 		print("错误：没有找到有效目标")
 		return
 	
@@ -257,7 +257,7 @@ func execute_skill(caster: Character, skill_data: SkillData) -> void:
 	set_state(BattleState.ACTION_EXECUTION)
 	
 	# 委托给技能系统处理
-	await skill_system.execute_skill(caster, targets, skill_data)
+	await skill_system.execute_skill(caster, skill_data, targets)
 	
 	# 技能执行完毕，进入回合结束阶段
 	set_state(BattleState.ROUND_END)
@@ -364,7 +364,7 @@ func _subscribe_to_character_signals(character : Character) -> void:
 	#TODO 链接其他信号
 
 # 处理技能执行信号
-func _on_skill_executed(caster, targets, skill_data, results):
+func _on_skill_executed(_caster, _targets, skill_data, _results):
 	print("技能执行完成: ", skill_data.skill_name)
 	# 可以在这里添加技能执行后的额外处理
 

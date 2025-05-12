@@ -91,7 +91,7 @@ func _on_player_action_required(character: Character) -> void:
 func _on_enemy_action_executed(attacker: Character, target: Character, damage: int) -> void:
 	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
 
-func _on_character_stats_changed(character: Character) -> void:
+func _on_character_stats_changed(_character: Character) -> void:
 	# 更新角色状态显示
 	# 此处只是示例，实际实现需要根据UI设计来
 	pass
@@ -125,13 +125,13 @@ func _on_skill_selected(skill: SkillData) -> void:
 	# 根据技能目标类型决定下一步操作
 	match skill.target_type:
 		SkillData.TargetType.SELF, \
-		SkillData.TargetType.ENEMY_ALL, \
-		SkillData.TargetType.ALLY_ALL, \
-		SkillData.TargetType.ALLY_ALL_INC_SELF:
+		SkillData.TargetType.ALL_ENEMIES, \
+		SkillData.TargetType.ALL_ALLIES, \
+		SkillData.TargetType.ALL_ALLIES_EXCEPT_SELF:
 			# 自动目标技能，直接执行
 			battle_manager.execute_skill(battle_manager.current_turn_character, skill)
 			
-		SkillData.TargetType.ENEMY_SINGLE:
+		SkillData.TargetType.SINGLE_ENEMY:
 			# 显示敌人目标选择菜单
 			var valid_targets = battle_manager.skill_system.get_valid_enemy_targets()
 			if !valid_targets.is_empty():
@@ -140,7 +140,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 				update_battle_info("没有可选择的敌方目标！")
 				_on_skill_selection_cancelled()
 		
-		SkillData.TargetType.ALLY_SINGLE:
+		SkillData.TargetType.SINGLE_ALLY:
 			# 显示我方(不含自己)目标选择菜单
 			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(false)
 			if !valid_targets.is_empty():
@@ -149,7 +149,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 				update_battle_info("没有可选择的友方目标！")
 				_on_skill_selection_cancelled()
 		
-		SkillData.TargetType.ALLY_SINGLE_INC_SELF:
+		SkillData.TargetType.ALL:  # 处理包含自己的单体友方目标选择
 			# 显示我方(含自己)目标选择菜单
 			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(true)
 			if !valid_targets.is_empty():
@@ -170,7 +170,7 @@ func _on_skill_selection_cancelled() -> void:
 	_show_action_menu()
 
 # 当玩家选择了技能目标时调用
-func _on_target_selected(target: Character) -> void:
+func _on_target_selected(_target: Character) -> void:
 	# 确保有选中的技能
 	if current_selected_skill == null:
 		push_error("选择了目标但没有当前技能")

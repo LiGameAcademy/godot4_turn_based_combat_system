@@ -6,7 +6,7 @@ func get_processor_id() -> String:
 	return "damage"
 
 ## 处理伤害效果
-func process_effect(effect: SkillEffect, caster: Character, targets: Array) -> Dictionary:
+func process_effect(effect: SkillEffectData, caster: Character, target: Character) -> Dictionary:
 	var results = {}
 	
 	# 播放施法动画
@@ -16,61 +16,60 @@ func process_effect(effect: SkillEffect, caster: Character, targets: Array) -> D
 	if Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
 	
-	for target in targets:
-		if target.current_hp <= 0:
-			continue
-			
-		# 计算伤害
-		var damage_result = calculate_damage(caster, target, effect)
-		var damage = damage_result["damage"]
+	# 检查目标是否存活
+	if target.current_hp <= 0:
+		return {}
 		
-		# 播放命中动画，根据克制关系选择不同效果
-		var hit_params = {"element": effect.element}
-		
-		if damage_result["is_effective"]:
-			# 克制效果
-			request_visual_effect("effective_hit", target, hit_params)
-			# 使用自定义颜色和前缀
-			request_visual_effect("damage_number", target, {"damage": damage, "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
-		elif damage_result["is_ineffective"]:
-			# 抵抗效果
-			request_visual_effect("ineffective_hit", target, hit_params)
-			request_visual_effect("damage_number", target, {"damage": damage, "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
-		else:
-			# 普通效果
-			request_visual_effect("hit", target, hit_params)
-			request_visual_effect("damage_number", target, {"damage": damage, "color": Color.RED})
-		
-		# 应用伤害
-		var actual_damage = target.take_damage(damage)
-		
-		# 角色状态变化信号
-		if battle_manager and battle_manager.has_signal("character_stats_changed"):
-			battle_manager.character_stats_changed.emit(target)
-		
-		# 记录结果
-		if not results.has(target):
-			results[target] = {}
-		results[target]["damage"] = actual_damage
-		
-		# 显示伤害信息
-		var message = ""
-		if damage_result["is_effective"]:
-			message += "[color=yellow]【克制！】[/color]"
-		elif damage_result["is_ineffective"]:
-			message += "[color=teal]【抵抗！】[/color]"
-		
-		message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, actual_damage]
-		print_rich(message)
-		
-		# 检查死亡状态
-		if target.current_hp <= 0:
-			print("%s 被击败!" % target.character_name)
+	# 计算伤害
+	var damage_result = calculate_damage(caster, target, effect)
+	var damage = damage_result["damage"]
+	
+	# 播放命中动画，根据克制关系选择不同效果
+	var hit_params = {"element": effect.element}
+	
+	if damage_result["is_effective"]:
+		# 克制效果
+		request_visual_effect("effective_hit", target, hit_params)
+		# 使用自定义颜色和前缀
+		request_visual_effect("damage_number", target, {"damage": damage, "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
+	elif damage_result["is_ineffective"]:
+		# 抵抗效果
+		request_visual_effect("ineffective_hit", target, hit_params)
+		request_visual_effect("damage_number", target, {"damage": damage, "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
+	else:
+		# 普通效果
+		request_visual_effect("hit", target, hit_params)
+		request_visual_effect("damage_number", target, {"damage": damage, "color": Color.RED})
+	
+	# 应用伤害
+	var actual_damage = target.take_damage(damage)
+	
+	# 角色状态变化信号
+	var bm = get_battle_manager()
+	if bm and bm.has_signal("character_stats_changed"):
+		bm.character_stats_changed.emit(target)
+	
+	# 记录结果
+	results["damage"] = actual_damage
+	
+	# 显示伤害信息
+	var message = ""
+	if damage_result["is_effective"]:
+		message += "[color=yellow]【克制！】[/color]"
+	elif damage_result["is_ineffective"]:
+		message += "[color=teal]【抵抗！】[/color]"
+	
+	message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, actual_damage]
+	print_rich(message)
+	
+	# 检查死亡状态
+	if target.current_hp <= 0:
+		print("%s 被击败!" % target.character_name)
 	
 	return results
 
 ## 计算伤害
-func calculate_damage(caster: Character, target: Character, effect: SkillEffect) -> Dictionary:
+func calculate_damage(caster: Character, target: Character, effect: SkillEffectData) -> Dictionary:
 	# 获取基础伤害
 	var power = effect.power
 	var element = effect.element
@@ -120,7 +119,7 @@ func calculate_element_modifier(attack_element: int, target: Character) -> Dicti
 	}
 
 ## 获取效果描述
-func get_effect_description(effect: SkillEffect) -> String:
+func get_effect_description(effect: SkillEffectData) -> String:
 	var power = effect.power
 	var element_name = ""
 	

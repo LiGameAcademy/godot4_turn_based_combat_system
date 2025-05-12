@@ -6,9 +6,9 @@ extends Control
 @onready var duration_label = $Duration
 @onready var animation_player = $AnimationPlayer
 
-var effect: StatusEffect = null
+var effect = null
 
-func initialize(status_effect: StatusEffect) -> void:
+func initialize(status_effect) -> void:
     effect = status_effect
     
     # 设置图标
@@ -28,15 +28,15 @@ func initialize(status_effect: StatusEffect) -> void:
     
     # 根据效果类型设置颜色
     match effect.data.effect_type:
-        StatusEffectData.EffectType.BUFF:
+        SkillStatusData.EffectType.BUFF:
             self_modulate = Color(0.2, 0.8, 0.2)  # 绿色
-        StatusEffectData.EffectType.DEBUFF:
+        SkillStatusData.EffectType.DEBUFF:
             self_modulate = Color(0.8, 0.2, 0.2)  # 红色
-        StatusEffectData.EffectType.DOT:
+        SkillStatusData.EffectType.DOT:
             self_modulate = Color(0.8, 0.5, 0.2)  # 橙色
-        StatusEffectData.EffectType.HOT:
+        SkillStatusData.EffectType.HOT:
             self_modulate = Color(0.2, 0.8, 0.8)  # 青色
-        StatusEffectData.EffectType.CONTROL:
+        SkillStatusData.EffectType.CONTROL:
             self_modulate = Color(0.8, 0.2, 0.8)  # 紫色
     
     # 播放添加动画

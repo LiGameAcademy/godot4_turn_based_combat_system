@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cb2e2cndtui6m"]
+[gd_scene load_steps=4 format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
+[ext_resource type="Script" uid="uid://67rk2evyynsn" path="res://scripts/components/combat_component.gd" id="3_s8xr7"]
 
 [node name="CharacterScene" type="Node2D"]
 script = ExtResource("1_f5tgq")
@@ -56,3 +57,7 @@ offset_bottom = 23.0
 text = "MP: 100/100"
 
 [node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]
+
+[node name="CombatComponent" type="Node" parent="."]
+script = ExtResource("3_s8xr7")
+metadata/_custom_type_script = "uid://67rk2evyynsn"

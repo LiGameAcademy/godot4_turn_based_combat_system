@@ -1,5 +1,5 @@
-class_name StatusEffectData
 extends Resource
+class_name SkillStatusData
 
 # 状态效果类型枚举
 enum EffectType {
@@ -12,13 +12,13 @@ enum EffectType {
 
 # 作用的属性枚举
 enum TargetStat {
-	NONE,       # 无特定属性 (用于DOT/HOT/CONTROL)
-	ATTACK,     # 攻击力
-	DEFENSE,    # 防御力
-	MAGIC_ATTACK, # 魔法攻击力
-	MAGIC_DEFENSE, # 魔法防御力
-	SPEED,      # 速度
-	ALL_STATS   # 所有属性
+	NONE,       				# 无特定属性 (用于DOT/HOT/CONTROL)
+	ATTACK,     				# 攻击力
+	DEFENSE,    				# 防御力
+	MAGIC_ATTACK, 				# 魔法攻击力
+	MAGIC_DEFENSE, 				# 魔法防御力
+	SPEED,      				# 速度
+	ALL_STATS   				# 所有属性
 }
 
 # 基本属性
@@ -27,6 +27,11 @@ enum TargetStat {
 @export var description: String = "一个状态效果"        # 效果描述
 @export var effect_type: EffectType = EffectType.BUFF  # 效果类型
 @export var icon_path: String = "res://assets/icons/status/default.png"  # 图标路径
+
+# 效果设置
+@export var initial_effects: Array[SkillEffectData] = [] # 初次应用时触发的效果
+@export var ongoing_effects: Array[SkillEffectData] = [] # 每回合触发的效果
+@export var end_effects: Array[SkillEffectData] = []     # 结束时触发的效果
 
 # 目标属性和强度
 @export var target_stat: TargetStat = TargetStat.ATTACK  # 影响的属性
@@ -75,25 +80,43 @@ func get_target_stat_name() -> String:
 func get_full_description() -> String:
 	var desc = description + "\n"
 	
-	if effect_type == EffectType.BUFF or effect_type == EffectType.DEBUFF:
-		var stat_name = get_target_stat_name()
-		var sign = "+" if effect_type == EffectType.BUFF else "-"
-		
-		if value_flat != 0:
-			desc += sign + str(abs(value_flat)) + " " + stat_name + "\n"
-		
-		if value_percent != 0:
-			desc += sign + str(abs(value_percent) * 100) + "% " + stat_name + "\n"
+	# 添加初始效果描述
+	if !initial_effects.is_empty():
+		desc += "\n应用时:\n"
+		for effect in initial_effects:
+			desc += "- " + effect.get_description() + "\n"
 	
-	elif effect_type == EffectType.DOT:
-		desc += "每回合受到 " + str(dot_hot_value) + " 点伤害\n"
+	# 添加持续效果描述
+	if !ongoing_effects.is_empty():
+		desc += "\n每回合:\n"
+		for effect in ongoing_effects:
+			desc += "- " + effect.get_description() + "\n"
 	
-	elif effect_type == EffectType.HOT:
-		desc += "每回合恢复 " + str(dot_hot_value) + " 点生命\n"
+	# 添加结束效果描述
+	if !end_effects.is_empty():
+		desc += "\n结束时:\n"
+		for effect in end_effects:
+			desc += "- " + effect.get_description() + "\n"
 	
-	elif effect_type == EffectType.CONTROL:
-		if !can_act:
-			desc += "无法行动\n"
+	# 添加持续时间信息
+	desc += "\n持续 " + str(duration) + " 回合"
 	
-	desc += "持续 " + str(duration) + " 回合"
-	return desc 
+	# 添加堆叠信息
+	if can_stack:
+		desc += " (可叠加，最多" + str(max_stacks) + "层)"
+	
+	return desc
+
+# 检查是否允许角色行动
+func allows_action() -> bool:
+	if effect_type == EffectType.CONTROL:
+		return can_act
+	return true  # 非控制效果不影响行动
+
+# 检查是否反制指定状态
+func counters_status(status_id: String) -> bool:
+	return overrides_states.has(status_id)
+
+# 检查是否被指定状态反制
+func is_countered_by(status_id: String) -> bool:
+	return resisted_by_states.has(status_id) 

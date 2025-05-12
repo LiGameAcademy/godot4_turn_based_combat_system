@@ -1,28 +1,23 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://bra85c6w585gr"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://dqs6jg56th6oa"]
 
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
-[ext_resource type="Script" uid="uid://bg6jtkqqgv0bc" path="res://scripts/resources/skill_effect.gd" id="1_s313m"]
-
-[sub_resource type="Resource" id="Resource_wb8wf"]
-script = ExtResource("1_s313m")
-effect_type = 0
-power = 15
-element = 1
-status_id = ""
-status_duration = 3
-status_chance = 1.0
-control_type = "stun"
-control_duration = 1
-metadata/_custom_type_script = "uid://bg6jtkqqgv0bc"
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_8rkma"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
+[ext_resource type="Resource" path="res://resources/skill_effects/fireball_damage.tres" id="2_sjdv7"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_c6ojy"]
+[ext_resource type="Resource" path="res://resources/status_effects/burn_dot.tres" id="3_hfr76"]
 
 [resource]
-script = ExtResource("1_prr5c")
+script = ExtResource("1_8rkma")
 skill_id = &"fireball"
 skill_name = "火球术"
-description = "向敌人投掷一个火球，造成15点火焰伤害。"
-mp_cost = 8
+description = "发射一个火球，造成火焰伤害并有几率使目标点燃"
+mp_cost = 10
 target_type = 1
 element = 1
-effects = Array[ExtResource("1_s313m")]([SubResource("Resource_wb8wf")])
-cast_animation = ""
-hit_animation = ""
+direct_effects = Array[ExtResource("1_wb8wf")]([ExtResource("2_sjdv7")])
+statuses = Array[ExtResource("3_c6ojy")]([ExtResource("3_hfr76")])
+status_chances = Array[float]([0.65])
+cast_animation = "cast_fireball"
+hit_animation = "hit_fireball"
+status_effect_id = ""
+status_effect_chance = 100
