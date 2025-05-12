@@ -39,6 +39,10 @@ enum TargetType {
 # @export var cast_sfx: AudioStream # 施法音效
 # @export var hit_sfx: AudioStream # 命中音效
 
+@export_group("状态效果 (可选)")
+@export var status_effect_id: String = ""   # 状态效果ID，对应资源文件名
+@export_range(0, 100) var status_effect_chance: int = 100  # 状态效果应用几率
+
 ## 检查是否能施放技能
 func can_cast(caster_current_mp: int) -> bool:
 	return caster_current_mp >= mp_cost

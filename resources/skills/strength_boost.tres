@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_1r1xg"]
+[ext_resource type="Script" uid="uid://bg6jtkqqgv0bc" path="res://scripts/resources/skill_effect.gd" id="2_b2rpl"]
+
+[sub_resource type="Resource" id="Resource_nh8kt"]
+script = ExtResource("2_b2rpl")
+effect_type = 2
+power = 0
+element = 0
+status_id = "strength_buff"
+status_duration = 3
+status_chance = 1.0
+control_type = "stun"
+control_duration = 1
+
+[resource]
+script = ExtResource("1_1r1xg")
+skill_id = &"strength_boost"
+skill_name = "力量增幅"
+description = "提高己方一名角色的攻击力"
+mp_cost = 8
+target_type = 2
+element = 0
+effects = Array[ExtResource("2_b2rpl")]([SubResource("Resource_nh8kt")])
+status_effect_id = ""
+status_effect_chance = 100 

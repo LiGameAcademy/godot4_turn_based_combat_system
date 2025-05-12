@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/status_effect_data.gd" id="1_3rpfx"]
+
+
+[resource]
+script = ExtResource("1_3rpfx")
+effect_id = "defense_buff"
+effect_name = "护盾"
+description = "增加防御力"
+effect_type = 0
+icon_path = "res://assets/icons/status/shield.png"
+target_stat = 2
+value_flat = 0
+value_percent = 0.3
+dot_hot_value = 0
+can_act = true
+duration = 2
+can_stack = false
+max_stacks = 1
+stack_behavior = "replace"
+overrides_states = []
+resisted_by_states = [] 

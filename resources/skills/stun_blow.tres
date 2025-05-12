@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=5 format=3]
+
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_1r1xg"]
+[ext_resource type="Script" uid="uid://bg6jtkqqgv0bc" path="res://scripts/resources/skill_effect.gd" id="2_b2rpl"]
+
+[sub_resource type="Resource" id="Resource_d4p3v"]
+script = ExtResource("2_b2rpl")
+effect_type = 0
+power = 20
+element = 0
+status_id = ""
+status_duration = 3
+status_chance = 1.0
+control_type = "stun"
+control_duration = 1
+
+[sub_resource type="Resource" id="Resource_k7p2t"]
+script = ExtResource("2_b2rpl")
+effect_type = 3
+power = 0
+element = 0
+status_id = ""
+status_duration = 3
+status_chance = 0.5
+control_type = "stun"
+control_duration = 1
+
+[resource]
+script = ExtResource("1_1r1xg")
+skill_id = &"stun_blow"
+skill_name = "震荡一击"
+description = "对敌人造成20点伤害并有50%几率使其眩晕1回合"
+mp_cost = 15
+target_type = 1
+element = 0
+effects = Array[ExtResource("2_b2rpl")]([SubResource("Resource_d4p3v"), SubResource("Resource_k7p2t")])
+status_effect_id = ""
+status_effect_chance = 100 

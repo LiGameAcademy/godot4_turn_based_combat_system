@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/status_effect_data.gd" id="1_3rpfx"]
+
+
+[resource]
+script = ExtResource("1_3rpfx")
+effect_id = "stun_control"
+effect_name = "眩晕"
+description = "无法行动"
+effect_type = 4
+icon_path = "res://assets/icons/status/stun.png"
+target_stat = 0
+value_flat = 0
+value_percent = 0.0
+dot_hot_value = 0
+can_act = false
+duration = 1
+can_stack = false
+max_stacks = 1
+stack_behavior = "replace"
+overrides_states = []
+resisted_by_states = [] 

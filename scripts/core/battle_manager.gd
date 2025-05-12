@@ -100,10 +100,9 @@ func set_state(new_state: BattleState):
 			if current_turn_character:
 				current_turn_character.reset_turn_flags()
 
-			# 回合结束处理
-			if not check_battle_end_condition():
-				set_state(BattleState.ROUND_START)
-				
+			# 处理回合结束效果
+			process_round_end()
+			
 		BattleState.VICTORY:
 			print("战斗胜利!")
 			battle_ended.emit(true)
@@ -206,20 +205,25 @@ func execute_attack(attacker: Character, target: Character):
 		
 	print(attacker.character_name, " 攻击 ", target.character_name)
 	
-	# 简单的伤害计算
-	var damage = target.take_damage(attacker.attack - target.defense)
+	# 获取考虑状态效果修正后的属性值
+	var attack = attacker.get_modified_attack()
+	var defense = target.get_modified_defense()
+	
+	# 修改后的伤害计算
+	var damage = max(1, attack - defense * 0.5)  # 确保至少造成1点伤害
+	var final_damage = target.take_damage(int(damage))
 	
 	# 发出敌人行动执行信号
 	if enemy_characters.has(attacker):
-		enemy_action_executed.emit(attacker, target, damage)
+		enemy_action_executed.emit(attacker, target, final_damage)
 		
 	# 发出角色状态变化信号
 	character_stats_changed.emit(target)
 
 	# 显示伤害数字
-	visual_effects.spawn_damage_number(target.global_position, damage, Color.RED)
+	visual_effects.spawn_damage_number(target.global_position, final_damage, Color.RED)
 	
-	print_rich("[color=red]" + target.character_name + " 受到 " + str(damage) + " 点伤害![/color]")
+	print_rich("[color=red]" + target.character_name + " 受到 " + str(final_damage) + " 点伤害![/color]")
 
 # 执行防御
 func execute_defend(character: Character):
@@ -384,3 +388,38 @@ func _on_character_died(character: Character) -> void:
 	
 	# 检查战斗是否结束
 	check_battle_end_condition()
+
+# 添加回合结束时处理状态效果的方法
+func process_round_end() -> void:
+	print_rich("[color=aqua]回合结束，处理状态效果...[/color]")
+	
+	# 处理所有角色的状态效果
+	for character in player_characters:
+		if character.current_hp > 0:
+			character.process_status_effects_end_of_round()
+	
+	for character in enemy_characters:
+		if character.current_hp > 0:
+			character.process_status_effects_end_of_round()
+	
+	# 检查战斗是否结束
+	check_battle_end_condition()
+	
+	# 如果战斗未结束，开始新回合
+	if current_state != BattleState.VICTORY and current_state != BattleState.DEFEAT:
+		set_state(BattleState.ROUND_START)
+
+# 处理回合结束阶段
+func round_end():
+	print("回合结束阶段")
+	# 回合结束时，处理所有角色的状态效果
+	for character in player_characters + enemy_characters:
+		if character.is_alive():
+			character.process_status_effects_end_of_round()
+	
+	# 检查战斗是否结束
+	if check_battle_end_condition():
+		return # 战斗已经结束，不继续处理
+		
+	# 回到回合开始阶段，准备下一回合
+	set_state(BattleState.ROUND_START)

@@ -12,17 +12,24 @@ enum VisualEffectType {CAST, HIT, HEAL, STATUS, EFFECTIVE_HIT, INEFFECTIVE_HIT, 
 # 引用和资源
 var battle_manager = null
 var visual_effects = null
-var effect_processors : Dictionary[SkillEffect.EffectType, EffectProcessor] = {
-	SkillEffect.EffectType.DAMAGE: DamageEffectProcessor.new(battle_manager, visual_effects),
-	SkillEffect.EffectType.HEAL: HealingEffectProcessor.new(battle_manager, visual_effects)
-}
+var effect_processors = {}
 
 func _init(battle_mgr = null, visual_fx = null):
 	battle_manager = battle_mgr
 	visual_effects = visual_fx
 	
-	# 连接自身的信号用于处理视觉效果请求
+	# 初始化处理器
+	_init_effect_processors()
+	
 	visual_effect_requested.connect(_on_visual_effect_requested)
+
+# 在初始化方法中注册新的效果处理器
+func _init_effect_processors():
+	# 注册处理器
+	register_effect_processor(DamageEffectProcessor.new(battle_manager, visual_effects))
+	register_effect_processor(HealingEffectProcessor.new(battle_manager, visual_effects))
+	register_effect_processor(StatusEffectProcessor.new(battle_manager, visual_effects))
+	register_effect_processor(ControlEffectProcessor.new(battle_manager, visual_effects))
 
 # 处理视觉效果请求
 func _on_visual_effect_requested(effect_type: String, target, params: Dictionary = {}):
@@ -45,6 +52,14 @@ func _on_visual_effect_requested(effect_type: String, target, params: Dictionary
 			visual_effects.play_heal_cast_effect(target, params)
 		"status":
 			visual_effects.play_status_effect(target, params)
+		"status_applied":
+			visual_effects.play_status_effect_applied(target, params)
+		"status_resist":
+			visual_effects.play_status_resist(target, params)
+		"control_applied":
+			visual_effects.play_control_applied(target, params)
+		"control_resist":
+			visual_effects.play_control_resist(target, params)
 		"damage_number":
 			# 处理伤害数字显示，获取所需参数
 			var damage = params.get("damage", 0)
@@ -78,12 +93,9 @@ func execute_skill(caster: Character, targets: Array[Character], skill_data: Ski
 	
 	# 逐个处理每个效果
 	for effect in effects:
-		# 添加技能元素属性到效果参数
-		effect.element = skill_data.element
-		
-		if effect.effect_type in effect_processors:
-			print("处理效果: " + str(effect.effect_type))
-			var processor = effect_processors[effect.effect_type]
+		var processor_id = get_processor_id_for_effect(effect)
+		if effect_processors.has(processor_id):
+			var processor = effect_processors[processor_id]
 			var effect_results = await processor.process_effect(effect, caster, targets)
 				
 			# 合并结果
@@ -93,11 +105,51 @@ func execute_skill(caster: Character, targets: Array[Character], skill_data: Ski
 				for result_type in effect_results[target]:
 					results[target][result_type] = effect_results[target][result_type]
 		else:
-			push_warning("未找到效果处理器: " + str(effect.effect_type))
+			push_error("未找到效果处理器: %s" % processor_id)
+	
+	# 处理状态效果 - 如果技能有指定状态效果ID
+	if skill_data.status_effect_id != "" and !targets.is_empty():
+		apply_status_effect(caster, targets, skill_data)
 	
 	# 发出技能执行完成信号
 	skill_executed.emit(caster, targets, skill_data, results)
 	return results
+
+# 新增：应用状态效果
+func apply_status_effect(caster: Character, targets: Array[Character], skill_data: SkillData) -> void:
+	# 如果没有状态效果ID，直接返回
+	if skill_data.status_effect_id.is_empty():
+		return
+	
+	# 尝试加载状态效果资源
+	var effect_resource_path = "res://godot4_turn_based_combat_system/resources/status_effects/" + skill_data.status_effect_id + ".tres"
+	var effect_data = load(effect_resource_path)
+	
+	if not effect_data or not effect_data is StatusEffectData:
+		push_warning("无法加载状态效果数据: " + effect_resource_path)
+		return
+	
+	# 对每个目标尝试应用状态效果
+	for target in targets:
+		# 检查是否满足应用状态效果的条件
+		var chance = skill_data.status_effect_chance  # 从技能数据中获取成功率
+		if chance <= 0:
+			chance = 100  # 默认100%成功
+		
+		# 随机概率判定
+		var roll = randf() * 100
+		if roll <= chance:
+			# 应用状态效果
+			var effect = target.add_status_effect(effect_data, caster)
+			
+			if effect:
+				print(target.character_name + " 受到了 " + effect_data.effect_name + " 状态效果！")
+				
+				# 播放状态效果应用的视觉特效
+				if visual_effects:
+					visual_effects.play_status_effect_applied(target, effect_data)
+		else:
+			print(target.character_name + " 抵抗了 " + effect_data.effect_name + " 状态效果！")
 
 # 检查并消耗魔法值
 func check_and_consume_mp(caster: Character, skill: SkillData) -> bool:
@@ -213,3 +265,23 @@ func get_targets_for_skill(skill: SkillData) -> Array[Character]:
 			targets = get_valid_ally_targets(true)
 	
 	return targets
+
+## 注册效果处理器
+func register_effect_processor(processor: EffectProcessor):
+	var processor_id = processor.get_processor_id()
+	effect_processors[processor_id] = processor
+	print("注册效果处理器: %s" % processor_id)
+
+## 根据效果类型获取处理器ID
+func get_processor_id_for_effect(effect: SkillEffect) -> String:
+	match effect.effect_type:
+		SkillEffect.EffectType.DAMAGE:
+			return "damage"
+		SkillEffect.EffectType.HEAL:
+			return "heal"
+		SkillEffect.EffectType.APPLY_STATUS:
+			return "apply_status"
+		SkillEffect.EffectType.CONTROL:
+			return "control"
+		_:
+			return "unknown"
