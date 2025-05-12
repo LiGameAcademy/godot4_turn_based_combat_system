@@ -23,6 +23,11 @@ var speed: int
 var magic_attack: int = 0  # 魔法攻击力
 var magic_defense: int = 0 # 魔法防御力
 
+## 元素类型
+var element : int :
+	get:
+		return character_data.element
+
 # 引用场景中的节点
 @onready var hp_bar : ProgressBar = %HPBar
 @onready var hp_label := %HPLabel

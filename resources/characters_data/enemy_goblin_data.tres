@@ -16,6 +16,6 @@ defense = 6
 speed = 12
 magic_attack = 10
 magic_defense = 5
-element = 1
+element = 2
 skills = Array[ExtResource("2_fr6p1")]([])
 color = Color(0.2, 0.7, 0.2, 1)

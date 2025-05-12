@@ -17,12 +17,6 @@ var effect_processors : Dictionary[SkillEffect.EffectType, EffectProcessor] = {
 	SkillEffect.EffectType.HEAL: HealingEffectProcessor.new(battle_manager, visual_effects)
 }
 
-# 要加载的处理器路径
-const PROCESSORS = {
-	"damage": "res://scripts/core/effect_processors/damage_effect_processor.gd",
-	"heal": "res://scripts/core/effect_processors/healing_effect_processor.gd"
-}
-
 func _init(battle_mgr = null, visual_fx = null):
 	battle_manager = battle_mgr
 	visual_effects = visual_fx
