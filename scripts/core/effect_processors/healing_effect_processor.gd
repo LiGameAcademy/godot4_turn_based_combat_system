@@ -6,7 +6,7 @@ func get_processor_id() -> String:
 	return "heal"
 
 ## 处理治疗效果
-func process_effect(effect_data: Dictionary, caster: Character, targets: Array) -> Dictionary:
+func process_effect(effect: SkillEffect, caster: Character, targets: Array) -> Dictionary:
 	var results = {}
 	
 	# 播放施法动画
@@ -21,7 +21,7 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 			continue
 			
 		# 计算治疗量
-		var heal_amount = calculate_healing(caster, target, effect_data)
+		var heal_amount = calculate_healing(caster, target, effect)
 		
 		# 播放治疗效果
 		request_visual_effect("heal", target, {})
@@ -51,9 +51,9 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 	return results
 
 ## 计算治疗量
-func calculate_healing(caster: Character, target: Character, effect_data: Dictionary) -> int:
+func calculate_healing(caster: Character, target: Character, effect: SkillEffect) -> int:
 	# 获取基础治疗量
-	var power = effect_data.get("power", 10)
+	var power = effect.power
 	
 	# 基于魔法攻击力计算治疗量
 	var base_healing = power + (caster.magic_attack * 0.7)
@@ -68,6 +68,6 @@ func calculate_healing(caster: Character, target: Character, effect_data: Dictio
 	return max(1, round(final_healing))
 
 ## 获取效果描述
-func get_effect_description(effect_data: Dictionary) -> String:
-	var power = effect_data.get("power", 10)
+func get_effect_description(effect: SkillEffect) -> String:
+	var power = effect.power
 	return "恢复 %d 点生命值" % power 

@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=3 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_fr6p1"]
 
 [resource]
 script = ExtResource("1_45vgr")
@@ -10,11 +11,11 @@ max_hp = 80
 current_hp = 80
 max_mp = 30
 current_mp = 30
-attack = 12
+attack = 20
 defense = 6
 speed = 12
 magic_attack = 10
 magic_defense = 5
 element = 1
-skills = Array[Resource("res://scripts/resources/skill_data.gd")]([])
+skills = Array[ExtResource("2_fr6p1")]([])
 color = Color(0.2, 0.7, 0.2, 1)

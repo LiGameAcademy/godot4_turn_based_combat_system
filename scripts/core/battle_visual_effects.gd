@@ -1,9 +1,6 @@
-# scripts/core/battle_visual_effects.gd
 extends Node
 class_name BattleVisualEffects
 
-# 引入ElementTypes
-const ElementTypes = preload("res://scripts/core/ElementTypes.gd")
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
 # 元素颜色映射

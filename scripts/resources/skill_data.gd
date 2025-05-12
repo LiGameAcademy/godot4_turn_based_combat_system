@@ -44,10 +44,5 @@ func can_cast(caster_current_mp: int) -> bool:
 	return caster_current_mp >= mp_cost
 
 ## 获取技能效果数组 (确保向后兼容)
-func get_effects() -> Array:
-	# 将所有SkillEffect对象转换为字典
-	var result = []
-	for effect in effects:
-		if effect:
-			result.append(effect.to_dict())
-	return result
+func get_effects() -> Array[SkillEffect]:
+	return effects

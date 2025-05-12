@@ -6,11 +6,11 @@ func get_processor_id() -> String:
 	return "damage"
 
 ## 处理伤害效果
-func process_effect(effect_data: Dictionary, caster: Character, targets: Array) -> Dictionary:
+func process_effect(effect: SkillEffect, caster: Character, targets: Array) -> Dictionary:
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("cast", caster, {"element": effect_data.get("element", 0)})
+	request_visual_effect("cast", caster, {"element": effect.element})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -21,16 +21,16 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 			continue
 			
 		# 计算伤害
-		var damage_result = calculate_damage(caster, target, effect_data)
+		var damage_result = calculate_damage(caster, target, effect)
 		var damage = damage_result["damage"]
 		
 		# 播放命中动画，根据克制关系选择不同效果
-		var hit_params = {"element": effect_data.get("element", 0)}
+		var hit_params = {"element": effect.element}
 		
 		if damage_result["is_effective"]:
 			# 克制效果
 			request_visual_effect("effective_hit", target, hit_params)
-			# 使用自定义颜色但不添加前缀（前缀由BattleVisualEffects类处理）
+			# 使用自定义颜色和前缀
 			request_visual_effect("damage_number", target, {"damage": damage, "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
 		elif damage_result["is_ineffective"]:
 			# 抵抗效果
@@ -51,10 +51,9 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 		# 记录结果
 		if not results.has(target):
 			results[target] = {}
-		results[target] = damage_result
-		results[target]["actual_damage"] = actual_damage
+		results[target]["damage"] = actual_damage
 		
-		# 显示战斗信息
+		# 显示伤害信息
 		var message = ""
 		if damage_result["is_effective"]:
 			message += "[color=yellow]【克制！】[/color]"
@@ -63,14 +62,18 @@ func process_effect(effect_data: Dictionary, caster: Character, targets: Array) 
 		
 		message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, actual_damage]
 		print_rich(message)
+		
+		# 检查死亡状态
+		if target.current_hp <= 0:
+			print("%s 被击败!" % target.character_name)
 	
 	return results
-	
+
 ## 计算伤害
-func calculate_damage(caster: Character, target: Character, effect_data: Dictionary) -> Dictionary:
+func calculate_damage(caster: Character, target: Character, effect: SkillEffect) -> Dictionary:
 	# 获取基础伤害
-	var power = effect_data.get("power", 10)
-	var element = effect_data.get("element", 0)
+	var power = effect.power
+	var element = effect.element
 	
 	# 基础伤害计算
 	var base_damage = power + (caster.magic_attack * 0.8)
@@ -117,16 +120,12 @@ func calculate_element_modifier(attack_element: int, target: Character) -> Dicti
 	}
 
 ## 获取效果描述
-func get_effect_description(effect_data: Dictionary) -> String:
-	var power = effect_data.get("power", 10)
-	var element = effect_data.get("element", 0)
+func get_effect_description(effect: SkillEffect) -> String:
+	var power = effect.power
+	var element_name = ""
 	
-	var desc = "造成 %d 点" % power
-	
-	# 添加元素类型描述
-	if element > 0:
-		desc += " " + ElementTypes.get_element_name(element) + "属性"
-		
-	desc += "伤害"
-	
-	return desc
+	if effect.element > 0:
+		element_name = ElementTypes.get_element_name(effect.element)
+		return "造成 %d 点%s属性伤害" % [power, element_name]
+	else:
+		return "造成 %d 点伤害" % power

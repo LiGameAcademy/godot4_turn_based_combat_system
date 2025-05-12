@@ -12,7 +12,7 @@ func _init(battle_mgr = null, visual_fx = null):
 
 ## 处理效果 - 主要接口方法
 ## 返回格式: 字典格式的结果 {"target1": {"damage": 50}, "target2": {"damage": 30}}
-func process_effect(effect_data: Dictionary, caster: Character, targets: Array) -> Dictionary:
+func process_effect(_effect: SkillEffect, _caster: Character, _targets: Array) -> Dictionary:
 	push_error("EffectProcessor.process_effect() 必须被子类重写")
 	return {}
 
@@ -22,7 +22,7 @@ func get_processor_id() -> String:
 	return "base"
 
 ## 获取效果描述 (用于UI显示)
-func get_effect_description(effect_data: Dictionary) -> String:
+func get_effect_description(_effect: SkillEffect) -> String:
 	push_error("EffectProcessor.get_effect_description() 必须被子类重写")
 	return "未知效果"
 
