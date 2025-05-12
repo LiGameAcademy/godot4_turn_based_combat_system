@@ -15,17 +15,6 @@ enum TargetType {
 	ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
 }
 
-## 元素类型 (为后续属性系统预留)
-enum ElementType {
-	NONE,
-	FIRE,
-	WATER,
-	EARTH,
-	AIR,
-	LIGHT,
-	DARK
-}
-
 ## --- 导出的属性 ---
 @export var skill_id: StringName = &"new_skill" # 内部ID，用StringName效率略高
 @export var skill_name: String = "新技能"       # UI显示名称
@@ -34,6 +23,9 @@ enum ElementType {
 @export_group("消耗与目标")
 @export var mp_cost: int = 5
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE
+
+@export_group("元素属性")
+@export var element: int = 0 # ElementTypes.Element.NONE - 使用整型而不是枚举，提高兼容性
 
 @export_group("效果设置")
 @export var effects: Array[SkillEffect] = []
@@ -52,10 +44,5 @@ func can_cast(caster_current_mp: int) -> bool:
 	return caster_current_mp >= mp_cost
 
 ## 获取技能效果数组 (确保向后兼容)
-func get_effects() -> Array:
-	# 将所有SkillEffect对象转换为字典
-	var result = []
-	for effect in effects:
-		if effect:
-			result.append(effect.to_dict())
-	return result
+func get_effects() -> Array[SkillEffect]:
+	return effects

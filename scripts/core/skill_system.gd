@@ -7,40 +7,56 @@ signal skill_executed(caster, targets, skill_data, results)
 signal visual_effect_requested(effect_type, target, params)
 
 # 类型定义
-enum VisualEffectType {CAST, HIT, HEAL, STATUS}
+enum VisualEffectType {CAST, HIT, HEAL, STATUS, EFFECTIVE_HIT, INEFFECTIVE_HIT, DAMAGE_NUMBER}
 
 # 引用和资源
 var battle_manager = null
 var visual_effects = null
-var effect_processors = {}
-
-# 要加载的处理器路径
-const PROCESSORS = {
-	"damage": "res://scripts/core/effect_processors/damage_effect_processor.gd",
-	"heal": "res://scripts/core/effect_processors/healing_effect_processor.gd"
+var effect_processors : Dictionary[SkillEffect.EffectType, EffectProcessor] = {
+	SkillEffect.EffectType.DAMAGE: DamageEffectProcessor.new(battle_manager, visual_effects),
+	SkillEffect.EffectType.HEAL: HealingEffectProcessor.new(battle_manager, visual_effects)
 }
 
 func _init(battle_mgr = null, visual_fx = null):
 	battle_manager = battle_mgr
 	visual_effects = visual_fx
-	_register_default_processors()
+	
+	# 连接自身的信号用于处理视觉效果请求
+	visual_effect_requested.connect(_on_visual_effect_requested)
 
-# 注册默认效果处理器
-func _register_default_processors():
-	# 尝试加载每个处理器脚本
-	for processor_id in PROCESSORS:
-		var script_path = PROCESSORS[processor_id]
-		var script = load(script_path)
-		if script:
-			var processor = script.new(battle_manager, visual_effects)
-			register_effect_processor(processor_id, processor)
-		else:
-			push_warning("无法加载效果处理器脚本: " + script_path)
-
-# 注册效果处理器
-func register_effect_processor(effect_type: String, processor: EffectProcessor):
-	effect_processors[effect_type] = processor
-	print("已注册效果处理器: " + effect_type)
+# 处理视觉效果请求
+func _on_visual_effect_requested(effect_type: String, target, params: Dictionary = {}):
+	if not visual_effects or not is_instance_valid(target):
+		return
+		
+	# 分发到适当的视觉效果方法
+	match effect_type:
+		"cast":
+			visual_effects.play_cast_effect(target, params)
+		"hit":
+			visual_effects.play_hit_effect(target, params)
+		"effective_hit":
+			visual_effects.play_effective_hit_effect(target, params)
+		"ineffective_hit":
+			visual_effects.play_ineffective_hit_effect(target, params)
+		"heal":
+			visual_effects.play_heal_effect(target, params)
+		"heal_cast":
+			visual_effects.play_heal_cast_effect(target, params)
+		"status":
+			visual_effects.play_status_effect(target, params)
+		"damage_number":
+			# 处理伤害数字显示，获取所需参数
+			var damage = params.get("damage", 0)
+			var color = params.get("color", Color.RED)
+			var prefix = params.get("prefix", "")
+			
+			# 如果目标是角色，使用其位置；否则，尝试直接使用传入的位置
+			var position = target.global_position if target is Node2D else params.get("position", Vector2.ZERO)
+			
+			visual_effects.spawn_damage_number(position, damage, color, prefix)
+		_:
+			push_warning("未知的视觉效果类型: " + effect_type)
 
 # 执行技能
 func execute_skill(caster: Character, targets: Array[Character], skill_data: SkillData) -> Dictionary:
@@ -58,17 +74,17 @@ func execute_skill(caster: Character, targets: Array[Character], skill_data: Ski
 		battle_manager.character_stats_changed.emit(caster)
 	
 	# 获取技能所有效果
-	var effects = skill_data.get_effects()
+	var effects : Array[SkillEffect] = skill_data.get_effects()
 	
 	# 逐个处理每个效果
 	for effect in effects:
-		var effect_type = effect.get("type", "")
-		var effect_params = effect.get("params", {})
+		# 添加技能元素属性到效果参数
+		effect.element = skill_data.element
 		
-		if effect_type in effect_processors:
-			print("处理效果: " + effect_type)
-			var effect_results = await effect_processors[effect_type].process_effect(
-				effect_params, caster, targets)
+		if effect.effect_type in effect_processors:
+			print("处理效果: " + str(effect.effect_type))
+			var processor = effect_processors[effect.effect_type]
+			var effect_results = await processor.process_effect(effect, caster, targets)
 				
 			# 合并结果
 			for target in effect_results:
@@ -77,7 +93,7 @@ func execute_skill(caster: Character, targets: Array[Character], skill_data: Ski
 				for result_type in effect_results[target]:
 					results[target][result_type] = effect_results[target][result_type]
 		else:
-			push_warning("未找到效果处理器: " + effect_type)
+			push_warning("未找到效果处理器: " + str(effect.effect_type))
 	
 	# 发出技能执行完成信号
 	skill_executed.emit(caster, targets, skill_data, results)
@@ -100,21 +116,23 @@ func generate_skill_description(skill_data: SkillData) -> String:
 	if desc.begins_with("技能描述") or desc.strip_edges().is_empty():
 		desc = skill_data.skill_name + ": "
 		
-		var effects = skill_data.get_effects()
+		var effects : Array[SkillEffect] = skill_data.get_effects()
 		var effect_descs = []
 		
 		for effect in effects:
-			var effect_type = effect.get("type", "")
-			var effect_params = effect.get("params", {})
-			
-			if effect_type in effect_processors:
-				var processor = effect_processors[effect_type]
-				effect_descs.append(processor.get_effect_description(effect_params))
+			if effect.effect_type in effect_processors:
+				var processor = effect_processors[effect.effect_type]
+				effect_descs.append(processor.get_effect_description(effect))
 		
 		desc += ", ".join(effect_descs)
 		
 		# 添加魔法消耗
 		desc += " (消耗MP: " + str(skill_data.mp_cost) + ")"
+		
+		# 添加元素类型
+		if skill_data.element > 0:
+			var element_name = ElementTypes.get_element_name(skill_data.element)
+			desc += " [" + element_name + "属性]"
 	
 	return desc
 
