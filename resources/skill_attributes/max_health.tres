@@ -3,13 +3,13 @@
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="1_hl4rm"]
 
 [resource]
+resource_local_to_scene = true
 script = ExtResource("1_hl4rm")
 attribute_name = &"MaxHealth"
 display_name = "最大生命值"
 description = ""
-default_base_value = 100.0
-can_be_negative = false
-is_percentage = false
+base_value = 100.0
 min_value = 1.0
 max_value = inf
+can_be_negative = false
 metadata/_custom_type_script = "uid://1svsj8jgldy7"

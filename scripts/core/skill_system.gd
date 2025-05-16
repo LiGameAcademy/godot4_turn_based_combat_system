@@ -339,7 +339,7 @@ func _get_valid_enemy_targets(caster: Character) -> Array:
 	
 	# 过滤出存活的敌人
 	for enemy in enemy_list:
-		if enemy.is_alive():
+		if enemy.is_alive:
 			targets.append(enemy)
 	
 	return targets
@@ -360,7 +360,7 @@ func _get_valid_ally_targets(caster: Character, include_self: bool = true) -> Ar
 	
 	# 过滤出存活的友方
 	for ally in ally_list:
-		if ally.is_alive() and (include_self or ally != caster):
+		if ally.is_alive and (include_self or ally != caster):
 			targets.append(ally)
 	
 	return targets

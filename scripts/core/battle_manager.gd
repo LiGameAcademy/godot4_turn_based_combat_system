@@ -206,8 +206,8 @@ func execute_attack(attacker: Character, target: Character):
 	print(attacker.character_name, " 攻击 ", target.character_name)
 	
 	# 获取考虑状态效果修正后的属性值
-	var attack = attacker.get_modified_attack()
-	var defense = target.get_modified_defense()
+	var attack := attacker.attack
+	var defense := target.defense
 	
 	# 修改后的伤害计算
 	var damage = max(1, attack - defense * 0.5)  # 确保至少造成1点伤害
@@ -414,7 +414,7 @@ func round_end():
 	print("回合结束阶段")
 	# 回合结束时，处理所有角色的状态效果
 	for character in player_characters + enemy_characters:
-		if character.is_alive():
+		if character.is_alive:
 			character.process_status_effects_end_of_round()
 	
 	# 检查战斗是否结束

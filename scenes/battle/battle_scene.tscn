@@ -16,6 +16,7 @@ script = ExtResource("1_ugm31")
 offset_right = 1152.0
 offset_bottom = 648.0
 color = Color(0.12549, 0.12549, 0.12549, 1)
+metadata/_edit_use_anchors_ = true
 
 [node name="BattleAreaRect" type="ColorRect" parent="."]
 offset_left = 50.0
@@ -23,6 +24,7 @@ offset_top = 50.0
 offset_right = 1102.0
 offset_bottom = 450.0
 color = Color(0.14902, 0.137255, 0.188235, 1)
+metadata/_edit_use_anchors_ = true
 
 [node name="BattleUI" type="CanvasLayer" parent="."]
 layer = 128
@@ -35,6 +37,7 @@ offset_left = -4.44006
 offset_top = 65.392
 grow_horizontal = 0
 grow_vertical = 0
+metadata/_edit_use_anchors_ = true
 
 [node name="SkillSelectMenu" parent="BattleUI" instance=ExtResource("3_2wmvw")]
 visible = false
@@ -51,6 +54,7 @@ offset_top = -23.0
 grow_horizontal = 2
 grow_vertical = 0
 text = "战斗信息显示栏"
+metadata/_edit_use_anchors_ = true
 
 [node name="PlayerArea" type="Node2D" parent="."]
 position = Vector2(250, 300)
