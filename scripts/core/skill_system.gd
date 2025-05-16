@@ -17,15 +17,15 @@ signal status_applied(status, source, target)
 func _init(battle_mgr = null, visual_fx = null):
 	battle_manager = battle_mgr
 	visual_effects = visual_fx
-	
+
 	# 初始化处理器
 	_init_effect_processors()
-	
+
 	# 连接视觉效果请求信号
 	visual_effect_requested.connect(_on_visual_effect_requested)
-	
-	print("SkillSystem初始化完成")
 
+	print("SkillSystem初始化完成")
+	
 # 执行技能
 func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = []) -> Dictionary:
 	# 检查参数
@@ -134,7 +134,7 @@ func apply_effect(effect: SkillEffectData, source: Character, target: Character)
 # 应用多个效果
 func apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
 	var all_results = {}
-	
+
 	for target in targets:
 		if !is_instance_valid(target) or target.current_hp <= 0:
 			continue

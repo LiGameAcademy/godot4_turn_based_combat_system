@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_8rkma"]
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
-[ext_resource type="Resource" path="res://resources/skill_effects/fireball_damage.tres" id="2_sjdv7"]
+[ext_resource type="Resource" uid="uid://bglfmsusvr2f5" path="res://resources/skill_effects/fireball_damage.tres" id="2_sjdv7"]
 [ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_c6ojy"]
-[ext_resource type="Resource" path="res://resources/status_effects/burn_dot.tres" id="3_hfr76"]
+[ext_resource type="Resource" uid="uid://wr6bk8tnnwvq" path="res://resources/status_effects/burn_dot.tres" id="3_hfr76"]
 
 [resource]
 script = ExtResource("1_8rkma")

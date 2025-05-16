@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillAttribute" load_steps=2 format=3 uid="uid://bv0i1mb44oi5n"]
+
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="1_fjw81"]
+
+[resource]
+script = ExtResource("1_fjw81")
+attribute_name = &"MaxHealth"
+display_name = "最大生命值"
+description = ""
+default_base_value = 0.0
+can_be_negative = false
+is_percentage = false
+min_value = inf_neg
+max_value = inf
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
