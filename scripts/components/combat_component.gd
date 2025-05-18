@@ -10,7 +10,7 @@ signal status_updated(status, target, old_stacks, new_stacks)
 # 引用
 var character: Character :
 	get:
-		return owner
+		return get_parent()
 
 # 状态管理
 var active_statuses = {} # Dictionary<String, Dictionary> - 键为状态ID，值为状态信息
@@ -18,6 +18,12 @@ var status_sources = {} # Dictionary<String, Character> - 键为状态ID，值�
 
 # 控制效果管理
 var control_effects = {} # 字典，键为控制类型，值为持续回合数
+
+var _battle_manager_ref : BattleManager = null
+
+## 设置战斗管理器引用
+func set_battle_manager_ref(battle_manager: BattleManager):
+	_battle_manager_ref = battle_manager
 
 ## 执行技能
 func execute_skill(skill_data: SkillData, targets: Array) -> Array:
@@ -64,7 +70,7 @@ func can_execute_skill(skill_data: SkillData) -> bool:
 
 ## 添加状态
 func add_status(status: SkillStatusData, source: Character = null) -> SkillStatusData:
-	var status_id = status.effect_id
+	var status_id = status.status_id
 	
 	# 检查是否已有此状态
 	if active_statuses.has(status_id):

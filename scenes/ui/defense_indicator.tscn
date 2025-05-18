@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bj4w0ajv2jk2e"]
 
-[ext_resource type="Script" path="res://scenes/ui/defense_indicator.gd" id="1_1oxh2"]
+[ext_resource type="Script" uid="uid://bxlvjl3c10hlq" path="res://scenes/ui/defense_indicator.gd" id="1_1oxh2"]
 
 [node name="DefenseIndicator" type="Node2D"]
 visible = false

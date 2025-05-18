@@ -28,8 +28,6 @@ enum TargetType {
 
 @export_group("效果设置")
 @export var direct_effects: Array[SkillEffectData] = [] 	## 直接效果
-@export var statuses: Array[SkillStatusData] = [] 			## 可能附加的状态
-@export var status_chances: Array[float] = []      			## 对应状态的应用几率(0-1)
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
@@ -39,10 +37,6 @@ enum TargetType {
 # @export var vfx_scene: PackedScene # 技能特效场景
 # @export var cast_sfx: AudioStream # 施法音效
 # @export var hit_sfx: AudioStream # 命中音效
-
-@export_group("状态效果 (可选)")
-@export var status_effect_id: String = ""   ## 状态效果ID，对应资源文件名
-@export_range(0, 100) var status_effect_chance: int = 100  # 状态效果应用几率
 
 ## 检查是否能施放技能
 func can_cast(character: Character) -> bool:
@@ -60,23 +54,13 @@ func get_full_description() -> String:
 	
 	# 添加元素信息，如果有的话
 	if element > 0:
-		if "ElementTypes" in Engine.get_singleton_list():
-			desc += "元素: " + ElementTypes.get_element_name(element) + "\n\n"
+		desc += "元素: " + ElementTypes.get_element_name(element) + "\n\n"
 	
 	# 添加直接效果
 	if !direct_effects.is_empty():
 		desc += "效果:\n"
 		for effect in direct_effects:
 			desc += "- " + effect.get_description() + "\n"
-	
-	# 添加状态效果
-	if !statuses.is_empty():
-		desc += "\n可能附加的状态:\n"
-		for i in range(statuses.size()):
-			var status = statuses[i]
-			var chance = status_chances[i] if i < status_chances.size() else 1.0
-			var chance_text = "" if chance >= 1.0 else " (%d%%几率)" % int(chance * 100)
-			desc += "- " + status.effect_name + chance_text + "\n"
 	
 	return desc
 

@@ -77,7 +77,10 @@ func set_state(new_state: BattleState):
 		BattleState.ROUND_START:
 			# 回合开始处理，确定行动者
 			next_turn()
-			
+			# 重置当前回合角色标记
+			if current_turn_character:
+				current_turn_character.reset_turn_flags()
+		
 		BattleState.PLAYER_TURN:
 			# 通知UI需要玩家输入
 			print("玩家回合：等待输入...")
@@ -96,10 +99,6 @@ func set_state(new_state: BattleState):
 			pass
 			
 		BattleState.ROUND_END:
-			# 重置当前回合角色标记
-			if current_turn_character:
-				current_turn_character.reset_turn_flags()
-
 			# 处理回合结束效果
 			process_round_end()
 			
@@ -335,11 +334,17 @@ func add_player_character(character: Character):
 	if not player_characters.has(character):
 		player_characters.append(character)
 		print("添加玩家角色: ", character.character_name)
+	var combat_comp : CombatComponent = character.get_node_or_null("CombatComponent")
+	if combat_comp and combat_comp.has_method("set_battle_manager_ref"):
+		combat_comp.set_battle_manager_ref(self)
 
 func add_enemy_character(character: Character):
 	if not enemy_characters.has(character):
 		enemy_characters.append(character)
 		print("添加敌人角色: ", character.character_name)
+	var combat_comp : CombatComponent = character.get_node_or_null("CombatComponent")
+	if combat_comp and combat_comp.has_method("set_battle_manager_ref"):
+		combat_comp.set_battle_manager_ref(self)
 
 func remove_character(character: Character):
 	if player_characters.has(character):
@@ -355,39 +360,6 @@ func remove_character(character: Character):
 # 判断角色是否为玩家角色
 func is_player_character(character: Character) -> bool:
 	return player_characters.has(character)
-
-## 订阅角色信号
-func _subscribe_to_character_signals(character : Character) -> void:
-	if !character.character_died.is_connected(_on_character_died):
-		character.character_died.connect(_on_character_died)
-	
-	#TODO 链接其他信号
-
-# 处理技能执行信号
-func _on_skill_executed(_caster, _targets, skill_data, _results):
-	print("技能执行完成: ", skill_data.skill_name)
-	# 可以在这里添加技能执行后的额外处理
-
-# 角色死亡信号处理函数
-func _on_character_died(character: Character) -> void:
-	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
-	
-	# 从相应列表中移除
-	if player_characters.has(character):
-		player_characters.erase(character)
-	elif enemy_characters.has(character):
-		enemy_characters.erase(character)
-	
-	# 从回合队列中移除
-	if turn_queue.has(character):
-		turn_queue.erase(character)
-	
-	# 如果当前行动者死亡，需要特殊处理
-	if current_turn_character == character:
-		print("当前行动者 " + character.character_name + " 已阵亡。")
-	
-	# 检查战斗是否结束
-	check_battle_end_condition()
 
 # 添加回合结束时处理状态效果的方法
 func process_round_end() -> void:
@@ -423,3 +395,36 @@ func round_end():
 		
 	# 回到回合开始阶段，准备下一回合
 	set_state(BattleState.ROUND_START)
+
+## 订阅角色信号
+func _subscribe_to_character_signals(character : Character) -> void:
+	if !character.character_died.is_connected(_on_character_died):
+		character.character_died.connect(_on_character_died)
+	
+	#TODO 链接其他信号
+
+# 处理技能执行信号
+func _on_skill_executed(_caster, _targets, skill_data, _results):
+	print("技能执行完成: ", skill_data.skill_name)
+	# 可以在这里添加技能执行后的额外处理
+
+# 角色死亡信号处理函数
+func _on_character_died(character: Character) -> void:
+	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
+	
+	# 从相应列表中移除
+	if player_characters.has(character):
+		player_characters.erase(character)
+	elif enemy_characters.has(character):
+		enemy_characters.erase(character)
+	
+	# 从回合队列中移除
+	if turn_queue.has(character):
+		turn_queue.erase(character)
+	
+	# 如果当前行动者死亡，需要特殊处理
+	if current_turn_character == character:
+		print("当前行动者 " + character.character_name + " 已阵亡。")
+	
+	# 检查战斗是否结束
+	check_battle_end_condition()

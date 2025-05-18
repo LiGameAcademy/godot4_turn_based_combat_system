@@ -75,7 +75,7 @@ func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = 
 				if !status_results.has(target):
 					status_results[target] = {}
 				
-				status_results[target][status.effect_id] = apply_status(status, caster, target, chance)
+				status_results[target][status.status_id] = apply_status(status, caster, target, chance)
 	
 	# 合并结果
 	var final_results = {}
@@ -167,7 +167,7 @@ func apply_status(status: SkillStatusData, source: Character, target: Character,
 	if randf() > chance:
 		# 触发抵抗视觉效果
 		if visual_effects and visual_effects.has_method("play_status_resist"):
-			visual_effects.play_status_resist(target, {"status_id": status.effect_id})
+			visual_effects.play_status_resist(target, {"status_id": status.status_id})
 		return false
 	
 	# 检查是否被现有状态反制
@@ -175,7 +175,7 @@ func apply_status(status: SkillStatusData, source: Character, target: Character,
 		if status.is_countered_by(existing_status.effect_id):
 			# 触发抵抗视觉效果
 			if visual_effects and visual_effects.has_method("play_status_resist"):
-				visual_effects.play_status_resist(target, {"status_id": status.effect_id})
+				visual_effects.play_status_resist(target, {"status_id": status.status_id})
 			return false
 	
 	# 添加状态
@@ -185,7 +185,7 @@ func apply_status(status: SkillStatusData, source: Character, target: Character,
 	# 触发视觉效果
 	if visual_effects and visual_effects.has_method("play_status_applied"):
 		visual_effects.play_status_applied(target, {
-			"status_id": status.effect_id,
+			"status_id": status.status_id,
 			"status_type": status.effect_type,
 			"is_positive": status.effect_type == SkillStatusData.EffectType.BUFF
 		})
