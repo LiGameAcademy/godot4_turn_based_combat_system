@@ -34,7 +34,7 @@ func _ready() -> void:
 	use_button.disabled = true
 
 ## 显示技能菜单
-func show_menu(character_skills: Array[SkillData], caster_mp: int) -> void:
+func show_menu(character_skills: Array[SkillData], character: Character) -> void:
 	self.current_character_skills = character_skills
 	skill_list.clear()
 	skill_description.text = "选择一个技能查看描述..."
@@ -48,7 +48,7 @@ func show_menu(character_skills: Array[SkillData], caster_mp: int) -> void:
 			skill_list.add_item(item_text)
 			
 			# 根据MP是否足够，设置项目是否可用
-			if caster_mp < skill.mp_cost:
+			if skill.can_cast(character):
 				skill_list.set_item_disabled(i, true)
 				skill_list.set_item_custom_fg_color(i, Color(0.5, 0.5, 0.5)) # 灰色表示不可用
 	

@@ -62,6 +62,9 @@ enum SkillArchetype {
 # @export var cast_sfx: AudioStream # 施法音效
 # @export var hit_sfx: AudioStream # 命中音效
 
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack")
+var action_categories: Array[String] = ["any_action"] 
+
 ## 检查是否能施放技能
 func can_cast(character: Character) -> bool:
 	return character.current_mp >= mp_cost

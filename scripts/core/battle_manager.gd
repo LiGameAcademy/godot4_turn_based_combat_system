@@ -1,4 +1,3 @@
-# scripts/core/battle_manager.gd
 extends Node
 class_name BattleManager
 
@@ -198,46 +197,63 @@ func execute_enemy_ai():
 		set_state(BattleState.ROUND_END)
 
 # 执行攻击
-func execute_attack(attacker: Character, target: Character):
-	if attacker == null or target == null:
+func execute_attack(attacker: Character, target: Character) -> void:
+	if not (is_instance_valid(attacker) and is_instance_valid(target)):
+		push_warning("BattleManager: execute_attack - 无效的攻击者或目标。")
 		return
-		
-	print(attacker.character_name, " 攻击 ", target.character_name)
-	
-	# 获取考虑状态效果修正后的属性值
-	var attack := attacker.attack
-	var defense := target.defense
-	
-	# 修改后的伤害计算
-	var damage = max(1, attack - defense * 0.5)  # 确保至少造成1点伤害
-	var final_damage = target.take_damage(int(damage))
-	
-	# 发出敌人行动执行信号
-	if enemy_characters.has(attacker):
-		enemy_action_executed.emit(attacker, target, final_damage)
-		
-	# 发出角色状态变化信号
-	character_stats_changed.emit(target)
 
-	# 显示伤害数字
-	visual_effects.spawn_damage_number(target.global_position, final_damage, Color.RED)
+	if not is_instance_valid(attacker.combat_component) or \
+	   not attacker.combat_component.has_method("perform_basic_attack"):
+		push_error("BattleManager: 攻击者 '%s' 或其 CombatComponent 无法执行 perform_basic_attack." % attacker.character_name)
+		return
+
+	print("BattleManager: %s 准备对 %s 执行基础攻击..." % [attacker.character_name, target.character_name])
 	
-	print_rich("[color=red]" + target.character_name + " 受到 " + str(final_damage) + " 点伤害![/color]")
+	var attack_results = await attacker.combat_component.perform_basic_attack(target)
+
+	# BattleManager 可能仍然关心某些高级别的结果，例如AI需要知道攻击是否成功或造成了多少伤害
+	# SkillSystem.execute_skill 返回的结果结构需要约定好
+	if attack_results and not attack_results.has("error"):
+		var target_specific_results = attack_results.get(target) # SkillSystem 返回的结果是以目标为键的字典
+		if target_specific_results:
+			var damage_dealt_to_target = 0
+			# 遍历该目标受到的所有效果结果，查找伤害值
+			# 假设伤害效果的结果中包含 "damage_dealt" 键
+			for effect_key in target_specific_results:
+				var effect_result_data = target_specific_results[effect_key]
+				if effect_result_data is Dictionary and effect_result_data.has("damage_dealt"):
+					damage_dealt_to_target = effect_result_data.damage_dealt
+					break # 通常基础攻击主要是一个伤害效果
+
+			if enemy_characters.has(attacker): # 如果是敌人发起的攻击
+				enemy_action_executed.emit(attacker, target, damage_dealt_to_target) # 保留这个信号，如果AI或其他系统需要
+			
+			# print_rich("[BattleManager] %s 对 %s 造成了 %d 点伤害 (通过基础攻击)。" % [attacker.character_name, target.character_name, damage_dealt_to_target])
+	elif attack_results and attack_results.has("error"):
+		print_rich("[BattleManager] %s 的基础攻击失败: %s" % [attacker.character_name, attack_results.error])
+
+	# 注意：
+	# 1. visual_effects.spawn_damage_number 现在应该由 DamageEffectProcessor 在其 process_effect 方法中调用。
+	# 2. character_stats_changed 信号现在由 Character.gd 在其 _on_attribute_current_value_changed 方法中发出，
+	#    当它监听到来自 SkillComponent -> AttributeSet 的属性变化时。
+	#    BattleManager 不再需要直接在此处发出此信号。
 
 # 执行防御
 func execute_defend(character: Character):
-	if character == null:
+	if not is_instance_valid(character):
 		return
 
-	print(character.character_name, " 选择防御，受到的伤害将减少")
-	character.set_defending(true)
-	
-	# 播放防御效果
-	if visual_effects:
-		visual_effects.play_defend_effect(character)
-	
-	# 发出角色状态变化信号
-	character_stats_changed.emit(character)
+	if not is_instance_valid(character.combat_component):
+		push_error("BattleManager: 角色 '%s' 没有 CombatComponent 来执行防御。" % character.character_name)
+		return
+
+	print("BattleManager: %s 选择防御。" % character.character_name)
+	character.combat_component.set_defending(true)
+
+	# 防御的视觉效果 (如举盾动画/图标) 和相关的状态变化信号 (defense_state_changed)
+	# 现在由 CombatComponent.set_defending -> Character.show_defense_indicator 负责处理。
+	# BattleManager 主要负责接收防御指令并发起调用。
+	# 原有的 visual_effects.play_defend_effect(character) 调用可以移至 Character.show_defense_indicator 或由 CombatComponent 的信号触发。
 
 ## 执行技能 - 由BattleScene调用
 func execute_skill(caster: Character, skill_data: SkillData) -> void:
@@ -398,8 +414,8 @@ func round_end():
 
 ## 订阅角色信号
 func _subscribe_to_character_signals(character : Character) -> void:
-	if !character.character_died.is_connected(_on_character_died):
-		character.character_died.connect(_on_character_died)
+	if !character.character_defeated.is_connected(_on_character_defeated):
+		character.character_defeated.connect(_on_character_defeated)
 	
 	#TODO 链接其他信号
 
@@ -409,7 +425,7 @@ func _on_skill_executed(_caster, _targets, skill_data, _results):
 	# 可以在这里添加技能执行后的额外处理
 
 # 角色死亡信号处理函数
-func _on_character_died(character: Character) -> void:
+func _on_character_defeated(character: Character) -> void:
 	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
 	
 	# 从相应列表中移除

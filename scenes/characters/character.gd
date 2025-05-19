@@ -12,7 +12,7 @@ class_name Character
 @onready var character_rect := $Container/CharacterRect
 @onready var defense_indicator : DefenseIndicator = $DefenseIndicator
 # 组件引用
-@onready var combat_component: CombatComponent = $CombatComponent
+@onready var combat_component: = $CombatComponent
 @onready var skill_component : SkillComponent = $SkillComponent
 #endregion
 
@@ -102,9 +102,6 @@ func initialize_from_data(data: CharacterData):
 	# 初始化组件
 	skill_component.initialize(character_data)
 	
-	# 更新视觉表现
-	update_visual()
-	
 	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 
 ## 由battleManager在角色加入战斗时调用，注入
@@ -118,14 +115,14 @@ func initialize_battle_context(p_battle_manager: BattleManager) -> void:
 ## 返回实际HP变化量 (负数为伤害,正数为治疗)
 func modify_hp(amount: int, source: Variant = null) -> int:
 	if not is_instance_valid(skill_component) or not skill_component.attribute_set_instance: return 0
-    
+	
 	var ch_attr_name = &"CurrentHealth"
 	var current_val = skill_component.attribute_set_instance.get_current_value(ch_attr_name)
-    # AttributeSet 的 _pre_current_value_change (例如CurrentHealth钳制到MaxHealth) 会处理边界
-    # AttributeSet 会发出 current_value_changed 信号, Character._on_attribute_current_value_changed 会响应
+	# AttributeSet 的 _pre_current_value_change (例如CurrentHealth钳制到MaxHealth) 会处理边界
+	# AttributeSet 会发出 current_value_changed 信号, Character._on_attribute_current_value_changed 会响应
 	skill_component.attribute_set_instance.set_current_value(ch_attr_name, current_val + amount, source)
-    
-    # 返回实际变化 (set_current_value可能因为钳制而不完全等于amount)
+	
+	# 返回实际变化 (set_current_value可能因为钳制而不完全等于amount)
 	var new_val = skill_component.attribute_set_instance.get_current_value(ch_attr_name)
 	return int(round(new_val - current_val))
 
@@ -136,7 +133,7 @@ func modify_mp(amount: int, source: Variant = null) -> int:
 	var cm_attr_name = &"CurrentMana"
 	var current_val = skill_component.attribute_set_instance.get_current_value(cm_attr_name)
 	skill_component.attribute_set_instance.set_current_value(cm_attr_name, current_val + amount, source)
-    
+	
 	var new_val = skill_component.attribute_set_instance.get_current_value(cm_attr_name)
 	return int(round(new_val - current_val))
 
@@ -152,16 +149,16 @@ func deduct_mp_for_skill(cost: int, skill_source: SkillData):
 #region --- 供外部（如AI或BattleManager的execute_attack）调用的简单动作接口 ---
 ## 这些方法会通过 CombatComponent 路由，如果需要更复杂的行动判断
 func simple_attack(target_character: Character):
-    if is_instance_valid(combat_component) and combat_component.has_method("perform_basic_attack"):
-        combat_component.perform_basic_attack(target_character)
-    else:
-        push_warning("Character %s cannot perform_basic_attack via CombatComponent." % character_name)
+	if is_instance_valid(combat_component) and combat_component.has_method("perform_basic_attack"):
+		combat_component.perform_basic_attack(target_character)
+	else:
+		push_warning("Character %s cannot perform_basic_attack via CombatComponent." % character_name)
 
 func simple_defend():
-    if is_instance_valid(combat_component):
-        combat_component.set_defending(true)
-    else:
-        push_warning("Character %s cannot set_defending via CombatComponent." % character_name)
+	if is_instance_valid(combat_component):
+		combat_component.set_defending(true)
+	else:
+		push_warning("Character %s cannot set_defending via CombatComponent." % character_name)
 
 # 供动画系统调用的方法 (示例)
 # func play_animation(anim_name: StringName):

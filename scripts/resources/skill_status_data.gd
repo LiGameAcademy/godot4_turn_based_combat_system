@@ -43,8 +43,15 @@ enum StatusType {
 @export var end_effects: Array[SkillEffectData] = [] 							## 状态结束或被驱散时触发的效果
 
 # 状态间关系
-@export var overrides_states: Array[StringName] = []  # 此状态可以覆盖的其他状态
-@export var resisted_by_states: Array[StringName] = []  # 会抵抗此状态的其他状态
+@export var overrides_states: Array[StringName] = [] 							## 此状态可以覆盖的其他状态
+@export var resisted_by_states: Array[StringName] = [] 							## 会抵抗此状态的其他状态
+
+@export_group("行动限制")
+## 此状态会阻止角色执行哪些类别的行动。
+## 例如，一个“沉默”状态可能包含 [&ActionTypes.MAGIC_SKILL, &ActionTypes.ANY_SKILL]
+## 一个“眩晕”状态可能包含 [&ActionTypes.ANY_ACTION]
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack")
+var restricted_action_categories: Array[String] = ["any_action"]
 
 var source_char: Character
 var left_duration: int
