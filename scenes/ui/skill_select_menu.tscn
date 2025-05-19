@@ -39,6 +39,7 @@ layout_mode = 2
 
 [node name="SkillList" type="ItemList" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 size_flags_vertical = 3
 allow_reselect = true
@@ -50,14 +51,14 @@ item_1/text = "初级治疗 (MP: 10)"
 [node name="HSeparator2" type="HSeparator" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="SkillDescription" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="SkillDescription" type="RichTextLabel" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 120)
 layout_mode = 2
+bbcode_enabled = true
 text = "选择一个技能查看描述..."
 horizontal_alignment = 1
 vertical_alignment = 1
-autowrap_mode = 3
 
 [node name="HSeparator3" type="HSeparator" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2

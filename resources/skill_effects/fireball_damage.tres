@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_1f2vj")
-effect_type = 1
+effect_type = 0
 visual_effect = "fire_impact"
 sound_effect = "fire_explosion"
 damage_amount = 25

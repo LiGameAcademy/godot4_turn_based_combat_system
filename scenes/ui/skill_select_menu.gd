@@ -7,7 +7,7 @@ signal skill_selection_cancelled
 
 ## 节点引用
 @onready var skill_list: ItemList = %SkillList
-@onready var skill_description: Label = %SkillDescription
+@onready var skill_description: RichTextLabel = %SkillDescription
 @onready var use_button: Button = %UseButton
 @onready var cancel_button: Button = %CancelButton
 
@@ -35,7 +35,7 @@ func _ready() -> void:
 
 ## 显示技能菜单
 func show_menu(character_skills: Array[SkillData], character: Character) -> void:
-	self.current_character_skills = character_skills
+	current_character_skills = character_skills
 	skill_list.clear()
 	skill_description.text = "选择一个技能查看描述..."
 	selected_skill_index = -1
@@ -48,7 +48,7 @@ func show_menu(character_skills: Array[SkillData], character: Character) -> void
 			skill_list.add_item(item_text)
 			
 			# 根据MP是否足够，设置项目是否可用
-			if skill.can_cast(character):
+			if not skill.can_cast(character):
 				skill_list.set_item_disabled(i, true)
 				skill_list.set_item_custom_fg_color(i, Color(0.5, 0.5, 0.5)) # 灰色表示不可用
 	
@@ -62,7 +62,7 @@ func _on_skill_item_selected(index: int) -> void:
 		selected_skill_index = index
 		var skill: SkillData = current_character_skills[index]
 		if skill:
-			skill_description.text = skill.description
+			skill_description.text = skill.get_full_description()
 			use_button.disabled = skill_list.is_item_disabled(index)
 
 ## 当双击了技能项

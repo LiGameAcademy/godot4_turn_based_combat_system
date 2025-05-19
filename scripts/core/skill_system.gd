@@ -11,7 +11,7 @@ var effect_processors = {}		## 效果处理器
 signal skill_executed(caster, targets, skill, results)
 signal visual_effect_requested(effect_type, target, params)
 signal effect_applied(effect_type, source, target, result)
-signal status_applied(status, source, target)
+#signal status_applied(status, source, target)
 #signal status_removed(status, target)
 
 func _init(battle_mgr = null, visual_fx = null):
@@ -100,7 +100,6 @@ func apply_effect(effect: SkillEffectData, source: Character, target: Character)
 		
 		# 发出信号
 		effect_applied.emit(effect.effect_type, source, target, result)
-		
 		return result
 	else:
 		push_error("SkillSystem: 无效的效果处理器")

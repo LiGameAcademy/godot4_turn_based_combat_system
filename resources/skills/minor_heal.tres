@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Resource_dua1n"]
 script = ExtResource("1_6jcy7")
-effect_type = 2
+effect_type = 1
 visual_effect = "heal"
 sound_effect = "heal_cast"
 damage_amount = 10

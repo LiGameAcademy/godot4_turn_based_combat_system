@@ -36,7 +36,7 @@ signal battle_ended(is_victory)
 # 添加额外信号用于与UI交互
 signal player_action_required(character) # 通知UI玩家需要行动
 signal enemy_action_executed(attacker, target, damage) # 敌人执行了行动
-signal character_stats_changed(character) # 角色状态变化
+#signal character_stats_changed(character) # 角色状态变化
 
 func _ready():
 	# 创建视觉效果系统
@@ -164,9 +164,8 @@ func execute_attack(attacker: Character, target: Character) -> void:
 			# 遍历该目标受到的所有效果结果，查找伤害值
 			# 假设伤害效果的结果中包含 "damage_dealt" 键
 			for effect_key in target_specific_results:
-				var effect_result_data = target_specific_results[effect_key]
-				if effect_result_data is Dictionary and effect_result_data.has("damage_dealt"):
-					damage_dealt_to_target = effect_result_data.damage_dealt
+				if effect_key == "damage":
+					damage_dealt_to_target = target_specific_results[effect_key]
 					break # 通常基础攻击主要是一个伤害效果
 
 			if enemy_characters.has(attacker): # 如果是敌人发起的攻击

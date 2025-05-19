@@ -4,7 +4,7 @@ class_name BattleScene
 @onready var battle_manager: BattleManager = %BattleManager
 
 # UI引用
-@onready var battle_info_label : Label = $BattleUI/BattleInfo
+@onready var battle_info_label : RichTextLabel = $BattleUI/BattleInfo
 @onready var skill_select_menu: SkillSelectMenu = $BattleUI/SkillSelectMenu
 @onready var target_selection_menu: TargetSelectionMenu = $BattleUI/TargetSelectionMenu
 @onready var action_menu: ActionMenu = $BattleUI/ActionMenu
@@ -49,8 +49,7 @@ func _ready() -> void:
 	battle_manager.battle_ended.connect(_on_battle_ended)
 	battle_manager.player_action_required.connect(_on_player_action_required)
 	battle_manager.enemy_action_executed.connect(_on_enemy_action_executed)
-	battle_manager.character_stats_changed.connect(_on_character_stats_changed)
-	
+
 	# 启动战斗
 	battle_manager.start_battle()
 
@@ -91,11 +90,6 @@ func _on_player_action_required(character: Character) -> void:
 
 func _on_enemy_action_executed(attacker: Character, target: Character, damage: int) -> void:
 	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
-
-func _on_character_stats_changed(_character: Character) -> void:
-	# 更新角色状态显示
-	# 此处只是示例，实际实现需要根据UI设计来
-	pass
 
 # UI信号处理函数
 func _on_action_menu_attack_pressed() -> void:
@@ -195,8 +189,11 @@ func _on_target_selection_cancelled() -> void:
 
 # 更新战斗信息文本
 func update_battle_info(text: String) -> void:
-	if battle_info_label:
-		battle_info_label.text = text
+	if not battle_info_label:
+		return
+	if not battle_info_label.text.is_empty():
+		battle_info_label.text += "\n"
+	battle_info_label.text += text
 
 # UI辅助功能
 func _show_action_menu() -> void:

@@ -166,7 +166,7 @@ func apply_damage_intake(base_damage: int, source_effect: SkillEffectData) -> in
 	return -actual_hp_change # 返回伤害值 (正数)
 
 ## 应用治疗效果，返回实际治疗量
-func apply_heal_intake(base_heal: int, source_char: Character, source_effect: SkillEffectData) -> int:
+func apply_heal_intake(base_heal: int, _source_char: Character, source_effect: SkillEffectData) -> int:
 	if not character_owner or not is_instance_valid(skill_component_ref):
 		return 0 # 通常不治疗已不存在的组件的拥有者
 	
