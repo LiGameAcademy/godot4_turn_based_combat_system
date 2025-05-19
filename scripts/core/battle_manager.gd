@@ -199,14 +199,14 @@ func execute_defend(character: Character):
 	# 原有的 visual_effects.play_defend_effect(character) 调用可以移至 Character.show_defense_indicator 或由 CombatComponent 的信号触发。
 
 ## 执行技能 - 由BattleScene调用
-func execute_skill(caster: Character, skill_data: SkillData) -> void:
+func execute_skill(caster: Character, skill_data: SkillData, custom_targets: Array = []) -> void:
 	# 检查状态
 	if current_state != BattleState.PLAYER_TURN and current_state != BattleState.ACTION_EXECUTION:
 		print("错误：当前状态不允许使用技能")
 		return
 	
 	# 获取技能目标 - 现在由SkillSystem处理
-	var targets = skill_system.get_targets_for_skill(caster, skill_data)
+	var targets = skill_system.get_targets_for_skill(caster, skill_data) if custom_targets.is_empty() else custom_targets
 	if targets.is_empty() and skill_data.target_type != SkillData.TargetType.SELF:
 		print("错误：没有找到有效目标")
 		return

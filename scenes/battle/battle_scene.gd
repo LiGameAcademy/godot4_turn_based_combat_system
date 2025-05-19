@@ -95,7 +95,7 @@ func _on_enemy_action_executed(attacker: Character, target: Character, damage: i
 func _on_action_menu_attack_pressed() -> void:
 	if battle_manager.current_state == BattleManager.BattleState.PLAYER_TURN:
 		# 选择第一个存活的敌人作为目标
-		var valid_targets = battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_character)
+		var valid_targets = battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_characterbattle_manager.current_turn_character)
 		if !valid_targets.is_empty():
 			var target = valid_targets[0] # 这里简化为直接选择第一个敌人
 			battle_manager.player_select_action("attack", target)
@@ -120,31 +120,27 @@ func _on_skill_selected(skill: SkillData) -> void:
 	# 根据技能目标类型决定下一步操作
 	match skill.target_type:
 		SkillData.TargetType.SELF, \
-		SkillData.TargetType.ALL_ENEMIES, \
-		SkillData.TargetType.ALL_ALLIES, \
-		SkillData.TargetType.ALL_ALLIES_EXCEPT_SELF:
+		SkillData.TargetType.ENEMY_ALL, SkillData.TargetType.ALLY_ALL, \
+		SkillData.TargetType.ALLY_ALL_INC_SELF, SkillData.TargetType.ALL:
 			# 自动目标技能，直接执行
 			battle_manager.execute_skill(battle_manager.current_turn_character, skill)
-			
-		SkillData.TargetType.SINGLE_ENEMY:
+		SkillData.TargetType.ENEMY_SINGLE:
 			# 显示敌人目标选择菜单
-			var valid_targets = battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_character)
-			if !valid_targets.is_empty():
+			var valid_targets := battle_manager.skill_system.get_valid_enemy_targets(battle_manager.current_turn_characterbattle_manager.current_turn_character)
+			if not valid_targets.is_empty():
 				target_selection_menu.show_targets(valid_targets)
 			else:
 				update_battle_info("没有可选择的敌方目标！")
-				_on_skill_selection_cancelled()
-		
-		SkillData.TargetType.SINGLE_ALLY:
+				_on_skill_selection_cancelled()		
+		SkillData.TargetType.ALLY_SINGLE:
 			# 显示我方(不含自己)目标选择菜单
 			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(battle_manager.current_turn_character, false)
 			if !valid_targets.is_empty():
 				target_selection_menu.show_targets(valid_targets)
 			else:
 				update_battle_info("没有可选择的友方目标！")
-				_on_skill_selection_cancelled()
-		
-		SkillData.TargetType.ALL:  # 处理包含自己的单体友方目标选择
+				_on_skill_selection_cancelled()		
+		SkillData.TargetType.ALLY_SINGLE_INC_SELF:  # 处理包含自己的单体友方目标选择
 			# 显示我方(含自己)目标选择菜单
 			var valid_targets = battle_manager.skill_system.get_valid_ally_targets(battle_manager.current_turn_character, true)
 			if !valid_targets.is_empty():
@@ -152,7 +148,6 @@ func _on_skill_selected(skill: SkillData) -> void:
 			else:
 				update_battle_info("没有可选择的友方目标！")
 				_on_skill_selection_cancelled()
-		
 		_:
 			update_battle_info("未处理的目标类型: " + str(skill.target_type))
 			_on_skill_selection_cancelled()
@@ -165,7 +160,7 @@ func _on_skill_selection_cancelled() -> void:
 	_show_action_menu()
 
 # 当玩家选择了技能目标时调用
-func _on_target_selected(_target: Character) -> void:
+func _on_target_selected(target: Character) -> void:
 	# 确保有选中的技能
 	if current_selected_skill == null:
 		push_error("选择了目标但没有当前技能")
@@ -179,6 +174,12 @@ func _on_target_selected(_target: Character) -> void:
 	battle_manager.execute_skill(
 		battle_manager.current_turn_character, 
 		skill_copy
+	)
+	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
+	battle_manager.execute_skill(
+		battle_manager.current_turn_character, 
+		current_selected_skill,
+		[target]
 	)
 
 # 当玩家取消目标选择时调用
@@ -212,15 +213,18 @@ func _show_action_menu() -> void:
 		action_menu.setup_default_focus() # 假设菜单有此方法
 
 func _open_skill_menu() -> void:
-	_hide_all_menus()
+	_hide_all_menus() # 假设这是你隐藏其他UI元素的方法
 	
-	if skill_select_menu and battle_manager.current_turn_character:
-		var character = battle_manager.current_turn_character
-		if character and character.character_data and character.character_data.skills:
-			skill_select_menu.show_menu(character.character_data.skills, character)
+	if action_menu: # 假设 action_menu 是你的行动菜单节点
+		var current_character: Character = battle_manager.current_turn_character # BattleManager 提供当前行动角色
+		if is_instance_valid(current_character):
+			var can_use_any_special_skill : bool = current_character.has_enough_mp_for_any_skill()
+			action_menu.set_skill_button_enabled(can_use_any_special_skill) # 假设菜单有此方法
 		else:
-			update_battle_info("该角色没有技能")
-			_show_action_menu()
+			action_menu.set_skill_button_enabled(false) # 没有当前角色则禁用
+		
+		action_menu.visible = true
+		action_menu.setup_default_focus() # 假设菜单有此方法
 
 func _hide_all_menus() -> void:
 	if action_menu:

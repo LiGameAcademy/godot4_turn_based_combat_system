@@ -5,13 +5,15 @@ class_name SkillData
 
 ## 目标类型
 enum TargetType {
-	SELF,             		## 自己
-	SINGLE_ENEMY,     		## 单个敌人
-	SINGLE_ALLY,      		## 单个友方
-	ALL_ENEMIES,      		## 所有敌人
-	ALL_ALLIES,       		## 所有友方
-	ALL_ALLIES_EXCEPT_SELF, ## 除自己外的所有友方
-	ALL               		## 所有角色
+	NONE,                   ## 无需目标 (例如自身buff)
+	ENEMY_SINGLE,           ## 敌方单体
+	ENEMY_ALL,              ## 敌方全体
+	ALLY_SINGLE,            ## 我方单体 (不含自己)
+	ALLY_ALL,               ## 我方全体 (不含自己)
+	SELF,                   ## 施法者自己
+	ALLY_SINGLE_INC_SELF,   ## 我方单体 (含自己)
+	ALLY_ALL_INC_SELF,      ## 我方全体 (含自己)
+	ALL                     ## 所有角色
 }
 
 ## 技能类型
@@ -21,15 +23,15 @@ enum SkillArchetype {
 	TOGGLEABLE   ## 开关技能
 }
 
-## --- 导出的属性 ---
-@export var skill_id: StringName = &""              # 技能唯一标识符
-@export var skill_name: String = "技能名称"          # 技能名称
-@export_multiline var description: String = "技能描述"         # 技能描述
+# --- 导出的属性 ---
+@export var skill_id: StringName = &""              			# 技能唯一标识符
+@export var skill_name: String = "技能名称"           			# 技能名称
+@export_multiline var description: String = "技能描述"          		# 技能描述
 @export var archetype: SkillArchetype = SkillArchetype.ACTIVE # 技能类型
 
 @export_group("消耗与目标")
-@export var mp_cost: int = 10                      # 魔法消耗
-@export var target_type: TargetType = TargetType.SINGLE_ENEMY  # 目标类型
+@export var mp_cost: int = 10                      				# 魔法消耗
+@export var target_type: TargetType = TargetType.ENEMY_SINGLE  	# 目标类型
 
 @export_group("元素属性")
 @export var element: int = 0                        # 元素类型 (使用ElementTypes中的值)
@@ -94,8 +96,7 @@ func get_full_description() -> String:
 			if upkeep_cost_mp_per_turn > 0:
 				desc += "维持消耗: " + str(upkeep_cost_mp_per_turn) + " MP/回合\n"
 
-	if element > 0 and Engine.has_singleton("ElementTypes"): # 检查 Autoload 是否存在
-		desc += "元素: " + ElementTypes.get_element_name(element) + "\n"
+	desc += "元素: " + ElementTypes.get_element_name(element) + "\n"
 
 	desc += "\n效果:\n"
 	var effects_to_describe: Array[SkillEffectData] = []
@@ -134,16 +135,18 @@ func get_target_type_name() -> String:
 	match target_type:
 		TargetType.SELF:
 			return "自身"
-		TargetType.SINGLE_ENEMY:
+		TargetType.ENEMY_SINGLE:
 			return "单个敌人"
-		TargetType.SINGLE_ALLY:
-			return "单个友方"
-		TargetType.ALL_ENEMIES:
+		TargetType.ENEMY_ALL:
 			return "所有敌人"
-		TargetType.ALL_ALLIES:
-			return "所有友方"
-		TargetType.ALL_ALLIES_EXCEPT_SELF:
-			return "除自身外的所有友方"
+		TargetType.ALLY_SINGLE:
+			return "单个友方 (不含自己)"
+		TargetType.ALLY_ALL:
+			return "所有友方 (不含自己)"
+		TargetType.ALLY_SINGLE_INC_SELF:
+			return "单个友方 (含自己)"
+		TargetType.ALLY_ALL_INC_SELF:
+			return "所有友方 (含自己)"
 		TargetType.ALL:
 			return "所有角色"
 		_:

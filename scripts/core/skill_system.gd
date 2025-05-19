@@ -135,30 +135,29 @@ func get_targets_for_skill(caster: Character, skill: SkillData) -> Array:
 		SkillData.TargetType.SELF:
 			targets = [caster]
 		
-		SkillData.TargetType.SINGLE_ENEMY:
+		SkillData.TargetType.ENEMY_SINGLE:
 			# 获取一个有效的敌方目标
 			targets = _get_valid_enemy_targets(caster)
 			if !targets.is_empty():
 				targets = [targets[0]]  # 只取第一个敌人
 		
-		SkillData.TargetType.SINGLE_ALLY:
+		SkillData.TargetType.ALLY_SINGLE:
 			# 获取一个有效的友方目标（不包括自己）
 			targets = _get_valid_ally_targets(caster, false)
 			if !targets.is_empty():
 				targets = [targets[0]]  # 只取第一个友方
 		
-		SkillData.TargetType.ALL_ENEMIES:
+		SkillData.TargetType.ENEMY_ALL:
 			# 获取所有有效的敌方目标
 			targets = _get_valid_enemy_targets(caster)
 		
-		SkillData.TargetType.ALL_ALLIES:
+		SkillData.TargetType.ALLY_ALL:
 			# 获取所有有效的友方目标（不包括自己）
 			targets = _get_valid_ally_targets(caster, false)
 		
-		SkillData.TargetType.ALL_ALLIES_EXCEPT_SELF:
-			# 获取除自己外的所有友方目标
-			targets = _get_valid_ally_targets(caster, false)
-		
+		SkillData.TargetType.ALLY_ALL_INC_SELF:
+			# 获取所有友方目标
+			targets = _get_valid_ally_targets(caster, true)
 		SkillData.TargetType.ALL:
 			# 获取所有角色
 			targets = _get_valid_enemy_targets(caster) + _get_valid_ally_targets(caster, true)

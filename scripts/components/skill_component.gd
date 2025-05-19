@@ -73,10 +73,10 @@ func _apply_modifiers_from_status_instance(status_instance: SkillStatusData, add
 		var modifier_to_apply = mod_res_template # .duplicate(true) if SkillAttributeModifier can have runtime state
 
 		if add:
-			attribute_set_instance.apply_modifier(modifier_to_apply.attribute_to_modify, modifier_to_apply, status_id_source)
+			attribute_set_instance.apply_modifier(modifier_to_apply, status_id_source)
 		else:
 			# AttributeSet.remove_modifier 需要能通过模板资源和来源ID移除
-			attribute_set_instance.remove_modifier(modifier_to_apply.attribute_to_modify, modifier_to_apply, status_id_source)
+			attribute_set_instance.remove_modifier(modifier_to_apply, status_id_source)
 #endregion
 
 #region Status Management

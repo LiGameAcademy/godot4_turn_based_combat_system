@@ -132,25 +132,29 @@ func set_current_value(attribute_name: StringName, new_current_value: float, sou
 	return true
 
 ## 向指定属性应用一个Modifier
-func apply_modifier(attribute_name: StringName, modifier: SkillAttributeModifier, source: Variant = null):
-	var attr : SkillAttribute = get_attribute(attribute_name)
+func apply_modifier(modifier: SkillAttributeModifier, source: Variant = null):
+	var attr : SkillAttribute = get_attribute(modifier.attribute_id)
 	if not attr or not modifier: return
 
 	# (可选) 可以在这里添加逻辑，如果Modifier已存在则如何处理 (例如基于source_id刷新或拒绝)
+	if attr._active_modifiers.has(modifier):
+		printerr("Modifier %s already exists for attribute %s." % [modifier, modifier.attribute_id])
+		return
 	
 	attr.add_modifier_internal(modifier) # 添加到属性实例的列表
 	var proposed_new_current_value = attr.get_current_value()
 
-	set_current_value(attribute_name, proposed_new_current_value, source if source else modifier.source_id)
+	set_current_value(modifier.attribute_id, proposed_new_current_value, source if source else modifier.source_id)
 
 ## 从指定属性移除一个Modifier (通过Modifier实例或其source_id)
-func remove_modifier(attribute_name: StringName, modifier_or_id_to_remove: Variant, source: Variant = null):
-	var attr : SkillAttribute = get_attribute(attribute_name)
+func remove_modifier(modifier_or_id_to_remove: Variant, source: Variant = null):
+	var attr : SkillAttribute = get_attribute(modifier_or_id_to_remove)
 	if not attr: return
 
 	var modifier_found_and_removed = false
 	
 	var temp_modifier_list = attr._active_modifiers.duplicate() # 复制列表以安全迭代和移除
+	var modifier_to_remove : SkillAttributeModifier = null
 	for m in temp_modifier_list:
 		var should_remove = false
 		if modifier_or_id_to_remove is SkillAttributeModifier and m == modifier_or_id_to_remove:
@@ -160,6 +164,7 @@ func remove_modifier(attribute_name: StringName, modifier_or_id_to_remove: Varia
 		
 		if should_remove:
 			attr.remove_modifier_internal(m)
+			modifier_to_remove = m
 			modifier_found_and_removed = true
 			# print("Attempting to remove modifier %s from %s" % [m, attribute_name])
 
@@ -169,7 +174,7 @@ func remove_modifier(attribute_name: StringName, modifier_or_id_to_remove: Varia
 
 	var proposed_new_current_value = attr.get_current_value()
 
-	set_current_value(attribute_name, proposed_new_current_value, source)
+	set_current_value(modifier_to_remove.attribute_id, proposed_new_current_value, source if source else modifier_to_remove.source_id)
 
 #region --- 钩子函数 (虚拟方法，由具体业务逻辑的AttributeSet子类重写) ---
 

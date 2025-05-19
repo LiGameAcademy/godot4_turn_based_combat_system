@@ -34,7 +34,7 @@ func process_effect(effect_data: SkillEffectData, _source: Character, target: Ch
     var attr_set : SkillAttributeSet = target.active_attribute_set
     if attr_set:
         # add_modifier_from_effect 可能需要处理持续时间，如果不是永久的
-        attr_set.apply_modifier(effect_data.attr, effect_data.attr_modifier) # 使用effect_data的ID作为临时来源
+        attr_set.apply_modifier(modifier_res, effect_data.visual_effect) # 使用effect_data的ID作为临时来源
 
         if effect_data.visual_effect != "":
              _request_visual_effect(effect_data.visual_effect, target, {"attribute": effect_data.attr, "value": effect_data.attr_modifier.magnitude})

@@ -23,6 +23,25 @@ special_type = "none"
 special_params = {}
 metadata/_custom_type_script = "uid://dudfq7tltbaqw"
 
+[sub_resource type="Resource" id="Resource_ytemu"]
+script = ExtResource("1_6jcy7")
+effect_type = 1
+visual_effect = ""
+sound_effect = ""
+damage_amount = 10
+damage_power_scale = 1.0
+heal_amount = 10
+heal_power_scale = 0.5
+attr = ""
+status_chance = 1.0
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+dispel_is_all = false
+special_type = "none"
+special_params = {}
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+
 [resource]
 script = ExtResource("1_1r1xg")
 skill_id = &"minor_heal"

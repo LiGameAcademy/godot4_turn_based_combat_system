@@ -12,7 +12,7 @@ enum EffectType {
 }
 
 # 基本属性
-@export var effect_type: EffectType = EffectType.ATTRIBUTE_MODIFY
+@export var effect_type: EffectType = EffectType.DAMAGE
 @export var visual_effect: String = ""  		## 视觉效果标识符
 @export var sound_effect: String = ""   		## 音效标识符
 
@@ -42,7 +42,7 @@ enum EffectType {
 @export var dispel_types: Array[String] = []  	## 驱散的状态类型
 @export var dispel_count: int = 1       		## 驱散数量
 @export var dispel_is_positive: bool = false  	## 是否驱散正面效果
-@export var is_dispel_all: bool = false        	## 是否全部驱散
+@export var dispel_is_all: bool = false        	## 是否全部驱散
 
 ## 特殊效果参数
 @export_group("特殊效果参数", "special_")

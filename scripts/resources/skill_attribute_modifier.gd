@@ -7,6 +7,8 @@ enum ModifierOperation {
 	ADD_PERCENTAGE            ## 基于属性的基础值计算百分比 (例如: +20% 基础生命)
 }
 
+## 修改的属性ID
+@export var attribute_id: StringName = &""
 ## 修改的幅度 (例如: 10, -5, 0.2, 1.5)
 @export var magnitude: float = 0.0
 ## 修改的操作类型
@@ -16,9 +18,11 @@ enum ModifierOperation {
 @export var source_id: String = "" 
 
 func _init(
+		p_attribute_id: StringName = &"", 
 		p_magnitude: float = 0.0, 
 		p_operation: ModifierOperation = ModifierOperation.ADD_ABSOLUTE, 
 		p_source_id: String = "") -> void:
+	attribute_id = p_attribute_id
 	magnitude = p_magnitude
 	operation = p_operation
 	source_id = p_source_id
