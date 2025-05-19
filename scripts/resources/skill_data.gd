@@ -34,11 +34,11 @@ enum SkillArchetype {
 @export_group("元素属性")
 @export var element: int = 0                        # 元素类型 (使用ElementTypes中的值)
 
-@export_group("主要效果列表", "effects_") 										
 ## 根据原型，语义可能不同
 ## ACTIVE: 技能施放时的直接效果 (包含应用状态的SkillEffectData)
 ## PASSIVE (持续型): 学习/装备时应用的永久效果
 ## TOGGLEABLE: 可以是空的，主要依赖开关效果组
+@export_group("主要效果列表", "effects_") 										
 @export var direct_effects: Array[SkillEffectData] = []
 
 @export_group("被动技能触发设置", "passive_trigger_") 							## 仅当 archetype == PASSIVE 时相关
