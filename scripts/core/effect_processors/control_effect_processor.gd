@@ -33,7 +33,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 		request_visual_effect("control_applied", target, {"control_type": control_type})
 		
 		# 角色状态变化信号
-		var battle_mgr = get_battle_manager()
+		var battle_mgr = _get_battle_manager()
 		if battle_mgr and battle_mgr.has_signal("character_stats_changed"):
 			battle_mgr.character_stats_changed.emit(target)
 		

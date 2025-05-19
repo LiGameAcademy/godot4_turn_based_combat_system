@@ -46,6 +46,10 @@ enum StatusType {
 @export var overrides_states: Array[StringName] = []  # 此状态可以覆盖的其他状态
 @export var resisted_by_states: Array[StringName] = []  # 会抵抗此状态的其他状态
 
+var source_char: Character
+var left_duration: int
+var stacks: int
+
 # 获取状态的完整描述
 func get_full_description() -> String:
 	var desc = description + "\n"

@@ -177,40 +177,19 @@ func play_status_effect_applied(target: Character, effect_data: SkillStatusData)
 	var color = Color.WHITE
 	var is_positive = false
 	
-	match effect_data.effect_type:
-		SkillStatusData.EffectType.BUFF:
+	match effect_data.status_type:
+		SkillStatusData.StatusType.BUFF:
 			color = Color(0.2, 0.8, 0.2)  # 绿色
 			is_positive = true
-		SkillStatusData.EffectType.DEBUFF:
+		SkillStatusData.StatusType.DEBUFF:
 			color = Color(0.8, 0.2, 0.2)  # 红色
-			is_positive = false
-		SkillStatusData.EffectType.DOT:
-			color = Color(0.8, 0.5, 0.2)  # 橙色
-			is_positive = false
-		SkillStatusData.EffectType.HOT:
-			color = Color(0.2, 0.8, 0.8)  # 青色
-			is_positive = true
-		SkillStatusData.EffectType.CONTROL:
-			color = Color(0.8, 0.2, 0.8)  # 紫色
 			is_positive = false
 	
 	# 根据是否为正面效果，使用已有的play_status_effect方法
 	play_status_effect(target, {
-		"status_type": effect_data.effect_type,
+		"status_type": effect_data.status_type,
 		"is_positive": is_positive
 	})
-	
-	# 此外，也可以添加特定于效果类型的特殊视觉效果
-	match effect_data.effect_type:
-		SkillStatusData.EffectType.CONTROL:
-			# 控制效果特殊视觉效果 - 例如星星环绕
-			_play_control_effect(target)
-		SkillStatusData.EffectType.HOT:
-			# 治疗特殊视觉效果 - 上升的绿色粒子
-			_play_hot_effect(target)
-		SkillStatusData.EffectType.DOT:
-			# 持续伤害特殊视觉效果 - 例如毒气效果
-			_play_dot_effect(target)
 
 # 控制效果特殊视觉效果
 func _play_control_effect(target: Character) -> void:

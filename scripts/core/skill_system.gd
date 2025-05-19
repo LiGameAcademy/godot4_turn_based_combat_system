@@ -63,20 +63,7 @@ func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = 
 	var effect_results = {}
 	if !skill.direct_effects.is_empty():
 		effect_results = await apply_effects(skill.direct_effects, caster, targets)
-	
-	# 处理状态效果
-	var status_results = {}
-	if !skill.statuses.is_empty():
-		for i in range(skill.statuses.size()):
-			var status = skill.statuses[i]
-			var chance = skill.status_chances[i] if i < skill.status_chances.size() else 1.0
-			
-			for target in targets:
-				if !status_results.has(target):
-					status_results[target] = {}
-				
-				status_results[target][status.status_id] = apply_status(status, caster, target, chance)
-	
+
 	# 合并结果
 	var final_results = {}
 	for target in targets:
@@ -85,10 +72,6 @@ func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = 
 		if effect_results.has(target):
 			for key in effect_results[target]:
 				final_results[target][key] = effect_results[target][key]
-		
-		if status_results.has(target):
-			for key in status_results[target]:
-				final_results[target]["status_" + key] = status_results[target][key]
 	
 	# 发送技能执行信号
 	skill_executed.emit(caster, targets, skill, final_results)
@@ -110,7 +93,7 @@ func apply_effect(effect: SkillEffectData, source: Character, target: Character)
 	var processor_id = get_processor_id_for_effect(effect)
 	var processor = effect_processors.get(processor_id)
 	
-	if processor:
+	if processor and processor.can_process_effect(effect):
 		# 使用处理器处理效果
 		var result = await processor.process_effect(effect, source, target)
 		
@@ -119,17 +102,8 @@ func apply_effect(effect: SkillEffectData, source: Character, target: Character)
 		
 		return result
 	else:
-		# 如果没有对应处理器，使用默认apply方法
-		var result = effect.apply(source, target)
-		
-		# 触发视觉效果
-		if effect.visual_effect != "":
-			_trigger_visual_effect(effect, source, target, result)
-		
-		# 发出信号
-		effect_applied.emit(effect.effect_type, source, target, result)
-		
-		return result
+		push_error("SkillSystem: 无效的效果处理器")
+		return {}
 
 # 应用多个效果
 func apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
@@ -147,53 +121,6 @@ func apply_effects(effects: Array, source: Character, targets: Array) -> Diction
 				all_results[target][key] = result[key]
 	
 	return all_results
-
-# 应用状态效果
-func apply_status(status: SkillStatusData, source: Character, target: Character, chance: float = 1.0) -> bool:
-	# 检查参数有效性
-	if !is_instance_valid(source) or !is_instance_valid(target):
-		push_error("SkillSystem: 无效的角色引用")
-		return false
-	
-	if !status:
-		push_error("SkillSystem: 无效的状态引用")
-		return false
-	
-	# 检查目标是否存活
-	if target.current_hp <= 0:
-		return false
-	
-	# 随机判定是否应用
-	if randf() > chance:
-		# 触发抵抗视觉效果
-		if visual_effects and visual_effects.has_method("play_status_resist"):
-			visual_effects.play_status_resist(target, {"status_id": status.status_id})
-		return false
-	
-	# 检查是否被现有状态反制
-	for existing_status in target.get_all_statuses():
-		if status.is_countered_by(existing_status.effect_id):
-			# 触发抵抗视觉效果
-			if visual_effects and visual_effects.has_method("play_status_resist"):
-				visual_effects.play_status_resist(target, {"status_id": status.status_id})
-			return false
-	
-	# 添加状态
-	#var applied_status = 
-	target.add_status(status, source)
-	
-	# 触发视觉效果
-	if visual_effects and visual_effects.has_method("play_status_applied"):
-		visual_effects.play_status_applied(target, {
-			"status_id": status.status_id,
-			"status_type": status.effect_type,
-			"is_positive": status.effect_type == SkillStatusData.EffectType.BUFF
-		})
-	
-	# 发出信号
-	status_applied.emit(status, source, target)
-	
-	return true
 
 # 获取技能的目标
 func get_targets_for_skill(caster: Character, skill: SkillData) -> Array:
@@ -253,8 +180,8 @@ func get_processor_id_for_effect(effect: SkillEffectData) -> String:
 			return "heal"
 		SkillEffectData.EffectType.ATTRIBUTE_MODIFY:
 			return "attribute"
-		SkillEffectData.EffectType.CONTROL:
-			return "control"
+		SkillEffectData.EffectType.STATUS:
+			return "status"
 		SkillEffectData.EffectType.DISPEL:
 			return "dispel"
 		SkillEffectData.EffectType.SPECIAL:
@@ -293,10 +220,10 @@ func _trigger_visual_effect(effect: SkillEffectData, _source: Character, target:
 					"amount": result.get("amount", 0)
 				})
 		
-		SkillEffectData.EffectType.CONTROL:
-			if visual_effects.has_method("play_control_applied"):
-				visual_effects.play_control_applied(target, {
-					"control_type": result.get("control_type", "stun")
+		SkillEffectData.EffectType.STATUS:
+			if visual_effects.has_method("play_status_applied"):
+				visual_effects.play_status_applied(target, {
+					"status_id": result.get("status_id", 0)
 				})
 		
 		SkillEffectData.EffectType.ATTRIBUTE_MODIFY:
@@ -321,8 +248,9 @@ func _init_effect_processors():
 	register_effect_processor(DamageEffectProcessor.new(self, visual_effects))
 	register_effect_processor(HealingEffectProcessor.new(self, visual_effects))
 	register_effect_processor(StatusEffectProcessor.new(self, visual_effects))
-	register_effect_processor(ControlEffectProcessor.new(self, visual_effects))
+	register_effect_processor(DispelEffectProcessor.new(self, visual_effects))
 
+#region 辅助函数
 ## 获取有效的敌方目标
 func _get_valid_enemy_targets(caster: Character) -> Array:
 	if !battle_manager:
@@ -383,3 +311,4 @@ func _on_visual_effect_requested(effect_type: String, target, params: Dictionary
 		visual_effects.call(method, target, params)
 	else:
 		push_warning("SkillSystem: 未找到视觉效果方法 play_" + effect_type + "_effect")
+#endregion

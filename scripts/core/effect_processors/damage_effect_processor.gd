@@ -2,7 +2,7 @@ extends EffectProcessor
 class_name DamageEffectProcessor
 
 ## 获取处理器ID
-func get_processor_id() -> String:
+func get_processor_id() -> StringName:
 	return "damage"
 
 ## 处理伤害效果
@@ -21,7 +21,7 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 		return {}
 		
 	# 计算伤害
-	var damage_result = calculate_damage(caster, target, effect)
+	var damage_result = _calculate_damage(caster, target, effect)
 	var damage = damage_result["damage"]
 	
 	# 播放命中动画，根据克制关系选择不同效果
@@ -45,7 +45,7 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 	var actual_damage = target.take_damage(damage)
 	
 	# 角色状态变化信号
-	var bm = get_battle_manager()
+	var bm = _get_battle_manager()
 	if bm and bm.has_signal("character_stats_changed"):
 		bm.character_stats_changed.emit(target)
 	
@@ -68,10 +68,15 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 	
 	return results
 
+## 检查是否可以处理指定效果类型
+func can_process_effect(effect: SkillEffectData) -> bool:
+	# 默认实现，子类应该根据需要重写
+	return effect.effect_type == effect.SkillEffectType.DAMAGE
+
 ## 计算伤害
-func calculate_damage(caster: Character, target: Character, effect: SkillEffectData) -> Dictionary:
+func _calculate_damage(caster: Character, target: Character, effect: SkillEffectData) -> Dictionary:
 	# 获取基础伤害
-	var power = effect.power
+	var power = effect.damage_amount
 	var element = effect.element
 	
 	# 基础伤害计算
@@ -81,7 +86,7 @@ func calculate_damage(caster: Character, target: Character, effect: SkillEffectD
 	var damage_after_defense = base_damage - (target.magic_defense * 0.5)
 	
 	# 元素相克系统
-	var element_result = calculate_element_modifier(element, target)
+	var element_result = _calculate_element_modifier(element, target)
 	var element_modifier = element_result["multiplier"]
 	
 	# 加入随机浮动因素 (±10%)
@@ -105,7 +110,7 @@ func calculate_damage(caster: Character, target: Character, effect: SkillEffectD
 	}
 
 ## 计算元素系数
-func calculate_element_modifier(attack_element: int, target: Character) -> Dictionary:
+func _calculate_element_modifier(attack_element: int, target: Character) -> Dictionary:
 	# 获取目标元素
 	var defense_element = target.element
 	
@@ -117,14 +122,3 @@ func calculate_element_modifier(attack_element: int, target: Character) -> Dicti
 		"is_effective": multiplier > ElementTypes.NEUTRAL_MULTIPLIER,
 		"is_ineffective": multiplier < ElementTypes.NEUTRAL_MULTIPLIER
 	}
-
-## 获取效果描述
-func get_effect_description(effect: SkillEffectData) -> String:
-	var power = effect.power
-	var element_name = ""
-	
-	if effect.element > 0:
-		element_name = ElementTypes.get_element_name(effect.element)
-		return "造成 %d 点%s属性伤害" % [power, element_name]
-	else:
-		return "造成 %d 点伤害" % power

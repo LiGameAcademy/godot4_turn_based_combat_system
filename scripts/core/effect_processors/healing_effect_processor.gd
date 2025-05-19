@@ -2,8 +2,12 @@ extends EffectProcessor
 class_name HealingEffectProcessor
 
 ## 获取处理器ID
-func get_processor_id() -> String:
+func get_processor_id() -> StringName:
 	return "heal"
+
+## 判断是否可以处理该效果
+func can_process(effect: SkillEffectData) -> bool:
+	return effect.effect_type == effect.SkillEffectType.HEAL
 
 ## 处理治疗效果
 func process_effect(effect: SkillEffectData, source: Character, target: Character) -> Dictionary:
@@ -17,7 +21,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 		await Engine.get_main_loop().process_frame
 	
 	# 计算治疗量
-	var heal_amount = calculate_healing(source, target, effect)
+	var heal_amount = _calculate_healing(source, target, effect)
 	
 	# 播放治疗效果
 	request_visual_effect("heal", target, {})
@@ -33,7 +37,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	target.heal(heal_amount)
 	
 	# 角色状态变化信号
-	var battle_mgr = get_battle_manager()
+	var battle_mgr = _get_battle_manager()
 	if battle_mgr and battle_mgr.has_signal("character_stats_changed"):
 		battle_mgr.character_stats_changed.emit(target)
 	
@@ -46,7 +50,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	return results
 
 ## 计算治疗量
-func calculate_healing(caster: Character, _target: Character, effect: SkillEffectData) -> int:
+func _calculate_healing(caster: Character, _target: Character, effect: SkillEffectData) -> int:
 	# 获取基础治疗量
 	var power = effect.power
 	
@@ -61,8 +65,3 @@ func calculate_healing(caster: Character, _target: Character, effect: SkillEffec
 	
 	# 确保至少治疗1点
 	return max(1, round(final_healing))
-
-## 获取效果描述
-func get_effect_description(effect: SkillEffectData) -> String:
-	var power = effect.power
-	return "恢复 %d 点生命值" % power 

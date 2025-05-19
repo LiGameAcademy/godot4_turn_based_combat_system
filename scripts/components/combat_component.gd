@@ -1,336 +1,146 @@
+# res://scripts/components/combat_component.gd
 extends Node
 class_name CombatComponent
 
-# 信号
-signal skill_executed(skill, source, targets, results)
-signal status_applied(status, target, source)
-signal status_removed(status, target)
-signal status_updated(status, target, old_stacks, new_stacks)
+#region Signals
+## 行动被阻止
+signal action_blocked(character_node: Character, reason: String)
+## 防御状态改变
+signal defense_state_changed(character_node: Character, is_defending: bool)
+# HP/MP/Status 相关的信号现在主要由 SkillComponent 或 Character 发出
+#endregion
 
-# 引用
-var character: Character :
+#region Variables
+var character_owner: Character:
 	get:
 		return get_parent()
+var _battle_manager_ref: BattleManager   # 由 BattleManager 注入
+var _skill_system_ref: SkillSystem:
+	get:
+		if _battle_manager_ref:
+			return _battle_manager_ref.skill_system
+		return null
+@export var skill_component_ref: SkillComponent # 由 Character 注入
 
-# 状态管理
-var active_statuses = {} # Dictionary<String, Dictionary> - 键为状态ID，值为状态信息
-var status_sources = {} # Dictionary<String, Character> - 键为状态ID，值为状态来源
+var _is_defending: bool = false
+var _last_action_block_reason: String = ""
+#endregion
 
-# 控制效果管理
-var control_effects = {} # 字典，键为控制类型，值为持续回合数
+func set_battle_manager_reference(p_battle_manager: BattleManager):
+	_battle_manager_ref = p_battle_manager
 
-var _battle_manager_ref : BattleManager = null
-
-## 设置战斗管理器引用
-func set_battle_manager_ref(battle_manager: BattleManager):
-	_battle_manager_ref = battle_manager
-
-## 执行技能
-func execute_skill(skill_data: SkillData, targets: Array) -> Array:
-	if !can_execute_skill(skill_data):
-		return []
-	
-	# 消耗MP
-	character.use_mp(skill_data.mp_cost)
-	
-	var results = []
-	
-	# 处理直接效果
-	for effect in skill_data.direct_effects:
-		for target in targets:
-			var result = effect.apply(character, target)
-			results.append(result)
-	
-	# 处理状态效果
-	for i in range(skill_data.statuses.size()):
-		var status = skill_data.statuses[i]
-		var chance = skill_data.status_chances[i] if i < skill_data.status_chances.size() else 1.0
-		
-		# 随机判断是否应用状态
-		if randf() <= chance:
-			for target in targets:
-				add_status(status, character)
-	
-	# 发出信号
-	skill_executed.emit(skill_data, character, targets, results)
-	
-	return results
-
-## 检查是否可以执行技能
-func can_execute_skill(skill_data: SkillData) -> bool:
-	# 检查MP是否足够
-	if character.current_mp < skill_data.mp_cost:
+#region Action Readiness & Resource Consumption
+func can_perform_action(skill_to_cast: SkillData = null, action_type_flag: int = 0) -> bool:
+	if not character_owner or not character_owner.is_alive or not skill_component_ref:
+		_last_action_block_reason = "Invalid state for action."
 		return false
-	
-	# 检查是否被控制
-	if !can_act():
-		return false
-	
-	return true
 
-## 添加状态
-func add_status(status: SkillStatusData, source: Character = null) -> SkillStatusData:
-	var status_id = status.status_id
-	
-	# 检查是否已有此状态
-	if active_statuses.has(status_id):
-		var existing_info = active_statuses[status_id]
-		var existing_status = existing_info["status"]
-		
-		# 判断是否可叠加
-		if existing_status.can_stack:
-			# 根据叠加行为处理
-			var old_stacks = existing_info["stacks"]
-			var new_stacks = old_stacks
-			
-			match existing_status.stack_behavior:
-				"replace":
-					# 重置持续时间
-					existing_info["duration"] = status.duration
-				"extend_duration":
-					# 延长持续时间
-					existing_info["duration"] += status.duration
-				"increase_intensity":
-					# 增加叠加层数
-					new_stacks = min(old_stacks + 1, existing_status.max_stacks)
-					existing_info["stacks"] = new_stacks
-			
-			# 发送更新信号
-			status_updated.emit(existing_status, character, old_stacks, new_stacks)
-			
-			return existing_status
-		else:
-			# 不可叠加，替换为新状态
-			remove_status(status_id)
-	
-	# 添加新状态
-	active_statuses[status_id] = {
-		"status": status,
-		"duration": status.duration,
-		"stacks": 1
-	}
-	
-	# 记录状态来源
-	if source:
-		status_sources[status_id] = source
-	
-	# 执行初始效果
-	for effect in status.initial_effects:
-		effect.apply(source, character)
-	
-	# 发送添加信号
-	status_applied.emit(status, character, source)
-	
-	return status
-
-## 移除状态
-func remove_status(status_id: String) -> void:
-	if active_statuses.has(status_id):
-		var status_info = active_statuses[status_id]
-		var status = status_info["status"]
-		var source = status_sources.get(status_id)
-		
-		# 执行结束效果
-		for effect in status.end_effects:
-			effect.apply(source, character)
-		
-		# 移除状态
-		active_statuses.erase(status_id)
-		
-		# 移除状态来源
-		if status_sources.has(status_id):
-			status_sources.erase(status_id)
-		
-		# 发送移除信号
-		status_removed.emit(status, character)
-
-## 获取状态
-func get_status_by_id(status_id: String) -> SkillStatusData:
-	if active_statuses.has(status_id):
-		return active_statuses[status_id]["status"]
-	return null
-
-## 获取状态来源
-func get_status_source(status_id: String) -> Character:
-	if status_sources.has(status_id):
-		return status_sources[status_id]
-	return null
-
-## 获取所有状态
-func get_all_statuses() -> Array:
-	var statuses = []
-	for status_id in active_statuses:
-		statuses.append(active_statuses[status_id]["status"])
-	return statuses
-
-## 获取所有状态及其来源
-func get_all_statuses_with_sources() -> Array:
-	var result = []
-	for status_id in active_statuses:
-		var status_info = active_statuses[status_id]
-		var source = status_sources.get(status_id, null)
-		
-		result.append({
-			"status": status_info["status"],
-			"source": source,
-			"duration": status_info["duration"],
-			"stacks": status_info["stacks"]
-		})
-	
-	return result
-
-## 计算属性修改值 (用于Buff/Debuff)
-func calculate_stat_modification(status_id: String, base_value: float) -> float:
-	if !active_statuses.has(status_id):
-		return 0.0
-		
-	var status_info = active_statuses[status_id]
-	var status = status_info["status"]
-	var stacks = status_info["stacks"]
-	var modifier = 0.0
-	
-	# 应用固定值修改
-	modifier += status.value_flat * stacks
-	
-	# 应用百分比修改
-	modifier += base_value * (status.value_percent * stacks)
-	
-	# 根据效果类型决定是增加还是减少
-	if status.effect_type == SkillStatusData.EffectType.DEBUFF:
-		modifier = -modifier
-		
-	return modifier
-
-## 获取状态每回合伤害/治疗值 (用于DoT/HoT)
-func get_dot_hot_value(status_id: String) -> int:
-	if !active_statuses.has(status_id):
-		return 0
-		
-	var status_info = active_statuses[status_id]
-	var status = status_info["status"]
-	var stacks = status_info["stacks"]
-	
-	return status.dot_hot_value * stacks
-
-## 更新状态持续时间
-func update_statuses_duration() -> void:
-	var statuses_to_remove = []
-	
-	# 更新所有状态的持续时间
-	for status_id in active_statuses:
-		var status_info = active_statuses[status_id]
-		status_info["duration"] -= 1
-		
-		# 如果持续时间结束，准备移除
-		if status_info["duration"] <= 0:
-			statuses_to_remove.append(status_id)
-	
-	# 移除已结束的状态
-	for status_id in statuses_to_remove:
-		remove_status(status_id)
-	
-	# 执行持续效果
-	for status_id in active_statuses:
-		var status_info = active_statuses[status_id]
-		var status = status_info["status"]
-		var source = status_sources.get(status_id, null)
-		
-		for effect in status.ongoing_effects:
-			effect.apply(source, character)
-
-## 检查是否有指定状态
-func has_status(status_id: String) -> bool:
-	return active_statuses.has(status_id)
-
-## 获取状态的叠加层数
-func get_status_stacks(status_id: String) -> int:
-	if active_statuses.has(status_id):
-		return active_statuses[status_id]["stacks"]
-	return 0
-
-## 获取状态的剩余持续时间
-func get_status_remaining_duration(status_id: String) -> int:
-	if active_statuses.has(status_id):
-		return active_statuses[status_id]["duration"]
-	return 0
-
-## 应用控制效果
-func apply_control_effect(control_type: String, duration: int):
-	if control_effects.has(control_type):
-		# 如果已有此类控制效果，取更长的持续时间
-		control_effects[control_type] = max(control_effects[control_type], duration)
-	else:
-		# 否则直接添加
-		control_effects[control_type] = duration
-	
-	print("%s 被%s，持续%d回合" % [character.character_name, get_control_name(control_type), duration])
-
-## 检查是否有特定控制效果
-func has_control_effect(control_type: String) -> bool:
-	return control_effects.has(control_type) and control_effects[control_type] > 0
-
-## 获取所有控制效果
-func get_all_control_effects() -> Dictionary:
-	return control_effects.duplicate()
-
-## 移除控制效果
-func remove_control_effect(control_type: String):
-	if control_effects.has(control_type):
-		control_effects.erase(control_type)
-		print("%s 的%s效果已结束" % [character.character_name, get_control_name(control_type)])
-
-## 获取控制效果显示名称
-func get_control_name(control_type: String) -> String:
-	match control_type:
-		"stun":
-			return "眩晕"
-		"silence":
-			return "沉默"
-		"root":
-			return "定身"
-		"sleep":
-			return "睡眠"
-		_:
-			return control_type
-
-## 检查是否可以行动
-func can_act() -> bool:
-	# 如果有眩晕效果，无法行动
-	if has_control_effect("stun"):
-		return false
-	
-	if has_control_effect("sleep"):
-		return false
-	
-	# 检查状态效果
-	for status_id in active_statuses:
-		var status_info = active_statuses[status_id]
-		var status = status_info["status"]
-		if !status.allows_action():
+	# 1. MP 检查 (通过 SkillComponent)
+	if skill_to_cast:
+		if skill_component_ref.get_calculated_attribute(&"CurrentMana") < skill_to_cast.mp_cost:
+			_last_action_block_reason = "Not enough MP."
+			action_blocked.emit(character_owner, _last_action_block_reason)
 			return false
-			
+	
+	# 2. 状态检查 (通过 SkillComponent 查询状态，但具体行动限制逻辑可能在 SkillStatusData 定义)
+	# 假设 SkillStatusData 有 'action_restrictions' 标志位属性 (需要你在SkillStatusData中实现)
+	# 例如: Character.ACTION_FLAG_SKILL = 4
+	for status_info in skill_component_ref.get_all_active_statuses_info():
+		var status_res: SkillStatusData = status_info.status_res
+		if status_res.has_meta("action_restrictions"): # 或者直接访问属性 status_res.action_restrictions
+			var restrictions = status_res.get_meta("action_restrictions", 0) 
+			var current_action_type_flag = action_type_flag
+			if skill_to_cast : # 如果是施法，就用技能行动标志
+				 # current_action_type_flag = Character.ACTION_FLAG_SKILL # 假设值
+				 pass # 你需要定义这个
+
+			if current_action_type_flag > 0 and (restrictions & current_action_type_flag):
+				 _last_action_block_reason = "Action type blocked by status: %s" % status_res.status_name
+				 action_blocked.emit(character_owner, _last_action_block_reason)
+				 return false
+			# 你可能还需要一个通用的 "无法行动" 标志，如眩晕
+			# elif restrictions & Character.ACTION_FLAG_ANY:
+			#      _last_action_block_reason = "All actions blocked by status: %s" % status_res.status_name
+			#      action_blocked.emit(character_owner, _last_action_block_reason)
+			#      return false
+				 
+	_last_action_block_reason = ""
 	return true
 
-## 处理回合结束时的控制效果
-func process_control_effects_end_turn():
-	var effects_to_remove = []
-	
-	# 减少所有控制效果的持续时间
-	for effect_type in control_effects.keys():
-		control_effects[effect_type] -= 1
-		
-		# 如果持续时间为0，准备移除
-		if control_effects[effect_type] <= 0:
-			effects_to_remove.append(effect_type)
-	
-	# 移除过期的控制效果
-	for effect_type in effects_to_remove:
-		remove_control_effect(effect_type)
+## 获取最后一次行动被阻止的原因
+func get_last_action_block_reason() -> String:
+	return _last_action_block_reason
 
-## 处理回合结束时的状态效果
-func process_status_effects_end_of_round() -> void:
-	# 处理状态效果持续时间
-	update_statuses_duration()
+## 指示 SkillComponent 或 Character 消耗资源
+func consume_skill_resources(skill_data: SkillData):
+	if character_owner and skill_data: # Character.gd 有 modify_mp
+		character_owner.modify_mp(-skill_data.mp_cost, skill_data)
+#endregion
+
+#region Damage & Healing Application (Called by EffectProcessors)
+## 应用伤害效果，返回实际造成的伤害 (正值)
+func apply_damage_intake(base_damage: int, element: int, source_char: Character, source_effect: SkillEffectData) -> int:
+	if not character_owner or not character_owner.is_alive() or not skill_component_ref:
+		return 0
+
+	var final_damage_float = float(base_damage)
+
+	# 1. 从 SkillComponent 获取防御、抗性等属性
+	var defense_val = skill_component_ref.get_calculated_attribute(&"DefensePower") # 示例
+	# TODO: var elemental_resistance = skill_component_ref.get_elemental_resistance(element)
+
+	# 2. 计算伤害减免 (这里是简化逻辑)
+	final_damage_float = max(1.0, final_damage_float - defense_val * 0.5) # 保证至少1点伤害
+	# final_damage_float *= (1.0 - elemental_resistance)
+
+	if _is_defending:
+		final_damage_float *= 0.5 # 防御减伤
 	
-	# 处理控制效果持续时间
-	process_control_effects_end_turn() 
+	# 3. 应用到 Character 的 HP (Character.modify_hp 会处理钳制和信号)
+	var actual_hp_change = character_owner.modify_hp(-int(round(final_damage_float)), source_effect)
+	
+	return -actual_hp_change # 返回伤害值 (正数)
+
+## 应用治疗效果，返回实际治疗量
+func apply_heal_intake(base_heal: int, source_char: Character, source_effect: SkillEffectData) -> int:
+	if not character_owner or not skill_component_ref: # 允许对死亡单位治疗 (复活)
+		return 0
+	
+	var final_heal_float = float(base_heal)
+	# TODO: 从 SkillComponent 获取治疗效果加成等属性
+	# var healing_bonus_multiplier = skill_component_ref.get_calculated_attribute(&"HealingBonus")
+	# final_heal_float *= healing_bonus_multiplier
+
+	var actual_hp_change = character_owner.modify_hp(int(round(final_heal_float)), source_effect)
+	return actual_hp_change
+#endregion
+
+#region Turn Lifecycle Callbacks (Called by BattleManager)
+## 回合开始时的逻辑
+func on_begin_turn():
+	if _is_defending: # 如果上一回合在防御，回合开始时取消
+		set_defending(false)
+	# 其他回合开始时的逻辑...
+	print("%s's turn begins." % character_owner.character_name)
+
+## 回合结束时的逻辑
+func on_end_of_turn():
+	if not character_owner or not character_owner.is_alive() or not skill_component_ref:
+		return
+
+	# 指示 SkillComponent 处理状态的持续时间和周期效果
+	await skill_component_ref.process_statuses_end_of_turn()
+	
+	# 防御状态通常在受到攻击或回合结束时自动解除，这里也在回合结束时确保解除
+	if _is_defending:
+		set_defending(false)
+	print("%s's turn processing finished." % character_owner.character_name)
+
+## 设置角色是否处于防御状态
+func set_defending(is_defending_now: bool):
+	if _is_defending == is_defending_now: return
+	_is_defending = is_defending_now
+	if character_owner: # 更新 Character 节点的视觉提示
+		character_owner.show_defense_indicator(_is_defending)
+	defense_state_changed.emit(character_owner, _is_defending)
+#endregion

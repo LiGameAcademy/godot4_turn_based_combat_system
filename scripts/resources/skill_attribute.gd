@@ -74,38 +74,27 @@ func set_owner_set(owner: SkillAttributeSet):
 ## 返回值: bool - 当前值是否实际发生了变化
 func _recalculate_current_value() -> bool:
 	var previous_current_value = current_value
-	var value_after_base_mods = base_value
 	var value_after_additive_mods = base_value # 用于某些百分比计算的基准
 	var additive_bonus: float = 0.0
 	var multiply_percentage_total_bonus: float = 1.0 # 乘法叠加器通常从1开始
 
-	# 步骤 1: 计算基于基础值的百分比修改 (通常这些Modifier会相加其效果)
-	# 例如: +10%基础攻击力, +20%基础攻击力 -> 总共+30%基础攻击力
-	var base_percentage_increase_sum: float = 0.0
-	for modifier in _active_modifiers:
-		if modifier.operation == SkillAttributeModifier.ModifierOperation.MULTIPLY_PERCENTAGE_BASE:
-			base_percentage_increase_sum += modifier.magnitude
-	
-	value_after_base_mods += base_value * base_percentage_increase_sum
-	value_after_additive_mods = value_after_base_mods # 更新后续百分比计算的基准
-
-	# 步骤 2: 计算所有固定值增减 (Additive)
+	# 步骤 1: 计算所有固定值增减 (Additive)
 	for modifier in _active_modifiers:
 		if modifier.operation == SkillAttributeModifier.ModifierOperation.ADD_ABSOLUTE:
 			additive_bonus += modifier.magnitude
 	
 	value_after_additive_mods += additive_bonus
 
-	# 步骤 3: 计算基于“当前累计值”的百分比修改 (通常这些Modifier会独立相乘或相加作用)
+	# 步骤 2: 计算基于“当前累计值”的百分比修改 (通常这些Modifier会独立相乘或相加作用)
 	# 我们这里采用独立相乘的方式更为常见和灵活 (例如: 最终伤害*1.5, 然后再*1.2)
 	for modifier in _active_modifiers:
-		if modifier.operation == SkillAttributeModifier.ModifierOperation.MULTIPLY_PERCENTAGE_TOTAL:
+		if modifier.operation == SkillAttributeModifier.ModifierOperation.ADD_PERCENTAGE:
 			multiply_percentage_total_bonus *= (1.0 + modifier.magnitude) 
 			# 注意: magnitude 为 0.2 表示 +20%, -0.1 表示 -10%
 
 	var final_value = value_after_additive_mods * multiply_percentage_total_bonus
 
-	# 步骤 4: 处理覆盖型Modifier (Override) - 通常取最后一个或优先级最高的
+	# 步骤 3: 处理覆盖型Modifier (Override) - 通常取最后一个或优先级最高的
 	# 为简化，我们取最后一个遇到的Override Modifier
 	var override_value: float = NAN # Not A Number, 表示没有Override
 	for modifier in _active_modifiers:
@@ -115,7 +104,7 @@ func _recalculate_current_value() -> bool:
 	if not is_nan(override_value):
 		final_value = override_value
 
-	# 步骤 5: 应用最终钳制 (Clamping)
+	# 步骤 4: 应用最终钳制 (Clamping)
 	var clamped_value = final_value
 	if not can_be_negative and clamped_value < 0.0:
 		clamped_value = 0.0

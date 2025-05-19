@@ -2,8 +2,12 @@ extends EffectProcessor
 class_name StatusEffectProcessor
 
 ## 获取处理器ID
-func get_processor_id() -> String:
+func get_processor_id() -> StringName:
 	return "apply_status"
+
+## 判断是否可以处理该效果
+func can_process(effect: SkillEffectData) -> bool:
+	return effect.effect_type == effect.SkillEffectType.STATUS
 
 ## 处理状态效果
 func process_effect(effect: SkillEffectData, source: Character, target: Character) -> Dictionary:
@@ -22,10 +26,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	var success = roll <= chance
 	
 	if success:
-		# 加载状态效果资源
-		var status_effect_path = "res://resources/status_effects/%s.tres" % effect.status_id
-		var status_effect = load(status_effect_path)
-		
+		var status_effect = effect.status
 		if status_effect:
 			# 应用状态效果
 			target.add_status(status_effect, source)
@@ -34,7 +35,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 			request_visual_effect("status_applied", target, {"status_id": effect.status_id})
 			
 			# 角色状态变化信号
-			var battle_mgr = get_battle_manager()
+			var battle_mgr = _get_battle_manager()
 			if battle_mgr and battle_mgr.has_signal("character_stats_changed"):
 				battle_mgr.character_stats_changed.emit(target)
 			
@@ -58,12 +59,3 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 		print_rich(message)
 	
 	return results
-
-## 获取效果描述
-func get_effect_description(effect: SkillEffectData) -> String:
-	var chance_text = ""
-	if effect.status_chance < 1.0:
-		var chance_percent = int(effect.status_chance * 100)
-		chance_text = "(%d%%几率)" % chance_percent
-		
-	return "施加%s状态效果%s，持续%d回合" % [effect.status_id, chance_text, effect.status_duration] 

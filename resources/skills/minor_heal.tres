@@ -1,8 +1,7 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=5 format=3 uid="uid://bia1e616yoyx2"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://bia1e616yoyx2"]
 
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_1r1xg"]
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_6jcy7"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_f7p23"]
 
 [sub_resource type="Resource" id="Resource_dua1n"]
 script = ExtResource("1_6jcy7")
@@ -12,26 +11,16 @@ sound_effect = "heal_cast"
 damage_amount = 10
 damage_element = 0
 damage_power_scale = 1.0
-damage_is_dot = false
 heal_amount = 10
 heal_power_scale = 0.5
-heal_is_hot = false
-attr_target = "attack"
-attr_value = 0.0
-attr_is_percent = false
-attr_duration = 0
-control_type = "stun"
-control_duration = 1
+attr = ""
+status_chance = 1.0
 dispel_types = Array[String]([])
 dispel_count = 1
 dispel_is_positive = false
+is_dispel_all = false
 special_type = "none"
 special_params = {}
-power = 10
-element = 0
-status_id = ""
-status_duration = 3
-status_chance = 1.0
 metadata/_custom_type_script = "uid://dudfq7tltbaqw"
 
 [resource]
@@ -39,13 +28,18 @@ script = ExtResource("1_1r1xg")
 skill_id = &"minor_heal"
 skill_name = "小治疗术"
 description = "恢复目标少量生命值"
+archetype = 0
 mp_cost = 6
 target_type = 6
 element = 0
 direct_effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_dua1n")])
-statuses = Array[ExtResource("3_f7p23")]([])
-status_chances = Array[float]([])
+trigger_event = &""
+trigger_chance = 1.0
+triggered_effects = Array[ExtResource("1_6jcy7")]([])
+passive_cooldown = 0.0
+upkeep_cost_mp_per_turn = 0
+effects_on_activate = Array[ExtResource("1_6jcy7")]([])
+effects_on_deactivate = Array[ExtResource("1_6jcy7")]([])
+is_active_by_default = false
 cast_animation = "cast_heal"
 hit_animation = "heal_effect"
-status_effect_id = ""
-status_effect_chance = 100
