@@ -51,63 +51,7 @@ func _ready():
 	skill_system.skill_executed.connect(_on_skill_executed)
 	
 	# 设置初始状态
-	set_state(BattleState.IDLE)
-
-# 设置战斗状态
-func set_state(new_state: BattleState):
-	if current_state == new_state:
-		return
-		
-	print("战斗状态转换: ", BattleState.keys()[current_state], " -> ", BattleState.keys()[new_state])
-	current_state = new_state
-	battle_state_changed.emit(current_state)
-	
-	# 处理进入新状态时的逻辑
-	match current_state:
-		BattleState.IDLE:
-			# 重置战斗相关变量
-			start_battle()
-			
-		BattleState.BATTLE_START:
-			# 战斗初始化
-			build_turn_queue()
-			set_state(BattleState.ROUND_START)
-			
-		BattleState.ROUND_START:
-			# 回合开始处理，确定行动者
-			next_turn()
-			# 重置当前回合角色标记
-			if current_turn_character:
-				current_turn_character.reset_turn_flags()
-		
-		BattleState.PLAYER_TURN:
-			# 通知UI需要玩家输入
-			print("玩家回合：等待输入...")
-			player_action_required.emit(current_turn_character)
-			
-		BattleState.ENEMY_TURN:
-			# 执行敌人AI
-			print("敌人回合：", current_turn_character.character_name, " 思考中...")
-			# 延迟一下再执行AI，避免敌人行动过快
-			await get_tree().create_timer(1.0).timeout
-			execute_enemy_ai()
-			
-		BattleState.ACTION_EXECUTION:
-			# 执行选择的行动
-			# 这部分通常在选择行动后直接调用execute_action
-			pass
-			
-		BattleState.ROUND_END:
-			# 处理回合结束效果
-			process_round_end()
-			
-		BattleState.VICTORY:
-			print("战斗胜利!")
-			battle_ended.emit(true)
-			
-		BattleState.DEFEAT:
-			print("战斗失败...")
-			battle_ended.emit(false)
+	_set_state(BattleState.IDLE)
 
 # 开始战斗
 func start_battle():
@@ -124,7 +68,7 @@ func start_battle():
 		push_error("无法开始战斗：缺少玩家或敌人!")
 		return
 	
-	set_state(BattleState.BATTLE_START)
+	_set_state(BattleState.BATTLE_START)
 
 # 注册战斗场景中的角色
 func register_characters():
@@ -154,26 +98,26 @@ func player_select_action(action_type: String, target = null):
 	print("玩家选择行动: ", action_type)
 	
 	# 设置为行动执行状态
-	set_state(BattleState.ACTION_EXECUTION)
+	_set_state(BattleState.ACTION_EXECUTION)
 	
 	# 执行选择的行动
 	match action_type:
 		"attack":
 			if target and target is Character:
-				execute_attack(current_turn_character, target)
+				await execute_attack(current_turn_character, target)
 			else:
 				print("错误：攻击需要选择有效目标")
-				set_state(BattleState.PLAYER_TURN) # 返回选择状态
+				_set_state(BattleState.PLAYER_TURN) # 返回选择状态
 				return
 		"defend":
-			execute_defend(current_turn_character)
+			await execute_defend(current_turn_character)
 		_:
 			print("未知行动类型: ", action_type)
-			set_state(BattleState.PLAYER_TURN)
+			_set_state(BattleState.PLAYER_TURN)
 			return
 	
 	# 行动结束后转入回合结束
-	set_state(BattleState.ROUND_END)
+	_set_state(BattleState.ROUND_END)
 
 # 执行敌人AI
 func execute_enemy_ai():
@@ -188,17 +132,17 @@ func execute_enemy_ai():
 			break
 			
 	if target:
-		set_state(BattleState.ACTION_EXECUTION)
+		_set_state(BattleState.ACTION_EXECUTION)
 		print(current_turn_character.character_name, " 选择攻击 ", target.character_name)
-		execute_attack(current_turn_character, target)
-		set_state(BattleState.ROUND_END)
+		await execute_attack(current_turn_character, target)
+		_set_state(BattleState.ROUND_END)
 	else:
 		print("敌人找不到可攻击的目标")
-		set_state(BattleState.ROUND_END)
+		_set_state(BattleState.ROUND_END)
 
 # 执行攻击
 func execute_attack(attacker: Character, target: Character) -> void:
-	if not (is_instance_valid(attacker) and is_instance_valid(target)):
+	if not is_instance_valid(attacker) or not is_instance_valid(target):
 		push_warning("BattleManager: execute_attack - 无效的攻击者或目标。")
 		return
 
@@ -248,7 +192,7 @@ func execute_defend(character: Character):
 		return
 
 	print("BattleManager: %s 选择防御。" % character.character_name)
-	character.combat_component.set_defending(true)
+	await character.combat_component.set_defending(true)
 
 	# 防御的视觉效果 (如举盾动画/图标) 和相关的状态变化信号 (defense_state_changed)
 	# 现在由 CombatComponent.set_defending -> Character.show_defense_indicator 负责处理。
@@ -269,16 +213,16 @@ func execute_skill(caster: Character, skill_data: SkillData) -> void:
 		return
 	
 	# 设置为行动执行状态
-	set_state(BattleState.ACTION_EXECUTION)
+	_set_state(BattleState.ACTION_EXECUTION)
 	
 	# 委托给技能系统处理
 	await skill_system.execute_skill(caster, skill_data, targets)
 	
 	# 技能执行完毕，进入回合结束阶段
-	set_state(BattleState.ROUND_END)
+	_set_state(BattleState.ROUND_END)
 
 # 构建回合队列
-func build_turn_queue():
+func build_turn_queue() -> void:
 	turn_queue.clear()
 	
 	# 简单实现：所有存活角色按速度排序
@@ -299,7 +243,7 @@ func build_turn_queue():
 	print("回合顺序已生成: ", turn_queue.size(), " 个角色")
 
 # 下一个回合
-func next_turn():
+func next_turn() -> void:
 	if turn_queue.is_empty():
 		print("回合结束，重新构建回合顺序")
 		build_turn_queue()
@@ -313,11 +257,12 @@ func next_turn():
 	print("当前行动者: ", current_turn_character.character_name)
 	turn_changed.emit(current_turn_character)
 	
+	await current_turn_character.process_turn_start()
 	# 根据当前行动者是玩家还是敌人，设置相应状态
 	if player_characters.has(current_turn_character):
-		set_state(BattleState.PLAYER_TURN)
+		_set_state(BattleState.PLAYER_TURN)
 	else:
-		set_state(BattleState.ENEMY_TURN)
+		_set_state(BattleState.ENEMY_TURN)
 
 # 检查战斗结束条件
 func check_battle_end_condition() -> bool:
@@ -329,7 +274,7 @@ func check_battle_end_condition() -> bool:
 			break
 			
 	if all_players_defeated:
-		set_state(BattleState.DEFEAT)
+		_set_state(BattleState.DEFEAT)
 		return true
 		
 	# 检查敌人是否全部阵亡
@@ -340,27 +285,29 @@ func check_battle_end_condition() -> bool:
 			break
 			
 	if all_enemies_defeated:
-		set_state(BattleState.VICTORY)
+		_set_state(BattleState.VICTORY)
 		return true
 		
 	return false
 
 # 添加和管理角色
-func add_player_character(character: Character):
-	if not player_characters.has(character):
-		player_characters.append(character)
-		print("添加玩家角色: ", character.character_name)
-	var combat_comp : CombatComponent = character.get_node_or_null("CombatComponent")
-	if combat_comp and combat_comp.has_method("set_battle_manager_ref"):
-		combat_comp.set_battle_manager_ref(self)
+func add_player_character(character: Character) -> void:
+	if player_characters.has(character):
+		push_warning("角色 '%s' 已存在，无法重复添加" % character.character_name)
+		return
+	
+	player_characters.append(character)
+	print("添加玩家角色: ", character.character_name)
+	character.initialize_battle_context(self)
 
-func add_enemy_character(character: Character):
-	if not enemy_characters.has(character):
-		enemy_characters.append(character)
-		print("添加敌人角色: ", character.character_name)
-	var combat_comp : CombatComponent = character.get_node_or_null("CombatComponent")
-	if combat_comp and combat_comp.has_method("set_battle_manager_ref"):
-		combat_comp.set_battle_manager_ref(self)
+func add_enemy_character(character: Character) -> void:
+	if enemy_characters.has(character):
+		push_warning("角色 '%s' 已存在，无法重复添加" % character.character_name)
+		return
+	
+	enemy_characters.append(character)
+	print("添加敌人角色: ", character.character_name)
+	character.initialize_battle_context(self)
 
 func remove_character(character: Character):
 	if player_characters.has(character):
@@ -380,37 +327,15 @@ func is_player_character(character: Character) -> bool:
 # 添加回合结束时处理状态效果的方法
 func process_round_end() -> void:
 	print_rich("[color=aqua]回合结束，处理状态效果...[/color]")
-	
-	# 处理所有角色的状态效果
-	for character in player_characters:
-		if character.current_hp > 0:
-			character.process_status_effects_end_of_round()
-	
-	for character in enemy_characters:
-		if character.current_hp > 0:
-			character.process_status_effects_end_of_round()
-	
+
+	await current_turn_character.process_turn_end()	
+
 	# 检查战斗是否结束
 	check_battle_end_condition()
 	
 	# 如果战斗未结束，开始新回合
 	if current_state != BattleState.VICTORY and current_state != BattleState.DEFEAT:
-		set_state(BattleState.ROUND_START)
-
-# 处理回合结束阶段
-func round_end():
-	print("回合结束阶段")
-	# 回合结束时，处理所有角色的状态效果
-	for character in player_characters + enemy_characters:
-		if character.is_alive:
-			character.process_status_effects_end_of_round()
-	
-	# 检查战斗是否结束
-	if check_battle_end_condition():
-		return # 战斗已经结束，不继续处理
-		
-	# 回到回合开始阶段，准备下一回合
-	set_state(BattleState.ROUND_START)
+		_set_state(BattleState.ROUND_START)
 
 ## 订阅角色信号
 func _subscribe_to_character_signals(character : Character) -> void:
@@ -444,3 +369,56 @@ func _on_character_defeated(character: Character) -> void:
 	
 	# 检查战斗是否结束
 	check_battle_end_condition()
+
+# 设置战斗状态
+func _set_state(new_state: BattleState):
+	if current_state == new_state:
+		return
+		
+	print("战斗状态转换: ", BattleState.keys()[current_state], " -> ", BattleState.keys()[new_state])
+	current_state = new_state
+	battle_state_changed.emit(current_state)
+	
+	# 处理进入新状态时的逻辑
+	match current_state:
+		BattleState.IDLE:
+			# 重置战斗相关变量
+			start_battle()
+			
+		BattleState.BATTLE_START:
+			# 战斗初始化
+			build_turn_queue()
+			_set_state(BattleState.ROUND_START)
+			
+		BattleState.ROUND_START:
+			# 回合开始处理，确定行动者
+			next_turn()
+
+		BattleState.PLAYER_TURN:
+			# 通知UI需要玩家输入
+			print("玩家回合：等待输入...")
+			player_action_required.emit(current_turn_character)
+			
+		BattleState.ENEMY_TURN:
+			# 执行敌人AI
+			print("敌人回合：", current_turn_character.character_name, " 思考中...")
+			# 延迟一下再执行AI，避免敌人行动过快
+			await get_tree().create_timer(1.0).timeout
+			execute_enemy_ai()
+			
+		BattleState.ACTION_EXECUTION:
+			# 执行选择的行动
+			# 这部分通常在选择行动后直接调用execute_action
+			pass
+			
+		BattleState.ROUND_END:
+			# 处理回合结束效果
+			process_round_end()
+			
+		BattleState.VICTORY:
+			print("战斗胜利!")
+			battle_ended.emit(true)
+			
+		BattleState.DEFEAT:
+			print("战斗失败...")
+			battle_ended.emit(false)

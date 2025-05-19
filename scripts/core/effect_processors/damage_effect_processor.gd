@@ -10,7 +10,7 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("cast", caster, {"element": effect.element})
+	_request_visual_effect("cast", caster, {"element": effect.damage_element})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -25,25 +25,26 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 	var damage = damage_result["damage"]
 	
 	# 播放命中动画，根据克制关系选择不同效果
-	var hit_params = {"element": effect.element}
+	var hit_params = {"element": effect.damage_element}
 	
 	if damage_result["is_effective"]:
 		# 克制效果
-		request_visual_effect("effective_hit", target, hit_params)
+		_request_visual_effect("effective_hit", target, hit_params)
 		# 使用自定义颜色和前缀
-		request_visual_effect("damage_number", target, {"damage": damage, "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
+		_request_visual_effect("damage_number", target, {"damage": damage, "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
 	elif damage_result["is_ineffective"]:
 		# 抵抗效果
-		request_visual_effect("ineffective_hit", target, hit_params)
-		request_visual_effect("damage_number", target, {"damage": damage, "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
+		_request_visual_effect("ineffective_hit", target, hit_params)
+		_request_visual_effect("damage_number", target, {"damage": damage, "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
 	else:
 		# 普通效果
-		request_visual_effect("hit", target, hit_params)
-		request_visual_effect("damage_number", target, {"damage": damage, "color": Color.RED})
+		_request_visual_effect("hit", target, hit_params)
+		_request_visual_effect("damage_number", target, {"damage": damage, "color": Color.RED})
 	
 	# 应用伤害
-	var actual_damage = target.take_damage(damage)
-	
+	var target_combat_comp : CombatComponent = _get_target_combat_component(target)
+	var actual_damage = target_combat_comp.apply_damage_intake(damage, effect)
+
 	# 角色状态变化信号
 	var bm = _get_battle_manager()
 	if bm and bm.has_signal("character_stats_changed"):
@@ -71,13 +72,13 @@ func process_effect(effect: SkillEffectData, caster: Character, target: Characte
 ## 检查是否可以处理指定效果类型
 func can_process_effect(effect: SkillEffectData) -> bool:
 	# 默认实现，子类应该根据需要重写
-	return effect.effect_type == effect.SkillEffectType.DAMAGE
+	return effect.effect_type == effect.EffectType.DAMAGE
 
 ## 计算伤害
 func _calculate_damage(caster: Character, target: Character, effect: SkillEffectData) -> Dictionary:
 	# 获取基础伤害
 	var power = effect.damage_amount
-	var element = effect.element
+	var element = effect.damage_element
 	
 	# 基础伤害计算
 	var base_damage = power + (caster.magic_attack * 0.8)

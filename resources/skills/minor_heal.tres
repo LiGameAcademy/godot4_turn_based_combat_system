@@ -43,3 +43,4 @@ effects_on_deactivate = Array[ExtResource("1_6jcy7")]([])
 is_active_by_default = false
 cast_animation = "cast_heal"
 hit_animation = "heal_effect"
+action_categories = Array[String](["any_action"])

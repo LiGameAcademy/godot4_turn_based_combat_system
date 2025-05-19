@@ -58,7 +58,7 @@ func process_effect(effect_data: SkillEffectData, _source: Character, target: Ch
 
     if count_removed > 0:
         if effect_data.visual_effect != "":
-            request_visual_effect(effect_data.visual_effect, target, {"count": count_removed, "is_positive": dispel_is_positive})
+            _request_visual_effect(effect_data.visual_effect, target, {"count": count_removed, "is_positive": dispel_is_positive})
         # print("%s dispelled %d %s effects from %s" % [source.name, count_removed, "positive" if dispel_is_positive else "negative", target.name])
 
     return {

@@ -37,7 +37,7 @@ func can_process_effect(_effect: SkillEffectData) -> bool:
 ## [param target] 目标角色
 ## [param params] 视觉效果参数
 ## 发送视觉效果请求
-func request_visual_effect(effect_type: StringName, target, params: Dictionary = {}):
+func _request_visual_effect(effect_type: StringName, target, params: Dictionary = {}):
 	if skill_system and skill_system.has_signal("visual_effect_requested"):
 		skill_system.visual_effect_requested.emit(effect_type, target, params)
 

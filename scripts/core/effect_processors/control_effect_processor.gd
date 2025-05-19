@@ -10,7 +10,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("cast", source, {"element": effect.element})
+	_request_visual_effect("cast", source, {"element": effect.element})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -30,7 +30,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 		target.apply_control_effect(control_type, duration)
 		
 		# 播放控制效果动画
-		request_visual_effect("control_applied", target, {"control_type": control_type})
+		_request_visual_effect("control_applied", target, {"control_type": control_type})
 		
 		# 角色状态变化信号
 		var battle_mgr = _get_battle_manager()
@@ -47,7 +47,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 		print_rich(message)
 	else:
 		# 控制效果未命中
-		request_visual_effect("control_resist", target, {})
+		_request_visual_effect("control_resist", target, {})
 		
 		# 记录结果
 		results["control_resisted"] = true

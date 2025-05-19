@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=16 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
@@ -11,12 +11,14 @@
 [ext_resource type="Resource" uid="uid://c1rhn2rpt7d7j" path="res://resources/skill_attributes/defense_power.tres" id="7_ebcem"]
 [ext_resource type="Resource" uid="uid://bmaomvfqxyfd8" path="res://resources/skill_attributes/speed.tres" id="8_82f38"]
 [ext_resource type="Script" uid="uid://8esdurm415rx" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
+[ext_resource type="Resource" uid="uid://pcfthqa77ccw" path="res://resources/skill_attributes/magic_attack.tres" id="9_x2mhx"]
+[ext_resource type="Resource" uid="uid://bkfxmw6ak8p55" path="res://resources/skill_attributes/magic_defense.tres" id="10_443mk"]
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="10_tcc5r"]
 
 [sub_resource type="Resource" id="Resource_hhnc7"]
 resource_local_to_scene = true
 script = ExtResource("9_64uat")
-attributes_to_initialize = Array[ExtResource("1_hhnc7")]([ExtResource("2_tcc5r"), ExtResource("3_cjb8a"), ExtResource("4_x2mhx"), ExtResource("5_443mk"), ExtResource("6_07jiy"), ExtResource("7_ebcem"), ExtResource("8_82f38")])
+attributes_to_initialize = Array[ExtResource("1_hhnc7")]([ExtResource("2_tcc5r"), ExtResource("3_cjb8a"), ExtResource("4_x2mhx"), ExtResource("5_443mk"), ExtResource("6_07jiy"), ExtResource("7_ebcem"), ExtResource("8_82f38"), ExtResource("9_x2mhx"), ExtResource("10_443mk")])
 metadata/_custom_type_script = "uid://8esdurm415rx"
 
 [sub_resource type="Resource" id="Resource_ph3fh"]
@@ -45,7 +47,7 @@ skill_id = &"attack"
 skill_name = "普通攻击"
 description = "技能描述"
 archetype = 0
-mp_cost = 10
+mp_cost = 0
 target_type = 1
 element = 0
 direct_effects = Array[ExtResource("10_tcc5r")]([SubResource("Resource_ph3fh")])
@@ -70,5 +72,6 @@ attribute_set_resource = SubResource("Resource_hhnc7")
 element = 2
 basic_attack_skill_id = &"attack"
 basic_attack_skill_resource = SubResource("Resource_cjb8a")
+defend_skill_id = &"defend"
 skills = Array[ExtResource("2_fr6p1")]([])
 color = Color(0.2, 0.7, 0.2, 1)

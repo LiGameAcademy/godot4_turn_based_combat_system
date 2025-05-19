@@ -53,7 +53,6 @@ var element : int :
 #endregion
 
 #region --- 状态标记 ---
-var is_defending: bool = false			## 防御状态标记
 var is_alive: bool:
 	get:
 		return current_hp > 0
@@ -142,6 +141,7 @@ func check_mp_cost(cost: int) -> bool:
 	return current_mp >= cost
 
 ## 供 SkillSystem 调用的便捷方法
+## SkillSystem 会调用此方法来扣减MP
 func deduct_mp_for_skill(cost: int, skill_source: SkillData):
 	modify_mp(-cost, skill_source)
 #endregion
@@ -164,6 +164,46 @@ func simple_defend():
 # func play_animation(anim_name: StringName):
 #    if animation_player: animation_player.play(anim_name)
 
+## 获取可供UI显示的、当前回合可用的特殊技能列表
+func get_ui_usable_special_skills() -> Array[SkillData]:
+	if is_instance_valid(combat_component):
+		return combat_component.get_ui_usable_special_skills()
+	push_warning("Character '%s' 无法获取可用技能列表，CombatComponent 无效。" % character_name)
+	return []
+
+## 检查角色是否至少有一个非普攻/防御的技能可用（用于启用UI中的“技能”按钮）
+func has_any_ui_usable_special_skill() -> bool:
+	# 这个方法是对BattleScene中原逻辑的直接替代
+	if is_instance_valid(combat_component):
+		return not combat_component.get_ui_usable_special_skills().is_empty()
+	return false
+
+## 可用性判断现在更复杂，并且由 CombatComponent 处理。
+## 如果只是想快速判断是否有足够MP施放*任何*已学技能（不包括普攻等），可以这样：
+func has_mp_for_any_learned_special_skill() -> bool:
+	if is_instance_valid(skill_component) and is_instance_valid(combat_component):
+		var basic_attack_id = character_data.basic_attack_skill_id if character_data else &""
+		var defend_id = character_data.defend_skill_id if character_data else &""
+		for skill_data : SkillData in skill_component.get_learned_skills():
+			if skill_data.skill_id == basic_attack_id or skill_data.skill_id == defend_id:
+				continue
+			if skill_component.get_calculated_attribute(&"CurrentMana") >= skill_data.mp_cost:
+				return true
+	return false
+	
+func process_turn_start() -> void:
+	if is_instance_valid(combat_component):
+		await combat_component.on_begin_turn()
+		
+func process_turn_end() -> void:
+	if is_instance_valid(combat_component):
+		await combat_component.on_end_of_turn()
+
+func show_defense_indicator(is_defending: bool) -> void:
+	if is_defending:
+		defense_indicator.show_indicator()
+	else:
+		defense_indicator.hide_indicator()
 #endregion
 
 #region --- UI 更新辅助方法 ---

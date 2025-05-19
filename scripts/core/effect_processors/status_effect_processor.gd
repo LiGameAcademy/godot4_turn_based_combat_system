@@ -14,7 +14,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("cast", source, {"element": effect.element})
+	_request_visual_effect("cast", source, {"element": effect.element})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -32,7 +32,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 			target.add_status(status_effect, source)
 			
 			# 播放状态效果动画
-			request_visual_effect("status_applied", target, {"status_id": effect.status_id})
+			_request_visual_effect("status_applied", target, {"status_id": effect.status_id})
 			
 			# 角色状态变化信号
 			var battle_mgr = _get_battle_manager()
@@ -49,7 +49,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 			push_error("无法加载状态效果: %s" % effect.status_id)
 	else:
 		# 状态效果未命中
-		request_visual_effect("status_resist", target, {})
+		_request_visual_effect("status_resist", target, {})
 		
 		# 记录结果
 		results["status_resisted"] = true

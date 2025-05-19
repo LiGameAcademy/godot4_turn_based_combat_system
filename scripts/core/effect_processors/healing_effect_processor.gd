@@ -14,7 +14,7 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	var results = {}
 	
 	# 播放施法动画
-	request_visual_effect("heal_cast", source, {})
+	_request_visual_effect("heal_cast", source, {})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -24,10 +24,10 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	var heal_amount = _calculate_healing(source, target, effect)
 	
 	# 播放治疗效果
-	request_visual_effect("heal", target, {})
+	_request_visual_effect("heal", target, {})
 	
 	# 生成治疗数字
-	request_visual_effect("damage_number", target, {
+	_request_visual_effect("damage_number", target, {
 		"damage": heal_amount,
 		"color": Color(0.3, 1.0, 0.3),
 		"prefix": "+"

@@ -11,6 +11,8 @@ class_name CharacterData
 @export_group("技能列表")
 @export var basic_attack_skill_id: StringName = "" # 基础攻击技能ID
 @export var basic_attack_skill_resource: SkillData = null # 基础攻击技能资源
+@export var defend_skill_id: StringName = "defend" # 防御技能ID
+@export var defend_skill_resource: SkillData = null # 防御技能资源
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
 
 @export_group("视觉表现")

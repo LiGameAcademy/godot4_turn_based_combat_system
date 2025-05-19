@@ -18,70 +18,76 @@ var skill_system_ref: SkillSystem:      # 由 BattleManager 通过 Character 注
 	get:
 		if battle_manager_ref:
 			return battle_manager_ref.skill_system
+		push_error("can not found battle_manager!")
 		return null
 
 @export var _is_defending: bool = false
 var _last_action_fail_reason: String = ""
 #endregion
 
-func set_battle_manager_references(p_battle_manager: BattleManager) -> void:
+func set_battle_manager_reference(p_battle_manager: BattleManager) -> void:
 	battle_manager_ref = p_battle_manager
 
 #region Action Readiness & Resource Consumption
-## 检查是否能执行某个技能或通用行动类型
+# can_perform_action 方法 (根据我们之前的讨论，使用StringName数组)
 func can_perform_action(skill_to_cast: SkillData = null, specific_action_category: StringName = &"") -> bool:
+	_last_action_fail_reason = "" # 重置原因
 	if not character_owner or not character_owner.is_alive or not is_instance_valid(skill_component_ref):
 		_last_action_fail_reason = "角色状态无效或缺少SkillComponent。"
 		return false
 
-	# 1. MP 及其他技能自身条件检查 (通过 SkillComponent)
-	if skill_to_cast:
-		if not skill_component_ref.can_character_use_skill(skill_to_cast):
-			# can_character_use_skill 内部会检查MP, 可能还有冷却等
-			_last_action_fail_reason = "无法使用技能: " + (skill_component_ref.get_last_skill_usability_reason() if skill_component_ref.has_method("get_last_skill_usability_reason") else "MP不足或不满足其他条件。")
-			action_attempt_failed.emit(character_owner, _last_action_fail_reason)
-			return false
-	
-	# 2. 确定当前尝试的行动类别
-	var categories_of_attempted_action: Array[String] = []
-	if skill_to_cast and not skill_to_cast.action_categories.is_empty():
-		categories_of_attempted_action = skill_to_cast.action_categories
-	elif specific_action_category != &"":
-		categories_of_attempted_action.append(specific_action_category)
-	
-	# (可选) 如果没有任何类别被指定，你可能需要一个默认行为，
-	# 例如，如果一个行动没有类别，它是否会受 "any_action" 或 "any_skill" 的限制？
-	# 这里我们假设如果 categories_of_attempted_action 为空，则只受 ActionTypes.ANY_ACTION 限制。
-
-	# 3. 状态检查 (基于 SkillStatusData 的 restricted_action_categories)
+	# 1. 通用行动限制检查 (例如“眩晕”会阻止所有行动)
 	for status_instance: SkillStatusData in skill_component_ref.get_all_active_status_instances():
-		if status_instance.restricted_action_categories.is_empty():
-			continue # 此状态不限制任何特定类别的行动
-
-		# 检查是否限制所有行动
-		if status_instance.restricted_action_categories.has("any_action"):
-			_last_action_fail_reason = "所有行动均被状态 '%s' 阻止。" % status_instance.status_name
+		if not status_instance.restricted_action_categories.is_empty():
+			if status_instance.restricted_action_categories.has(&"any_action"): # 假设 ActionTypes.ANY_ACTION
+				_last_action_fail_reason = "所有行动均被状态 '%s' 阻止。" % status_instance.status_name
+				action_attempt_failed.emit(character_owner, _last_action_fail_reason)
+				return false
+	
+	# 2. 如果是施放特定技能，检查技能固有条件 (MP, 冷却) 和类别限制
+	if skill_to_cast:
+		if not skill_component_ref.is_skill_ready(skill_to_cast): # 检查MP, 冷却, 是否学习
+			_last_action_fail_reason = skill_component_ref.get_last_skill_usability_reason()
 			action_attempt_failed.emit(character_owner, _last_action_fail_reason)
 			return false
-		
-		# 如果正在尝试一个有类别的行动
-		if not categories_of_attempted_action.is_empty():
-			for attempted_category in categories_of_attempted_action:
-				if status_instance.restricted_action_categories.has(attempted_category):
-					_last_action_fail_reason = "行动类别 '%s' 被状态 '%s' 阻止。" % [attempted_category, status_instance.status_name]
+
+		# 检查技能类别是否被状态限制
+		if not skill_to_cast.action_categories.is_empty():
+			for status_instance: SkillStatusData in skill_component_ref.get_all_active_status_instances():
+				if status_instance.restricted_action_categories.is_empty(): continue
+				
+				# 检查是否限制所有技能
+				if status_instance.restricted_action_categories.has(&"any_skill"): # 假设 ActionTypes.ANY_SKILL
+					_last_action_fail_reason = "所有技能均被状态 '%s' 阻止。" % status_instance.status_name
 					action_attempt_failed.emit(character_owner, _last_action_fail_reason)
 					return false
-		# (可选) 如果 categories_of_attempted_action 为空 (例如，一个没有明确类别的通用行动)，
-		# 而状态限制了 ActionTypes.ANY_SKILL 或其他通用类别，你可能也需要在这里处理。
-		# 例如，如果一个技能没有明确的类别，但角色中了“沉默”（限制ActionTypes.ANY_SKILL），是否应阻止？
-		# 这取决于你的设计细致程度。
 
-	_last_action_fail_reason = ""
+				for category_of_skill in skill_to_cast.action_categories:
+					if status_instance.restricted_action_categories.has(category_of_skill):
+						_last_action_fail_reason = "技能类别 '%s' 被状态 '%s' 阻止。" % [category_of_skill, status_instance.status_name]
+						action_attempt_failed.emit(character_owner, _last_action_fail_reason)
+						return false
+	
+	# 3. 如果是检查通用行动类别 (非特定技能)
+	elif specific_action_category != &"":
+		for status_instance: SkillStatusData in skill_component_ref.get_all_active_status_instances():
+			if status_instance.restricted_action_categories.has(specific_action_category):
+				_last_action_fail_reason = "行动类别 '%s' 被状态 '%s' 阻止。" % [specific_action_category, status_instance.status_name]
+				action_attempt_failed.emit(character_owner, _last_action_fail_reason)
+				return false
+				
 	return true
 
+## 执行基础攻击
 func perform_basic_attack(target_character: Character) -> Dictionary:
-	if not character_owner or not is_instance_valid(target_character) or not skill_system_ref:
-		return {"error": "invalid_params_for_basic_attack"}
+	if not character_owner:
+		return {"error": "invalid character_owner for basic attack!"}
+	
+	if not skill_system_ref:
+		return {"error": "invalid skill_system_ref for basic attack!"}
+	
+	if not is_instance_valid(target_character):
+		return {"error": "invalid target_character for basic attack!"}
 
 	# 1. 获取基础攻击对应的 SkillData
 	# 假设 CharacterData 中定义了基础攻击的技能ID
@@ -130,8 +136,8 @@ func get_ui_usable_special_skills() -> Array[SkillData]:
 		# 你需要在 SkillData 中定义 action_categories，并在 SkillStatusData 中定义 restricted_action_categories
 		if can_perform_action(skill_data): # 此处can_perform_action已包含is_skill_ready的检查
 			usable_skills.append(skill_data)
-		# else:
-			# print_debug("技能 '%s' 因 '%s' 而无法使用。" % [skill_data.skill_name, get_last_action_fail_reason()])
+		else:
+			print_debug("技能 '%s' 因 '%s' 而无法使用。" % [skill_data.skill_name, get_last_action_fail_reason()])
 
 	return usable_skills
 
@@ -147,18 +153,11 @@ func consume_skill_resources(skill_data: SkillData):
 
 #region Damage & Healing Application (由 EffectProcessors 调用)
 ## 应用伤害效果，返回实际造成的伤害 (正值)
-func apply_damage_intake(base_damage: int, element: int, source_char: Character, source_effect: SkillEffectData) -> int:
+func apply_damage_intake(base_damage: int, source_effect: SkillEffectData) -> int:
 	if not character_owner or not character_owner.is_alive or not is_instance_valid(skill_component_ref):
 		return 0
 
 	var final_damage_float = float(base_damage)
-
-	var defense_val = skill_component_ref.get_calculated_attribute(&"DefensePower") # 从SkillComponent获取
-	# TODO: 实现元素抗性、易伤等逻辑，从SkillComponent获取相关属性或状态效果
-	# var elemental_modifier = ElementalSystem.get_damage_modifier(element, character_owner.element, skill_component_ref)
-	
-	final_damage_float = max(1.0, final_damage_float - defense_val * 0.5) # 简化伤害计算
-	# final_damage_float *= elemental_modifier
 
 	if _is_defending:
 		final_damage_float *= 0.5
@@ -201,10 +200,6 @@ func on_end_of_turn():
 	
 	# 3. 指示 SkillComponent 清理到期状态 (这会触发结束效果)
 	skill_component_ref.reap_expired_statuses()
-	
-	if _is_defending: # 再次检查，因为状态效果可能改变防御状态
-		set_defending(false)
-	# print("%s's turn processing finished." % character_owner.character_name)
 
 func set_defending(is_defending_now: bool):
 	if _is_defending == is_defending_now: return

@@ -37,7 +37,7 @@ func process_effect(effect_data: SkillEffectData, _source: Character, target: Ch
         attr_set.apply_modifier(effect_data.attr, effect_data.attr_modifier) # 使用effect_data的ID作为临时来源
 
         if effect_data.visual_effect != "":
-             request_visual_effect(effect_data.visual_effect, target, {"attribute": effect_data.attr, "value": effect_data.attr_modifier.magnitude})
+             _request_visual_effect(effect_data.visual_effect, target, {"attribute": effect_data.attr, "value": effect_data.attr_modifier.magnitude})
         
         return {
             "attribute_modified": effect_data.attr, # 假设 modifier_res 有 attribute_type

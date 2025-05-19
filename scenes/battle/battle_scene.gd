@@ -200,18 +200,19 @@ func update_battle_info(text: String) -> void:
 
 # UI辅助功能
 func _show_action_menu() -> void:
-	_hide_all_menus()
+	_hide_all_menus() # 假设这是你隐藏其他UI元素的方法
 	
-	# 在显示行动菜单前，检查技能按钮状态
-	if action_menu:
-		var current_character = battle_manager.current_turn_character
-		if current_character:
-			# 使用辅助方法从Character类中获取状态
-			var has_enough_mp_for_any_skill = current_character.has_enough_mp_for_any_skill()
-			action_menu.set_skill_button_enabled(has_enough_mp_for_any_skill)
+	if action_menu: # 假设 action_menu 是你的行动菜单节点
+		var current_character: Character = battle_manager.current_turn_character # BattleManager 提供当前行动角色
+		if is_instance_valid(current_character):
+			# 使用 Character 的新方法来判断“技能”按钮是否应启用
+			var can_use_any_special_skill : bool = current_character.has_any_ui_usable_special_skill()
+			action_menu.set_skill_button_enabled(can_use_any_special_skill) # 假设菜单有此方法
+		else:
+			action_menu.set_skill_button_enabled(false) # 没有当前角色则禁用
 		
 		action_menu.visible = true
-		action_menu.setup_default_focus()
+		action_menu.setup_default_focus() # 假设菜单有此方法
 
 func _open_skill_menu() -> void:
 	_hide_all_menus()

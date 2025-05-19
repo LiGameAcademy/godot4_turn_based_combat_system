@@ -24,3 +24,4 @@ effects_on_deactivate = Array[ExtResource("1_wb8wf")]([])
 is_active_by_default = false
 cast_animation = "cast_fireball"
 hit_animation = "hit_fireball"
+action_categories = Array[String](["any_action"])

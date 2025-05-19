@@ -62,7 +62,6 @@ text = "MP: 100/100"
 [node name="CombatComponent" type="Node" parent="." node_paths=PackedStringArray("skill_component_ref")]
 script = ExtResource("3_s8xr7")
 skill_component_ref = NodePath("../SkillComponent")
-_is_defending = null
 metadata/_custom_type_script = "uid://67rk2evyynsn"
 
 [node name="SkillComponent" type="Node" parent="."]

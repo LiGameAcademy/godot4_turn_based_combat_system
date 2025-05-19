@@ -39,7 +39,8 @@ func execute_skill(caster: Character, skill: SkillData, custom_targets: Array = 
 		return {"error": "mp_not_enough"}
 	
 	# 扣除MP
-	caster.use_mp(skill.mp_cost)
+	if skill.mp_cost > 0:
+		caster.deduct_mp_for_skill(skill.mp_cost, skill)
 	
 	# 获取目标
 	var targets = custom_targets if !custom_targets.is_empty() else get_targets_for_skill(caster, skill)
