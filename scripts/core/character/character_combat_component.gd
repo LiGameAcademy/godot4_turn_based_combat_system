@@ -62,12 +62,12 @@ func initialize(p_element: int, p_attack_skill : SkillData) -> void:
 ## [param target] 动作目标
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
-func execute_action(action_type: ActionType, target : Character = null, params = null) -> Dictionary:
+func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
 	var result = {}
 	
 	match action_type:
 		ActionType.ATTACK:
-			result = await _execute_attack(target, params.skill_context)
+			result = await _execute_attack(target, params)
 		ActionType.DEFEND:
 			result = await _execute_defend()
 		ActionType.SKILL:
@@ -300,7 +300,7 @@ func reset_turn_flags() -> void:
 ## [param target] 目标
 ## [param skill_context] 技能执行上下文
 ## [return] 攻击结果
-func _execute_attack(target: Character, skill_context: SkillSystem.SkillExecutionContext) -> Dictionary:
+func _execute_attack(target: Character, params: Dictionary) -> Dictionary:
 	var character_owner = get_parent() as Character
 	if not is_instance_valid(character_owner) or not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
@@ -312,20 +312,26 @@ func _execute_attack(target: Character, skill_context: SkillSystem.SkillExecutio
 		push_error("CharacterCombatComponent: 未设置攻击技能数据")
 		return {"success": false, "error": "未设置攻击技能数据"}
 	
+	# 获取技能上下文
+	var skill_context = params.get("skill_context")
+	if not skill_context:
+		push_error("CharacterCombatComponent: 未提供技能上下文")
+		return {"success": false, "error": "未提供技能上下文"}
+	
 	# 创建攻击上下文
 	var attack_context = {
 		"character": character_owner,  # 攻击者
 		"target_character": target,    # 攻击目标
 		"is_attack": true,             # 标记这是一次攻击
 		"skill": attack_skill,         # 使用的普攻技能
-		"skill_context": skill_context # 技能执行上下文
+		"skill_context": skill_context  # 技能执行上下文
 	}
 	
 	# 触发攻击前事件
 	SkillSystem.notify_game_event(SkillStatusData.TriggerType.BEFORE_ATTACK, attack_context)
 	
 	# 将目标转换为数组格式
-	var targets = [target]
+	var targets : Array[Character] = [target]
 	
 	# 触发攻击时事件
 	SkillSystem.notify_game_event(SkillStatusData.TriggerType.ON_ATTACK, attack_context)
@@ -341,14 +347,15 @@ func _execute_attack(target: Character, skill_context: SkillSystem.SkillExecutio
 	}
 	
 	# 如果成功，处理攻击后逻辑
-	if skill_result:
-		# 尝试获取伤害数值（如果有）
-		var damage_amount = 0
-		if targets.size() > 0 and targets[0].combat_component:
-			# 实际应用中，应该从技能结果中获取伤害值
-			# 如果技能系统返回了伤害信息，可以从中提取
-			if skill_context.has("damage_info") and skill_context["damage_info"] is Dictionary:
-				damage_amount = skill_context["damage_info"].get("damage_value", 0)
+	if result["success"]:
+		# 获取伤害数值
+		var damage_amount = 0.0
+		
+		# 从技能结果中获取伤害信息
+		if skill_result.has("damage_info"):
+			var damage_info = skill_result["damage_info"]
+			if damage_info is Dictionary:
+				damage_amount = damage_info.get("modified_damage_amount", 0)
 		
 		# 更新攻击上下文，添加伤害信息
 		attack_context["damage_amount"] = damage_amount
@@ -389,12 +396,12 @@ func _execute_defend() -> Dictionary:
 	return result
 
 ## 执行技能
-## [param caster] 施法者
+## [param caster]## 执行技能
 ## [param skill] 技能数据
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
-func _execute_skill(skill: SkillData, targets: Array[Character], skill_context = null) -> Dictionary:
+func _execute_skill(skill: SkillData, targets: Array[Character], skill_context: SkillSystem.SkillExecutionContext) -> Dictionary:
 	var character_owner = get_parent() as Character
 	if not is_instance_valid(character_owner) or not skill:
 		return {"success": false, "error": "无效的施法者或技能"}
@@ -409,7 +416,7 @@ func _execute_skill(skill: SkillData, targets: Array[Character], skill_context =
 	await character_owner.play_animation("skill")
 	
 	# 尝试执行技能
-	var result = await _skill_component.attempt_execute_skill(character_owner, skill, targets, skill_context)
+	var result = await _skill_component.attempt_execute_skill(skill, targets, skill_context)
 	
 	# 发出技能执行信号
 	skill_executed.emit(character_owner, skill, targets, result)

@@ -32,21 +32,24 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 	# 1. 计算初始伤害详情
 	var initial_damage_details: Dictionary = _calculate_initial_damage_details(source_character, target_character, effect_data)
 	
-	# 2. 创建 DamageInfo 实例
-	# Note: Current _calculate_initial_damage_details doesn't provide is_crit or tags, so passing defaults.
-	var damage_info := DamageInfo.new(
-		source_character,
-		target_character,
-		initial_damage_details.get("calculated_damage_value", 0.0),
-		initial_damage_details.get("damage_element", ElementTypes.NONE),
-		initial_damage_details.get("is_crit", false), # Placeholder
-		initial_damage_details.get("tags", [])       # Placeholder
-	)
-	# Store any other relevant calculation details if needed, e.g., for visuals not directly on DamageInfo
+	# 2. 创建伤害信息字典，替代 DamageInfo 类
+	var damage_info = {
+		"source_character": source_character,
+		"target_character": target_character,
+		"base_damage_amount": initial_damage_details.get("calculated_damage_value", 0.0),
+		"modified_damage_amount": initial_damage_details.get("calculated_damage_value", 0.0), # 初始时等于基础伤害
+		"damage_element": initial_damage_details.get("damage_element", ElementTypes.NONE),
+		"is_critical_hit": initial_damage_details.get("is_crit", false),
+		"can_be_modified": true,
+		"tags": initial_damage_details.get("tags", []).duplicate(),
+		"modification_log": []
+	}
+	
+	# 存储其他相关计算详情（如果需要）
 	execution_context["_visual_is_effective"] = initial_damage_details.get("is_effective", false)
 	execution_context["_visual_is_ineffective"] = initial_damage_details.get("is_ineffective", false)
 	
-	# 3. 将 DamageInfo 添加到执行上下文
+	# 3. 将伤害信息添加到执行上下文
 	execution_context["damage_info"] = damage_info
 	
 	# 4. 发出事件，允许其他系统修改伤害 (例如状态效果、被动技能)
@@ -56,17 +59,20 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 	else:
 		push_warning("DamageEffectProcessor: SkillSystem.GAME_EVENT.ABOUT_TO_APPLY_DAMAGE is not defined!")
 
-	# 5. 从上下文中获取可能已修改的 DamageInfo
-	var final_damage_info: DamageInfo = execution_context.get("damage_info")
+	# 5. 从上下文中获取可能已修改的伤害信息字典
+	var final_damage_info = execution_context.get("damage_info")
 	if not final_damage_info:
-		push_error("DamageEffectProcessor: DamageInfo missing from execution_context after event emission.")
-		return {"success": false, "message": "DamageInfo lost."}
+		push_error("DamageEffectProcessor: 伤害信息在事件发出后从执行上下文中丢失。")
+		return {"success": false, "message": "伤害信息丢失"}
 
 	# 6. 最终确定伤害值 (例如，确保非负，应用伤害上限/下限等)
-	final_damage_info.finalize_damage() # Prevents further modifications
-	var damage_to_apply = final_damage_info.get_final_damage()
+	# 防止进一步修改
+	final_damage_info["can_be_modified"] = false
+	# 确保伤害不为负数
+	final_damage_info["modified_damage_amount"] = max(0, final_damage_info["modified_damage_amount"])
+	var damage_to_apply = final_damage_info["modified_damage_amount"]
 	
-	# 根据元素克制关系选择不同效果 (使用 final_damage_info 和 initial_damage_details for visuals)
+	# 根据元素克制关系选择不同效果
 	_request_element_effect(final_damage_info, target_character, execution_context.get("_visual_is_effective", false), execution_context.get("_visual_is_ineffective", false))
 	
 	# 7. 应用伤害
@@ -74,7 +80,7 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 	
 	# 记录结果
 	results["actual_damage_taken"] = actual_damage_taken
-	results["damage_info"] = final_damage_info # For logging or other systems
+	results["damage_info"] = final_damage_info.duplicate() # 复制字典以避免引用问题
 	results["success"] = true
 	
 	# 显示伤害信息
@@ -91,33 +97,39 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 	return results
 
 ## 根据元素克制关系请求不同的视觉效果
-func _request_element_effect(damage_info: DamageInfo, target: Character, is_effective: bool, is_ineffective: bool) -> void:
-	var hit_params = {"amount": damage_info.get_final_damage(), "element": damage_info.damage_element}
+func _request_element_effect(damage_info: Dictionary, target: Character, is_effective: bool, is_ineffective: bool) -> void:
+	var hit_params = {"amount": damage_info["modified_damage_amount"], "element": damage_info["damage_element"]}
 	if is_effective:
 		# 克制效果
 		_request_visual_effect(&"effective_hit", target, hit_params)
-		# 使用自定义颜色
-		_request_visual_effect(&"damage_number", target, {"damage": damage_info.get_final_damage(), "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
 	elif is_ineffective:
 		# 抵抗效果
 		_request_visual_effect(&"ineffective_hit", target, hit_params)
-		_request_visual_effect(&"damage_number", target, {"damage": damage_info.get_final_damage(), "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
 	else:
 		# 普通效果
-		_request_visual_effect(&"damage", target, hit_params)
+		_request_visual_effect(&"normal_hit", target, hit_params)
 
 ## 获取伤害显示信息
-func _get_damage_display_info(target: Character, damage_info: DamageInfo, is_effective: bool, is_ineffective: bool) -> String:
-	var message = ""
-	if is_effective:
-		message += "[color=yellow]【克制！】[/color]"
-	elif is_ineffective:
-		message += "[color=teal]【抵抗！】[/color]"
+func _get_damage_display_info(target: Character, damage_info: Dictionary, is_effective: bool, is_ineffective: bool) -> String:
+	var element_text = ""
+	var damage_value = damage_info["modified_damage_amount"]
 	
-	message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, damage_info.get_final_damage()]
-	return message
+	if damage_info["damage_element"] != ElementTypes.NONE:
+		element_text = " " + ElementTypes.get_element_name(damage_info["damage_element"])
+	
+	var effectiveness_text = ""
+	if is_effective:
+		effectiveness_text = "[克制]"
+	elif is_ineffective:
+		effectiveness_text = "[抵抗]"
+	
+	var critical_text = ""
+	if damage_info["is_critical_hit"]:
+		critical_text = "[暴击]"
+	
+	return "[color=red]%s 受到 %.1f%s 伤害%s%s[/color]" % [target.character_name, damage_value, element_text, effectiveness_text, critical_text]
 
-## 计算初始伤害详情 (供 DamageInfo 构建及初步视觉判断)
+## 计算初始伤害详情 (供伤害信息字典构建及初步视觉判断)
 func _calculate_initial_damage_details(caster: Character, target: Character, effect_data: SkillEffectData) -> Dictionary:
 	# 获取基础伤害
 	var power = effect_data.damage_amount
@@ -144,13 +156,13 @@ func _calculate_initial_damage_details(caster: Character, target: Character, eff
 	
 	# 返回详细的伤害结果信息
 	return {
-		"calculated_damage_value": float(final_calculated_value), # This will be passed to DamageInfo constructor
+		"calculated_damage_value": float(final_calculated_value), # 这将用于伤害信息字典的初始化
 		"damage_element": element,
 		"is_effective": element_result["is_effective"],
 		"is_ineffective": element_result["is_ineffective"],
-		# "is_crit": false, # Future: add crit calculation here
-		# "tags": [],     # Future: add tags from skill/caster here
-		# Informational, not directly for DamageInfo constructor but could be logged or used by other systems
+		"is_crit": false, # 未来：在这里添加暴击计算
+		"tags": [],     # 未来：从技能/施法者添加标签
+		# 信息性字段，不直接用于伤害信息字典的初始化，但可以用于日志或其他系统
 		"base_damage_scaled_pre_defense": base_damage_scaled,
 		"element_multiplier": element_modifier,
 		"target_element_for_calc": target.element 

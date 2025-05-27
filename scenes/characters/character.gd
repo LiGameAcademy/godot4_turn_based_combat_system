@@ -86,7 +86,7 @@ func _ready() -> void:
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
 
 ## 执行动作
-func execute_action(action_type: CharacterCombatComponent.ActionType, target : Character = null, params = null) -> Dictionary:
+func execute_action(action_type: CharacterCombatComponent.ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
 	if combat_component:
 		return await combat_component.execute_action(action_type, target, params)
 	return {"success": false, "error": "战斗组件未初始化"}
@@ -230,7 +230,7 @@ func _init_components() -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize(character_data.element, character_data.attack_skill)
+	combat_component.initialize(character_data.element, character_data.attack_skill.duplicate(true))
 
 	# 连接组件信号
 	combat_component.defending_changed.connect(_on_defending_changed)

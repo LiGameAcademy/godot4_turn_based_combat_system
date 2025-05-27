@@ -52,11 +52,23 @@ func get_valid_enemy_targets(caster: Character) -> Array[Character]:
 ## [param target] 动作目标
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
-func execute_action(action_type: CharacterCombatComponent.ActionType, source: Character, target = null, params = null) -> Dictionary:
+func execute_action(
+		action_type: CharacterCombatComponent.ActionType, 
+		source: Character, 
+		target : Character = null, 
+		params : Dictionary = {}) -> Dictionary:
 	if not is_instance_valid(source):
 		push_error("无效的动作执行者")
 		return {"success": false, "error": "无效的动作执行者"}
 
+	var skill_context = SkillSystem.SkillExecutionContext.new(
+		character_registry,
+		visual_effects,
+	)
+	params.merge({
+		"skill_context": skill_context
+	}, true)
+	
 	# 调用角色战斗组件的执行动作方法
 	var result = await source.execute_action(action_type, target, params)
 	

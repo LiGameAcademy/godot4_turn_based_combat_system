@@ -17,6 +17,8 @@ class_name EffectProcessor
 func process_effect(effect_data: SkillEffectData, _execution_context: Dictionary) -> Dictionary:
 	# 基类方法，应由子类覆盖
 	# 默认实现可以返回一个表示未处理或失败的字典
+	if Engine.get_main_loop():
+		await Engine.get_main_loop().process_frame
 	push_warning("EffectProcessor.process_effect() was called but not overridden in a subclass for effect type: %s" % SkillEffectData.EffectType.find_key(effect_data.effect_type))
 	return {"success": false, "message": "Effect not processed by base class."}
 

@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=15 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=16 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
+[ext_resource type="Resource" uid="uid://bpvu1aupmnylf" path="res://resources/skills/attack.tres" id="1_n1w7c"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_fr6p1"]
 [ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="4_x2mhx"]
 [ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="5_443mk"]
@@ -96,5 +97,6 @@ character_name = "哥布林"
 description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
 element = 2
+attack_skill = ExtResource("1_n1w7c")
 skills = Array[ExtResource("2_fr6p1")]([])
 color = Color(0.2, 0.7, 0.2, 1)

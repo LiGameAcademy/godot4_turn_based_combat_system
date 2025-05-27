@@ -14,21 +14,21 @@ func can_process_effect(effect_data: SkillEffectData) -> bool:
 func process_effect(effect_data: SkillEffectData, execution_context: Dictionary) -> Dictionary:
 	var source_character: Character = execution_context.get("source_character")
 	var target_character: Character = execution_context.get("primary_target")
-	var damage_info: DamageInfo = execution_context.get("damage_info")
+	var damage_info = execution_context.get("damage_info")
 	
 	var results = {"success": false, "message": "未执行伤害修改"}
 	
 	# 检查必要参数
 	if not source_character or not target_character:
-		push_warning("ModifyDamageEventProcessor: Source or target character is null.")
-		return {"success": false, "message": "Source or target missing."}
+		push_warning("ModifyDamageEventProcessor: 源角色或目标角色为空。")
+		return {"success": false, "message": "缺失源或目标"}
 		
 	if not damage_info:
-		push_warning("ModifyDamageEventProcessor: DamageInfo missing in execution_context.")
-		return {"success": false, "message": "DamageInfo missing."}
+		push_warning("ModifyDamageEventProcessor: 执行上下文中缺失伤害信息。")
+		return {"success": false, "message": "缺失伤害信息"}
 	
 	# 检查伤害是否可以被修改
-	if not damage_info.can_be_modified:
+	if not damage_info.get("can_be_modified", true):
 		results["message"] = "伤害已被锁定，无法修改"
 		return results
 	
@@ -40,10 +40,24 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 			
 		SkillEffectData.DamageModificationType.MODIFICATION_FLAT:
 			# 应用固定值修改 (正数为增伤，负数为减伤)
-			damage_info.apply_flat_modification(
-				effect_data.mod_dmg_value, 
-				StringName(source_character.character_name + ":FLAT_MOD")
-			)
+			var original_value = damage_info["modified_damage_amount"]
+			var new_value = original_value + effect_data.mod_dmg_value
+			
+			# 记录修改
+			if not damage_info.has("modification_log"):
+				damage_info["modification_log"] = []
+			
+			damage_info["modification_log"].append({
+				"modifier_name": StringName(source_character.character_name + ":FLAT_MOD"),
+				"change_amount": effect_data.mod_dmg_value,
+				"original_value": original_value,
+				"new_value": new_value,
+				"type": "flat_modification"
+			})
+			
+			# 更新伤害值
+			damage_info["modified_damage_amount"] = new_value
+			
 			results["success"] = true
 			results["message"] = "应用了固定值%s: %s" % [
 				"增伤" if effect_data.mod_dmg_value >= 0 else "减伤",
@@ -52,26 +66,83 @@ func process_effect(effect_data: SkillEffectData, execution_context: Dictionary)
 			
 		SkillEffectData.DamageModificationType.MODIFICATION_PERCENT:
 			# 应用百分比修改 (正数为增伤，负数为减伤)
-			damage_info.apply_percentage_modification(
-				effect_data.mod_dmg_value,
-				StringName(source_character.character_name + ":PERCENT_MOD")
-			)
+			var original_value = damage_info["modified_damage_amount"]
+			var percent_change = effect_data.mod_dmg_value / 100.0
+			var change_amount = original_value * percent_change
+			var new_value = original_value + change_amount
+			
+			# 记录修改
+			if not damage_info.has("modification_log"):
+				damage_info["modification_log"] = []
+			
+			damage_info["modification_log"].append({
+				"modifier_name": StringName(source_character.character_name + ":PERCENT_MOD"),
+				"change_amount": change_amount,
+				"original_value": original_value,
+				"new_value": new_value,
+				"type": "percentage_modification",
+				"percent": effect_data.mod_dmg_value
+			})
+			
+			# 更新伤害值
+			damage_info["modified_damage_amount"] = new_value
+			
+		SkillEffectData.DamageModificationType.SET_DAMAGE_FLAT:
+			# 直接设置伤害值（在这里用于完全阻挡伤害）
+			var original_value = damage_info["modified_damage_amount"]
+			var new_value = 0 # 设置为零实现完全阻挡
+			
+			# 记录修改
+			if not damage_info.has("modification_log"):
+				damage_info["modification_log"] = []
+			
+			damage_info["modification_log"].append({
+				"modifier_name": StringName(source_character.character_name + ":BLOCK"),
+				"change_amount": -original_value,
+				"original_value": original_value,
+				"new_value": new_value,
+				"type": "block"
+			})
+			
+			# 将伤害设为零
+			damage_info["modified_damage_amount"] = new_value
+			
 			results["success"] = true
-			results["message"] = "应用了百分比%s: %s%%" % [
-				"增伤" if effect_data.mod_dmg_value >= 0 else "减伤",
-				str(abs(effect_data.mod_dmg_value) * 100)
-			]
+			results["message"] = "伤害已完全阻挡"
+			
+		SkillEffectData.DamageModificationType.REFLECT_DAMAGE_PERCENT:
+			# 反弹伤害逻辑
+			# 这里只记录反弹效果，实际反弹伤害需要在外部处理
+			if not damage_info.has("tags"):
+				damage_info["tags"] = []
+			
+			damage_info["tags"].append(&"reflected")
+			results["reflected"] = true
+			results["reflect_percent"] = effect_data.mod_dmg_value
+			
+			results["success"] = true
+			results["message"] = "应用了伤害反弹：%.1f%%" % effect_data.mod_dmg_value
 			
 		SkillEffectData.DamageModificationType.ABSORPTION_FLAT:
 			# 应用固定值吸收
-			var original_damage = damage_info.get_final_damage()
+			var original_damage = damage_info["modified_damage_amount"]
 			var absorption_amount = min(original_damage, effect_data.mod_dmg_value)
 			
 			# 减少伤害
-			damage_info.apply_flat_modification(
-				-absorption_amount,
-				StringName(source_character.character_name + ":ABSORB_FLAT")
-			)
+			var new_value = original_damage - absorption_amount
+			damage_info["modified_damage_amount"] = new_value
+			
+			# 记录修改
+			if not damage_info.has("modification_log"):
+				damage_info["modification_log"] = []
+			
+			damage_info["modification_log"].append({
+				"modifier_name": StringName(source_character.character_name + ":ABSORB_FLAT"),
+				"change_amount": -absorption_amount,
+				"original_value": original_damage,
+				"new_value": new_value,
+				"type": "absorb"
+			})
 			
 			# 治疗施法者
 			if source_character.has_method("heal"):

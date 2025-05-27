@@ -118,16 +118,24 @@ func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Charac
 		return {"success": false, "error": "无效的角色引用"}
 	
 	# 调用SkillSystem的相应方法
-	var success = await SkillSystem.attempt_execute_skill(character_owner, skill_data, selected_targets, context)
+	var result = await SkillSystem.attempt_execute_skill(character_owner, skill_data, selected_targets, context)
 	
 	# 构建结果字典
-	var result = {
-		"success": success,
+	var return_dict = {
+		"success": result.success if result is Dictionary else result,
 		"skill": skill_data,
 		"targets": selected_targets
 	}
 	
-	return result
+	# 如果SkillSystem返回了字典，并且包含damage_info，则传递给上层
+	if result is Dictionary and result.has("damage_info"):
+		return_dict["damage_info"] = result["damage_info"]
+	
+	# 如果context中包含damage_info，也传递给上层
+	if context and context.has("damage_info"):
+		return_dict["damage_info"] = context["damage_info"]
+	
+	return return_dict
 
 ## 是否有足够的MP释放技能
 func has_enough_mp_for_any_skill() -> bool:

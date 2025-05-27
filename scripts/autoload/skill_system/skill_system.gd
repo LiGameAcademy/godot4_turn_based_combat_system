@@ -26,12 +26,27 @@ signal visual_effect_requested(effect_type: StringName, target: Node, params: Di
 class SkillExecutionContext:
 	var character_registry: BattleCharacterRegistryManager
 	var visual_effects_handler: BattleVisualEffects
+	# 存储额外数据的字典，如 damage_info
+	var data: Dictionary = {}
 	
 	func _init(
 			p_registry: BattleCharacterRegistryManager, 
 			p_vfx_handler: BattleVisualEffects) -> void:
 		character_registry = p_registry
 		visual_effects_handler = p_vfx_handler
+		data = {}
+	
+	## 检查是否存在指定的数据键
+	func has_data(key: String) -> bool:
+		return data.has(key)
+		
+	## 获取指定的数据值
+	func get_data(key: String, default_value = null) -> Variant:
+		return data.get(key, default_value)
+		
+	## 设置指定的数据值
+	func set_data(key: String, value: Variant) -> void:
+		data[key] = value
 
 func _ready() -> void:
 	_init_effect_processors()
@@ -55,16 +70,16 @@ func register_effect_processor(processor: EffectProcessor) -> void:
 ## [param skill_data] 要使用的技能数据
 ## [param selected_targets] 玩家或AI选择的目标
 ## [param context] 技能执行上下文
-## [return] 是否成功执行技能
+## [return] 执行结果字典，包含成功与否及相关信息
 func attempt_execute_skill(
 		caster: Character, 
 		skill_data: SkillData, 
 		selected_targets: Array[Character], 
-		context: SkillExecutionContext) -> bool:
+		context: SkillExecutionContext) -> Dictionary:
 	if not is_instance_valid(caster) or not skill_data:
 		push_error("Invalid caster or skill_data for skill execution.")
 		skill_failed.emit(caster, skill_data, "invalid_caster_or_skill")
-		return false
+		return {"success": false, "error": "invalid_caster_or_skill"}
 
 	# 1. 验证施法条件 (MP, 冷却, 目标等)
 	var validation_result = _validate_skill_usability(context, caster, skill_data, selected_targets)
@@ -73,7 +88,7 @@ func attempt_execute_skill(
 		skill_failed.emit(caster, skill_data, validation_result.reason)
 		if context.visual_effects_handler and context.visual_effects_handler.has_method("show_status_text"):
 			context.visual_effects_handler.show_status_text(caster, validation_result.reason, true)
-		return false
+		return {"success": false, "error": validation_result.reason}
 
 	print_rich("[color=lightblue]%s attempts to use skill: %s on %s[/color]" % [caster.character_name, skill_data.skill_name, selected_targets])
 	skill_execution_started.emit(caster, skill_data, selected_targets)
@@ -82,13 +97,28 @@ func attempt_execute_skill(
 	_consume_skill_resources(caster, skill_data)
 
 	# 3. 异步执行技能效果处理
+	# 创建一个字典来存储执行结果
+	var execution_results = {
+		"success": true, 
+		"skill": skill_data, 
+		"targets": selected_targets
+		}
+	
+	# 将上下文存储在结果中，以便于后续处理
+	execution_results["context"] = context
+	
+	# 异步执行技能效果
 	call_deferred("_process_skill_effects_async", context, caster, skill_data, selected_targets)
 	
 	# 如果成功，等待一帧以确保效果处理开始
 	if Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
 	
-	return true
+	# 如果上下文中有 damage_info，将其添加到结果中
+	if context and context.has_data("damage_info"):
+		execution_results["damage_info"] = context.get_data("damage_info")
+	
+	return execution_results
 
 ## 获取有效的友方目标
 func get_valid_ally_targets(context: SkillExecutionContext, caster: Character, include_self: bool) -> Array[Character]:
@@ -313,6 +343,10 @@ func _process_skill_effects_async(context: SkillExecutionContext, caster: Charac
 				# 应用单个效果
 				var effect_result = await _apply_single_effect(caster, effect_target, effect_data, skill_data)
 				
+				# 如果效果结果中有damage_info，将其添加到上下文中
+				if effect_result.has("damage_info"):
+					context.set_data("damage_info", effect_result["damage_info"])
+				
 				# 合并结果
 				for key in effect_result:
 					overall_results[target][key] = effect_result[key]
@@ -331,10 +365,14 @@ func _process_skill_effects_async(context: SkillExecutionContext, caster: Charac
 ## [param context] 技能执行上下文
 ## [param caster] 施法者
 ## [param target] 目标角色
-## [param skill] 技能数据
 ## [param effect] 效果数据
+## [param skill] 技能数据（可选）
 ## [return] 效果应用结果
-func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, _skill: SkillData = null) -> Dictionary:
+func _apply_single_effect(
+		caster: Character, 
+		target: Character, 
+		effect: SkillEffectData, 
+		skill: SkillData = null) -> Dictionary:
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -348,8 +386,22 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 	var processor = _get_effect_processor_for_type(effect)
 	
 	if processor and processor.can_process_effect(effect):
+		# 创建执行上下文
+		var execution_context = {
+			"source_character": caster,
+			"primary_target": target
+		}
+		
+		# 如果有技能数据，添加到上下文
+		if skill:
+			execution_context["skill_data"] = skill
+		
 		# 使用处理器处理效果
-		var result = await processor.process_effect(effect, {"source_character": caster, "primary_target": target})
+		var result = await processor.process_effect(effect, execution_context)
+		
+		# 如果上下文中包含伤害信息，确保它在结果中
+		if execution_context.has("damage_info"):
+			result["damage_info"] = execution_context["damage_info"].duplicate() # 复制字典以避免引用问题
 		
 		# 发出信号
 		effect_applied.emit(effect.effect_type, caster, target, result)
