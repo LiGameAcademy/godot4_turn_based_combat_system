@@ -4,7 +4,7 @@ class_name CharacterSkillComponent
 ## 运行时角色实际持有的AttributeSet实例 (通过模板duplicate而来)
 var _active_attribute_set: SkillAttributeSet = null		
 ## 状态字典, Key: status_id (StringName), Value: SkillStatusData (运行时实例)
-var _active_statuses: Dictionary = {}
+var _active_statuses: Dictionary[StringName, SkillStatusData] = {}
 ## 可用的技能
 var _skills: Array[SkillData] = []
 
@@ -19,8 +19,15 @@ signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_valu
 ## 属性当前值改变
 signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float, source: Variant)
 
+func _ready() -> void:
+	# 确保 SkillSystem 是可访问的 autoload 单例
+	if not SkillSystem.game_event_occurred.is_connected(_on_skill_system_game_event_occurred):
+		SkillSystem.game_event_occurred.connect(_on_skill_system_game_event_occurred)
+
 ## 初始化组件
-func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
+func initialize(
+		attribute_set_resource: SkillAttributeSet, 
+		skills: Array[SkillData]) -> void:
 	# 这是因为AttributeSet本身是一个Resource, 直接使用会导致所有实例共享数据
 	_active_attribute_set = attribute_set_resource.duplicate(true)
 	# 初始化技能列表
@@ -101,14 +108,17 @@ func restore_hp(amount: float, source: Variant = null) -> float:
 
 #region --- 技能管理 ---
 ## 尝试执行技能
-## [param context] 技能执行上下文
-## [param caster] 施法者
 ## [param skill_data] 技能数据
 ## [param selected_targets] 选中的目标
+## [param context] 技能执行上下文
 ## [return] 执行结果
-func attempt_execute_skill(caster: Character, skill_data: SkillData, selected_targets: Array[Character], context: SkillSystem.SkillExecutionContext) -> Dictionary:
+func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Character], context: SkillSystem.SkillExecutionContext) -> Dictionary:
+	var character_owner = get_parent() as Character
+	if not is_instance_valid(character_owner):
+		return {"success": false, "error": "无效的角色引用"}
+	
 	# 调用SkillSystem的相应方法
-	var success = SkillSystem.attempt_execute_skill(context, caster, skill_data, selected_targets)
+	var success = await SkillSystem.attempt_execute_skill(character_owner, skill_data, selected_targets, context)
 	
 	# 构建结果字典
 	var result = {
@@ -116,10 +126,6 @@ func attempt_execute_skill(caster: Character, skill_data: SkillData, selected_ta
 		"skill": skill_data,
 		"targets": selected_targets
 	}
-	
-	# 如果成功，等待一帧以确保效果处理开始
-	if success and Engine.get_main_loop():
-		await Engine.get_main_loop().process_frame
 	
 	return result
 
@@ -407,7 +413,7 @@ func _update_existing_status(
 ## 私有方法：应用新状态
 func _apply_new_status(status_template: SkillStatusData, p_source_char: Character, 
 		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatusData:
-	# 创建运行时状态实例（克隆模板）
+	# 创建状态实例
 	var runtime_status_instance: SkillStatusData = status_template.duplicate(true)
 	
 	# 设置源角色引用
@@ -447,8 +453,74 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 	return runtime_status_instance
 #endregion
 
-func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float, _source: Variant):
-	attribute_base_value_changed.emit(attribute_instance, _old_value, _new_value, _source)
+#region --- Trigger Processing ---
 
-func _on_attribute_current_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float, _source: Variant):
-	attribute_current_value_changed.emit(attribute_instance, _old_value, _new_value, _source)
+## 新的通用事件处理方法
+func _on_skill_system_game_event_occurred(event_type_from_signal: int, context: Dictionary) -> void:
+	var character_owner = get_parent() as Character
+	if not is_instance_valid(character_owner):
+		push_warning("CharacterSkillComponent owner is not a Character or is invalid for event processing.")
+		return
+
+	var source : Character = context.get("character", null)
+	if source and source != character_owner:
+		push_warning("CharacterSkillComponent: Source character is not valid for event processing.")
+		return
+
+	for status_id in _active_statuses:
+		var status: SkillStatusData = _active_statuses[status_id]
+
+		# 检查状态的触发类型是否与当前事件匹配
+		# SkillStatusData.TriggerType 是枚举，其整数值可以直接比较
+		if status.trigger_type != event_type_from_signal:
+			continue
+		# 检查每回合最大触发次数 (0表示无限制)
+		if status.trigger_max_per_turn > 0 and status.triggers_this_turn >= status.trigger_max_per_turn:
+			continue
+
+		# 检查触发概率 (randf() 返回 [0.0, 1.0) 范围的浮点数)
+		if randf() >= status.trigger_chance: # 如果随机数大于等于概率，则不触发
+			continue
+
+		# 触发成功!
+		status.triggers_this_turn += 1
+		status.total_triggers += 1
+		# print_debug("Status '%s' on '%s' triggered by event %s. Turn triggers: %s, Total: %s" % [status.status_id, character_owner.name, SkillStatusData.TriggerType.keys()[event_type_from_signal], status.triggers_this_turn, status.total_triggers])
+
+		# 确定触发效果的目标
+		var primary_target_for_effect: Character = null
+		if context.has("attacker") and context.attacker is Character:
+			primary_target_for_effect = context.attacker
+		elif context.has("target") and context.target is Character: # 例如技能的主要目标
+			primary_target_for_effect = context.target
+		elif context.has("caster") and context.caster is Character: # 如果事件是关于施法者自身的
+			primary_target_for_effect = context.caster 
+		# 如果以上都不满足，或者效果就是针对自身，可以将 character_owner 作为目标
+		# 或者某些效果不需要显式目标 (例如场地效果)。这里简化处理。
+		if not is_instance_valid(primary_target_for_effect):
+			# 对于某些事件如 ON_TURN_START/END，主要目标可能是自身
+			if event_type_from_signal == SkillStatusData.TriggerType.ON_TURN_START or event_type_from_signal == SkillStatusData.TriggerType.ON_TURN_END:
+				primary_target_for_effect = character_owner
+			# 如果还是没有，某些效果可能不需要目标，或者目标是事件源（攻击者）
+			# 这里的逻辑可以根据具体效果的需求进一步细化
+
+		# 应用所有触发效果
+		for effect_data: SkillEffectData in status.trigger_effects:
+			# 注意：如果 primary_target_for_effect 为 null，某些效果可能无法正确应用
+			# 但 apply_triggered_effect 应该能处理这种情况
+			SkillSystem.apply_triggered_effect(character_owner, primary_target_for_effect, effect_data, context)
+		print_debug("Triggered effects applied for %s: %s" % [character_owner.name, status.status_name])
+
+## 重置所有状态的每回合触发计数
+func reset_turnly_trigger_counts() -> void:
+	for status_id in _active_statuses:
+		var status: SkillStatusData = _active_statuses[status_id]
+		status.triggers_this_turn = 0
+	# if owner: print_debug("Turnly trigger counts reset for character: %s" % owner.name)
+#endregion
+
+func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float, source: Variant):
+	attribute_base_value_changed.emit(attribute_instance, old_value, new_value, source)
+
+func _on_attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float, source: Variant):
+	attribute_current_value_changed.emit(attribute_instance, old_value, new_value, source)

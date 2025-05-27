@@ -7,7 +7,20 @@ enum EffectType {
 	HEAL,              		## 治疗
 	STATUS,           		## 控制
 	DISPEL,            		## 驱散
+	MODIFY_DAMAGE_EVENT,  	## 伤害事件修改
 	SPECIAL            		## 特殊效果
+}
+
+## 伤害修改类型枚举 (用于 MODIFY_DAMAGE_EVENT)
+enum DamageModificationType {
+	NONE,                           ## 无修改
+	MODIFICATION_FLAT,              ## 固定值修改 (正数为增伤, 负数为减伤)
+	MODIFICATION_PERCENT,           ## 百分比修改 (正数为增伤, 负数为减伤, e.g., 0.1 for +10%, -0.1 for -10%)
+	ABSORPTION_FLAT,                ## 固定值吸收 (伤害转化为对自己的治疗, value应为正)
+	ABSORPTION_PERCENT,             ## 百分比吸收 (伤害转化为对自己的治疗, value应为正, e.g., 0.1 for 10%)
+	CONVERT_DAMAGE_TYPE,            ## 转换伤害类型 (使用 mod_dmg_new_damage_type)
+	SET_DAMAGE_FLAT,                ## 直接设置最终伤害值 (覆盖之前所有计算)
+	REFLECT_DAMAGE_PERCENT          ## 反弹伤害百分比 (例如 value=0.2 表示反弹20%的原始伤害给攻击者, value应为正)
 }
 
 # 基本属性
@@ -42,6 +55,17 @@ var element: int = 0 # ElementTypes.Element.NONE
 @export var dispel_is_positive: bool = false  	## 是否驱散正面效果
 @export var dispel_is_all: bool = false        	## 是否全部驱散
 
+## 伤害事件修改参数 (仅当 effect_type == MODIFY_DAMAGE_EVENT 时有效)
+@export_group("伤害事件修改参数", "mod_dmg_")
+@export var mod_dmg_event_type: DamageModificationType = DamageModificationType.NONE
+## 当修改类型为固定值时，表示增加/减少的具体数值；当为百分比时，0.1表示10%
+@export var mod_dmg_value: float = 10.0
+## 新的伤害类型 (用于 CONVERT_DAMAGE_TYPE)
+@export_enum("none", "fire", "water", "earth", "light")
+var mod_dmg_new_damage_type: int = 0 # ElementTypes.Element.NONE 
+## 反弹目标是否为伤害来源 (用于 REFLECT_DAMAGE_PERCENT)
+@export var mod_dmg_reflect_target_is_source: bool = true 
+
 ## 特殊效果参数
 @export_group("特殊效果参数", "special_")
 @export var special_type: String = "none"  		## 特殊效果类型
@@ -58,6 +82,8 @@ func get_description() -> String:
 			return _get_status_description()
 		EffectType.DISPEL:
 			return _get_dispel_description()
+		EffectType.MODIFY_DAMAGE_EVENT:
+			return _get_modify_damage_event_description()
 		EffectType.SPECIAL:
 			return _get_special_description()
 		_:
@@ -86,6 +112,37 @@ func _get_dispel_description() -> String:
 	var is_positive = dispel_is_positive
 	var type_name = "增益" if is_positive else "减益"
 	return "驱散 %d 个%s效果" % [count, type_name]
+
+## 获取伤害事件修改效果描述
+func _get_modify_damage_event_description() -> String:
+	var desc = "伤害事件修改: "
+	match mod_dmg_event_type:
+		DamageModificationType.NONE:
+			desc += "无效果"
+		DamageModificationType.MODIFICATION_FLAT:
+			if mod_dmg_value >= 0:
+				desc += "固定增伤 %s 点" % str(mod_dmg_value)
+			else:
+				desc += "固定减伤 %s 点" % str(abs(mod_dmg_value))
+		DamageModificationType.MODIFICATION_PERCENT:
+			if mod_dmg_value >= 0:
+				desc += "百分比增伤 %s%%" % str(mod_dmg_value * 100)
+			else:
+				desc += "百分比减伤 %s%%" % str(abs(mod_dmg_value) * 100)
+		DamageModificationType.ABSORPTION_FLAT:
+			desc += "固定吸收伤害 %s 点并转化为治疗" % str(mod_dmg_value)
+		DamageModificationType.ABSORPTION_PERCENT:
+			desc += "百分比吸收伤害 %s%% 并转化为治疗" % str(mod_dmg_value * 100)
+		DamageModificationType.CONVERT_DAMAGE_TYPE:
+			# TODO: Get element name from mod_dmg_new_damage_type
+			desc += "转换伤害类型为 %s" % "[元素名称]" # Placeholder
+		DamageModificationType.SET_DAMAGE_FLAT:
+			desc += "直接设置伤害值为 %s" % str(mod_dmg_value)
+		DamageModificationType.REFLECT_DAMAGE_PERCENT:
+			desc += "反弹 %s%% 伤害" % str(mod_dmg_value * 100)
+		_:
+			desc += "未知修改类型"
+	return desc
 
 ## 获取特殊效果描述
 func _get_special_description() -> String:

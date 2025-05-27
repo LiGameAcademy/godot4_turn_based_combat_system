@@ -1,6 +1,8 @@
 extends Resource
 class_name CharacterData
 
+const ATTACK = preload("res://resources/skills/attack.tres")
+
 @export var character_name: String = "英雄"
 @export_multiline var description: String = "一个勇敢的战士。"
 @export var attribute_set_resource: SkillAttributeSet = null
@@ -9,6 +11,7 @@ class_name CharacterData
 var element: int = 0 # ElementTypes.Element.NONE
 
 @export_group("技能列表")
+@export var attack_skill : SkillData = ATTACK
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
 
 @export_group("视觉表现")

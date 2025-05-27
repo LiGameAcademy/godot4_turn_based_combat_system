@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://x3ps14kdto0r"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=19 format=3 uid="uid://x3ps14kdto0r"]
 
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_bdupk"]
+[ext_resource type="Resource" uid="uid://bpvu1aupmnylf" path="res://resources/skills/attack.tres" id="1_ikb8i"]
 [ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="1_m1y3i"]
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_prr5c"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_l2ikc"]
@@ -28,5 +29,6 @@ character_name = "勇者"
 description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
 attribute_set_resource = SubResource("Resource_ph3fh")
 element = 0
+attack_skill = ExtResource("1_ikb8i")
 skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i"), ExtResource("16_j3npa")])
 color = Color(0.2, 0.4, 0.8, 1)

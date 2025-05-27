@@ -30,6 +30,7 @@ func _ready():
 	
 	_start_battle()
 
+## 获取友方目标
 func get_valid_ally_targets(caster: Character, include_self: bool) -> Array[Character]:
 	var skill_context := SkillSystem.SkillExecutionContext.new(
 		character_registry,
@@ -37,52 +38,13 @@ func get_valid_ally_targets(caster: Character, include_self: bool) -> Array[Char
 	)
 	return SkillSystem.get_valid_ally_targets(skill_context, caster, include_self)
 
+## 获取敌方目标
 func get_valid_enemy_targets(caster: Character) -> Array[Character]:
 	var skill_context := SkillSystem.SkillExecutionContext.new(
 		character_registry,
 		visual_effects,
 	)
 	return SkillSystem.get_valid_enemy_targets(skill_context, caster)
-
-# 玩家选择行动 - 由BattleScene调用
-func player_select_action(action_type: String, params: Dictionary = {}) -> void:
-	if not state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
-		return
-		
-	print_rich("[color=cyan]玩家选择行动: %s[/color]" % action_type)
-	
-	# 设置为行动执行状态
-	state_manager.change_state(BattleStateManager.BattleState.ACTION_EXECUTION)
-	
-	# 获取当前回合角色
-	var current_character = turn_order_manager.current_character
-	
-	# 执行选择的行动
-	match action_type:
-		"attack":
-			if params and params.has("target") and params.target is Character:
-				await _execute_attack(current_character, params.target)
-			else:
-				print_rich("[color=red]错误：攻击需要选择有效目标[/color]")
-				state_manager.change_state(BattleStateManager.BattleState.PLAYER_TURN) # 返回选择状态
-				return
-		"defend":
-			await _execute_defend(current_character)
-		"skill":
-			if params and params.has("skill") and params.skill is SkillData:
-				var targets = params.get("targets", [] as Array[Character])
-				await _execute_skill(current_character, params.skill, targets)
-			else:
-				print_rich("[color=red]错误：释放技能需要指定有效的技能数据[/color]")
-				state_manager.change_state(BattleStateManager.BattleState.PLAYER_TURN)
-				return
-		_:
-			print_rich("[color=red]未知行动类型: %s[/color]" % action_type)
-			state_manager.change_state(BattleStateManager.BattleState.PLAYER_TURN)
-			return
-	
-	# 行动结束后转入回合结束
-	state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
 
 ## 执行动作
 ## [param action_type] 动作类型
@@ -94,77 +56,14 @@ func execute_action(action_type: CharacterCombatComponent.ActionType, source: Ch
 	if not is_instance_valid(source):
 		push_error("无效的动作执行者")
 		return {"success": false, "error": "无效的动作执行者"}
-	
-	if not source.combat_component:
-		push_error("角色缺少战斗组件")
-		return {"success": false, "error": "角色缺少战斗组件"}
-	
+
 	# 调用角色战斗组件的执行动作方法
-	var result = await source.combat_component.execute_action(action_type, source, target, params)
+	var result = await source.execute_action(action_type, target, params)
 	
 	# 检查战斗是否结束
 	combat_rules.check_battle_end_conditions()
 	
 	return result
-
-## 执行基本攻击行动
-func _execute_attack(attacker: Character, target: Character) -> Dictionary:
-	if not is_instance_valid(attacker) or not is_instance_valid(target):
-		return {"success": false, "error": "无效的攻击者或目标"}
-	
-	# 使用战斗组件执行攻击
-	var result = await attacker.combat_component.execute_action(
-		CharacterCombatComponent.ActionType.ATTACK, 
-		attacker, 
-		target
-	)
-	
-	return result
-
-## 执行防御行动
-func _execute_defend(character: Character) -> Dictionary:
-	if not is_instance_valid(character):
-		return {"success": false, "error": "无效的角色"}
-	
-	# 使用战斗组件执行防御
-	var result = await character.combat_component.execute_action(
-		CharacterCombatComponent.ActionType.DEFEND, 
-		character
-	)
-	
-	return result
-
-## 执行技能
-## [param caster] 施法者
-## [param skill] 技能数据
-## [param targets] 目标列表
-## [return] 技能执行结果
-func _execute_skill(caster: Character, skill: SkillData, targets: Array[Character] = []) -> Dictionary:
-	var skill_context = SkillSystem.SkillExecutionContext.new(
-		character_registry,
-		visual_effects,
-	)
-	
-	var params = {
-		"skill": skill,
-		"targets": targets,
-		"skill_context": skill_context
-	}
-	
-	return await execute_action(CharacterCombatComponent.ActionType.SKILL, caster, null, params)
-
-## 执行使用道具
-## [param user] 使用者
-## [param item] 道具数据
-## [param targets] 目标列表
-## [return] 道具使用结果
-func _execute_item(user: Character, item, targets: Array) -> Dictionary:
-	var params = {
-		"item": item,
-		"targets": targets
-	}
-	
-	return await execute_action(CharacterCombatComponent.ActionType.ITEM, user, null, params)
 
 ## 初始化核心系统
 func _init_core_systems() -> void:
@@ -377,8 +276,8 @@ func _next_turn() -> void:
 	print(next_character.character_name, " 的回合")
 	
 	# 回合开始时重置防御状态
-	next_character.set_defending(false)
-	
+	next_character.reset_turn_flags()
+	next_character.combat_component.on_turn_start()
 	# 判断是玩家还是敌人的回合
 	if character_registry.is_player_character(next_character):
 		state_manager.change_state(BattleStateManager.BattleState.PLAYER_TURN)

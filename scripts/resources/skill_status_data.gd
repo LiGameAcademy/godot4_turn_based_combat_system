@@ -28,6 +28,43 @@ enum StatusType {
 	NEUTRAL                                 ## 中性
 }
 
+## 触发类型
+enum TriggerType {
+	NONE,                    ## 无触发
+	
+	# 回合相关
+	ON_TURN_START,           ## 回合开始时
+	ON_TURN_END,             ## 回合结束时
+	
+	# 伤害相关
+	BEFORE_DAMAGE_TAKEN,     ## 受到伤害前 (可能修改伤害)
+	ON_DAMAGE_TAKEN,         ## 受到伤害时 (伤害已确定)
+	AFTER_DAMAGE_TAKEN,      ## 受到伤害后 (可能触发反击等效果)
+	
+	# 攻击相关
+	BEFORE_ATTACK,           ## 攻击前 (可能修改攻击属性)
+	ON_ATTACK,               ## 攻击时 (攻击已确定)
+	AFTER_ATTACK,            ## 攻击后 (可能触发连击等效果)
+	
+	# 造成伤害相关
+	BEFORE_DEAL_DAMAGE,      ## 造成伤害前 (可能修改即将造成的伤害)
+	ON_DEAL_DAMAGE,          ## 造成伤害时 (伤害数值已确定)
+	AFTER_DEAL_DAMAGE,       ## 造成伤害后 (可能触发吸血等效果)
+	
+	# 治疗相关
+	BEFORE_HEAL_RECEIVED,    ## 受到治疗前 (可能修改治疗量)
+	ON_HEAL_RECEIVED,        ## 受到治疗时 (治疗量已确定)
+	AFTER_HEAL_RECEIVED,     ## 受到治疗后 (可能触发额外效果)
+	
+	# 生命相关
+	ON_DEATH,                ## 死亡时 (当角色死亡时触发)
+	ON_KILL,                 ## 击杀时 (当角色击杀目标时触发)
+	
+	# 其他
+	ON_STATUS_APPLIED,       ## 状态被施加时
+	ON_STATUS_REMOVED        ## 状态被移除时
+}
+
 # --- 模板配置属性 (@export) ---
 @export var status_id: StringName = &""         								## 唯一ID
 @export var status_name: String = "状态效果"    								## 显示名称
@@ -50,6 +87,14 @@ enum StatusType {
 @export var overrides_states: Array[StringName] = []							## 此状态应用时会移除的目标状态ID列表
 @export var resisted_by_states: Array[StringName] = []						## 如果目标拥有这些状态之一，则此状态无法应用
 
+# 触发条件
+@export_group("触发条件", "trigger_")
+@export var trigger_type: TriggerType = TriggerType.NONE					## 触发类型
+@export var trigger_chance: float = 1.0										## 触发概率
+@export var trigger_max_per_turn : int = 1									## 每回合最多触发次数
+@export var trigger_max_total : int = -1									## 最多触发次数, -1表示无限
+@export var trigger_effects : Array[SkillEffectData] = []					## 触发效果
+
 # 行动限制
 @export_group("行动限制")
 ## 角色拥有此状态时，无法执行哪些类别的行动。
@@ -64,6 +109,9 @@ var remaining_duration: int       													## 剩余持续时间
 var stacks: int = 1          													## 当前叠加层数
 var is_permanent: bool: 
 	get: return duration_type == DurationType.INFINITE
+# 触发状态
+var triggers_this_turn: int = 0													## 本回合触发次数
+var total_triggers: int = 0														## 总触发次数
 
 #region --- 方法 ---
 func _init(): 

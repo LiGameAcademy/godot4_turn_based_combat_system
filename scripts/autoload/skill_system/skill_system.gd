@@ -9,11 +9,14 @@ var _effect_processors: Dictionary[StringName, EffectProcessor] = {}
 ## 当前选中的技能 (如果需要由 SkillSystem 管理选择状态)
 var current_selected_skill : SkillData = null
 
+# Effect processors will be instantiated directly using their class_name if available.
+
 # 信号
 signal skill_execution_started(caster: Character, skill: SkillData, targets: Array[Character])
 signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) # results 可以包含伤害、治疗、状态等信息
 signal skill_failed(caster: Character, skill: SkillData, reason: String) # 例如 MP不足, 目标无效等
 signal effect_applied(effect_type, source, target, result)
+signal game_event_occurred(event_type: int, context: Dictionary)
 
 # 视觉效果请求信号
 signal visual_effect_requested(effect_type: StringName, target: Node, params: Dictionary)
@@ -48,12 +51,16 @@ func register_effect_processor(processor: EffectProcessor) -> void:
 		push_error("SkillSystem: Failed to register invalid effect processor.")
 
 ## 尝试执行一个技能
-## [param context] 技能执行上下文
 ## [param caster] 施法者
 ## [param skill_data] 要使用的技能数据
 ## [param selected_targets] 玩家或AI选择的目标
+## [param context] 技能执行上下文
 ## [return] 是否成功执行技能
-func attempt_execute_skill(context: SkillExecutionContext, caster: Character, skill_data: SkillData, selected_targets: Array[Character]) -> bool:
+func attempt_execute_skill(
+		caster: Character, 
+		skill_data: SkillData, 
+		selected_targets: Array[Character], 
+		context: SkillExecutionContext) -> bool:
 	if not is_instance_valid(caster) or not skill_data:
 		push_error("Invalid caster or skill_data for skill execution.")
 		skill_failed.emit(caster, skill_data, "invalid_caster_or_skill")
@@ -76,6 +83,10 @@ func attempt_execute_skill(context: SkillExecutionContext, caster: Character, sk
 
 	# 3. 异步执行技能效果处理
 	call_deferred("_process_skill_effects_async", context, caster, skill_data, selected_targets)
+	
+	# 如果成功，等待一帧以确保效果处理开始
+	if Engine.get_main_loop():
+		await Engine.get_main_loop().process_frame
 	
 	return true
 
@@ -131,6 +142,7 @@ func _init_effect_processors() -> void:
 	register_effect_processor(HealingEffectProcessor.new())
 	register_effect_processor(ApplyStatusProcessor.new())
 	register_effect_processor(DispelStatusProcessor.new())
+	register_effect_processor(ModifyDamageEventProcessor.new()) # Register the new processor
 
 ## 根据效果类型获取处理器ID
 func _get_effect_processor_for_type(effect: SkillEffectData) -> EffectProcessor:
@@ -169,7 +181,7 @@ func _validate_skill_usability(context: SkillExecutionContext, caster: Character
 	var actual_targets_for_validation = targets
 	match skill.target_type:
 		SkillData.TargetType.NONE:
-			actual_targets_for_validation = []
+			pass # No targets
 		SkillData.TargetType.SELF:
 			actual_targets_for_validation = [caster]
 		SkillData.TargetType.ALLY_SINGLE: # Renamed from SINGLE_ALLY, assumes excludes self
@@ -290,23 +302,23 @@ func _process_skill_effects_async(context: SkillExecutionContext, caster: Charac
 		overall_results[target] = {}
 		
 		# 处理技能的每个效果
-		for effect in skill_data.effects:
+		for effect_data in skill_data.effects:
 			# 确定该效果的实际目标 (可能与技能主目标不同)
-			var effect_targets = _determine_targets_for_effect(context, caster, skill_data, effect, [target])
+			var effect_targets = _determine_targets_for_effect(context, caster, skill_data, effect_data, [target])
 			
 			for effect_target in effect_targets:
 				if not is_instance_valid(effect_target):
 					continue
 					
 				# 应用单个效果
-				var effect_result = await _apply_single_effect(caster, effect_target, effect, skill_data)
+				var effect_result = await _apply_single_effect(caster, effect_target, effect_data, skill_data)
 				
 				# 合并结果
 				for key in effect_result:
 					overall_results[target][key] = effect_result[key]
 				
 				# 触发视觉效果
-				_trigger_visual_effect(context, effect, caster, effect_target, effect_result)
+				_trigger_visual_effect(context, effect_data, caster, effect_target, effect_result)
 				
 				# 添加短暂延迟，使效果看起来更自然
 				await get_tree().create_timer(0.1).timeout
@@ -322,7 +334,7 @@ func _process_skill_effects_async(context: SkillExecutionContext, caster: Charac
 ## [param skill] 技能数据
 ## [param effect] 效果数据
 ## [return] 效果应用结果
-func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, _skill: SkillData) -> Dictionary:
+func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, _skill: SkillData = null) -> Dictionary:
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -337,7 +349,7 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 	
 	if processor and processor.can_process_effect(effect):
 		# 使用处理器处理效果
-		var result = await processor.process_effect(effect, caster, target)
+		var result = await processor.process_effect(effect, {"source_character": caster, "primary_target": target})
 		
 		# 发出信号
 		effect_applied.emit(effect.effect_type, caster, target, result)
@@ -491,3 +503,27 @@ func _process_status_effects(effect_list: Array, status: SkillStatusData, charac
 	return results
 
 #endregion --- 私有方法 ---
+
+#region --- New Trigger System Methods ---
+
+## 通知一个游戏事件发生
+## [param event_type] 触发类型 (SkillStatusData.TriggerType)
+## [param context] 包含事件相关数据的字典 (例如: { "damage_info": DamageInfo, "source_character": Character, "target_character": Character })
+func notify_game_event(event_type: SkillStatusData.TriggerType, context: Dictionary) -> void:
+	game_event_occurred.emit(event_type, context)
+	# print_debug("SkillSystem: Game event notified - Type: %s, Context: %s" % [SkillStatusData.TriggerType.keys()[event_type], context])
+
+## 应用由触发器激活的效果
+## @param caster: 触发状态的持有者 (通常是事件的主要受影响者)
+## @param primary_target: 触发效果的主要目标 (例如，对于反击，是原始攻击者)
+## @param effect_data: 要应用的SkillEffectData
+## @param _full_event_context: 原始游戏事件的完整上下文，效果处理器可能需要它
+func apply_triggered_effect(caster: Character, primary_target: Character, effect_data: SkillEffectData, _full_event_context: Dictionary) -> void:
+	if not is_instance_valid(caster) or not is_instance_valid(primary_target) or not effect_data:
+		push_error("SkillSystem.apply_triggered_effect: Invalid parameters.")
+		return
+
+	print("Applying triggered effect: %s" % effect_data)
+	_apply_single_effect(caster, primary_target, effect_data, null)
+	
+#endregion

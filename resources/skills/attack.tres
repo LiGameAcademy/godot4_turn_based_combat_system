@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://bpvu1aupmnylf"]
+
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_03g3p"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_xskkb"]
+
+[sub_resource type="Resource" id="Resource_03g3p"]
+script = ExtResource("1_03g3p")
+effect_type = 0
+element = 0
+visual_effect = ""
+sound_effect = ""
+damage_amount = 0
+damage_power_scale = 1.0
+heal_amount = 10
+heal_power_scale = 0.5
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+dispel_is_all = false
+mod_dmg_event_type = 0
+mod_dmg_value = 10.0
+mod_dmg_new_damage_type = 0
+mod_dmg_reflect_target_is_source = true
+special_type = "none"
+special_params = {}
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+
+[resource]
+script = ExtResource("2_xskkb")
+skill_id = &"attack"
+skill_name = "普通攻击"
+description = "最普通的攻击"
+mp_cost = 0
+target_type = 1
+effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_03g3p")])
+action_categories = Array[String](["any_action"])
+cast_animation = &""
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

@@ -94,13 +94,13 @@ func _on_action_menu_attack_pressed() -> void:
 		var valid_targets = battle_manager.get_valid_enemy_targets(caster)
 		if !valid_targets.is_empty():
 			var target = valid_targets[0] # 这里简化为直接选择第一个敌人
-			battle_manager.player_select_action("attack", {"target": target})
+			battle_manager.execute_action(CharacterCombatComponent.ActionType.ATTACK, caster, target)
 		else:
 			update_battle_info("没有可攻击的目标！")
 
 func _on_action_menu_defend_pressed() -> void:
 	if battle_manager.state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
-		battle_manager.player_select_action("defend")
+		battle_manager.execute_action(CharacterCombatComponent.ActionType.DEFEND, battle_manager.turn_order_manager.current_character)
 
 func _on_skill_button_pressed() -> void:
 	if battle_manager.state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
@@ -123,7 +123,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 		SkillData.TargetType.ALLY_ALL_INC_SELF:
 			# 自动目标技能，直接执行
 			var params = {"skill": skill, "targets": []}
-			battle_manager.player_select_action("skill", params)
+			battle_manager.execute_action(CharacterCombatComponent.ActionType.SKILL, caster, null, params)
 			
 		SkillData.TargetType.ENEMY_SINGLE:
 			# 显示敌人目标选择菜单
@@ -171,9 +171,10 @@ func _on_target_selected(target: Character) -> void:
 		return
 	
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
+	var caster : Character = battle_manager.turn_order_manager.current_character
 	var targets : Array[Character] = [target]
 	var params = {"skill": current_selected_skill, "targets": targets}
-	battle_manager.player_select_action("skill", params)
+	battle_manager.execute_action(CharacterCombatComponent.ActionType.SKILL, caster, null, params)
 
 # 当玩家取消目标选择时调用
 func _on_target_selection_cancelled() -> void:
