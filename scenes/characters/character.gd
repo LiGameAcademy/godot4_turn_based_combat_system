@@ -14,6 +14,7 @@ class_name Character
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
 @onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
 @onready var ai_component: CharacterAIComponent = %CharacterAIComponent
+@onready var sprite_2d: Sprite2D = %Sprite2D
 
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
@@ -49,6 +50,7 @@ var character_name : StringName:
 #endregion
 
 @export var character_data: CharacterData			## 角色数据
+@export var is_player : bool = true
 
 # 属性委托给战斗组件
 var is_alive : bool = true:							## 生存状态标记
@@ -64,10 +66,17 @@ signal status_applied_to_character(character: Character, status_instance: SkillS
 signal status_removed_from_character(character: Character, status_id: StringName, status_instance_data_before_removal: SkillStatusData)
 signal status_updated_on_character(character: Character, status_instance: SkillStatusData, old_stacks: int, old_duration: int)
 
+func _enter_tree() -> void:
+	# 初始化角色动画
+	_setup_animations()
+	%Sprite2D.position += character_data.sprite_offset
+
 func _ready() -> void:
 	# 初始化防御指示器
 	defense_indicator.visible = false
-	
+	if not is_player:
+		sprite_2d.flip_h = true
+
 ## 初始化角色
 func initialize(battle_manager: BattleManager) -> void:
 	# 初始化角色数据
@@ -76,8 +85,6 @@ func initialize(battle_manager: BattleManager) -> void:
 	else:
 		push_error("角色场景 " + name + " 没有分配CharacterData!")
 	
-	# 初始化角色动画
-	_setup_animations()
 
 	# 初始化UI显示
 	_update_name_display()
@@ -141,15 +148,20 @@ func play_animation(animation_name: StringName) -> void:
 		# 直接播放动画
 		animation_player.play(animation_name)
 		await animation_player.animation_finished
+		animation_player.play(&"idle")
 	else:
 		push_warning("动画 %s 不存在" % animation_name)
 		
 ## 设置角色动画
 func _setup_animations() -> void:
+	animation_player = %AnimationPlayer
 	# 使用动画辅助类设置原型动画
 	if animation_player:
-		var CharacterAnimations = load("res://scripts/core/character/character_animations.gd")
-		CharacterAnimations.setup_prototype_animations(animation_player)
+		#var CharacterAnimations = load("res://scripts/core/character/character_animations.gd")
+		#CharacterAnimations.setup_prototype_animations(animation_player)
+		animation_player.remove_animation_library(&"")
+		animation_player.add_animation_library(&"", character_data.animation_library)
+		animation_player.play(&"idle")
 	else:
 		push_error("找不到AnimationPlayer组件，无法设置动画")
 

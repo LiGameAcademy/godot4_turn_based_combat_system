@@ -15,7 +15,8 @@ var element: int = 0 # ElementTypes.Element.NONE
 
 @export_group("视觉表现")
 @export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
-
+@export var animation_library : AnimationLibrary
+@export var sprite_offset : Vector2
 # 辅助函数
 
 func get_skill_by_id(id: StringName) -> SkillData:

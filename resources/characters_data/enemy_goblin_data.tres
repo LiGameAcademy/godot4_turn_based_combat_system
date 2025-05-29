@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=17 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://hcxd57tvokjr"]
 
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="1_0i5n8"]
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_n1w7c"]
@@ -102,3 +103,5 @@ skills = Array[ExtResource("2_fr6p1")]([])
 attack_skill = ExtResource("1_n1w7c")
 defense_skill = ExtResource("6_jf55n")
 color = Color(0.2, 0.7, 0.2, 1)
+animation_library = ExtResource("1_0i5n8")
+sprite_offset = Vector2(0, 90)

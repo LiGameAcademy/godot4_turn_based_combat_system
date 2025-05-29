@@ -65,6 +65,7 @@ position = Vector2(850, 300)
 
 [node name="EnemyCharacter" parent="EnemyArea" instance=ExtResource("1_qp2wj")]
 character_data = ExtResource("3_13vd6")
+is_player = false
 
 [node name="BattleManager" type="Node" parent="."]
 unique_name_in_owner = true

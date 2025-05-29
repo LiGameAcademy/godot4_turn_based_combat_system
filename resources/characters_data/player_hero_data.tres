@@ -1,9 +1,10 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=20 format=3 uid="uid://x3ps14kdto0r"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://x3ps14kdto0r"]
 
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_bdupk"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_ikb8i"]
 [ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="1_m1y3i"]
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_prr5c"]
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_yl7in"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_l2ikc"]
 [ext_resource type="Resource" uid="uid://b1gbs024jdeds" path="res://resources/skill_attributes/max_health.tres" id="2_ofdd1"]
 [ext_resource type="Resource" uid="uid://drdip2i404d88" path="res://resources/skill_attributes/max_mana.tres" id="3_g7xkp"]
@@ -34,3 +35,4 @@ skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m
 attack_skill = ExtResource("1_ikb8i")
 defense_skill = ExtResource("13_6v4jd")
 color = Color(0.2, 0.4, 0.8, 1)
+animation_library = ExtResource("1_yl7in")
