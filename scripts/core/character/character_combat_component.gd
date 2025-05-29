@@ -155,6 +155,12 @@ func heal(amount: float, source: Variant = null) -> float:
 	_skill_component.restore_hp(amount, source)
 	return amount
 
+func get_available_skills() -> Array[SkillData]:
+	var skills = _skill_component.get_available_skills()
+	skills.erase(attack_skill)
+	skills.erase(defense_skill)
+	return skills
+
 ## 在回合开始时调用
 func on_turn_start() -> void:
 	# 处理状态更新和触发计数重置

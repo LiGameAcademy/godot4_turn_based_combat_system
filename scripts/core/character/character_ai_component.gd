@@ -70,7 +70,8 @@ func execute_action() -> AIActionResult:
 			)
 	})
 	# 执行决策
-	var result : Dictionary = await owner_character.combat_component.execute_action(
+	var combat_component : CharacterCombatComponent = owner_character.combat_component
+	var result : Dictionary = await combat_component.execute_action(
 		action_decision.action_type,
 		action_decision.target,
 		action_decision.params
@@ -92,6 +93,7 @@ func execute_action() -> AIActionResult:
 func decide_action() -> Dictionary:
 	# 检查AI是否启用
 	if not ai_enabled:
+		print_rich("[color=red]AI未启用[/color]")
 		return {"action_type": null, "target": null, "params": {}}
 
 	var owner_character : Character = get_parent() as Character
@@ -135,6 +137,17 @@ func decide_action() -> Dictionary:
 			}
 	
 	# 如果没有使用技能，则使用基本攻击
+	# 评估是否适合防御
+	var should_defend = _should_use_defense(owner_character)
+	if should_defend and owner_character.combat_component.defense_skill:
+		return {
+			"action_type": CharacterCombatComponent.ActionType.DEFEND,
+			"target": owner_character,
+			"params": {
+				"skill": owner_character.combat_component.defense_skill
+			}
+		}
+	
 	# 评估每个可能的攻击目标
 	var valid_attack_targets = []
 	for target in potential_targets:
@@ -222,17 +235,35 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 func set_ai_enabled(enabled: bool) -> void:
 	ai_enabled = enabled
 
+# 判断是否应该使用防御动作
+## [param character] 角色
+## [return] 是否应该防御
+func _should_use_defense(character: Character) -> bool:
+	# 如果角色生命值低，更倾向于防御
+	var health_percent = character.current_hp / float(character.max_hp)
+	
+	# 生命值低于30%时考虑防御
+	if health_percent < 0.8:
+		# 根据防御倾向和随机因素决定
+		var defense_chance = behavior_resource.weights["self_preservation"] * (1.0 - health_percent) * 0.5
+		
+		# 添加随机性，避免总是防御
+		return randf() < defense_chance
+	
+	# 如果生命值足够高，不需要防御
+	return false
+
 # 为技能选择最佳目标
 func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Character:
 	# 根据技能类型和行为选择最佳目标
+	var owner_character = get_parent() as Character
 	var best_target = null
 	var best_score = -1.0
 	
-	var owner_character = get_parent() as Character
 	for target in valid_targets:
 		var score = 0.0
 		
-		# 根据技能效果类型评分
+		# 根据技能效果评分
 		for effect in skill.effects:
 			match effect.effect_type:
 				SkillEffectData.EffectType.DAMAGE:
@@ -248,13 +279,12 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 				SkillEffectData.EffectType.STATUS:
 					# 状态技能根据状态类型评分
 					if effect.status_to_apply:
-						var status_name = effect.status_to_apply.status_name.to_lower()
-						if "buff" in status_name or "boost" in status_name:
-							# 增益状态优先给予高威胁友方
+						if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+							# 增益状态优先给予友方
 							if not character_registry.is_enemy_of(owner_character, target):
 								score += behavior_resource.weights["skill_support"]
-						elif "debuff" in status_name or "weaken" in status_name:
-							# 减益状态优先给予高威胁敌方
+						elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+							# 减益状态优先给予敌方
 							if character_registry.is_enemy_of(owner_character, target):
 								score += behavior_resource.weights["skill_offensive"]
 		
@@ -275,23 +305,10 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 func _get_available_skills() -> Array:
 	var owner_character : Character = get_parent() as Character
 	if not owner_character.skill_component or not owner_character.combat_component:
+		print_rich("[color=red]技能组件或战斗组件未初始化[/color]")
 		return []
 	
-	var skills : Array = []
-	
-	# 添加基础攻击技能
-	if owner_character.combat_component.attack_skill and _can_use_skill(owner_character.combat_component.attack_skill):
-		skills.append(owner_character.combat_component.attack_skill)
-	
-	# 添加防御技能
-	if owner_character.combat_component.defense_skill and _can_use_skill(owner_character.combat_component.defense_skill):
-		skills.append(owner_character.combat_component.defense_skill)
-	
-	# 添加其他可用技能
-	for skill : SkillData in owner_character.skill_component.get_available_skills():
-		if skill and _can_use_skill(skill):
-			skills.append(skill)
-	
+	var skills : Array = owner_character.combat_component.get_available_skills()
 	return skills
 
 ## 检查技能是否可用(状态、冷却、MP等)
