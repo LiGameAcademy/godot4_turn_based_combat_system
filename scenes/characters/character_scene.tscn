@@ -1,13 +1,13 @@
-[gd_scene load_steps=9 format=3 uid="uid://cb2e2cndtui6m"]
+[gd_scene load_steps=10 format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
+[ext_resource type="Texture2D" uid="uid://s5nmo61xi5me" path="res://assets/sprites/characters/heros/assassin/attack_1.png" id="3_s1bdo"]
 [ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://scripts/core/character/character_skill_component.gd" id="3_vbih0"]
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="4_00ma2"]
 [ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://scripts/core/character/character_combat_component.gd" id="4_b1mxh"]
 [ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://scripts/core/character/character_ai_component.gd" id="5_b1mxh"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="6_00x28"]
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_vbih0"]
 
 [sub_resource type="Resource" id="Resource_b3que"]
 script = ExtResource("6_00x28")
@@ -81,10 +81,17 @@ vertical_alignment = 1
 
 [node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(78, 0)
+scale = Vector2(2, 2)
+texture = ExtResource("3_s1bdo")
+hframes = 6
+frame = 5
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true
 libraries = {
-&"": SubResource("AnimationLibrary_vbih0")
+&"": ExtResource("4_00ma2")
 }
 
 [node name="CharacterSkillComponent" type="Node" parent="."]
