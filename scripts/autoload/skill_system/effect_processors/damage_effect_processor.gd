@@ -42,6 +42,9 @@ func process_effect(effect: SkillEffectData, source: Character, target: Characte
 	if target.current_hp <= 0:
 		print("%s 被击败!" % target.character_name)
 	
+	# 发出效果处理完成信号
+	SkillSystem.effect_processed.emit(SkillEffectData.EffectType.DAMAGE, source, target, results)
+	
 	return results
 
 ## 根据元素克制关系请求不同的视觉效果

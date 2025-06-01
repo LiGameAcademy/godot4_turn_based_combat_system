@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://mi4bk410k7w"]
+
+[ext_resource type="Script" uid="uid://d1tykx4yjc8wq" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Resource" uid="uid://lo4jdtvp6jwn" path="res://resources/battle_data/forest_encounter.tres" id="2_yvdw4"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_ig7tw")
+battle_data = ExtResource("2_yvdw4")

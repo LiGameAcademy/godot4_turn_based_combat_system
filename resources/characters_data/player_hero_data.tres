@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://x3ps14kdto0r"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=23 format=3 uid="uid://x3ps14kdto0r"]
 
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_bdupk"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_ikb8i"]
@@ -18,12 +18,17 @@
 [ext_resource type="Resource" uid="uid://pcfthqa77ccw" path="res://resources/skill_attributes/magic_attack.tres" id="9_j3npa"]
 [ext_resource type="Resource" uid="uid://bkfxmw6ak8p55" path="res://resources/skill_attributes/magic_defense.tres" id="10_ikb8i"]
 [ext_resource type="Resource" uid="uid://c6wf7gyb2fa16" path="res://resources/skills/defend.tres" id="13_6v4jd"]
+[ext_resource type="Texture2D" uid="uid://cfn0bibj2tsu8" path="res://assets/sprites/characters/heros/assassin/idle.png" id="15_p7u1d"]
 [ext_resource type="Resource" uid="uid://vy8g8r128hbr" path="res://resources/skills/water_arrow.tres" id="16_j3npa"]
 
 [sub_resource type="Resource" id="Resource_ph3fh"]
 script = ExtResource("1_m1y3i")
 attributes_to_initialize = Array[ExtResource("1_bdupk")]([ExtResource("2_ofdd1"), ExtResource("3_g7xkp"), ExtResource("4_qgvch"), ExtResource("5_ph3fh"), ExtResource("6_j3npa"), ExtResource("7_ikb8i"), ExtResource("9_j3npa"), ExtResource("10_ikb8i"), ExtResource("8_6v4jd")])
 metadata/_custom_type_script = "uid://ca045i7dpt4me"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_noqhi"]
+atlas = ExtResource("15_p7u1d")
+region = Rect2(1280, 80, 32, 32)
 
 [resource]
 script = ExtResource("1_prr5c")
@@ -34,6 +39,6 @@ element = 0
 skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i"), ExtResource("16_j3npa")])
 attack_skill = ExtResource("1_ikb8i")
 defense_skill = ExtResource("13_6v4jd")
-color = Color(0.2, 0.4, 0.8, 1)
+icon = SubResource("AtlasTexture_noqhi")
 animation_library = ExtResource("1_yl7in")
 sprite_offset = Vector2(0, 0)

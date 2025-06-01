@@ -9,6 +9,10 @@ class_name Character
 @onready var sprite_2d: Sprite2D = %Sprite2D
 @onready var animation_player: AnimationPlayer = %AnimationPlayer
 @onready var character_info_container: CharacterInfoContainer = %CharacterInfoContainer
+@onready var character_click_area: Area2D = %CharacterClickArea
+
+# 信号
+signal character_clicked(character)
 
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
@@ -56,6 +60,8 @@ var element: int:									## 元素类型
 signal character_defeated
 
 func _enter_tree() -> void:
+	if not character_data:
+		return
 	# 初始化角色动画
 	_setup_animations()
 	%Sprite2D.position += character_data.sprite_offset
@@ -65,6 +71,12 @@ func _ready() -> void:
 	defense_indicator.visible = false
 	if not is_player:
 		sprite_2d.flip_h = true
+	
+	# 设置鼠标交互
+	_setup_character_click_area()
+
+func setup(data: CharacterData) -> void:
+	character_data = data
 
 ## 初始化角色
 func initialize(battle_manager: BattleManager) -> void:
@@ -139,8 +151,44 @@ func play_animation(animation_name: StringName) -> void:
 	else:
 		push_warning("动画 %s 不存在" % animation_name)
 		
+## 设置角色点击区域和鼠标交互
+func _setup_character_click_area() -> void:
+	if not character_click_area:
+		push_error("Character: 找不到CharacterClickArea节点")
+		return
+	
+	# 连接鼠标信号
+	character_click_area.mouse_entered.connect(_on_character_mouse_entered)
+	character_click_area.mouse_exited.connect(_on_character_mouse_exited)
+	character_click_area.input_event.connect(_on_character_input_event)
+
+## 当鼠标进入角色区域
+func _on_character_mouse_entered() -> void:
+	# 改变鼠标光标
+	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
+	
+	# 添加高亮效果
+	sprite_2d.modulate = Color(1.2, 1.2, 1.2)
+
+## 当鼠标离开角色区域
+func _on_character_mouse_exited() -> void:
+	# 恢复默认光标
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+	
+	# 移除高亮效果
+	sprite_2d.modulate = Color.WHITE
+
+## 处理角色区域的输入事件
+func _on_character_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	# 检测鼠标左键点击
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# 发射点击信号
+		character_clicked.emit(self)
+
 ## 设置角色动画
 func _setup_animations() -> void:
+	if not character_data:
+		return
 	animation_player = %AnimationPlayer
 	# 使用动画辅助类设置原型动画
 	if animation_player:

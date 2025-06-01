@@ -1,6 +1,7 @@
 extends Node
 class_name BattleManager
 
+const CHARACTER = preload("res://scenes/characters/character.tscn")
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
 # 核心系统引用
@@ -13,6 +14,12 @@ var turn_order_manager: TurnOrderManager					## 回合顺序管理器
 var current_selected_skill : SkillData = null				## 当前选中的技能
 var effect_processors = {}									## 效果处理器
 
+## 最大回合数限制，0表示无限制
+var max_turn_count: int = 0
+
+## 当前回合数
+var current_turn_count: int = 0
+
 # 信号
 signal turn_changed(character)								## 回合变化
 signal battle_ended(is_victory)								## 战斗结束
@@ -23,7 +30,6 @@ func _ready():
 	_init_core_systems()
 	# 订阅SkillSystem的视觉效果请求信号
 	SkillSystem.visual_effect_requested.connect(_on_visual_effect_requested)
-	_start_battle()
 
 #region --- 获取目标 ---
 ## 获取友方角色的合法目标
@@ -129,32 +135,76 @@ func _get_default_target(source_character: Character) -> Character:
 #endregion
 
 #region --- 注册角色 ---
-## 注册战斗场景中的角色
-func _register_characters() -> void:
-	# 查找战斗场景中的所有角色
-	var player_area = get_node_or_null("../PlayerArea")
-	var enemy_area = get_node_or_null("../EnemyArea")
+## 创建角色
+func create_character(character_data: CharacterData, position: Vector2, is_player: bool) -> Character:
+	# 实例化角色
+	var character : Character = CHARACTER.instantiate()
+	if not character:
+		push_error("BattleManager: 无法实例化角色")
+		return null
 	
-	if player_area:
-		for child in player_area.get_children():
-			if child is Character:
-				character_registry.register_character(child, true)
-				_subscribe_to_character_signals(child)
+	# 设置角色数据
+	character.setup(character_data)
+	character.is_player = is_player
 	
-	if enemy_area:
-		for child in enemy_area.get_children():
-			if child is Character:
-				character_registry.register_character(child, false)
-				_subscribe_to_character_signals(child)
+	# 添加到适当的区域
+	var parent_node = get_node("../PlayerArea") if is_player else get_node("../EnemyArea")
+	if parent_node:
+		parent_node.add_child(character)
+		
+		# 注册角色
+		character_registry.register_character(character, is_player)
+		_subscribe_to_character_signals(character)
+	
+		# 设置角色位置
+		character.global_position = position
+		character.initialize(self)
+		return character
+	else:
+		push_error("BattleManager: 找不到角色区域节点")
+		character.queue_free()
+		return null
+
+## 设置战斗
+func setup_battle(
+		player_characters: Array[Character], 
+		enemy_characters: Array[Character]) -> void:
+	# 重置战斗状态
+	_reset()
+	
+	# 注册角色
+	for character in player_characters:
+		character_registry.register_character(character, true)
+		_subscribe_to_character_signals(character)
+	
+	for character in enemy_characters:
+		character_registry.register_character(character, false)
+		_subscribe_to_character_signals(character)
 	
 	print("已注册 ", character_registry.get_player_team(true).size(), " 名玩家角色和 ", character_registry.get_enemy_team(false).size(), " 名敌人")
+	_start_battle()
+
+## 重置战斗状态
+func _reset() -> void:
+	# 重置战斗状态
+	#state_manager.reset()
+	
+	# 清除所有注册的角色
+	#character_registry.clear()s
+	
+	# 重置回合顺序管理器
+	#if turn_order_manager:
+		#turn_order_manager.reset()
+	
+	# 重置当前技能
+	current_selected_skill = null
+	
+	# 重置回合计数
+	current_turn_count = 0
 
 ## 开始战斗
 func _start_battle() -> void:
 	print("战斗开始!")
-
-	# 自动查找并注册战斗场景中的角色
-	_register_characters()
 	
 	if character_registry.get_player_team(true).is_empty() or character_registry.get_enemy_team(false).is_empty():
 		push_error("无法开始战斗：缺少玩家或敌人!")
@@ -164,12 +214,37 @@ func _start_battle() -> void:
 
 ## 订阅角色信号
 func _subscribe_to_character_signals(character : Character) -> void:
+	if not character:
+		return
 	if not character.character_defeated.is_connected(_on_character_defeated):
 		character.character_defeated.connect(_on_character_defeated)
 	#TODO 链接其他信号
 
+## 获取所有角色
+func get_all_characters() -> Array[Character]:
+	return character_registry.get_all_characters()
+
+## 获取玩家队伍
+func get_player_team() -> Array[Character]:
+	return character_registry.get_player_team(true)
+
+## 获取敌人队伍
+func get_enemy_team() -> Array[Character]:
+	return character_registry.get_enemy_team(false)
+
 ## 下一个回合
 func _next_turn() -> void:
+	# 更新回合计数
+	current_turn_count += 1
+	
+	# 检查是否超过最大回合数
+	if max_turn_count > 0 and current_turn_count > max_turn_count:
+		print_rich("[color=red]超过最大回合数 %d，战斗失败[/color]" % max_turn_count)
+		# 触发战斗结束信号，失败
+		battle_ended.emit(false)
+		state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
+		return
+	
 	var next_character = turn_order_manager.get_next_character()
 	
 	if not next_character:

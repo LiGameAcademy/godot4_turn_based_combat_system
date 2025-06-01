@@ -198,9 +198,26 @@ func _execute_attack(target: Character, params : Dictionary) -> Dictionary:
 	var targets : Array[Character] = [target]
 	var result : Dictionary = await _execute_skill(attack_skill, targets, params.skill_context)
 	
-	var actual_damage = 0
+	# 从技能执行结果中获取实际伤害值
+	var actual_damage = result.get("damage", 0)
+	
+	# 如果结果中没有伤害值，尝试从效果列表中获取
+	if actual_damage == 0 and result.has("effects"):
+		for effect in result["effects"]:
+			if effect.has("damage"):
+				actual_damage += effect["damage"]
+	
+	# 确保伤害值不为负数
+	actual_damage = max(0, actual_damage)
+	
+	# 调试输出
+	print_rich("[color=orange]实际伤害值: %d[/color]" % actual_damage)
+	
 	# 发出攻击执行信号
 	attack_executed.emit(target, actual_damage)
+	
+	# 将伤害值添加到结果中
+	result["damage"] = actual_damage
 	
 	return result
 

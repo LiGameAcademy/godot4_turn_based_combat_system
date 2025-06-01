@@ -1,6 +1,7 @@
 extends Resource
 class_name CharacterData
 
+
 @export var character_name: String = "英雄"
 @export_multiline var description: String = "一个勇敢的战士。"
 @export var attribute_set_resource: SkillAttributeSet = null
@@ -14,7 +15,8 @@ var element: int = 0 # ElementTypes.Element.NONE
 @export var defense_skill : SkillData = null
 
 @export_group("视觉表现")
-@export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
+#@export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
+@export var icon : Texture2D
 @export var animation_library : AnimationLibrary
 @export var sprite_offset : Vector2
 # 辅助函数

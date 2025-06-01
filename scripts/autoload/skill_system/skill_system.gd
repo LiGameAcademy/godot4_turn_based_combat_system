@@ -14,6 +14,7 @@ signal skill_execution_started(caster: Character, skill: SkillData, targets: Arr
 signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) # results 可以包含伤害、治疗、状态等信息
 signal skill_failed(caster: Character, skill: SkillData, reason: String) # 例如 MP不足, 目标无效等
 signal effect_applied(effect_type, source, target, result)
+signal effect_processed(effect_type, source, target, result) # 效果处理完成后发出，包含完整的结果信息
 
 # 游戏事件信号 - 用于触发状态效果
 signal game_event_occurred(event_type: StringName, context: Dictionary)

@@ -119,18 +119,44 @@ func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Charac
 	# 播放攻击动画
 	if not skill_data.cast_animation.is_empty():
 		await caster.play_animation(skill_data.cast_animation)
+	
+	# 连接信号以捕获伤害值
+	var damage_value = 0
+	var damage_signal_connection = null
+	
+	# 创建一个临时函数来捕获伤害值
+	var capture_damage = func(effect_type, source, target, effect_result):
+		if effect_type == SkillEffectData.EffectType.DAMAGE and effect_result.has("damage"):
+			damage_value += effect_result["damage"]
+			print_rich("[color=yellow]捕获到伤害值: %d[/color]" % effect_result["damage"])
+	
+	# 连接信号
+	damage_signal_connection = SkillSystem.effect_processed.connect(capture_damage)
+	
 	# 调用SkillSystem的相应方法
 	var success := SkillSystem.attempt_execute_skill(context, caster, skill_data, selected_targets)
+	
 	# 构建结果字典
 	var result = {
 		"success": success,
 		"skill": skill_data,
-		"targets": selected_targets
+		"targets": selected_targets,
+		"damage": 0  # 默认伤害值为0
 	}
 	
 	# 如果成功，等待一帧以确保效果处理开始
 	if success and Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
+		# 等待额外的时间以确保所有效果处理完成
+		await get_tree().create_timer(0.2).timeout
+	
+	# 断开信号连接
+	if damage_signal_connection:
+		SkillSystem.effect_processed.disconnect(damage_signal_connection)
+	
+	# 设置最终伤害值
+	result["damage"] = damage_value
+	print_rich("[color=green]最终伤害值: %d[/color]" % damage_value)
 	
 	return result
 
