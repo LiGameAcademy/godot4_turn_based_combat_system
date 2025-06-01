@@ -8,6 +8,15 @@ var _max_attribute : SkillAttribute
 # 动画相关变量
 @export var animation_speed: float = 5.0  # 值越大，动画越快
 @export var use_animation: bool = true  # 是否使用动画效果
+var _bar_color: Color = Color(0, 1, 0, 1)
+@export var bar_color: Color = Color(0, 1, 0, 1):  # 进度条颜色
+	get:
+		return _bar_color
+	set(value):
+		_bar_color = value
+		# 立即应用颜色
+		if is_inside_tree():
+			self_modulate = _bar_color
 var _target_value: float = 0.0
 var _target_max_value: float = 0.0
 var _current_displayed_value: float = 0.0
@@ -29,7 +38,11 @@ func setup(attribute: SkillAttribute, max_attribute: SkillAttribute) -> void:
 	
 	# 立即更新一次显示
 	_update_display()
-	
+
+func _ready() -> void:
+	# 应用初始颜色
+	self_modulate = _bar_color
+
 func _update_display() -> void:
 	# 更新目标值
 	_target_value = _current_attribute.get_current_value()

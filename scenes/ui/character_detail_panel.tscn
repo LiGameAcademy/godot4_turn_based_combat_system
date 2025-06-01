@@ -105,7 +105,8 @@ layout_mode = 2
 layout_mode = 2
 text = "生命值"
 
-[node name="AttributeStatusBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer" instance=ExtResource("2_d8pxp")]
+[node name="HealthBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer" instance=ExtResource("2_d8pxp")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -120,11 +121,13 @@ layout_mode = 2
 layout_mode = 2
 text = "魔法值"
 
-[node name="AttributeStatusBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer" instance=ExtResource("2_d8pxp")]
+[node name="ManaBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer" instance=ExtResource("2_d8pxp")]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="OtherAttributesGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 10
 theme_override_constants/h_separation = 15

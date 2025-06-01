@@ -12,7 +12,7 @@ func setup(attribute_set: SkillAttributeSet) -> void:
 	if not _attribute:
 		return
 
-	attribute_name_label.text = _attribute.attribute_name + " :"
+	attribute_name_label.text = _attribute.display_name + " :"
 	_attribute.current_value_changed.connect(_on_attribute_current_value_changed)
 	_update_display()
 

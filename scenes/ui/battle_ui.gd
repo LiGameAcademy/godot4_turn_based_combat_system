@@ -6,15 +6,9 @@ class_name BattleUI
 @onready var action_menu: ActionMenu = $ActionMenu
 @onready var skill_select_menu: SkillSelectMenu = $SkillSelectMenu
 @onready var target_selection_menu: TargetSelectionMenu = $TargetSelectionMenu
-@onready var character_detail_panel_container = $CharacterDetailPanelContainer
+@onready var character_detail_panel : CharacterDetailPanel = $CharacterDetailPanel
 @onready var battle_log_panel: BattleLogPanel = $BattleLogPanel
 @onready var turn_order_indicator: TurnOrderIndicator = $TurnOrderIndicator
-
-# 角色详情面板场景引用
-@export var character_detail_panel_scene: PackedScene = preload("res://scenes/ui/character_detail_panel.tscn")
-
-# 当前详情面板实例
-var _character_detail_panel: CharacterDetailPanel = null
 
 # 信号
 signal action_attack_pressed
@@ -49,7 +43,9 @@ func _ready() -> void:
 	
 	if !action_menu:
 		push_error("BattleUI: ActionMenu not found")
-		
+	
+	character_detail_panel.closed.connect(_on_character_detail_panel_closed)
+
 	# 初始化时重置UI状态
 	reset()
 
@@ -70,18 +66,13 @@ func reset() -> void:
 	# 重置回合顺序指示器
 	if turn_order_indicator:
 		turn_order_indicator.update_turn_order([], -1)
-	
-	# 关闭角色详情面板
-	if _character_detail_panel and is_instance_valid(_character_detail_panel):
-		_character_detail_panel.hide_panel()
-		_character_detail_panel = null
-	else:
-		# 连接行动菜单信号
-		action_menu.attack_pressed.connect(_on_action_menu_attack_pressed)
-		action_menu.defend_pressed.connect(_on_action_menu_defend_pressed)
-		action_menu.skill_pressed.connect(_on_action_menu_skill_pressed)
-		action_menu.item_pressed.connect(_on_action_menu_item_pressed)
-		action_menu.hide()
+
+	# 连接行动菜单信号
+	action_menu.attack_pressed.connect(_on_action_menu_attack_pressed)
+	action_menu.defend_pressed.connect(_on_action_menu_defend_pressed)
+	action_menu.skill_pressed.connect(_on_action_menu_skill_pressed)
+	action_menu.item_pressed.connect(_on_action_menu_item_pressed)
+	action_menu.hide()
 	
 	if !battle_log_panel:
 		push_error("BattleUI: BattleLogPanel not found")
@@ -215,31 +206,8 @@ func log_heal(target_name: String, amount: int, source: String = "") -> void:
 
 # 角色详情面板相关方法
 func show_character_details(character: Character) -> void:
-	# 如果已经有面板实例，则先关闭
-	if _character_detail_panel and is_instance_valid(_character_detail_panel):
-		_character_detail_panel.hide_panel()
-		_character_detail_panel = null
-		return
-	
-	# 创建新的面板实例
-	_character_detail_panel = character_detail_panel_scene.instantiate()
-	
-	# 添加到UI容器中
-	if character_detail_panel_container:
-		character_detail_panel_container.add_child(_character_detail_panel)
-	else:
-		# 如果没有指定容器，则添加到BattleUI
-		add_child(_character_detail_panel)
-	
-	# 连接关闭信号
-	_character_detail_panel.closed.connect(_on_character_detail_panel_closed)
-	
 	# 显示角色详情
-	_character_detail_panel.show_character_details(character)
-
+	character_detail_panel.show_character_details(character)
 
 func _on_character_detail_panel_closed() -> void:
-	# 清除引用
-	if _character_detail_panel and is_instance_valid(_character_detail_panel):
-		_character_detail_panel.closed.disconnect(_on_character_detail_panel_closed)
-		_character_detail_panel = null
+	character_detail_panel.hide()

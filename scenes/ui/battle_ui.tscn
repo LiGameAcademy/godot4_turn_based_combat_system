@@ -27,11 +27,11 @@ visible = false
 [node name="TargetSelectionMenu" parent="." instance=ExtResource("3_7sxqq")]
 visible = false
 
-[node name="CharacterDetailPanel" parent="." instance=ExtResource("5_7sxqq")]
-visible = false
-
 [node name="BattleLogPanel" parent="." instance=ExtResource("6_2kidt")]
 offset_top = -217.0
 offset_right = 427.0
 
 [node name="TurnOrderIndicator" parent="." instance=ExtResource("7_qt65o")]
+
+[node name="CharacterDetailPanel" parent="." instance=ExtResource("5_7sxqq")]
+visible = false
