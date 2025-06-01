@@ -9,7 +9,10 @@ class_name SkillAttribute
 @export_multiline var description: String = ""
 ## 属性的基础值。在.tres模板中代表默认基础值。
 ## 在被AttributeSet持有的实例中，代表该角色此属性的当前基础值。
-@export var base_value: float = 0.0
+@export var base_value: float = 0.0:
+	set(value):
+		base_value = value
+		base_value_changed.emit(base_value)
 ## 属性允许的最小值
 @export var min_value: float = -INF
 ## 属性允许的最大值
@@ -17,9 +20,15 @@ class_name SkillAttribute
 ## 属性值是否可以为负
 @export var can_be_negative: bool = false
 
-var current_value: float = 0.0								## 属性的当前值 (运行时计算得出，不直接导出)
+var current_value: float = 0.0:								## 属性的当前值 (运行时计算得出，不直接导出)
+	set(value):
+		current_value = value
+		current_value_changed.emit(current_value)
 var _active_modifiers: Array[SkillAttributeModifier] = []	## 当前作用于此属性实例的修改器列表 (由AttributeSet管理添加和移除)
-var _owner_set: SkillAttributeSet = null					## 对所属AttributeSet的引用 (在AttributeSet初始化时设置)
+var _owner_set: SkillAttributeSet = null						## 对所属AttributeSet的引用 (在AttributeSet初始化时设置)
+
+signal base_value_changed
+signal current_value_changed
 
 func _init(p_owner_set: SkillAttributeSet = null, p_base_value_override: float = -1.0) -> void:
 	_owner_set = p_owner_set

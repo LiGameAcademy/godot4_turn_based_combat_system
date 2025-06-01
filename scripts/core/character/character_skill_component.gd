@@ -335,6 +335,14 @@ func get_status_stacks(status_id: StringName) -> int:
 	if not _active_statuses.has(status_id):
 		return 0
 	return _active_statuses[status_id].stacks
+
+## 获取所有当前活跃的状态效果
+## [return] 所有当前活跃的状态效果数组
+func get_all_active_statuses() -> Array[SkillStatusData]:
+	var result: Array[SkillStatusData] = []
+	for status_id in _active_statuses:
+		result.append(_active_statuses[status_id])
+	return result
 #endregion
 
 #region --- 私有方法 ---

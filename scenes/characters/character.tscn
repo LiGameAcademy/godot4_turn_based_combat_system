@@ -1,6 +1,7 @@
-[gd_scene load_steps=10 format=3 uid="uid://cb2e2cndtui6m"]
+[gd_scene load_steps=11 format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
+[ext_resource type="PackedScene" uid="uid://djpwdkkb8ufbt" path="res://scenes/ui/character_info_container.tscn" id="2_03c51"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
 [ext_resource type="Texture2D" uid="uid://cfn0bibj2tsu8" path="res://assets/sprites/characters/heros/assassin/idle.png" id="3_s1bdo"]
 [ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://scripts/core/character/character_skill_component.gd" id="3_vbih0"]
@@ -24,63 +25,14 @@ metadata/_custom_type_script = "uid://c1h2m46l2lj50"
 
 [node name="CharacterScene" type="Node2D"]
 script = ExtResource("1_f5tgq")
+is_player = null
 
-[node name="Container" type="VBoxContainer" parent="."]
+[node name="CharacterInfoContainer" parent="." instance=ExtResource("2_03c51")]
+unique_name_in_owner = true
+offset_left = -1.0
+offset_top = 134.0
 offset_right = 150.0
-offset_bottom = 185.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="NameLabel" type="Label" parent="Container"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "角色名称"
-horizontal_alignment = 1
-
-[node name="CharacterRect" type="ColorRect" parent="Container"]
-visible = false
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-color = Color(0.2, 0.4, 0.8, 1)
-
-[node name="HPBar" type="ProgressBar" parent="Container"]
-unique_name_in_owner = true
-self_modulate = Color(0, 1, 0, 1)
-custom_minimum_size = Vector2(0, 25)
-layout_mode = 2
-size_flags_vertical = 10
-value = 30.0
-show_percentage = false
-
-[node name="HPLabel" type="Label" parent="Container/HPBar"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "HP: 100/100"
-horizontal_alignment = 1
-
-[node name="MPBar" type="ProgressBar" parent="Container"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 25)
-layout_mode = 2
-size_flags_vertical = 8
-show_percentage = false
-
-[node name="MPLabel" type="Label" parent="Container/MPBar"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "MP: 100/100"
-horizontal_alignment = 1
-vertical_alignment = 1
+offset_bottom = 254.0
 
 [node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]
 

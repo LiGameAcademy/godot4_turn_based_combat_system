@@ -1,0 +1,50 @@
+[gd_scene load_steps=3 format=3 uid="uid://op0vy21pnru7"]
+
+[ext_resource type="Script" uid="uid://c3noo43uw1mbq" path="res://scenes/ui/skill_status_icon.gd" id="1_sw716"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_sw716"]
+
+[node name="SkillStatusIcon" type="Control"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_sw716")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 0
+offset_right = 32.0
+offset_bottom = 32.0
+texture = SubResource("PlaceholderTexture2D_sw716")
+expand_mode = 1
+
+[node name="TextureLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 12
+text = "99"
+horizontal_alignment = 2
+vertical_alignment = 2

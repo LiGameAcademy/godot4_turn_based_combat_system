@@ -1,0 +1,32 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bh6s6rjcvj1ny"]
+
+[sub_resource type="Shader" id="Shader_v2xpq"]
+code = "
+shader_type canvas_item;
+
+uniform vec4 dark_tint : source_color = vec4(0.3, 0.3, 0.5, 1.0);
+uniform float darkness : hint_range(0.0, 1.0) = 0.3;
+uniform float pulse_speed : hint_range(0.0, 5.0) = 0.8;
+
+void fragment() {
+    vec4 current_color = texture(TEXTURE, UV);
+    
+    // 只对非透明部分应用暗色效果
+    if (current_color.a > 0.1) {
+        // 创建脉冲效果
+        float pulse = (sin(TIME * pulse_speed) * 0.2 + 0.8) * darkness;
+        
+        // 应用暗色效果
+        current_color.rgb = mix(current_color.rgb, dark_tint.rgb, pulse);
+        current_color.rgb *= (1.0 - pulse * 0.4);  // 进一步降低亮度
+    }
+    
+    COLOR = current_color;
+}
+"
+
+[resource]
+shader = SubResource("Shader_v2xpq")
+shader_parameter/dark_tint = Color(0.3, 0.3, 0.5, 1)
+shader_parameter/darkness = 0.3
+shader_parameter/pulse_speed = 0.8
