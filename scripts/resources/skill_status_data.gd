@@ -72,12 +72,21 @@ enum StatusType {
 # --- 运行时变量 (在 duplicate(true) 后由 character.gd 设置和管理) ---
 var source_character: Character   												## 施加此状态的角色
 var target_character: Character   												## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
-var remaining_duration: int       												## 剩余持续时间
-var stacks: int = 1          													## 当前叠加层数
+var remaining_duration: int:       												## 剩余持续时间
+	set(value):
+		remaining_duration = value
+		duration_changed.emit(remaining_duration)
+var stacks: int = 1:          													## 当前叠加层数
+	set(value):
+		stacks = value
+		stacks_changed.emit(stacks)
 var is_permanent: bool: 
 	get: return duration_type == DurationType.INFINITE
 var current_turn_trigger_count: int = 0											## 本回合触发次数
 var current_total_trigger_count: int = 0										## 触发总数
+
+signal stacks_changed(new_stacks: int)
+signal duration_changed(new_duration: int)
 
 #region --- 方法 ---
 func _init(): 

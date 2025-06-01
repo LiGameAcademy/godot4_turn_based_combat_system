@@ -14,7 +14,12 @@ var _character: Character = null
 var _status_icons: Dictionary = {}
 
 # 状态图标场景
-@export var skill_status_icon_scene: PackedScene
+@export var skill_status_icon_scene: PackedScene = preload("res://scenes/ui/skill_status_icon.tscn")
+
+
+func _ready() -> void:
+	for child in skill_status_container.get_children():
+		child.queue_free()
 
 ## 初始化角色信息容器
 ## [param character] 要绑定的角色

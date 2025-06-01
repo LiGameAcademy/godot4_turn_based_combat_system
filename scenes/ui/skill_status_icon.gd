@@ -25,7 +25,16 @@ var _status_data: SkillStatusData
 
 ## 设置状态数据并初始化显示
 func setup(status_data: SkillStatusData) -> void:
+	# 如果已经有连接的状态数据，断开连接
+	if _status_data:
+		_disconnect_signals()
+	
 	_status_data = status_data
+	
+	# 连接信号
+	_connect_signals()
+	
+	# 更新显示
 	_update_display()
 	
 	# 添加工具提示
@@ -77,11 +86,24 @@ func _apply_visual_effects() -> void:
 
 ## 更新状态数据
 func update_status(status_data: SkillStatusData) -> void:
+	# 如果已经有连接的状态数据，断开连接
+	if _status_data:
+		_disconnect_signals()
+	
 	_status_data = status_data
+	
+	# 连接信号
+	_connect_signals()
+	
+	# 更新显示
 	_update_display()
 
 ## 清除状态图标
 func clear() -> void:
+	# 如果有连接的状态数据，断开连接
+	if _status_data:
+		_disconnect_signals()
+	
 	_status_data = null
 	hide()
 
@@ -92,3 +114,33 @@ func is_showing_status(status_id: StringName) -> bool:
 ## 获取当前显示的状态数据
 func get_status_data() -> SkillStatusData:
 	return _status_data
+
+## 连接状态数据的信号
+func _connect_signals() -> void:
+	if _status_data:
+		# 连接层数变化信号
+		if not _status_data.stacks_changed.is_connected(_on_stacks_changed):
+			_status_data.stacks_changed.connect(_on_stacks_changed)
+		
+		# 连接持续时间变化信号
+		if not _status_data.duration_changed.is_connected(_on_duration_changed):
+			_status_data.duration_changed.connect(_on_duration_changed)
+
+## 断开状态数据的信号连接
+func _disconnect_signals() -> void:
+	if _status_data:
+		# 断开层数变化信号
+		if _status_data.stacks_changed.is_connected(_on_stacks_changed):
+			_status_data.stacks_changed.disconnect(_on_stacks_changed)
+		
+		# 断开持续时间变化信号
+		if _status_data.duration_changed.is_connected(_on_duration_changed):
+			_status_data.duration_changed.disconnect(_on_duration_changed)
+
+## 当状态层数变化时调用
+func _on_stacks_changed(_new_stacks: int) -> void:
+	_update_display()
+
+## 当状态持续时间变化时调用
+func _on_duration_changed(_new_duration: int) -> void:
+	_update_display()

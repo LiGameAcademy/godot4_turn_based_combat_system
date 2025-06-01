@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://dl3tgs42qchfn"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://dl3tgs42qchfn"]
 
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_jrcne"]
 [ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_o56po"]
 [ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_fim4e"]
+[ext_resource type="Texture2D" uid="uid://cpjc8vbq2ygfs" path="res://assets/textures/icons/status/defend.svg" id="3_o56po"]
 
 [sub_resource type="Resource" id="Resource_jrcne"]
 script = ExtResource("2_o56po")
@@ -34,6 +35,7 @@ script = ExtResource("3_fim4e")
 status_id = &"defend"
 status_name = "防御"
 description = ""
+icon = ExtResource("3_o56po")
 status_type = 2
 base_duration = 1
 duration_type = 0

@@ -73,8 +73,8 @@ func get_attribute_modifiers(attribute_name: StringName) -> Array[SkillAttribute
 	return _active_attribute_set.get_attribute_modifiers(attribute_name)
 
 ## 获取属性实例
-func get_attribute_instance(attribute_name: StringName) -> SkillAttribute:
-	return _active_attribute_set.get_attribute_instance(attribute_name)
+func get_attribute(attribute_name: StringName) -> SkillAttribute:
+	return _active_attribute_set.get_attribute(attribute_name)
 
 ## 获取AttributeSet
 func get_attribute_set() -> SkillAttributeSet:
