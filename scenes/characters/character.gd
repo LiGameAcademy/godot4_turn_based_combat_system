@@ -11,9 +11,6 @@ class_name Character
 @onready var character_info_container: CharacterInfoContainer = %CharacterInfoContainer
 @onready var character_click_area: Area2D = %CharacterClickArea
 
-# 信号
-signal character_clicked(character)
-
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
 	get: return skill_component.get_current_value(&"CurrentHealth") if skill_component else 0.0
@@ -56,7 +53,8 @@ var is_alive : bool = true:							## 生存状态标记
 var element: int:									## 元素类型
 	get : return combat_component.element
 
-# 信号 - 这些信号将转发组件的信号
+# 信号
+signal character_clicked(character)
 signal character_defeated
 
 func _enter_tree() -> void:
