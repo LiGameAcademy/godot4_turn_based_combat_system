@@ -202,6 +202,8 @@ func _reset() -> void:
 	# 重置回合计数
 	current_turn_count = 0
 
+
+
 ## 开始战斗
 func _start_battle() -> void:
 	print("战斗开始!")
@@ -435,6 +437,7 @@ func _on_battle_state_changed(old_state, new_state):
 			# 战斗初始化
 			turn_order_manager.build_queue()
 			await get_tree().create_timer(1.0).timeout
+			
 			state_manager.change_state(BattleStateManager.BattleState.ROUND_START)
 			
 		BattleStateManager.BattleState.ROUND_START:

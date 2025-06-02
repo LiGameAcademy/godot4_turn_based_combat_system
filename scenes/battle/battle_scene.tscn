@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bvnf2raqi3v41"]
+[gd_scene load_steps=9 format=3 uid="uid://bvnf2raqi3v41"]
 
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="2_rl52j"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
 [ext_resource type="Script" uid="uid://boqbvmqrbyse" path="res://scripts/core/battle_manager.gd" id="5_o3k7m"]
+[ext_resource type="PackedScene" uid="uid://bvt3r7x2yvdtj" path="res://scenes/ui/battle_transition.tscn" id="7_cywj5"]
 
 [sub_resource type="Texture2DRD" id="Texture2DRD_lbt8a"]
 
@@ -45,3 +46,6 @@ is_player = false
 unique_name_in_owner = true
 script = ExtResource("5_o3k7m")
 metadata/_custom_type_script = "uid://boqbvmqrbyse"
+
+[node name="BattleTransition" parent="." instance=ExtResource("7_cywj5")]
+layer = 128

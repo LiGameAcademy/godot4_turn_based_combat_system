@@ -2,7 +2,6 @@ extends CanvasLayer
 class_name BattleUI
 
 # UI组件引用
-@onready var battle_info_label: RichTextLabel = $BattleInfo
 @onready var action_menu: ActionMenu = $ActionMenu
 @onready var skill_select_menu: SkillSelectMenu = $SkillSelectMenu
 @onready var target_selection_menu: TargetSelectionMenu = $TargetSelectionMenu
@@ -22,9 +21,6 @@ signal target_selection_cancelled
 
 func _ready() -> void:
 	# 确保UI组件已正确引用
-	if !battle_info_label:
-		push_error("BattleUI: BattleInfo label not found")
-	
 	if !skill_select_menu:
 		push_error("BattleUI: SkillSelectMenu not found")
 	else:
@@ -54,10 +50,6 @@ func _ready() -> void:
 func reset() -> void:
 	# 隐藏所有菜单
 	hide_all_menus()
-	
-	# 清除战斗信息
-	if battle_info_label:
-		battle_info_label.text = ""
 	
 	# 清除战斗日志
 	if battle_log_panel:
@@ -162,14 +154,6 @@ func hide_all_menus() -> void:
 
 # 战斗信息显示
 func update_battle_info(text: String) -> void:
-	if not battle_info_label:
-		return
-	
-	if not battle_info_label.text.is_empty():
-		battle_info_label.text += "\n"
-	
-	battle_info_label.text += text
-	
 	# 同时添加到战斗日志
 	if battle_log_panel:
 		battle_log_panel.log_system(text)

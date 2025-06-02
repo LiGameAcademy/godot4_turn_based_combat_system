@@ -6,6 +6,7 @@ class_name BattleScene
 @onready var battle_ui: BattleUI = $BattleUI
 @onready var background: TextureRect = $Background
 @onready var battle_music_player: AudioStreamPlayer = $BattleMusicPlayer
+@onready var battle_transition: BattleTransition = $BattleTransition
 
 ## 当前战斗数据
 var battle_data: BattleData = null
@@ -30,6 +31,9 @@ func _ready() -> void:
 	
 	# 连接BattleManager信号
 	_connect_battle_manager_signals()
+	
+	# 初始化战斗过渡效果
+	_init_battle_transition()
 	
 	# 如果已经有战斗数据，则自动初始化
 	if battle_data:
@@ -78,6 +82,9 @@ func initialize_battle(data: BattleData) -> bool:
 	
 	# 标记为已初始化
 	_initialized = true
+	
+	# 播放战斗开始的淡出效果（屏幕变黑）
+	#await play_battle_transition_fade_out()
 	
 	# 启动战斗
 	battle_manager._start_battle()
@@ -191,11 +198,19 @@ func _on_turn_changed(character: Character) -> void:
 		current_index = all_characters.find(current_character)
 	
 	battle_ui.update_turn_order(all_characters, current_index)
+	
+	# 如果是战斗开始的第一个回合，播放淡入效果（屏幕恢复正常）
+	if current_turn_count == 0:
+		await play_battle_transition_fade_in()
+		current_turn_count += 1
 
 ## 处理战斗结束
 func _on_battle_ended(is_victory: bool) -> void:
 	# 隐藏所有战斗UI
 	battle_ui.hide_all_menus()
+	
+	# 播放战斗结束的淡出效果（屏幕变黑）
+	await play_battle_transition_fade_out()
 	
 	# 更新战斗日志
 	if is_victory:
@@ -204,6 +219,10 @@ func _on_battle_ended(is_victory: bool) -> void:
 		battle_ui.battle_log_panel.log_system("战斗失败...")
 	
 	# 可以在这里处理战斗结束后的逻辑，如显示结算界面等
+	
+	# 等待一些时间，然后播放淡入效果（屏幕恢复正常）
+	await get_tree().create_timer(1.5).timeout
+	await play_battle_transition_fade_in()
 
 
 ## 处理玩家行动请求
@@ -379,3 +398,24 @@ func _connect_character_click_signals() -> void:
 func _on_character_clicked(character: Character) -> void:
 	# 显示角色详情
 	battle_ui.show_character_details(character)
+
+
+## 初始化战斗过渡效果
+func _init_battle_transition() -> void:
+	# 确保战斗过渡效果已正确引用
+	if !battle_transition:
+		push_error("BattleScene: BattleTransition not found")
+		return
+	
+	# 初始时隐藏过渡效果
+	#battle_transition.hide()
+
+## 播放战斗过渡淡出效果（屏幕变黑）
+func play_battle_transition_fade_out() -> void:
+	if battle_transition:
+		await battle_transition.play_fade_out()
+
+## 播放战斗过渡淡入效果（屏幕恢复正常）
+func play_battle_transition_fade_in() -> void:
+	if battle_transition:
+		await battle_transition.play_fade_in()

@@ -121,13 +121,13 @@ func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Charac
 		await caster.play_animation(skill_data.cast_animation)
 	
 	# 连接信号以捕获伤害值
-	var damage_value = 0
+	var damage_result : Dictionary = {}
 	var damage_signal_connection = null
 	
 	# 创建一个临时函数来捕获伤害值
-	var capture_damage = func(effect_type, source, target, effect_result):
+	var capture_damage = func(effect_type, _source, _target, effect_result):
 		if effect_type == SkillEffectData.EffectType.DAMAGE and effect_result.has("damage"):
-			damage_value += effect_result["damage"]
+			damage_result["damage"] += effect_result["damage"]
 			print_rich("[color=yellow]捕获到伤害值: %d[/color]" % effect_result["damage"])
 	
 	# 连接信号
@@ -155,6 +155,7 @@ func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Charac
 		SkillSystem.effect_processed.disconnect(damage_signal_connection)
 	
 	# 设置最终伤害值
+	var damage_value : float = damage_result.get("damage", 0)
 	result["damage"] = damage_value
 	print_rich("[color=green]最终伤害值: %d[/color]" % damage_value)
 	
@@ -593,6 +594,8 @@ func process_turn_start() -> void:
 	# 移除过期状态
 	for status_id in expired_status_ids:
 		remove_status(status_id)
+		
+	await get_tree().process_frame
 #endregion
 
 func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float, _source: Variant):
