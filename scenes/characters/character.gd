@@ -41,7 +41,7 @@ func initialize_from_data(data: CharacterData):
 	# 更新视觉表现
 	update_visual()
 	
-	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
+	print_rich("[color=cyan][b]{0}[/b][/color] 初始化完毕，HP: [color=lime]{1}/{2}[/color]".format([character_name, current_hp, max_hp]))
 
 func update_visual():
 	if name_label:
@@ -57,7 +57,7 @@ func update_visual():
 func apply_damage(amount: int):
 	current_hp = max(0, current_hp - amount)
 	update_visual()
-	print(character_name + " 受到 " + str(amount) + " 点伤害, 剩余HP: " + str(current_hp))
+	print_rich("[color=cyan][b]{0}[/b][/color] 受到 [color=red]{1}[/color] 点伤害, 剩余HP: [color=lime]{2}[/color]".format([character_name, amount, current_hp]))
 	
 	if current_hp == 0:
 		die()
@@ -65,7 +65,7 @@ func apply_damage(amount: int):
 func heal(amount: int):
 	current_hp = min(max_hp, current_hp + amount)
 	update_visual()
-	print(character_name + " 恢复 " + str(amount) + " 点HP, 剩余HP: " + str(current_hp))
+	print_rich("[color=cyan][b]{0}[/b][/color] 恢复 [color=green]{1}[/color] 点HP, 剩余HP: [color=lime]{2}[/color]".format([character_name, amount, current_hp]))
 
 func use_mp(amount: int) -> bool:
 	if current_mp >= amount:
@@ -75,6 +75,6 @@ func use_mp(amount: int) -> bool:
 	return false
 
 func die():
-	print(character_name + " 已被击败!")
+	print_rich("[color=red][b]{0} 已被击败![/b][/color]".format([character_name]))
 	# 在完整游戏中会添加死亡动画和事件
 	modulate = Color(1, 1, 1, 0.5) # 半透明表示被击败

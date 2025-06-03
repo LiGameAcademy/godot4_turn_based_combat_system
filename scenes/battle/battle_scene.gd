@@ -50,11 +50,11 @@ func find_characters():
 			if child is Character:
 				add_enemy_character(child)
 	
-	print("已注册 ", player_characters.size(), " 名玩家角色和 ", enemy_characters.size(), " 名敌人")
+	print_rich("[color=yellow][战斗系统][/color] 已注册 [color=blue][b]{0}[/b][/color] 名玩家角色和 [color=red][b]{1}[/b][/color] 名敌人".format([player_characters.size(), enemy_characters.size()]))
 
 # 开始战斗
 func start_battle():
-	print("战斗开始!")
+	print_rich("[color=yellow][b]===== 战斗开始! =====[/b][/color]")
 	
 	if player_characters.is_empty() or enemy_characters.is_empty():
 		push_error("无法开始战斗：缺少玩家或敌人!")
@@ -83,7 +83,7 @@ func build_turn_queue():
 	# 根据速度属性排序
 	turn_queue.sort_custom(func(a, b): return a.speed > b.speed)
 	
-	print("回合队列已建立: ", turn_queue.size(), " 个角色")
+	print_rich("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
 
 # 切换到下一个角色的回合
 func next_turn():
@@ -117,11 +117,11 @@ func next_turn():
 	
 	if is_player_turn:
 		# 玩家回合
-		print("玩家回合：", current_turn_character.character_name, "的行动")
+		print_rich("[color=blue][玩家回合][/color] [color=cyan][b]{0}[/b][/color] 的行动".format([current_turn_character.character_name]))
 		show_action_ui(true) # 显示行动按钮
 	else:
 		# 敌人回合
-		print("敌人回合：", current_turn_character.character_name, "的行动")
+		print_rich("[color=red][敌人回合][/color] [color=orange][b]{0}[/b][/color] 的行动".format([current_turn_character.character_name]))
 		show_action_ui(false) # 隐藏行动按钮
 		
 		# 延迟一下再执行AI，避免敌人行动过快
@@ -134,9 +134,9 @@ func end_battle(is_win: bool):
 	is_victory = is_win
 	
 	if is_win:
-		print("战斗胜利!")
+		print_rich("[color=green][b]===== 战斗胜利! =====[/b][/color]")
 	else:
-		print("战斗失败...")
+		print_rich("[color=red][b]===== 战斗失败... =====[/b][/color]")
 		
 	# 隐藏行动UI
 	show_action_ui(false)
@@ -202,10 +202,10 @@ func execute_enemy_ai():
 			break
 			
 	if target:
-		print(current_turn_character.character_name, " 选择攻击 ", target.character_name)
+		print_rich("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
 		execute_attack(current_turn_character, target)
 	else:
-		print("敌人找不到可攻击的目标")
+		print_rich("[color=red][错误][/color] 敌人找不到可攻击的目标")
 		
 	# 检查战斗是否结束
 	if check_battle_end_condition():
@@ -216,23 +216,7 @@ func execute_enemy_ai():
 
 # 执行攻击
 func execute_attack(attacker: Character, target: Character):
-	if attacker == null or target == null:
-		return
-		
-	print(attacker.character_name, " 攻击 ", target.character_name)
-	
-	# 简单的伤害计算
-	var damage = max(1, attacker.attack - target.defense / 2.0)
-	
-	# 应用伤害
-	target.apply_damage(damage)
-	
-	# 更新UI信息
-	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
-
-	# 检查目标是否阵亡
-	if target.current_hp <= 0:
-		print(target.character_name, " 已被击败!")
+	print_rich("[color=purple][战斗行动][/color] [color=orange][b]{0}[/b][/color] 攻击 [color=cyan][b]{1}[/b][/color]".format([attacker.character_name, target.character_name]))
 		
 	# 检查战斗是否结束
 	check_battle_end_condition()
@@ -242,7 +226,7 @@ func execute_defend(character: Character):
 	if character == null:
 		return
 		
-	print(character.character_name, " 选择防御，受到的伤害将减少")
+	print_rich("[color=purple][战斗行动][/color] [color=cyan][b]{0}[/b][/color] 选择[color=teal][防御][/color]，受到的伤害将减少".format([character.character_name]))
 	# TODO: 实现防御逻辑，可能是添加临时buff或设置状态
 
 # 检查战斗结束条件
@@ -282,12 +266,12 @@ func check_battle_end_condition() -> bool:
 func add_player_character(character: Character):
 	if not player_characters.has(character):
 		player_characters.append(character)
-		print("添加玩家角色: ", character.character_name)
+		print_rich("[color=blue][玩家注册][/color] 添加角色: [color=cyan][b]{0}[/b][/color]".format([character.character_name]))
 
 func add_enemy_character(character: Character):
 	if not enemy_characters.has(character):
 		enemy_characters.append(character)
-		print("添加敌人角色: ", character.character_name)
+		print_rich("[color=red][敌人注册][/color] 添加角色: [color=orange][b]{0}[/b][/color]".format([character.character_name]))
 
 func remove_character(character: Character):
 	if player_characters.has(character):
@@ -297,7 +281,7 @@ func remove_character(character: Character):
 	if turn_queue.has(character):
 		turn_queue.erase(character)
 		
-	print(character.character_name, " 已从战斗中移除")
+	print_rich("[color=gray][b]{0}[/b] 已从战斗中移除[/color]".format([character.character_name]))
 	check_battle_end_condition()
 
 # 显示/隐藏行动UI
