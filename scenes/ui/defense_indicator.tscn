@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bj4w0ajv2jk2e"]
+
+[ext_resource type="Script" path="res://scenes/ui/defense_indicator.gd" id="1_1oxh2"]
+
+[node name="DefenseIndicator" type="Node2D"]
+visible = false
+script = ExtResource("1_1oxh2")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 24
+text = "🛡️"
+horizontal_alignment = 1
+vertical_alignment = 1
