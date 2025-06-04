@@ -18,7 +18,6 @@ var speed: int
 @onready var hp_label := %HPLabel
 @onready var name_label := $Container/NameLabel
 @onready var character_rect := $Container/CharacterRect
-@onready var defense_indicator : DefenseIndicator = $DefenseIndicator
 
 var is_defending: bool = false			## 防御状态标记
 
@@ -36,9 +35,6 @@ func _ready():
 	
 	# 初始化HP条
 	_on_hp_changed(current_hp, max_hp)
-
-	if defense_indicator:
-		defense_indicator.hide()
 
 ## 初始化玩家数据
 func initialize_from_data(data: CharacterData):
@@ -74,11 +70,6 @@ func update_visual():
 ## 设置防御状态
 func set_defending(value: bool) -> void:
 	is_defending = value
-	if defense_indicator:
-		if is_defending:
-			defense_indicator.show_indicator()
-		else:
-			defense_indicator.hide_indicator()
 
 ## 伤害处理方法
 func take_damage(base_damage: int) -> int:

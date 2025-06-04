@@ -2,8 +2,6 @@
 extends Node
 class_name BattleManager
 
-const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
-
 # 战斗状态枚举
 enum BattleState {
 	IDLE,           				# 战斗未开始或已结束的空闲状态
@@ -195,9 +193,6 @@ func execute_attack(attacker: Character, target: Character):
 	# 更新UI信息
 	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
 
-	# 显示伤害数字
-	spawn_damage_number(target.global_position, damage, Color.RED)
-	
 	print_rich("[color=red]" + target.character_name + " 受到 " + str(damage) + " 点伤害![/color]")
 
 # 执行防御
@@ -310,13 +305,6 @@ func update_battle_info(text: String):
 	var info_label = get_node_or_null("../BattleUI/BattleInfo")
 	if info_label:
 		info_label.text = text
-
-## 生成伤害数字
-func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
-	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
-	get_parent().add_child(damage_number)
-	damage_number.global_position = position + Vector2(0, -50)
-	damage_number.show_number(str(amount), color)
 
 ## 订阅角色信号
 func _subscribe_to_character_signals(character : Character) -> void:
