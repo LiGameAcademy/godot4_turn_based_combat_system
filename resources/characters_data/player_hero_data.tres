@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3 uid="uid://x3ps14kdto0r"]
+
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_prr5c"]
+
+[resource]
+script = ExtResource("1_prr5c")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+max_hp = 120
+current_hp = 120
+max_mp = 60
+current_mp = 60
+attack = 15
+defense = 10
+speed = 10
+color = Color(0.2, 0.4, 0.8, 1)
