@@ -14,9 +14,15 @@ var defense: int
 var speed: int
 
 # 引用场景中的节点
-@onready var hp_label = $Container/HPLabel
-@onready var name_label = $Container/NameLabel
-@onready var character_rect = $Container/CharacterRect
+@onready var hp_bar : ProgressBar = %HPBar
+@onready var hp_label := %HPLabel
+@onready var name_label := $Container/NameLabel
+@onready var character_rect := $Container/CharacterRect
+
+var _is_defending: bool = false			## 防御状态标记
+
+signal hp_changed(new_hp: int, max_hp: int)
+signal character_died()
 
 func _ready():
 	if character_data:
@@ -24,6 +30,13 @@ func _ready():
 	else:
 		push_error("角色场景 " + name + " 没有分配CharacterData!")
 
+	if !hp_changed.is_connected(_on_hp_changed):
+		hp_changed.connect(_on_hp_changed)
+	
+	# 初始化HP条
+	_on_hp_changed(current_hp, max_hp)
+
+## 初始化玩家数据
 func initialize_from_data(data: CharacterData):
 	# 保存数据引用
 	self.character_data = data
@@ -43,6 +56,7 @@ func initialize_from_data(data: CharacterData):
 	
 	print_rich("[color=cyan][b]{0}[/b][/color] 初始化完毕，HP: [color=lime]{1}/{2}[/color]".format([character_name, current_hp, max_hp]))
 
+## 更新显示
 func update_visual():
 	if name_label:
 		name_label.text = character_name
@@ -53,14 +67,30 @@ func update_visual():
 	if character_rect and character_data:
 		character_rect.color = character_data.color
 
-# 战斗相关方法
-func apply_damage(amount: int):
-	current_hp = max(0, current_hp - amount)
-	update_visual()
-	print_rich("[color=cyan][b]{0}[/b][/color] 受到 [color=red]{1}[/color] 点伤害, 剩余HP: [color=lime]{2}[/color]".format([character_name, amount, current_hp]))
+## 设置防御状态
+func set_defending(value: bool) -> void:
+	_is_defending = value
+
+## 伤害处理方法
+func take_damage(base_damage: int) -> int:
+	var final_damage: int = base_damage
+
+	# 如果处于防御状态，则减免伤害
+	if _is_defending:
+		final_damage = round(final_damage * 0.5)
 	
+		print(character_name + " 正在防御，伤害减半！")
+		set_defending(false)	# 防御效果通常在受到一次攻击后解除
+	
+	final_damage = max(1, final_damage)	# 保证至少1点伤害
+
+	current_hp = max(0, current_hp - final_damage)
+
+	hp_changed.emit(current_hp, max_hp)
 	if current_hp == 0:
 		die()
+	
+	return final_damage
 
 func heal(amount: int):
 	current_hp = min(max_hp, current_hp + amount)
@@ -77,4 +107,25 @@ func use_mp(amount: int) -> bool:
 func die():
 	print_rich("[color=red][b]{0} 已被击败![/b][/color]".format([character_name]))
 	# 在完整游戏中会添加死亡动画和事件
+	character_died.emit()
 	modulate = Color(1, 1, 1, 0.5) # 半透明表示被击败
+
+## 回合开始时重置标记
+func reset_turn_flags() -> void:
+	set_defending(false)
+
+func _on_hp_changed(new_hp : int, maximum_hp: int) -> void:
+	if not hp_bar:
+		return
+	hp_bar.max_value = maximum_hp
+	hp_bar.value = new_hp
+
+	# 根据血条百分比改变颜色
+	if hp_bar.ratio <= 0.25:
+		hp_bar.self_modulate = Color.RED
+	elif hp_bar.ratio <= 0.5:
+		hp_bar.self_modulate = Color.YELLOW
+	else:
+		hp_bar.self_modulate = Color.GREEN
+	
+	hp_label.text = "HP: " + str(current_hp) + "/" + str(max_hp)

@@ -218,6 +218,10 @@ func execute_enemy_ai():
 func execute_attack(attacker: Character, target: Character):
 	update_battle_info("[color=purple][战斗行动][/color] [color=orange][b]{0}[/b][/color] 攻击 [color=cyan][b]{1}[/b][/color]".format([attacker.character_name, target.character_name]))
 		
+	var damage : int = attacker.attack - target.defense
+
+	target.take_damage(damage)
+
 	# 检查战斗是否结束
 	check_battle_end_condition()
 
@@ -228,6 +232,7 @@ func execute_defend(character: Character):
 		
 	update_battle_info("[color=purple][战斗行动][/color] [color=cyan][b]{0}[/b][/color] 选择[color=teal][防御][/color]，受到的伤害将减少".format([character.character_name]))
 	# TODO: 实现防御逻辑，可能是添加临时buff或设置状态
+	character.set_defending(true)
 
 # 检查战斗结束条件
 func check_battle_end_condition() -> bool:
