@@ -1,10 +1,59 @@
-[gd_scene load_steps=4 format=3 uid="uid://bvnf2raqi3v41"]
+[gd_scene load_steps=5 format=3 uid="uid://bvnf2raqi3v41"]
 
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character.tscn" id="1_qp2wj"]
+[ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
 [ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="2_rl52j"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
 
 [node name="BattleScene" type="Node2D"]
+script = ExtResource("1_ugm31")
+
+[node name="BattleUI" type="CanvasLayer" parent="."]
+layer = 128
+
+[node name="ActionPanel" type="Panel" parent="BattleUI"]
+unique_name_in_owner = true
+anchors_preset = -1
+anchor_left = 0.726
+anchor_top = 0.91
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -6.35199
+offset_top = 0.320007
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BattleUI/ActionPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AttackButton" type="Button" parent="BattleUI/ActionPanel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Attack"
+
+[node name="DefendButton" type="Button" parent="BattleUI/ActionPanel/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+text = "Defend"
+
+[node name="InfoLabel" type="RichTextLabel" parent="BattleUI"]
+unique_name_in_owner = true
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -189.0
+offset_right = 505.0
+grow_vertical = 0
+bbcode_enabled = true
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1152.0
