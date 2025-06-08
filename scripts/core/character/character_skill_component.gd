@@ -127,7 +127,7 @@ func attempt_execute_skill(skill_data: SkillData, selected_targets: Array[Charac
 	# 创建一个临时函数来捕获伤害值
 	var capture_damage = func(effect_type, _source, _target, effect_result):
 		if effect_type == SkillEffectData.EffectType.DAMAGE and effect_result.has("damage"):
-			damage_result["damage"] += effect_result["damage"]
+			damage_result["damage"] = effect_result["damage"] + damage_result.get("damage", 0)
 			print_rich("[color=yellow]捕获到伤害值: %d[/color]" % effect_result["damage"])
 	
 	# 连接信号
