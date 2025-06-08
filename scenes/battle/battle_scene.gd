@@ -1,5 +1,7 @@
 extends Node2D
 
+const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
+
 # 战斗参与者
 var player_characters: Array[Character] = []
 var enemy_characters: Array[Character] = []
@@ -220,11 +222,14 @@ func execute_attack(attacker: Character, target: Character):
 		
 	var damage : int = attacker.attack - target.defense
 
-	target.take_damage(damage)
+	var final_damage = target.take_damage(damage)
+
+	# 显示伤害数字
+	spawn_damage_number(target.global_position, final_damage, Color.RED)
 
 	# 检查战斗是否结束
 	check_battle_end_condition()
-
+	
 # 执行防御
 func execute_defend(character: Character):
 	if character == null:
@@ -299,6 +304,13 @@ func update_battle_info(text: String):
 	if info_label:
 		info_label.text += "\n" + text
 	print_rich(text)
+
+## 生成伤害数字
+func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
+	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
+	get_parent().add_child(damage_number)
+	damage_number.global_position = position + Vector2(0, -50)
+	damage_number.show_number(str(amount), color)
 
 # UI按钮事件处理
 func _on_attack_button_pressed():

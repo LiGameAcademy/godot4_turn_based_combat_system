@@ -18,6 +18,7 @@ var speed: int
 @onready var hp_label := %HPLabel
 @onready var name_label := $Container/NameLabel
 @onready var character_rect := $Container/CharacterRect
+@onready var defense_indicator: DefenseIndicator = $DefenseIndicator
 
 var _is_defending: bool = false			## 防御状态标记
 
@@ -70,6 +71,11 @@ func update_visual():
 ## 设置防御状态
 func set_defending(value: bool) -> void:
 	_is_defending = value
+	if defense_indicator:
+		if _is_defending:
+			defense_indicator.show_indicator()
+		else:
+			defense_indicator.hide_indicator()
 
 ## 伤害处理方法
 func take_damage(base_damage: int) -> int:
@@ -90,6 +96,7 @@ func take_damage(base_damage: int) -> int:
 	if current_hp == 0:
 		die()
 	
+	print_rich("[color=red]" + character_name + " 受到 " + str(final_damage) + " 点伤害![/color]")
 	return final_damage
 
 func heal(amount: int):
