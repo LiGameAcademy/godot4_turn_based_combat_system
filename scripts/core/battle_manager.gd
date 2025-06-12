@@ -111,14 +111,12 @@ func check_battle_end_condition() -> bool:
 	# 判断战斗结果
 	if all_players_defeated:
 		# 玩家全部阵亡，战斗失败
-		_end_battle(false)
+		state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
 		return true
-		
 	if all_enemies_defeated:
 		# 敌人全部阵亡，战斗胜利
-		_end_battle(true)
+		state_manager.change_state(BattleStateManager.BattleState.VICTORY)
 		return true
-		
 	return false
 
 # 添加和管理角色
@@ -164,7 +162,7 @@ func get_valid_enemy_targets() -> Array[Character]:
 	var valid_targets: Array[Character] = []
 	
 	for enemy in enemy_characters:
-		if enemy.is_alive():
+		if enemy.is_alive:
 			valid_targets.append(enemy)
 	
 	return valid_targets
@@ -175,7 +173,7 @@ func get_valid_ally_targets(include_self: bool = false) -> Array[Character]:
 	var valid_targets: Array[Character] = []
 	
 	for ally in player_characters:
-		if ally.is_alive() && (include_self || ally != current_turn_character):
+		if ally.is_alive && (include_self || ally != current_turn_character):
 			valid_targets.append(ally)
 	
 	return valid_targets
@@ -185,7 +183,7 @@ func get_valid_ally_targets(include_self: bool = false) -> Array[Character]:
 func _execute_attack(attacker: Character, target: Character) -> void:
 	_log_battle_info("[color=purple][战斗行动][/color] [color=orange][b]{0}[/b][/color] 攻击 [color=cyan][b]{1}[/b][/color]".format([attacker.character_name, target.character_name]))
 	
-	var damage : int = attacker.attack - target.defense
+	var damage : float = attacker.attack_power - target.defense_power
 
 	var final_damage = target.take_damage(damage)
 
@@ -221,6 +219,8 @@ func _execute_skill(caster: Character, targets: Array[Character], skill_data: Sk
 			_execute_heal_skill(caster, targets, skill_data)
 		_:
 			print("未处理的技能效果类型： ", skill_data.effect_type)
+	
+	caster.use_mp(skill_data.mp_cost)
 
 # 伤害类技能
 func _execute_damage_skill(caster: Character, targets: Array[Character], skill: SkillData):
@@ -266,7 +266,7 @@ func _execute_heal_skill(caster: Character, targets: Array[Character], skill: Sk
 
 		print_rich("[color=green]%s 恢复了 %d 点生命值！[/color]" % [target.character_name, actual_healed])
 
-func get_targets_for_skill(skill: SkillData) -> Array[Character]:
+func _get_targets_for_skill(skill: SkillData) -> Array[Character]:
 	var targets: Array[Character] = []
 	
 	match skill.target_type:
@@ -405,14 +405,6 @@ func _build_turn_queue() -> void:
 	
 	_log_battle_info("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
 
-# 结束战斗
-func _end_battle(is_win: bool) -> void:
-	if is_win:
-		_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
-		state_manager.change_state(BattleStateManager.BattleState.VICTORY)
-	else:
-		_log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
-		state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
 
 ## 战斗日志
 func _log_battle_info(text: String) -> void:
@@ -496,7 +488,6 @@ func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_stat
 			# 大回合结束，进入新的回合
 			_log_battle_info("[color=yellow][战斗系统][/color] 回合结束")
 			state_manager.change_state(BattleStateManager.BattleState.ROUND_START)
-   
 		BattleStateManager.BattleState.VICTORY:
 			_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
 			battle_ended.emit(true)

@@ -55,7 +55,6 @@ func _on_turn_changed(character: Character) -> void:
 
 func _on_battle_ended(_is_victory: bool) -> void:
 	show_action_ui(false)
-	update_battle_info("战斗结束")
 
 func _on_battle_info_logged(text: String) -> void:
 	update_battle_info(text)
@@ -195,8 +194,7 @@ func _open_skill_menu() -> void:
 
 func _show_action_menu() -> void:
 	# 确保当前是玩家角色的回合
-	if battle_manager.current_turn_character == null || \
-	   !battle_manager.is_player_character(battle_manager.current_turn_character):
+	if battle_manager.current_turn_character == null || !battle_manager.is_player_turn:
 		return
 	
 	# 隐藏其他可能显示的菜单

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
 
-[node name="CharacterScene" type="Node2D"]
+[node name="Character" type="Node2D"]
 script = ExtResource("1_f5tgq")
 
 [node name="Container" type="VBoxContainer" parent="."]
@@ -20,6 +20,7 @@ text = "角色名称"
 horizontal_alignment = 1
 
 [node name="CharacterRect" type="ColorRect" parent="Container"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 color = Color(0.2, 0.4, 0.8, 1)

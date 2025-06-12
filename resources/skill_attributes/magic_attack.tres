@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillAttribute" load_steps=2 format=3 uid="uid://pcfthqa77ccw"]
+
+[ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_8me00"]
+
+[resource]
+script = ExtResource("1_8me00")
+attribute_name = &"MagicAttack"
+display_name = "魔法攻击"
+description = ""
+base_value = 10.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
