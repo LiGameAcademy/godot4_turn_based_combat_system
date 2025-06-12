@@ -14,7 +14,7 @@ signal defend_pressed
 signal skill_pressed
 signal item_pressed
 
-func _ready():
+func _ready() -> void:
 	# 连接按钮信号
 	attack_button.pressed.connect(_on_attack_button_pressed)
 	defend_button.pressed.connect(_on_defend_button_pressed)

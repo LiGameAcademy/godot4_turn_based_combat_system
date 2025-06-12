@@ -23,14 +23,14 @@ class_name CharacterData
 @export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
 
 # 辅助函数
-func reset_stats():
+func reset_stats() -> void:
 	current_hp = max_hp
 	current_mp = max_mp
 
-func take_damage(amount: int):
+func take_damage(amount: int) -> void:
 	current_hp = max(0, current_hp - amount)
 	
-func heal(amount: int):
+func heal(amount: int) -> void:
 	current_hp = min(max_hp, current_hp + amount)
 	
 func use_mp(amount: int) -> bool:

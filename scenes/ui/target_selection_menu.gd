@@ -1,10 +1,6 @@
 extends Control
 class_name TargetSelectionMenu
 
-## 信号定义
-signal target_selected(target: Character)
-signal target_selection_cancelled
-
 ## 节点引用
 @onready var target_list: ItemList = %TargetList
 @onready var select_button: Button = %SelectButton
@@ -13,6 +9,10 @@ signal target_selection_cancelled
 ## 数据存储
 var available_targets: Array[Character] = []
 var selected_target_index: int = -1
+
+## 信号定义
+signal target_selected(target: Character)
+signal target_selection_cancelled
 
 func _ready() -> void:
 	# 连接信号

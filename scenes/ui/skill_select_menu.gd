@@ -1,10 +1,6 @@
 extends Control
 class_name SkillSelectMenu
 
-## 信号定义
-signal skill_selected(skill_data: SkillData)
-signal skill_selection_cancelled
-
 ## 节点引用
 @onready var skill_list: ItemList = %SkillList
 @onready var skill_description: Label = %SkillDescription
@@ -14,6 +10,10 @@ signal skill_selection_cancelled
 ## 数据存储
 var current_character_skills: Array[SkillData] = []
 var selected_skill_index: int = -1
+
+## 信号定义
+signal skill_selected(skill_data: SkillData)
+signal skill_selection_cancelled
 
 func _ready() -> void:
 	# 连接信号

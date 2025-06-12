@@ -1,6 +1,15 @@
 extends Node2D
 class_name Character
 
+# 引用场景中的节点
+@onready var hp_bar : ProgressBar = %HPBar
+@onready var hp_label := %HPLabel
+@onready var mp_bar: ProgressBar = %MPBar
+@onready var mp_label: Label = %MPLabel
+@onready var name_label := $Container/NameLabel
+@onready var character_rect := $Container/CharacterRect
+@onready var defense_indicator : DefenseIndicator = $DefenseIndicator
+
 @export var character_data: CharacterData
 
 # 运行时从CharacterData初始化的核心战斗属性
@@ -22,15 +31,6 @@ var defense: int
 var speed: int
 var magic_attack: int = 0  # 魔法攻击力
 var magic_defense: int = 0 # 魔法防御力
-
-# 引用场景中的节点
-@onready var hp_bar : ProgressBar = %HPBar
-@onready var hp_label := %HPLabel
-@onready var mp_bar: ProgressBar = %MPBar
-@onready var mp_label: Label = %MPLabel
-@onready var name_label := $Container/NameLabel
-@onready var character_rect := $Container/CharacterRect
-@onready var defense_indicator : DefenseIndicator = $DefenseIndicator
 
 var _is_defending: bool = false			## 防御状态标记
 
