@@ -1,13 +1,34 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3 uid="uid://bra85c6w585gr"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://bra85c6w585gr"]
 
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
+
+[sub_resource type="Resource" id="Resource_s313m"]
+script = ExtResource("1_wb8wf")
+effect_type = 0
+visual_effect = ""
+sound_effect = ""
+damage_amount = 10
+damage_power_scale = 1.0
+heal_amount = 10
+heal_power_scale = 0.5
+attr = ""
+status_chance = 1.0
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+dispel_is_all = false
+special_type = "none"
+special_params = {}
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
 
 [resource]
 script = ExtResource("1_prr5c")
 skill_id = &"fireball"
 skill_name = "火球术"
-description = "向敌人投掷一个火球，造成15点火焰伤害。"
+description = "向敌人投掷一个火球，造成火焰伤害。"
 mp_cost = 8
-effect_type = 0
 target_type = 1
-power = 15
+effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_s313m")])
+action_categories = Array[String](["any_action"])
+cast_animation = &""

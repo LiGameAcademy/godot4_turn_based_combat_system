@@ -2,14 +2,6 @@ extends Resource
 class_name SkillData
 
 ## --- 核心要素枚举 ---
-## 效果类型
-enum EffectType {
-	DAMAGE,       ## 造成伤害
-	HEAL,         ## 恢复HP
-	APPLY_STATUS, ## 施加状态 (Buff/Debuff)
-	CONTROL,      ## 控制效果 (如眩晕)
-	SPECIAL       ## 特殊，可能需要自定义逻辑
-}
 
 ## 目标类型
 enum TargetType {
@@ -23,24 +15,65 @@ enum TargetType {
 	ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
 }
 
-## --- 导出的属性 ---
-@export var skill_id: StringName = &"new_skill" # 内部ID，用StringName效率略高
-@export var skill_name: String = "新技能"       # UI显示名称
-@export_multiline var description: String = "技能描述..." # UI显示描述
+#region --- 导出的属性 ---
+@export var skill_id: StringName = &"new_skill" 				## 内部ID，用StringName效率略高
+@export var skill_name: String = "新技能"       				## UI显示名称
+@export_multiline var description: String = "技能描述..." 		## UI显示描述
 
-@export_group("消耗与效果")
-@export var mp_cost: int = 5
-@export var effect_type: EffectType = EffectType.DAMAGE
-@export var target_type: TargetType = TargetType.ENEMY_SINGLE
-@export var power: int = 10 # 技能威力 (用于伤害/治疗计算)
+@export_group("消耗与目标")
+@export var mp_cost: int = 5									## 魔法消耗
+@export var target_type: TargetType = TargetType.ENEMY_SINGLE	## 目标类型
+
+@export_group("效果")
+@export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack")
+var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
+@export var cast_animation: StringName = "" # 施法动画名 (如果角色动画器中有)
 # 未来可扩展其他视觉和音效选项
-# @export var animation_name: StringName # 施法动画名 (如果角色动画器中有)
 # @export var vfx_scene: PackedScene # 技能特效场景
 # @export var sfx: AudioStream # 技能音效
+#endregion
 
 ## 检查是否能施放技能
-func can_cast(caster_current_mp: int) -> bool:
+func can_cast(caster_current_mp: float) -> bool:
 	return caster_current_mp >= mp_cost
+
+## 获得技能完整描述
+func get_full_description() -> String:
+	var desc = ""
+	desc += "类型: 主动技能\n"
+	desc += "消耗: " + str(mp_cost) + " MP\n"
+	desc += "目标: " + _get_target_type_name() + "\n"
+
+	desc += "\n效果:\n"
+	var effects_to_describe: Array[SkillEffectData] = effects
+	for effect in effects_to_describe: # 处理 ACTIVE 和 PASSIVE 的主要效果
+		if is_instance_valid(effect): # 确保 effect 实例有效
+			desc += "- " + effect.get_description() + "\n"
+		else:
+			desc += "- [color=red](无效效果数据)[/color]\n"
+	desc += "[color=gray]" + description + "[/color]\n\n"
+	return desc.strip_edges()
+
+## 获取目标类型名称
+func _get_target_type_name() -> String:
+	match target_type:
+		TargetType.SELF:
+			return "自身"
+		TargetType.ENEMY_SINGLE:
+			return "单个敌人"
+		TargetType.ENEMY_ALL:
+			return "所有敌人"
+		TargetType.ALLY_SINGLE:
+			return "单个友方(不含自己)"
+		TargetType.ALLY_ALL:
+			return "所有友方(不含自己)"
+		TargetType.ALLY_SINGLE_INC_SELF:
+			return "单个友方(含自己)"
+		TargetType.ALLY_ALL_INC_SELF:
+			return "所有友方(含自己)"
+		_:
+			return "未知目标"
