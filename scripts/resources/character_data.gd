@@ -13,6 +13,12 @@ class_name CharacterData
 @export var defense: int = 5
 @export var speed: int = 7
 
+@export var magic_attack: int = 10  # 魔法攻击力
+@export var magic_defense: int = 10 # 魔法防御力
+
+@export_group("技能列表")
+@export var skills: Array[SkillData] = [] # 存储角色拥有的技能
+
 @export_group("视觉表现")
 @export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
 
@@ -32,3 +38,16 @@ func use_mp(amount: int) -> bool:
 		current_mp -= amount
 		return true
 	return false
+
+## 获取技能的辅助方法
+func get_skill_by_id(id: StringName) -> SkillData:
+	for skill in skills:
+		if skill and skill.skill_id == id:
+			return skill
+	return null
+
+func get_skill_by_name(name: String) -> SkillData:
+	for skill in skills:
+		if skill and skill.skill_name == name:
+			return skill
+	return null

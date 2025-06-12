@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cb2e2cndtui6m"]
+[gd_scene load_steps=3 format=3 uid="uid://n06liliwj8r3"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
@@ -8,10 +8,9 @@ script = ExtResource("1_f5tgq")
 
 [node name="Container" type="VBoxContainer" parent="."]
 offset_right = 150.0
-offset_bottom = 176.0
+offset_bottom = 200.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 1
 
 [node name="NameLabel" type="Label" parent="Container"]
 layout_mode = 2
@@ -45,21 +44,15 @@ horizontal_alignment = 1
 
 [node name="MPBar" type="ProgressBar" parent="Container"]
 unique_name_in_owner = true
-self_modulate = Color(0.0352941, 0.0666667, 0.972549, 1)
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 2
-value = 30.0
 show_percentage = false
 
 [node name="MPLabel" type="Label" parent="Container/MPBar"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
 text = "MP: 100/100"
-horizontal_alignment = 1
 
 [node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]
