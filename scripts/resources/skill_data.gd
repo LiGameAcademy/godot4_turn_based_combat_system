@@ -68,12 +68,12 @@ func _get_target_type_name() -> String:
 		TargetType.ENEMY_ALL:
 			return "所有敌人"
 		TargetType.ALLY_SINGLE:
-			return "单个友方(不含自己)"
+			return "单个友方"
 		TargetType.ALLY_ALL:
-			return "所有友方(不含自己)"
+			return "所有友方"
 		TargetType.ALLY_SINGLE_INC_SELF:
-			return "单个友方(含自己)"
+			return "除自身外的所有友方"
 		TargetType.ALLY_ALL_INC_SELF:
-			return "所有友方(含自己)"
+			return "所有角色"
 		_:
 			return "未知目标"

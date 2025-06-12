@@ -40,8 +40,8 @@ func _request_visual_effect(effect_type: StringName, target, params: Dictionary 
 		return
 		
 	# 分发到适当的视觉效果方法
-	if _battle_manager.has_method("play_" + effect_type + "_effect"):
-		var method = "play_" + effect_type + "_effect"
-		_battle_manager.call(method, target, params)
+	var method_name : String = "_play_" + effect_type + "_effect"
+	if _battle_manager.has_method(method_name):
+		_battle_manager.call(method_name, target, params)
 	else:
-		push_warning("SkillSystem: 未找到视觉效果方法 play_" + effect_type + "_effect")
+		push_warning("未找到视觉效果方法 " + method_name)

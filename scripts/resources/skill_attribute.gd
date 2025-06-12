@@ -19,10 +19,8 @@ class_name SkillAttribute
 
 var current_value: float = 0.0								## 属性的当前值 (运行时计算得出，不直接导出)
 var _active_modifiers: Array[SkillAttributeModifier] = []	## 当前作用于此属性实例的修改器列表 (由AttributeSet管理添加和移除)
-var _owner_set: SkillAttributeSet = null					## 对所属AttributeSet的引用 (在AttributeSet初始化时设置)
 
-func _init(p_owner_set: SkillAttributeSet = null, p_base_value_override: float = -1.0) -> void:
-	_owner_set = p_owner_set
+func _init(p_base_value_override: float = -1.0) -> void:
 	if p_base_value_override != -1.0: # 允许在实例化时覆盖默认基础值
 		base_value = p_base_value_override
 	else:
@@ -38,14 +36,15 @@ func add_modifier_internal(modifier: SkillAttributeModifier):
 	if not modifier in _active_modifiers: # 避免重复添加同一个Modifier实例
 		_active_modifiers.append(modifier)
 		_recalculate_current_value()
-		# print("Added modifier %s to %s" % [modifier, attribute_name])
 
 ## (由AttributeSet调用) 移除一个Modifier并触发重算
 func remove_modifier_internal(modifier: SkillAttributeModifier):
 	if modifier in _active_modifiers:
 		_active_modifiers.erase(modifier)
 		_recalculate_current_value()
-		# print("Removed modifier %s from %s" % [modifier, attribute_name])
+
+func get_active_modifiers() -> Array:
+	return _active_modifiers
 
 ## (由AttributeSet调用) 设置基础值
 func set_base_value_internal(new_base_value: float):
@@ -59,10 +58,6 @@ func get_current_value() -> float:
 ## 获取基础值
 func get_base_value() -> float:
 	return base_value
-
-## 设置所属的AttributeSet (在AttributeSet中实例化此属性时调用)
-func set_owner_set(owner: SkillAttributeSet):
-	_owner_set = owner
 
 ## 重新计算current_value，基于base_value和所有激活的Modifier
 ## 返回值: bool - 当前值是否实际发生了变化

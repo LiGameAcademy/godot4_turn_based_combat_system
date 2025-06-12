@@ -27,7 +27,6 @@ func initialize_set() -> void:
 	for template: SkillAttribute in attributes_to_initialize:
 		# 关键：为每个角色复制独立的属性实例
 		var attribute_instance: SkillAttribute = template.duplicate(true) as SkillAttribute
-		attribute_instance.set_owner_set(self) # 设置对父Set的引用
 		
 		# 初始时，当前值等于基础值 (Modifier尚未应用)
 		attribute_instance.current_value = attribute_instance.base_value 
@@ -132,7 +131,7 @@ func set_current_value(attribute_name: StringName, new_current_value: float, sou
 	return true
 
 ## 向指定属性应用一个Modifier
-func apply_modifier(modifier: SkillAttributeModifier, source: Variant = null):
+func apply_modifier(modifier: SkillAttributeModifier, source_id: int = 0):
 	var attr : SkillAttribute = get_attribute(modifier.attribute_id)
 	if not attr or not modifier: return
 
@@ -140,15 +139,15 @@ func apply_modifier(modifier: SkillAttributeModifier, source: Variant = null):
 	if attr._active_modifiers.has(modifier):
 		printerr("Modifier %s already exists for attribute %s." % [modifier, modifier.attribute_id])
 		return
-	
+	modifier.set_source(source_id)
 	attr.add_modifier_internal(modifier) # 添加到属性实例的列表
 	var proposed_new_current_value = attr.get_current_value()
 
-	set_current_value(modifier.attribute_id, proposed_new_current_value, source if source else modifier.source_id)
+	set_current_value(modifier.attribute_id, proposed_new_current_value, source_id)
 
-## 从指定属性移除一个Modifier (通过Modifier实例或其source_id)
-func remove_modifier(modifier_or_id_to_remove: Variant, source: Variant = null):
-	var attr : SkillAttribute = get_attribute(modifier_or_id_to_remove)
+## 从指定属性移除一个Modifier (通过Modifier实例)
+func remove_modifier(modifier: SkillAttributeModifier, source_id: int = 0) -> void:
+	var attr : SkillAttribute = get_attribute(modifier.attribute_id)
 	if not attr: return
 
 	var modifier_found_and_removed = false
@@ -156,25 +155,27 @@ func remove_modifier(modifier_or_id_to_remove: Variant, source: Variant = null):
 	var temp_modifier_list = attr._active_modifiers.duplicate() # 复制列表以安全迭代和移除
 	var modifier_to_remove : SkillAttributeModifier = null
 	for m in temp_modifier_list:
-		var should_remove = false
-		if modifier_or_id_to_remove is SkillAttributeModifier and m == modifier_or_id_to_remove:
-			should_remove = true
-		elif modifier_or_id_to_remove is String and m.source_id == modifier_or_id_to_remove and m.source_id != "":
-			should_remove = true # 允许多个来自同一source_id的modifier被一次性移除
-		
-		if should_remove:
+		if modifier is SkillAttributeModifier and m == modifier:
 			attr.remove_modifier_internal(m)
 			modifier_to_remove = m
 			modifier_found_and_removed = true
-			# print("Attempting to remove modifier %s from %s" % [m, attribute_name])
 
 	if not modifier_found_and_removed:
-		# print("Modifier to remove not found on %s: " % attribute_name, modifier_or_id_to_remove)
 		return
 
 	var proposed_new_current_value = attr.get_current_value()
 
-	set_current_value(modifier_to_remove.attribute_id, proposed_new_current_value, source if source else modifier_to_remove.source_id)
+	set_current_value(modifier_to_remove.attribute_id, proposed_new_current_value, source_id)
+
+## 从source_id移除Modifier
+func remove_modifiers_by_source_id(source_id: int) -> void:
+	var modifiers_to_remove : Array = []
+	for attr in _initialized_attributes.values():
+		for modifier in attr.get_active_modifiers():
+			if modifier.source_id == source_id:
+				modifiers_to_remove.append(modifier)
+	for modifier in modifiers_to_remove:
+		remove_modifier(modifier)
 
 #region --- 钩子函数 (虚拟方法，由具体业务逻辑的AttributeSet子类重写) ---
 

@@ -28,6 +28,19 @@ color = Color(0.14902, 0.137255, 0.188235, 1)
 [node name="BattleUI" type="CanvasLayer" parent="."]
 layer = 128
 
+[node name="InfoLabel" type="RichTextLabel" parent="BattleUI"]
+unique_name_in_owner = true
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -163.0
+offset_right = -651.0
+grow_horizontal = 2
+grow_vertical = 0
+bbcode_enabled = true
+text = "战斗信息显示栏"
+
 [node name="ActionPanel" parent="BattleUI" instance=ExtResource("2_lbt8a")]
 unique_name_in_owner = true
 anchor_left = 0.72
@@ -45,19 +58,6 @@ visible = false
 [node name="TargetSelectionMenu" parent="BattleUI" instance=ExtResource("4_ww1p6")]
 unique_name_in_owner = true
 visible = false
-
-[node name="InfoLabel" type="RichTextLabel" parent="BattleUI"]
-unique_name_in_owner = true
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -163.0
-offset_right = -651.0
-grow_horizontal = 2
-grow_vertical = 0
-bbcode_enabled = true
-text = "战斗信息显示栏"
 
 [node name="PlayerArea" type="Node2D" parent="."]
 unique_name_in_owner = true
