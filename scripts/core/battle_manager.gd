@@ -3,6 +3,8 @@ class_name BattleManager
 
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
+@onready var state_manager: BattleStateManager = $BattleStateManager
+
 # 战斗参与者
 var player_characters: Array[Character] = []
 var enemy_characters: Array[Character] = []
@@ -10,16 +12,18 @@ var enemy_characters: Array[Character] = []
 # 回合顺序管理
 var turn_queue: Array = []
 var current_turn_character: Character = null
-
-# 简单的战斗标记
-var is_player_turn = false     # 当前是否是玩家回合
-var battle_finished = false    # 战斗是否结束
-var is_victory = false         # 战斗结果是否为胜利
+var is_player_turn : bool = false :
+	get:
+		return state_manager.current_state == BattleStateManager.BattleState.PLAYER_TURN
 
 # 信号
 signal turn_changed(character)
 signal battle_ended(is_victory)
 signal battle_info_logged(text)
+
+func _ready():
+	state_manager.initialize(BattleStateManager.BattleState.IDLE)
+	state_manager.state_changed.connect(_on_state_changed)
 
 # 查找战斗场景中的角色
 func find_characters() -> void:
@@ -49,9 +53,7 @@ func start_battle() -> void:
 	
 	# 初始化回合队列
 	build_turn_queue()
-	
-	# 开始第一个角色的回合
-	next_turn()
+	state_manager.change_state(BattleStateManager.BattleState.START)
 
 # 构建回合队列
 func build_turn_queue() -> void:
@@ -72,65 +74,17 @@ func build_turn_queue() -> void:
 	
 	log_battle_info("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
 
-# 切换到下一个角色的回合
-func next_turn() -> void:
-	# 检查战斗是否结束
-	if battle_finished:
-		return
-		
-	# 如果队列为空，重新构建
-	if turn_queue.is_empty():
-		build_turn_queue()
-		
-	# 仍然为空，说明没有可行动角色
-	if turn_queue.is_empty():
-		end_battle(false) # 失败
-		return
-		
-	# 获取当前回合的角色
-	current_turn_character = turn_queue.pop_front()
-	
-	# 检查角色是否存活
-	if current_turn_character.current_hp <= 0:
-		# 角色已阵亡，跳过其回合
-		next_turn()
-		return
-
-	# 判断是玩家还是敌人回合
-	is_player_turn = current_turn_character in player_characters
-	# 发出回合变化信号
-	turn_changed.emit(current_turn_character)
-	
-	if is_player_turn:
-		# 玩家回合
-		log_battle_info("[color=blue][玩家回合][/color] [color=cyan][b]{0}[/b][/color] 的行动".format([current_turn_character.character_name]))
-	else:
-		# 敌人回合
-		log_battle_info("[color=red][敌人回合][/color] [color=orange][b]{0}[/b][/color] 的行动".format([current_turn_character.character_name]))
-		
-		# 延迟一下再执行AI，避免敌人行动过快
-		await get_tree().create_timer(1.0).timeout
-		execute_enemy_ai()
-	
 # 结束战斗
 func end_battle(is_win: bool) -> void:
-	battle_finished = true
-	is_victory = is_win
-	
 	if is_win:
 		log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
+		state_manager.change_state(BattleStateManager.BattleState.VICTORY)
 	else:
 		log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
-	
-	# 发出战斗结束信号
-	battle_ended.emit(is_win)
+		state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
 
 # 玩家选择行动
 func player_select_action(action_type: String, target = null) -> void:
-	# 检查是否是玩家回合
-	if not is_player_turn or battle_finished:
-		return
-		
 	print("玩家选择行动: ", action_type)
 	
 	# 执行选择的行动
@@ -160,16 +114,11 @@ func player_select_action(action_type: String, target = null) -> void:
 	# 检查战斗是否结束
 	if check_battle_end_condition():
 		return # 战斗已结束
-		
-	# 进入下一个角色的回合
-	next_turn()
+	
+	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
 # 执行敌人AI
 func execute_enemy_ai() -> void:
-	# 检查是否是敌人回合
-	if is_player_turn or battle_finished or current_turn_character == null:
-		return
-		
 	# 简单的AI逻辑：总是攻击第一个存活的玩家角色
 	var target = null
 	for player in player_characters:
@@ -186,9 +135,8 @@ func execute_enemy_ai() -> void:
 	# 检查战斗是否结束
 	if check_battle_end_condition():
 		return # 战斗已结束
-		
-	# 进入下一个角色的回合
-	next_turn()
+	
+	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
 # 执行攻击
 func execute_attack(attacker: Character, target: Character) -> void:
@@ -215,10 +163,6 @@ func execute_defend(character: Character) -> void:
 
 # 检查战斗结束条件
 func check_battle_end_condition() -> bool:
-	# 如果战斗已结束，直接返回
-	if battle_finished:
-		return true
-		
 	# 检查玩家是否全部阵亡
 	var all_players_defeated = true
 	for player in player_characters:
@@ -279,3 +223,65 @@ func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
 func log_battle_info(text: String) -> void:
 	print_rich(text)
 	battle_info_logged.emit(text)
+
+## 状态改变处理函数
+func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_state: BattleStateManager.BattleState) -> void:
+	# 所有状态下的动作逻辑都在这里
+	match new_state:
+		BattleStateManager.BattleState.START:
+			state_manager.change_state(BattleStateManager.BattleState.ROUND_START)
+		BattleStateManager.BattleState.ROUND_START:
+			# 大回合开始，构建回合队列
+			log_battle_info("[color=yellow][战斗系统][/color] 新的回合开始")
+			if check_battle_end_condition():
+				# 战斗已结束，状态已在check_battle_end_condition中切换
+				return
+				
+			build_turn_queue()
+			if turn_queue.is_empty():
+				state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
+			else:
+				state_manager.change_state(BattleStateManager.BattleState.TURN_START)
+				
+		BattleStateManager.BattleState.TURN_START:
+			# 小回合开始，确定当前行动角色
+			if turn_queue.is_empty():
+				# 所有角色都行动完毕，回合结束
+				state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
+				return
+				
+			current_turn_character = turn_queue.pop_front()
+			log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([current_turn_character.character_name]))
+			current_turn_character.reset_turn_flags()
+			# 根据角色类型决定下一个状态
+			var next_state = BattleStateManager.BattleState.PLAYER_TURN if player_characters.has(current_turn_character) else BattleStateManager.BattleState.ENEMY_TURN
+			state_manager.change_state(next_state)
+			turn_changed.emit(current_turn_character) # 通知UI
+			
+		BattleStateManager.BattleState.PLAYER_TURN:
+			pass
+						
+		BattleStateManager.BattleState.ENEMY_TURN:
+			await get_tree().create_timer(1.0).timeout
+			execute_enemy_ai()
+			
+		BattleStateManager.BattleState.TURN_END:
+			# 小回合结束，检查战斗状态
+			if check_battle_end_condition():
+				# 战斗已结束，状态已在check_battle_end_condition中切换
+				return
+			
+			# 进入下一个角色的回合
+			state_manager.change_state(BattleStateManager.BattleState.TURN_START)
+			
+		BattleStateManager.BattleState.ROUND_END:
+			# 大回合结束，进入新的回合
+			log_battle_info("[color=yellow][战斗系统][/color] 回合结束")
+			state_manager.change_state(BattleStateManager.BattleState.ROUND_START)
+   
+		BattleStateManager.BattleState.VICTORY:
+			log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
+			battle_ended.emit(true)
+		BattleStateManager.BattleState.DEFEAT:
+			log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
+			battle_ended.emit(false)

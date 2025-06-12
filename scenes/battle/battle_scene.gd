@@ -1,6 +1,6 @@
 extends Node2D
 
-@onready var action_panel: CanvasLayer = $ActionPanel
+@onready var action_panel: Panel = %ActionPanel
 @onready var attack_button: Button = %AttackButton
 @onready var defend_button: Button = %DefendButton
 @onready var battle_manager: BattleManager = %BattleManager
@@ -38,7 +38,7 @@ func update_battle_info(text: String) -> void:
 # UI按钮事件处理
 func _on_attack_button_pressed():
 	# 当玩家处于行动回合时，获取当前敌人作为目标
-	if battle_manager.is_player_turn and not battle_manager.battle_finished:
+	if battle_manager.is_player_turn:
 		# 选择第一个存活的敌人作为目标
 		var target = null
 		for enemy in battle_manager.enemy_characters:
@@ -50,12 +50,11 @@ func _on_attack_button_pressed():
 			battle_manager.player_select_action("attack", target)
 
 func _on_defend_button_pressed():
-	if battle_manager.is_player_turn and not battle_manager.battle_finished:
+	if battle_manager.is_player_turn:
 		battle_manager.player_select_action("defend")
 
 func _on_turn_changed(character: Character) -> void:
-	var is_player_turn = battle_manager.is_player_turn
-	show_action_ui(is_player_turn)
+	show_action_ui(battle_manager.is_player_turn)
 	update_battle_info("{0} 的回合".format([character.character_name]))
 
 func _on_battle_ended(_is_victory: bool) -> void:
