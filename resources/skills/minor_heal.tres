@@ -6,8 +6,8 @@
 script = ExtResource("1_45vgr")
 skill_id = &"minor_heal"
 skill_name = "初级治疗"
-description = "恢复目标20点生命值。"
-mp_cost = 10
-effect_type = 1
+description = "目标恢复少量生命值"
+mp_cost = 5
+effect_type = 0
 target_type = 6
-power = 20
+power = 10

@@ -6,8 +6,8 @@
 script = ExtResource("1_prr5c")
 skill_id = &"fireball"
 skill_name = "火球术"
-description = "向敌人投掷一个火球，造成15点火焰伤害。"
+description = "向敌人投掷一个火球，造成火焰伤害。"
 mp_cost = 8
 effect_type = 0
 target_type = 1
-power = 15
+power = 10

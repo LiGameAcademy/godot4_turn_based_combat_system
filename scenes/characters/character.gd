@@ -40,7 +40,7 @@ var is_alive : bool = true:								## 生存状态标记
 	get: return current_hp > 0
 var active_attribute_set: SkillAttributeSet = null		## 运行时角色实际持有的AttributeSet实例 (通过模板duplicate而来)
 
-signal character_died(character: Character)
+signal character_defeated(character: Character)
 signal health_changed(current_hp: float, max_hp: float, character: Character)
 signal mana_changed(current_mp: float, max_mp: float, character: Character)
 
@@ -87,9 +87,6 @@ func update_visual():
 	if name_label:
 		name_label.text = character_name
 	
-	if hp_label:
-		hp_label.text = "HP: " + str(current_hp) + "/" + str(max_hp)
-	
 	if character_rect and character_data:
 		character_rect.color = character_data.color
 
@@ -122,7 +119,6 @@ func heal(amount: int) -> int:
 	active_attribute_set.modify_base_value("CurrentHealth", amount)
 	return amount
 
-
 func use_mp(amount: int) -> bool:
 	if current_mp >= amount:
 		active_attribute_set.modify_base_value("CurrentMana", -amount)
@@ -140,11 +136,15 @@ func has_enough_mp_for_any_skill() -> bool:
 			return true
 	return false
 
+## 播放动画
+func play_animation(animation_name: String) -> void:
+	print("假装播放了动画：", animation_name)
+
 ## 死亡处理方法
 func _die():
 	# is_alive 的getter会自动更新，但这里可以执行死亡动画、音效、移除出战斗等逻辑
 	print_rich("[color=red][b]%s[/b] has been defeated![/color]" % [character_data.character_name])
-	character_died.emit(self)
+	character_defeated.emit(self)
 	modulate = Color(0.5, 0.5, 0.5, 0.5) # 变灰示例
 
 #region --- UI 更新辅助方法 ---

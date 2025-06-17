@@ -3,7 +3,7 @@ class_name SkillSelectMenu
 
 ## 节点引用
 @onready var skill_list: ItemList = %SkillList
-@onready var skill_description: Label = %SkillDescription
+@onready var skill_description: RichTextLabel = %SkillDescription
 @onready var use_button: Button = %UseButton
 @onready var cancel_button: Button = %CancelButton
 
@@ -62,7 +62,7 @@ func _on_skill_item_selected(index: int) -> void:
 		selected_skill_index = index
 		var skill: SkillData = current_character_skills[index]
 		if skill:
-			skill_description.text = skill.description
+			skill_description.text = skill.get_full_description()
 			use_button.disabled = skill_list.is_item_disabled(index)
 
 ## 当双击了技能项
