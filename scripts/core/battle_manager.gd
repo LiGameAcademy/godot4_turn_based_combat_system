@@ -188,6 +188,22 @@ func register_effect_processor(processor: EffectProcessor):
 	effect_processors[processor_id] = processor
 	print("注册效果处理器: %s" % processor_id)
 
+# 应用多个效果
+func apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
+	var all_results = {}
+
+	for target in targets:
+		if !is_instance_valid(target) or target.current_hp <= 0:
+			continue
+		
+		all_results[target] = {}
+		
+		for effect in effects:
+			var result = await _apply_effect(effect, source, target)
+			for key in result:
+				all_results[target][key] = result[key]
+	
+	return all_results
 #region 执行动作
 # 执行攻击
 func _execute_attack(attacker: Character, target: Character) -> void:
@@ -245,7 +261,7 @@ func _execute_skill(caster: Character, custom_targets: Array[Character], skill_d
 	# 处理直接效果
 	var effect_results = {}
 	if not skill_data.effects.is_empty():
-		effect_results = await _apply_effects(skill_data.effects, caster, targets)
+		effect_results = await apply_effects(skill_data.effects, caster, targets)
 
 	# 合并结果
 	var final_results = {}
@@ -283,7 +299,7 @@ func _apply_effect(effect: SkillEffectData, source: Character, target: Character
 		effect_applied.emit(effect.effect_type, source, target, result)
 		return result
 	else:
-		push_error("SkillSystem: 无效的效果处理器")
+		push_error("无效的效果处理器: ", processor_id)
 		return {}
 
 ## 根据效果类型获取处理器ID
@@ -293,8 +309,6 @@ func _get_processor_id_for_effect(effect: SkillEffectData) -> String:
 			return "damage"
 		SkillEffectData.EffectType.HEAL:
 			return "heal"
-		SkillEffectData.EffectType.ATTRIBUTE_MODIFY:
-			return "attribute"
 		SkillEffectData.EffectType.STATUS:
 			return "status"
 		SkillEffectData.EffectType.DISPEL:
@@ -304,28 +318,12 @@ func _get_processor_id_for_effect(effect: SkillEffectData) -> String:
 		_:
 			return "unknown"
 
-# 应用多个效果
-func _apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
-	var all_results = {}
-
-	for target in targets:
-		if !is_instance_valid(target) or target.current_hp <= 0:
-			continue
-		
-		all_results[target] = {}
-		
-		for effect in effects:
-			var result = await _apply_effect(effect, source, target)
-			for key in result:
-				all_results[target][key] = result[key]
-	
-	return all_results
-
 # 在初始化方法中注册新的效果处理器
 func _init_effect_processors():
 	# 注册处理器
 	register_effect_processor(DamageEffectProcessor.new(self))
 	register_effect_processor(HealingEffectProcessor.new(self))
+	register_effect_processor(ApplyStatusProcessor.new(self))
 
 func _get_targets_for_skill(skill: SkillData) -> Array[Character]:
 	var targets: Array[Character] = []
@@ -386,6 +384,67 @@ func _calculate_skill_damage(caster: Character, target: Character, skill: SkillD
 	# 确保伤害至少为1
 	return max(1, round(final_damage))
 
+func _calculate_skill_healing(caster: Character, _target: Character, skill: SkillData) -> int:
+	# 治疗量通常更依赖施法者的魔法攻击力
+	var base_healing = skill.power + (caster.magic_attack * 1.0)
+	
+	# 随机浮动 (±5%)
+	var random_factor = randf_range(0.95, 1.05)
+	var final_healing = base_healing * random_factor
+	
+	return max(1, round(final_healing))
+
+#endregion
+
+## 构建回合队列
+func _build_turn_queue() -> void:
+	# 清空当前队列
+	turn_queue.clear()
+	
+	# 将所有存活的角色添加到队列中
+	for character in player_characters:
+		if character.current_hp > 0:
+			turn_queue.append(character)
+			
+	for character in enemy_characters:
+		if character.current_hp > 0:
+			turn_queue.append(character)
+	
+	# 根据速度属性排序
+	turn_queue.sort_custom(func(a, b): return a.speed > b.speed)
+	
+	_log_battle_info("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
+
+
+## 战斗日志
+func _log_battle_info(text: String) -> void:
+	print_rich(text)
+	battle_info_logged.emit(text)
+
+#region 视觉反馈
+# 状态效果应用视觉反馈
+func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
+	#var status_type = params.get("status_type", "buff")
+	var is_positive = params.get("is_positive", true)
+	
+	var effect_color = Color(0.7, 1, 0.7) if is_positive else Color(1, 0.7, 0.7)
+	
+	var tween = create_tween()
+	tween.tween_property(target, "modulate", effect_color, 0.2)
+	
+	# 正面状态上升效果，负面状态下沉效果
+	var original_pos = target.position
+	var offset = Vector2(0, -4) if is_positive else Vector2(0, 4)
+	tween.tween_property(target, "position", original_pos + offset, 0.1)
+	tween.tween_property(target, "position", original_pos, 0.1)
+	
+	# 恢复正常颜色
+	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
+	
+	# 如果有指定动画，则播放
+	if target.has_method("play_animation") and "animation" in params:
+		target.play_animation(params["animation"])
+
 func _play_cast_animation(caster: Character) -> void:
 	var tween = create_tween()
 	# 角色短暂发光效果
@@ -418,18 +477,14 @@ func _play_hit_animation(target: Character):
 	# 这里可以播放命中音效
 	# AudioManager.play_sfx("hit_impact")
 
-func _calculate_skill_healing(caster: Character, _target: Character, skill: SkillData) -> int:
-	# 治疗量通常更依赖施法者的魔法攻击力
-	var base_healing = skill.power + (caster.magic_attack * 1.0)
-	
-	# 随机浮动 (±5%)
-	var random_factor = randf_range(0.95, 1.05)
-	var final_healing = base_healing * random_factor
-	
-	return max(1, round(final_healing))
+func _play_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
+	pass
+
+func _play_heal_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
+	pass
 
 # 治疗效果视觉反馈
-func _play_heal_effect(target: Character):
+func _play_heal_effect(target: Character, _params : Dictionary = {}):
 	var tween = create_tween()
 	
 	# 目标变绿效果（表示恢复）
@@ -443,33 +498,16 @@ func _play_heal_effect(target: Character):
 	# 恢复正常颜色
 	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
 
+func _play_hit_effect(_target: Character, _params: Dictionary = {}) -> void:
+	pass
+
+func _play_damage_number_effect(target: Character, params: Dictionary = {}) -> void:
+	spawn_damage_number(target.global_position, params.get("damage", 0), params.get("color", Color.RED))
+
+func _play_status_applied_success_effect(_target: Character, _params: Dictionary = {}) -> void:
+	pass
+
 #endregion
-
-
-## 构建回合队列
-func _build_turn_queue() -> void:
-	# 清空当前队列
-	turn_queue.clear()
-	
-	# 将所有存活的角色添加到队列中
-	for character in player_characters:
-		if character.current_hp > 0:
-			turn_queue.append(character)
-			
-	for character in enemy_characters:
-		if character.current_hp > 0:
-			turn_queue.append(character)
-	
-	# 根据速度属性排序
-	turn_queue.sort_custom(func(a, b): return a.speed > b.speed)
-	
-	_log_battle_info("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
-
-
-## 战斗日志
-func _log_battle_info(text: String) -> void:
-	print_rich(text)
-	battle_info_logged.emit(text)
 
 #region 信号处理
 
@@ -540,7 +578,7 @@ func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_stat
 			if check_battle_end_condition():
 				# 战斗已结束，状态已在check_battle_end_condition中切换
 				return
-			
+			current_turn_character.process_active_statuses(self)
 			# 进入下一个角色的回合
 			state_manager.change_state(BattleStateManager.BattleState.TURN_START)
 			

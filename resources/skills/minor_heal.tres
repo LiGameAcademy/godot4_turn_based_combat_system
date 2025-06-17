@@ -1,13 +1,57 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=2 format=3 uid="uid://ibufrbnn0i41"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://ibufrbnn0i41"]
 
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_6jcy7"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_45vgr"]
+[ext_resource type="Resource" uid="uid://bjxt3tjkqsm12" path="res://resources/skill_status/attack_up.tres" id="2_6jcy7"]
+
+[sub_resource type="Resource" id="Resource_ytemu"]
+script = ExtResource("1_6jcy7")
+effect_type = 1
+visual_effect = ""
+sound_effect = ""
+damage_amount = 10
+damage_power_scale = 1.0
+heal_amount = 10
+heal_power_scale = 0.5
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+dispel_is_all = false
+special_type = "none"
+special_params = {}
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+
+[sub_resource type="Resource" id="Resource_f7p23"]
+script = ExtResource("1_6jcy7")
+effect_type = 2
+visual_effect = ""
+sound_effect = ""
+damage_amount = 10
+damage_power_scale = 1.0
+heal_amount = 10
+heal_power_scale = 0.5
+status_to_apply = ExtResource("2_6jcy7")
+status_application_chance = 1.0
+status_duration_override = 3
+status_stacks_to_apply = 1
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+dispel_is_all = false
+special_type = "none"
+special_params = {}
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
 
 [resource]
 script = ExtResource("1_45vgr")
 skill_id = &"minor_heal"
 skill_name = "初级治疗"
-description = "目标恢复少量生命值"
+description = "恢复目标20点生命值。"
 mp_cost = 5
-effect_type = 0
 target_type = 6
-power = 10
+effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_ytemu"), SubResource("Resource_f7p23")])
+action_categories = Array[String](["any_action"])
+cast_animation = &""

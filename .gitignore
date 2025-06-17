@@ -3,3 +3,4 @@
 /android/
 _tutorials/
 .vscode/
+*.tmp
