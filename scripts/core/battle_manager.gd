@@ -318,6 +318,44 @@ func _get_processor_id_for_effect(effect: SkillEffectData) -> String:
 		_:
 			return "unknown"
 
+# 应用多个效果
+func _apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
+	var all_results = {}
+		if target.current_hp <= 0:
+			continue
+		
+		# 计算基础伤害
+		var base_damage = _calculate_skill_damage(caster, target, skill)
+		
+		# 应用伤害
+		var damage_dealt = target.take_damage(base_damage)
+		
+		# 显示伤害数字
+		spawn_damage_number(target.global_position, damage_dealt, Color.RED)
+
+		print(target.character_name + " 受到 " + str(damage_dealt) + " 点伤害")
+
+# 治疗类技能
+func _execute_heal_skill(caster: Character, targets: Array[Character], skill: SkillData) -> void:
+	# 播放施法者的施法动画（可以与伤害技能不同，更温和）
+	_play_heal_cast_animation(caster)
+
+	# 等待短暂时间
+	await get_tree().create_timer(0.3).timeout
+
+	for target in targets:
+		if !is_instance_valid(target) or target.current_hp <= 0:
+			continue
+		
+		all_results[target] = {}
+		
+		for effect in effects:
+			var result = await _apply_effect(effect, source, target)
+			for key in result:
+				all_results[target][key] = result[key]
+	
+	return all_results
+
 # 在初始化方法中注册新的效果处理器
 func _init_effect_processors():
 	# 注册处理器

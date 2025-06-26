@@ -119,11 +119,14 @@ func remove_modifier(modifier_instance: SkillAttributeModifier) -> void:
 	attr.remove_modifier_internal(modifier_instance)
 
 ## 通过来源ID移除匹配该ID的所有修改器
-func remove_modifiers_by_source_id(source_id: int) -> void:
-	for attr in _initialized_attributes.values():
+func remove_modifiers_by_source_id(source_id: String) -> void:
+	if source_id.is_empty(): return
+
+	for attr : SkillAttribute in _initialized_attributes.values():
 		# 为了安全地在迭代中移除元素，我们从后往前遍历
-		for i in range(attr._active_modifiers.size() - 1, -1, -1):
-			var modifier = attr._active_modifiers[i]
+		var modifiers : Array[SkillAttributeModifier] = attr.get_active_modifiers()
+		for i in range(modifiers.size() - 1, -1, -1):
+			var modifier = modifiers[i]
 			if modifier.source_id == source_id:
 				attr.remove_modifier_internal(modifier)
 
@@ -136,12 +139,12 @@ func _pre_base_value_change(
 		proposed_new_base_value: float, _source: Variant) -> Variant:
 	var final_value = proposed_new_base_value
 	
-	# 通用钳制：例如，确保CurrentHealth不超过MaxHealth的当前值
+	# 通用钳制：例如，确保CurrentHealth不超过MaxHealth
 	if attribute_instance.attribute_name == &"CurrentHealth":
 		var max_health_attr = get_attribute(&"MaxHealth")
 		if max_health_attr:
 			final_value = clampf(final_value, attribute_instance.min_value, max_health_attr.get_current_value())
-	return proposed_new_base_value
+	return final_value
 
 ## 在属性的基础值已经被修改之后调用。
 func _post_base_value_change(
