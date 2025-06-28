@@ -24,8 +24,9 @@ signal battle_info_logged(text)
 #signal skill_executed(caster : Character, targets : Array[Character], skill_data : SkillData, results : Dictionary)
 
 func _ready():
-	state_manager.initialize(BattleStateManager.BattleState.IDLE)
+	SkillSystem.battle_manager = self
 	state_manager.state_changed.connect(_on_state_changed)
+	state_manager.initialize(BattleStateManager.BattleState.IDLE)
 
 ## 开始战斗
 func start_battle() -> void:

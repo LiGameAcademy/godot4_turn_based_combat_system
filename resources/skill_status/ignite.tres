@@ -6,23 +6,9 @@
 
 [sub_resource type="Resource" id="Resource_oujun"]
 script = ExtResource("2_xyykp")
-effect_type = 0
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
-damage_amount = 5
-damage_power_scale = 0.0
-heal_amount = 10
-heal_power_scale = 0.5
-status_application_chance = 1.0
-status_duration_override = -1
-status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-special_type = "none"
-special_params = {}
 metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
 
 [resource]

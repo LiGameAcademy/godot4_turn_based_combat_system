@@ -91,8 +91,8 @@ func _init_components() -> void:
 	combat_component.defending_changed.connect(_on_defending_changed)
 	combat_component.character_defeated.connect(_on_character_defeated)
 
-	skill_component.status_applied.connect(func(character, status_instance): 
-		status_applied_to_character.emit(character, status_instance))
+	skill_component.status_applied.connect(func(status_instance): 
+		status_applied_to_character.emit(self, status_instance))
 		
 	skill_component.status_removed.connect(func(character, status_id, status_instance): 
 		status_removed_from_character.emit(character, status_id, status_instance))
@@ -129,12 +129,12 @@ func set_defending(value: bool) -> void:
 		combat_component.set_defending(value)
 
 ## 伤害处理方法
-func take_damage(base_damage: float, source: Variant = null) -> float:
+func take_damage(base_damage: float, _source: Variant = null) -> float:
 	if combat_component:
 		return combat_component.take_damage(base_damage)
 	return 0.0
 
-func heal(amount: float, source: Variant = null) -> float:
+func heal(amount: float, _source: Variant = null) -> float:
 	if combat_component:
 		return combat_component.heal(amount)
 	return 0.0

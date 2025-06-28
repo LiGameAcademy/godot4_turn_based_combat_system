@@ -57,14 +57,3 @@ func _calculate_healing(caster: Character, _target: Character, effect: SkillEffe
 	
 	# 确保至少治疗1点
 	return max(1, round(final_healing))
-
-## 计算技能治疗量
-func _calculate_skill_healing(caster: Character, _target: Character, skill: SkillData) -> int:
-	# 治疗量通常更依赖施法者的魔法攻击力
-	var base_healing = skill.power + (caster.magic_attack * 1.0)
-	
-	# 随机浮动 (±5%)
-	var random_factor = randf_range(0.95, 1.05)
-	var final_healing = base_healing * random_factor
-	
-	return max(1, round(final_healing))

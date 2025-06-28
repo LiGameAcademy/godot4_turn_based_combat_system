@@ -227,10 +227,9 @@ func _die(death_source: Variant = null):
 #region --- 信号处理 ---
 ## 属性当前值变化的处理
 func _on_attribute_current_value_changed(
-		attribute_instance: SkillAttribute, _old_value: float, 
-		new_value: float, source: Variant
+		attribute_instance: SkillAttribute, _old_value: float, new_value: float
 	) -> void:
 	# 检查是否是生命值变化
 	if attribute_instance.attribute_name == &"CurrentHealth" and new_value <= 0:
-		_die(source)
+		_die()
 #endregion

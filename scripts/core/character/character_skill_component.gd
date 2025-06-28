@@ -92,8 +92,6 @@ func restore_mp(amount: float) -> float:
 
 ## 消耗生命值
 func consume_hp(amount: float) -> bool:
-	if _active_attribute_set.get_current_value(&"CurrentHealth") < amount:
-		return false
 	_active_attribute_set.modify_base_value(&"CurrentHealth", -amount)
 	return true
 
@@ -213,8 +211,7 @@ func remove_status(status_id: StringName, trigger_end_effects: bool = true) -> b
 	
 	# 触发结束效果
 	if trigger_end_effects and not runtime_status_instance.end_effects.is_empty():
-		# TODO: 处理结束效果
-		pass
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_char, get_parent(), SkillSystem.SkillExecutionContext.new())
 	
 	# 发出状态移除信号
 	status_removed.emit(status_id, runtime_status_instance)
@@ -269,7 +266,7 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 		if not _active_statuses.has(status_id): continue
 		var status_instance: SkillStatusData = _active_statuses[status_id]
 		if not status_instance.ongoing_effects.is_empty():
-			var effect_source = status_instance.source_char if is_instance_valid(status_instance.source_char) else get_parent()
+			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
 			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillSystem.SkillExecutionContext.new(battle_manager))
 #endregion
 
@@ -301,18 +298,17 @@ func _apply_attribute_modifiers_for_status(runtime_status_inst: SkillStatusData,
 			_active_attribute_set.remove_modifiers_by_source_id(runtime_status_inst.get_instance_id())
 
 ## 私有方法：检查状态抵抗
-func _check_status_resistance(status_template: SkillStatusData, result_info: Dictionary) -> bool:
+func _check_status_resistance(_status_template: SkillStatusData, _result_info: Dictionary) -> bool:
 	# 遍历所有当前已有的状态，检查是否有状态会抵抗即将应用的状态
-	for status_id in _active_statuses:
-		var active_status = _active_statuses[status_id]
-		if active_status.resists_statuses.has(status_template.status_id):
-			result_info["applied_successfully"] = false
-			result_info["reason"] = "resisted_by_status"
-			result_info["resisted_by"] = active_status.status_id
-			
-			print(owner.character_name + " 的状态 " + active_status.status_name + " 抵抗了 " + status_template.status_name)
-			return true
-	
+	#for status_id in _active_statuses:
+		#var active_status = _active_statuses[status_id]
+		#if active_status.resists_statuses.has(status_template.status_id):
+			#result_info["applied_successfully"] = false
+			#result_info["reason"] = "resisted_by_status"
+			#result_info["resisted_by"] = active_status.status_id
+			#
+			#print(owner.character_name + " 的状态 " + active_status.status_name + " 抵抗了 " + status_template.status_name)
+			#return true
 	return false
 
 ## 私有方法：处理状态覆盖
@@ -392,7 +388,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 	var runtime_status_instance: SkillStatusData = status_template.duplicate(true)
 	
 	# 设置源角色引用
-	#runtime_status_instance.source_character = p_source_char
+	runtime_status_instance.source_character = p_source_char
 	
 	# 设置堆叠层数
 	if runtime_status_instance.max_stacks > 0:
@@ -404,14 +400,18 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 	if duration_override > 0:
 		runtime_status_instance.remaining_duration = duration_override
 	else:
-		runtime_status_instance.remaining_duration = runtime_status_instance.base_duration
+		runtime_status_instance.remaining_duration = runtime_status_instance.duration
 	
 	# 将状态添加到活跃状态字典
 	_active_statuses[runtime_status_instance.status_id] = runtime_status_instance
 	
 	# 应用属性修饰符
 	_apply_attribute_modifiers_for_status(runtime_status_instance, true)
-	
+
+	# 触发初始效果
+	if not runtime_status_instance.initial_effects.is_empty():
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_char, get_parent(), SkillSystem.SkillExecutionContext.new())
+
 	result_info["applied_successfully"] = true
 	result_info["reason"] = "new_status_applied"
 	

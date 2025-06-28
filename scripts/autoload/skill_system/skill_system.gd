@@ -4,38 +4,23 @@ extends Node
 ## 作为自动加载的单例，负责技能执行的核心逻辑
 ## 不直接依赖战斗系统组件，而是通过上下文获取必要的信息
 
-# 效果处理器
-var _effect_processors: Dictionary[StringName, EffectProcessor] = {}
-## 当前选中的技能 (如果需要由 SkillSystem 管理选择状态)
-var current_selected_skill : SkillData = null
+var battle_manager : BattleManager = null
 
 # 信号
 signal skill_execution_started(caster: Character, skill: SkillData, targets: Array[Character])
 signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) # results 可以包含伤害、治疗、状态等信息
 signal skill_failed(caster: Character, skill: SkillData, reason: String) # 例如 MP不足, 目标无效等
-signal effect_applied(effect_type, source, target, result)
+signal effect_applied(effect: SkillEffectData, source: Character, target: Character, result: Dictionary)
 
 ## 技能执行上下文
 class SkillExecutionContext:
 	var battle_manager : BattleManager
 	
-	func _init(local_battle_manager : BattleManager) -> void:
+	func _init(local_battle_manager : BattleManager = null) -> void:
 		battle_manager = local_battle_manager
 
 func _ready() -> void:
-	_init_effect_processors()
 	print("SkillSystem initialized as autoload singleton.")
-
-## 注册效果处理器
-## [param processor] 要注册的效果处理器
-## [return] 是否成功注册
-func register_effect_processor(processor: EffectProcessor) -> void:
-	if processor and processor.has_method("get_processor_id"):
-		var processor_id = processor.get_processor_id()
-		_effect_processors[processor_id] = processor
-		print("SkillSystem: Registered effect processor for type: %s" % processor_id)
-	else:
-		push_error("SkillSystem: Failed to register invalid effect processor.")
 
 ## 尝试执行一个技能
 ## [param caster] 施法者
@@ -75,7 +60,7 @@ func attempt_process_status_effects(effects : Array[SkillEffectData], caster: Ch
 	for effect in effects:
 		if not await _apply_single_effect(caster, target, effect, context):
 			result.success = false
-			result.reason = "Failed to apply effect: %s" % effect.effect_type
+			result.reason = "Failed to apply effect: %s" % effect
 			return result
 	return result
 
@@ -243,7 +228,7 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 ## [param target] 目标角色
 ## [param effect] 效果数据
 ## [return] 效果应用结果
-func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, context : SkillExecutionContext) -> Dictionary:
+func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, _context : SkillExecutionContext) -> Dictionary:
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -253,22 +238,12 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 		push_error("SkillSystem: 无效的效果引用")
 		return {}
 	
-	# 获取对应的处理器
-	var processor : EffectProcessor = _get_effect_processor_for_type(effect)
-	
-	if processor and processor.can_process_effect(effect):
-		# 为处理器设置上下文
-		processor.set_context(context)
+	# 处理效果
+	var result = await effect.process_effect(caster, target)
 		
-		# 使用处理器处理效果
-		var result = await processor.process_effect(effect, caster, target)
-		
-		# 发出信号
-		effect_applied.emit(effect.effect_type, caster, target, result)
-		return result
-	else:
-		push_error("SkillSystem: 无效的效果处理器")
-		return {}
+	# 发出信号
+	effect_applied.emit(effect, caster, target, result)
+	return result
 
 ## 确定实际目标
 ## [param caster] 施法者
@@ -347,27 +322,3 @@ func _determine_targets_for_effect(caster: Character, effect: SkillEffectData, i
 					# 添加相邻目标的逻辑...
 	
 	return effect_targets
-
-# 在初始化方法中注册新的效果处理器
-func _init_effect_processors() -> void:
-	# 注册处理器
-	register_effect_processor(DamageEffectProcessor.new(self))
-	register_effect_processor(HealingEffectProcessor.new(self))
-	register_effect_processor(ApplyStatusProcessor.new(self))
-	register_effect_processor(DispelStatusProcessor.new(self))
-
-## 根据效果类型获取处理器ID
-func _get_effect_processor_for_type(effect: SkillEffectData) -> EffectProcessor:
-	match effect.effect_type:
-		SkillEffectData.EffectType.DAMAGE:
-			return _effect_processors.get("damage")
-		SkillEffectData.EffectType.HEAL:
-			return _effect_processors.get("heal")
-		SkillEffectData.EffectType.STATUS:
-			return _effect_processors.get("status")
-		SkillEffectData.EffectType.DISPEL:
-			return _effect_processors.get("dispel")
-		SkillEffectData.EffectType.SPECIAL:
-			return _effect_processors.get("special")
-		_:
-			return null
