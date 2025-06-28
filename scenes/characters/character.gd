@@ -391,12 +391,13 @@ func _apply_attribute_modifiers_for_status(runtime_status_inst: SkillStatusData,
 	for modifier_template: SkillAttributeModifier in runtime_status_inst.attribute_modifiers:
 		var mod_instance: SkillAttributeModifier = modifier_template.duplicate(true)
 		mod_instance.magnitude *= runtime_status_inst.stacks
+		mod_instance.set_source(runtime_status_inst.get_instance_id())
 		var attr_to_modify: StringName = mod_instance.attribute_id
 		if not active_attribute_set.get_attribute(attr_to_modify): # 确保角色有此属性
 			push_warning("Character '%s' AttributeSet does not have attribute '%s' for modifier from status '%s'." % [character_name, attr_to_modify, runtime_status_inst.status_id])
 			continue
 		if add:
-			active_attribute_set.apply_modifier(mod_instance, runtime_status_inst.get_instance_id())
+			active_attribute_set.apply_modifier(mod_instance)
 		else:
 			# 移除时，需要能够精确移除或按来源ID移除
 			active_attribute_set.remove_modifiers_by_source_id(runtime_status_inst.get_instance_id())

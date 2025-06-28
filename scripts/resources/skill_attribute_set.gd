@@ -98,14 +98,13 @@ func modify_base_value(attribute_name: StringName, modify_value: float, source: 
 	return set_base_value(attribute_name, attr.get_base_value() + modify_value, source)
 
 ## 向指定属性应用一个Modifier
-func apply_modifier(modifier: SkillAttributeModifier, source_id : int) -> void:
+func apply_modifier(modifier: SkillAttributeModifier) -> void:
 	var attr : SkillAttribute = get_attribute(modifier.attribute_id)
 	if not attr or not modifier: return
 	# (可选) 可以在这里添加逻辑，如果Modifier已存在则如何处理 (例如基于source_id刷新或拒绝)
 	if attr.get_active_modifiers().has(modifier):
 		printerr("Modifier %s already exists for attribute %s." % [modifier, modifier.attribute_id])
 		return
-	modifier.source_id = source_id
 	attr.add_modifier_internal(modifier) # 添加到属性实例的列表
 
 ## 从指定属性移除一个Modifier (通过Modifier实例或其source_id)
@@ -119,9 +118,7 @@ func remove_modifier(modifier_instance: SkillAttributeModifier) -> void:
 	attr.remove_modifier_internal(modifier_instance)
 
 ## 通过来源ID移除匹配该ID的所有修改器
-func remove_modifiers_by_source_id(source_id: String) -> void:
-	if source_id.is_empty(): return
-
+func remove_modifiers_by_source_id(source_id: int) -> void:
 	for attr : SkillAttribute in _initialized_attributes.values():
 		# 为了安全地在迭代中移除元素，我们从后往前遍历
 		var modifiers : Array[SkillAttributeModifier] = attr.get_active_modifiers()

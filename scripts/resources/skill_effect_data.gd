@@ -25,7 +25,7 @@ enum EffectType {
 @export var heal_amount: int = 10       		## 基础治疗值
 @export var heal_power_scale: float = 0.5  		## 魔法攻击力加成系数
 
-## 应用效果参数
+## 应用状态效果参数
 @export_group("应用效果参数", "status_")
 @export var status_to_apply: SkillStatusData = null	  							## 状态模版
 @export var status_application_chance: float = 1.0  							## 触发几率 (0.0-1.0)
