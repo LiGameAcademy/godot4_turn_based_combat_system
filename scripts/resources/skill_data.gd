@@ -32,6 +32,9 @@ var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
 @export var cast_animation: StringName = "" # 施法动画名 (如果角色动画器中有)
+
+@export var can_target_dead : bool = false # 是否可以对死亡目标施放
+
 # 未来可扩展其他视觉和音效选项
 # @export var vfx_scene: PackedScene # 技能特效场景
 # @export var sfx: AudioStream # 技能音效

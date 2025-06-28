@@ -60,14 +60,17 @@ enum StatusType {
 # --- 运行时变量 (在 duplicate(true) 后由 character.gd 设置和管理) ---
 var source_char: Character   													## 施加此状态的角色
 var target_char: Character   													## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
-var left_duration: int       													## 剩余持续时间
+var remaining_duration: int       												## 剩余持续时间
 var stacks: int = 1          													## 当前叠加层数
+var is_permanent: bool :
+	get :
+		return duration_type == DurationType.INFINITE or duration_type == DurationType.COMBAT_LONG
 
 #region --- 方法 ---
 func _init(): 
 	source_char = null
 	target_char = null
-	left_duration = duration 
+	remaining_duration = duration 
 	stacks = 1
 
 func get_full_description() -> String:

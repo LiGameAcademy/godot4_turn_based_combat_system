@@ -5,15 +5,21 @@ class_name EffectProcessor
 ## 所有具体效果处理器都应继承此类，并实现相应的方法
 
 # 系统引用
-var _battle_manager : BattleManager = null
+var _skill_system : SkillSystem = null
+var _context : SkillSystem.SkillExecutionContext = null
 
 ## 构造函数
-func _init(p_battle_manager = null) -> void:
-	_battle_manager = p_battle_manager
+func _init(p_skill_system = null):
+	_skill_system = p_skill_system
+
+## 设置上下文
+func set_context(context : SkillSystem.SkillExecutionContext) -> void:
+	_context = context
 
 ## 处理效果 - 主要接口方法
 ## [return] 处理结果的字典
-func process_effect(_effect: SkillEffectData, _source: Character, _target: Character) -> Dictionary:
+func process_effect(_effect: SkillEffectData, source: Character, _target: Character) -> Dictionary:
+	await source.get_tree().create_timer(0.1).timeout
 	push_error("EffectProcessor.process_effect() 必须被子类重写")
 	return {}
 
@@ -36,12 +42,12 @@ func can_process_effect(_effect: SkillEffectData) -> bool:
 ## [param params] 视觉效果参数
 ## 发送视觉效果请求
 func _request_visual_effect(effect_type: StringName, target, params: Dictionary = {}) -> void:
-	if not _battle_manager or not is_instance_valid(target):
+	if not _skill_system or not is_instance_valid(target):
 		return
 		
 	# 分发到适当的视觉效果方法
 	var method_name : String = "_play_" + effect_type + "_effect"
-	if _battle_manager.has_method(method_name):
-		_battle_manager.call(method_name, target, params)
+	if _context.battle_manager.has_method(method_name):
+		_context.battle_manager.call(method_name, target, params)
 	else:
 		push_warning("未找到视觉效果方法 " + method_name)

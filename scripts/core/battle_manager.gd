@@ -21,11 +21,9 @@ var effect_processors = {}		## 效果处理器
 signal turn_changed(character)
 signal battle_ended(is_victory)
 signal battle_info_logged(text)
-signal skill_executed(caster : Character, targets : Array[Character], skill_data : SkillData, results : Dictionary)
-signal effect_applied(effect_type : String, source : Character, target : Character, result : Dictionary)
+#signal skill_executed(caster : Character, targets : Array[Character], skill_data : SkillData, results : Dictionary)
 
 func _ready():
-	_init_effect_processors()
 	state_manager.initialize(BattleStateManager.BattleState.IDLE)
 	state_manager.state_changed.connect(_on_state_changed)
 
@@ -147,7 +145,7 @@ func remove_character(character: Character) -> void:
 
 ## 生成伤害数字
 func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
-	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
+	var damage_number : DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(damage_number)
 	damage_number.global_position = position + Vector2(0, -50)
 	damage_number.show_number(str(amount), color)
@@ -162,49 +160,31 @@ func check_and_consume_mp(caster: Character, skill: SkillData) -> bool:
 	return true
 
 # 获取有效的敌方目标列表（过滤掉已倒下的角色）
-func get_valid_enemy_targets() -> Array[Character]:
+func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
+	if caster == null:
+		caster = current_turn_character
 	var valid_targets: Array[Character] = []
 	
-	for enemy in enemy_characters:
-		if enemy.is_alive:
+	var enemies = enemy_characters if caster not in enemy_characters else player_characters
+	for enemy in enemies:
+		if enemy.is_alive and enemy != caster:
 			valid_targets.append(enemy)
 	
 	return valid_targets
 
 # 获取有效的友方目标列表
 # include_self: 是否包括施法者自己
-func get_valid_ally_targets(include_self: bool = false) -> Array[Character]:
+func get_valid_ally_targets(include_self: bool = false, caster : Character = null) -> Array[Character]:
+	if caster == null:
+		caster = current_turn_character
 	var valid_targets: Array[Character] = []
 	
-	for ally in player_characters:
-		if ally.is_alive && (include_self || ally != current_turn_character):
+	var allies = player_characters if caster in player_characters else enemy_characters
+	for ally in allies:
+		if ally.is_alive && (include_self || ally != caster):
 			valid_targets.append(ally)
 	
 	return valid_targets
-
-## 注册效果处理器
-func register_effect_processor(processor: EffectProcessor):
-	var processor_id = processor.get_processor_id()
-	effect_processors[processor_id] = processor
-	print("注册效果处理器: %s" % processor_id)
-
-# 应用多个效果
-func apply_effects(effects: Array, source: Character, targets: Array) -> Dictionary:
-	var all_results = {}
-
-	for target in targets:
-		if !is_instance_valid(target) or target.current_hp <= 0:
-			continue
-		
-		all_results[target] = {}
-		
-		for effect in effects:
-			var result = await _apply_effect(effect, source, target)
-			for key in result:
-				all_results[target][key] = result[key]
-	
-	return all_results
-
 #region 执行动作
 # 执行攻击
 func _execute_attack(attacker: Character, target: Character) -> void:
@@ -231,169 +211,7 @@ func _execute_defend(character: Character) -> void:
 
 ## 执行技能 - 由BattleScene调用
 func _execute_skill(caster: Character, custom_targets: Array[Character], skill_data: SkillData) -> Dictionary:
-	if not is_instance_valid(caster) or not skill_data:
-		push_error("SkillSystem: 无效的施法者或技能")
-		return {}
-	
-	# 检查MP消耗
-	if not skill_data.can_cast(caster.current_mp):
-		push_error("SkillSystem: MP不足，无法施放技能")
-		return {"error": "mp_not_enough"}
-	
-	# 扣除MP
-	if skill_data.mp_cost > 0:
-		caster.use_mp(skill_data.mp_cost)
-	
-	# 获取目标
-	var targets = custom_targets if !custom_targets.is_empty() else _get_targets_for_skill(skill_data)
-	
-	if targets.is_empty():
-		push_warning("SkillSystem: 没有有效目标")
-		return {"error": "no_valid_targets"}
-	
-	# 播放施法动画
-	if skill_data.cast_animation != "":
-		_play_cast_animation(caster)
-	
-	# 等待短暂时间（供动画播放）
-	if Engine.get_main_loop():
-		await Engine.get_main_loop().process_frame
-
-	# 处理直接效果
-	var effect_results = {}
-	if not skill_data.effects.is_empty():
-		effect_results = await apply_effects(skill_data.effects, caster, targets)
-
-	# 合并结果
-	var final_results = {}
-	for target in targets:
-		final_results[target] = {}
-		
-		if effect_results.has(target):
-			for key in effect_results[target]:
-				final_results[target][key] = effect_results[target][key]
-	
-	# 发送技能执行信号
-	skill_executed.emit(caster, targets, skill_data, final_results)
-	return final_results
-
-# 应用单个效果
-func _apply_effect(effect: SkillEffectData, source: Character, target: Character) -> Dictionary:
-	# 检查参数有效性
-	if !is_instance_valid(source) or !is_instance_valid(target):
-		push_error("SkillSystem: 无效的角色引用")
-		return {}
-	
-	if not effect:
-		push_error("SkillSystem: 无效的效果引用")
-		return {}
-	
-	# 获取对应的处理器
-	var processor_id = _get_processor_id_for_effect(effect)
-	var processor = effect_processors.get(processor_id)
-	
-	if processor and processor.can_process_effect(effect):
-		# 使用处理器处理效果
-		var result = await processor.process_effect(effect, source, target)
-		
-		# 发出信号
-		effect_applied.emit(effect.effect_type, source, target, result)
-		return result
-	else:
-		push_error("无效的效果处理器: ", processor_id)
-		return {}
-
-## 根据效果类型获取处理器ID
-func _get_processor_id_for_effect(effect: SkillEffectData) -> String:
-	match effect.effect_type:
-		SkillEffectData.EffectType.DAMAGE:
-			return "damage"
-		SkillEffectData.EffectType.HEAL:
-			return "heal"
-		SkillEffectData.EffectType.STATUS:
-			return "status"
-		SkillEffectData.EffectType.DISPEL:
-			return "dispel"
-		SkillEffectData.EffectType.SPECIAL:
-			return "special"
-		_:
-			return "unknown"
-
-# 在初始化方法中注册新的效果处理器
-func _init_effect_processors():
-	# 注册处理器
-	register_effect_processor(DamageEffectProcessor.new(self))
-	register_effect_processor(HealingEffectProcessor.new(self))
-	register_effect_processor(ApplyStatusProcessor.new(self))
-
-func _get_targets_for_skill(skill: SkillData) -> Array[Character]:
-	var targets: Array[Character] = []
-	
-	match skill.target_type:
-		SkillData.TargetType.NONE:
-			# 无目标技能
-			pass
-			
-		SkillData.TargetType.SELF:
-			# 自身为目标
-			targets = [current_turn_character]
-			
-		SkillData.TargetType.ENEMY_SINGLE:
-			# 选择单个敌人（在实际游戏中应由玩家交互选择）
-			# 此处简化为自动选择第一个活着的敌人
-			var valid_targets = get_valid_enemy_targets()
-			if !valid_targets.is_empty():
-				targets = [valid_targets[0]]
-				
-		SkillData.TargetType.ENEMY_ALL:
-			# 所有活着的敌人
-			targets = get_valid_enemy_targets()
-			
-		SkillData.TargetType.ALLY_SINGLE:
-			# 选择单个友方（不包括自己）
-			# 简化为自动选择第一个活着的友方
-			var valid_targets = get_valid_ally_targets(false)
-			if !valid_targets.is_empty():
-				targets = [valid_targets[0]]
-				
-		SkillData.TargetType.ALLY_ALL:
-			# 所有活着的友方（不包括自己）
-			targets = get_valid_ally_targets(false)
-			
-		SkillData.TargetType.ALLY_SINGLE_INC_SELF:
-			# 选择单个友方（包括自己）
-			# 简化为选择自己
-			targets = [current_turn_character]
-			
-		SkillData.TargetType.ALLY_ALL_INC_SELF:
-			# 所有活着的友方（包括自己）
-			targets = get_valid_ally_targets(true)
-	
-	return targets
-
-func _calculate_skill_damage(caster: Character, target: Character, skill: SkillData) -> int:
-	# 基础伤害计算
-	var base_damage = skill.power + (caster.magic_attack * 0.8)
-	
-	# 考虑目标防御
-	var damage_after_defense = base_damage - (target.magic_defense * 0.5)
-	
-	# 加入随机浮动因素 (±10%)
-	var random_factor = randf_range(0.9, 1.1)
-	var final_damage = damage_after_defense * random_factor
-	
-	# 确保伤害至少为1
-	return max(1, round(final_damage))
-
-func _calculate_skill_healing(caster: Character, _target: Character, skill: SkillData) -> int:
-	# 治疗量通常更依赖施法者的魔法攻击力
-	var base_healing = skill.power + (caster.magic_attack * 1.0)
-	
-	# 随机浮动 (±5%)
-	var random_factor = randf_range(0.95, 1.05)
-	var final_healing = base_healing * random_factor
-	
-	return max(1, round(final_healing))
+	return await SkillSystem.attempt_execute_skill(skill_data, caster, custom_targets, SkillSystem.SkillExecutionContext.new(self))
 
 #endregion
 

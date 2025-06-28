@@ -9,6 +9,7 @@ script = ExtResource("1_ungfc")
 attribute_id = &"AttackPower"
 magnitude = 5.0
 operation = 0
+priority = 50
 metadata/_custom_type_script = "uid://dgwfcaub0ivab"
 
 [resource]

@@ -77,3 +77,27 @@ func _calculate_damage(caster: Character, target: Character, effect: SkillEffect
 		"damage": int(final_damage),
 		"base_damage": damage_after_defense,
 	}
+
+## 计算技能伤害
+#func _calculate_skill_damage(caster: Character, target: Character, skill: SkillData) -> int:
+	## 基础伤害计算
+	#var base_damage = skill.power
+	#
+	## 根据技能类型添加不同的属性加成
+	#if skill.damage_type == "physical":
+		#base_damage += caster.physical_attack * 1.5
+	#else: # 魔法伤害
+		#base_damage += caster.magic_attack * 1.5
+	#
+	## 考虑目标防御
+	#var defense = skill.damage_type == "physical" ? target.physical_defense : target.magic_defense
+	#var damage_reduction = defense / (defense + 100.0)
+	#
+	## 应用伤害减免
+	#var reduced_damage = base_damage * (1.0 - damage_reduction)
+	#
+	## 随机浮动 (±10%)
+	#var random_factor = randf_range(0.9, 1.1)
+	#var final_damage = reduced_damage * random_factor
+	#
+	#return max(1, round(final_damage))
