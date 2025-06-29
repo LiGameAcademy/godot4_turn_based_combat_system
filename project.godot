@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SkillSystem="*res://scripts/autoload/skill_system/skill_system.gd"
+SkillSystem="*res://scripts/autoload/skill_system.gd"
 
 [display]
 

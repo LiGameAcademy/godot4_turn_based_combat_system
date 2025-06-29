@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bjxt3tjkqsm12" path="res://resources/skill_status/attack_up.tres" id="2_6jcy7"]
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_8ky21"]
 
-[sub_resource type="Resource" id="Resource_v2s03"]
+[sub_resource type="Resource" id="Resource_2q0u5"]
 script = ExtResource("2_2q0u5")
 heal_amount = 10
 heal_power_scale = 0.5
@@ -15,7 +15,7 @@ sound_effect = ""
 target_override = "none"
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
-[sub_resource type="Resource" id="Resource_rigxk"]
+[sub_resource type="Resource" id="Resource_f7p23"]
 script = ExtResource("3_8ky21")
 status_to_apply = ExtResource("2_6jcy7")
 status_application_chance = 1.0
@@ -33,7 +33,7 @@ skill_name = "初级治疗"
 description = "恢复目标20点生命值。"
 mp_cost = 5
 target_type = 6
-effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_v2s03"), SubResource("Resource_rigxk")])
+effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_2q0u5"), SubResource("Resource_f7p23")])
 action_categories = Array[String](["any_action"])
 cast_animation = &""
 can_target_dead = false
