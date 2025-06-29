@@ -60,10 +60,10 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 	var power = damage_amount
 	
 	# 基础伤害计算
-	var base_damage = power + (caster.magic_attack * 0.8)
+	var base_damage = power + (caster.attack_power * damage_power_scale)
 	
 	# 考虑目标防御
-	var damage_after_defense = base_damage - (target.magic_defense * 0.5)
+	var damage_after_defense = base_damage - (target.defense_power * 0.5)
 	
 	# 加入随机浮动因素 (±10%)
 	var random_factor = randf_range(0.9, 1.1)

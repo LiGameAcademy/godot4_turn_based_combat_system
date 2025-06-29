@@ -38,8 +38,8 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	if not validation_result.is_usable:
 		print_rich("[color=orange]Skill '%s' failed validation: %s[/color]" % [skill_data.skill_name, validation_result.reason])
 		skill_failed.emit(caster, skill_data, validation_result.reason)
-		if context.visual_effects_handler and context.visual_effects_handler.has_method("show_status_text"):
-			context.visual_effects_handler.show_status_text(caster, validation_result.reason, true)
+		if context.battle_manager and context.battle_manager.has_method("show_status_text"):
+			context.battle_manager.show_status_text(caster, validation_result.reason, true)
 		return {"error": validation_result.reason}
 
 	print_rich("[color=lightblue]%s attempts to use skill: %s on %s[/color]" % [caster.character_name, skill_data.skill_name, selected_targets])
@@ -252,33 +252,19 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 ## [return] 实际目标数组
 func _determine_execution_targets(caster: Character, skill: SkillData, selected_targets: Array[Character], context : SkillExecutionContext) -> Array[Character]:
 	var final_targets: Array[Character] = []
+	if skill.needs_target():
+		final_targets = selected_targets
+
 	match skill.target_type:
-		SkillData.TargetType.NONE:
-			pass # No targets
 		SkillData.TargetType.SELF:
 			if is_instance_valid(caster) and (caster.is_alive or skill.can_target_dead):
 				final_targets.append(caster)
-		SkillData.TargetType.ALLY_SINGLE: # Renamed from SINGLE_ALLY, assumes excludes self
-			if not selected_targets.is_empty() and is_instance_valid(selected_targets[0]) and \
-			   context.battle_manager.get_valid_ally_targets(false, caster).has(selected_targets[0]) and \
-			   (selected_targets[0].is_alive or skill.can_target_dead):
-				final_targets.append(selected_targets[0])
-		SkillData.TargetType.ALLY_SINGLE_INC_SELF: # New case for ally including self
-			if not selected_targets.is_empty() and is_instance_valid(selected_targets[0]) and \
-			   context.battle_manager.get_valid_ally_targets(true, caster).has(selected_targets[0]) and \
-			   (selected_targets[0].is_alive or skill.can_target_dead):
-				final_targets.append(selected_targets[0])
-		SkillData.TargetType.ENEMY_SINGLE: # Renamed from SINGLE_ENEMY
-			if not selected_targets.is_empty() and is_instance_valid(selected_targets[0]) and (selected_targets[0].is_alive or skill.can_target_dead):
-				final_targets.append(selected_targets[0])
-		SkillData.TargetType.ALLY_ALL: # Renamed from ALL_ALLIES, assumes excludes self
-			final_targets = context.battle_manager.get_valid_ally_targets(false, caster) # false for exclude self
-		SkillData.TargetType.ALLY_ALL_INC_SELF: # New case for all allies including self
-			final_targets = context.battle_manager.get_valid_ally_targets(true, caster) # true for include self
-		SkillData.TargetType.ENEMY_ALL: # Renamed from ALL_ENEMIES
+		SkillData.TargetType.ALLY_ALL:
+			final_targets = context.battle_manager.get_valid_ally_targets(false, caster)
+		SkillData.TargetType.ALLY_ALL_INC_SELF:
+			final_targets = context.battle_manager.get_valid_ally_targets(true, caster)
+		SkillData.TargetType.ENEMY_ALL:
 			final_targets = context.battle_manager.get_valid_enemy_targets(caster)
-		# Cases for EVERYONE, RANDOM_ENEMY, RANDOM_ALLY removed as they are not in SkillData.TargetType enum
-		# Their logic needs to be handled elsewhere if still required.
 		_:
 			push_warning("SkillSystem: Unhandled skill.target_type in _determine_execution_targets: %s" % skill.target_type)
 			# Could implement a fallback here

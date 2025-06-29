@@ -60,8 +60,11 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 		ActionType.DEFEND:
 			result = await _execute_defend()
 		ActionType.SKILL:
+			var skill : SkillData = params.get("skill", null)
+			var targets : Array[Character] = params.get("targets", [] as Array[Character])
+			targets.append(target)
 			var skill_context : SkillSystem.SkillExecutionContext = params.get("skill_context", null)
-			result = await _execute_skill(params.skill, params.targets, skill_context)
+			result = await _execute_skill(skill, targets, skill_context)
 		ActionType.ITEM:
 			result = await _execute_item(params.item, params.targets)
 		_:
@@ -106,27 +109,25 @@ func heal(amount: float) -> float:
 	_skill_component.restore_hp(amount)
 	return amount
 
-## 回合开始时重置标记
-func reset_turn_flags() -> void:
-	_set_defending(false)
-
 ## 在回合开始时调用
-func on_turn_start() -> void:
+func on_turn_start(_battle_manager : BattleManager) -> void:
 	# 可以在这里添加回合开始时的逻辑
-	pass
+	_reset_turn_flags()
 
 ## 在回合结束时调用
-func on_turn_end() -> void:
-	# 处理状态效果并更新持续时间
-	if _skill_component:
-		await _skill_component.process_status_effects()
-	
-	# 可以在这里添加其他回合结束时的逻辑
+func on_turn_end(battle_manager : BattleManager) -> void:
+	_skill_component.process_active_statuses(battle_manager)
+	_skill_component.update_status_durations()
 
+#region --- 私有方法 ---
 ## 死亡处理方法
 func _die(death_source: Variant = null):
 	print_rich("[color=red][b]%s[/b] has been defeated by %s![/color]" % [owner.character_name, death_source])
 	character_defeated.emit()
+
+## 回合开始时重置标记
+func _reset_turn_flags() -> void:
+	_set_defending(false)
 
 ## 执行攻击
 ## [param target] 目标
@@ -238,20 +239,7 @@ func _execute_item(item, targets: Array) -> Dictionary:
 ## 设置防御状态
 func _set_defending(value: bool) -> void:
 	is_defending = value
-
-## 计算伤害
-## [param attacker] 攻击者
-## [param target] 目标
-## [return] 计算后的伤害值
-func _calculate_damage(attacker: Character, target: Character) -> float:
-	# 基础伤害计算
-	var base_damage := attacker.attack_power
-	var final_damage = round(base_damage - target.defense_power)
-	
-	# 确保伤害至少为1
-	final_damage = max(1, final_damage)
-	
-	return final_damage
+#endregion
 
 #region --- 信号处理 ---
 ## 属性当前值变化的处理

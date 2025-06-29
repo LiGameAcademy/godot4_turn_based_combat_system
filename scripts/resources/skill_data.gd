@@ -61,6 +61,18 @@ func get_full_description() -> String:
 	desc += "[color=gray]" + description + "[/color]\n\n"
 	return desc.strip_edges()
 
+## 是否需要选择目标
+func needs_target() -> bool:
+	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ALLY_SINGLE, TargetType.ALLY_SINGLE_INC_SELF]
+
+## 敌人目标
+func is_enemy_target() -> bool:
+	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ENEMY_ALL]
+
+## 包含自身
+func is_including_self() -> bool:
+	return target_type in [TargetType.ALLY_SINGLE_INC_SELF, TargetType.ALLY_ALL_INC_SELF]
+
 ## 获取目标类型名称
 func _get_target_type_name() -> String:
 	match target_type:

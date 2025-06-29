@@ -316,7 +316,7 @@ func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_stat
 				
 			current_turn_character = turn_queue.pop_front()
 			_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([current_turn_character.character_name]))
-			current_turn_character.reset_turn_flags()
+			current_turn_character.on_turn_start(self)
 			# 根据角色类型决定下一个状态
 			var next_state = BattleStateManager.BattleState.PLAYER_TURN if player_characters.has(current_turn_character) else BattleStateManager.BattleState.ENEMY_TURN
 			state_manager.change_state(next_state)
@@ -334,7 +334,7 @@ func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_stat
 			if check_battle_end_condition():
 				# 战斗已结束，状态已在check_battle_end_condition中切换
 				return
-			current_turn_character.process_active_statuses(self)
+			current_turn_character.on_turn_end(self)
 			# 进入下一个角色的回合
 			state_manager.change_state(BattleStateManager.BattleState.TURN_START)
 			
