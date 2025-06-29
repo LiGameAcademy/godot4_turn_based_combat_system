@@ -22,6 +22,7 @@ var is_defending: bool = false:
 	set(value):
 		is_defending = value
 		defending_changed.emit(value)
+var attack_skill : SkillData
 
 ## 死亡时发出信号
 signal character_defeated()
@@ -38,7 +39,7 @@ signal skill_executed(caster, skill, targets, results)
 signal item_used(user, item, targets, results)
 
 ## 初始化组件
-func initialize(p_element : int = 0) -> void:
+func initialize(p_element : int = 0, p_attack_skill : SkillData = null) -> void:
 	# 这里可以进行任何战斗组件特定的初始化
 	if not _skill_component:
 		_skill_component = get_parent().skill_component
@@ -48,6 +49,10 @@ func initialize(p_element : int = 0) -> void:
 	
 	_skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
 	element = p_element
+
+	attack_skill = p_attack_skill
+	if p_attack_skill:
+		_skill_component.add_skill(p_attack_skill)
 
 ## 执行动作
 ## [param action_type] 动作类型
@@ -59,7 +64,7 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 	
 	match action_type:
 		ActionType.ATTACK:
-			result = await _execute_attack(target)
+			result = await _execute_attack(target, params)
 		ActionType.DEFEND:
 			result = await _execute_defend()
 		ActionType.SKILL:
@@ -135,34 +140,18 @@ func _reset_turn_flags() -> void:
 ## 执行攻击
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(target: Character) -> Dictionary:
-	var attacker : Character = get_parent()
+func _execute_attack(target: Character, params : Dictionary) -> Dictionary:
+	var attacker = get_parent()
 	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
 	
-	await get_tree().create_timer(0.5).timeout
 	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name])
 	
-	# 计算伤害
-	var base_damage = attacker.attack_power
-	var damage_reduction = target.defense_power / (target.defense_power + 100.0)
-	var final_damage = round(base_damage * (1.0 - damage_reduction))
-	
-	# 确保伤害至少为1
-	final_damage = max(1, final_damage)
-	
-	# 应用伤害
-	var actual_damage = target.take_damage(final_damage)
-	
-	# 构建结果
-	var result = {
-		"success": true,
-		"damage": actual_damage,
-		"critical": false  # 可以在这里添加暴击判定
-	}
+	var targets : Array[Character] = [target]
+	var result : Dictionary = await _execute_skill(attack_skill, targets, params.skill_context)
 	
 	# 发出攻击执行信号
-	attack_executed.emit(attacker, target, actual_damage)
+	attack_executed.emit(target, result)
 	
 	return result
 

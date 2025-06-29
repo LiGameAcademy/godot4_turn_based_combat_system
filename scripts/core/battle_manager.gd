@@ -60,7 +60,9 @@ func execute_enemy_ai() -> void:
 			break
 	if target:
 		_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
-		current_turn_character.execute_action(CharacterCombatComponent.ActionType.ATTACK, target)
+		current_turn_character.execute_action(CharacterCombatComponent.ActionType.ATTACK, target, {
+			"skill_context": SkillSystem.SkillExecutionContext.new(self)
+		})
 	else:
 		_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
 		
