@@ -5,10 +5,10 @@ class_name CharacterCombatComponent
 
 ## 动作类型枚举
 enum ActionType {
-	ATTACK,    # 普通攻击
-	DEFEND,    # 防御
-	SKILL,     # 使用技能
-	ITEM       # 使用道具
+	ATTACK,    ## 普通攻击
+	DEFEND,    ## 防御
+	SKILL,     ## 使用技能
+	ITEM       ## 使用道具
 }
 
 ## 依赖skill_component组件
@@ -25,7 +25,7 @@ var is_defending: bool = false:
 signal character_defeated()
 signal defending_changed(value: bool)
 ## 动作执行信号
-signal action_executed(action_type, source, target, result)
+signal action_executed(action_type, target, result)
 ## 攻击执行信号
 signal attack_executed(attacker, target, damage)
 ## 防御执行信号
@@ -48,38 +48,33 @@ func initialize() -> void:
 
 ## 执行动作
 ## [param action_type] 动作类型
-## [param source] 动作执行者
 ## [param target] 动作目标
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
-func execute_action(action_type: ActionType, source: Character, target = null, params = null) -> Dictionary:
+func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
 	var result = {}
 	
 	match action_type:
 		ActionType.ATTACK:
-			result = await _execute_attack(source, target)
+			result = await _execute_attack(target)
 		ActionType.DEFEND:
-			result = await _execute_defend(source)
+			result = await _execute_defend()
 		ActionType.SKILL:
-			result = await _execute_skill(source, params.skill, params.targets, params.skill_context)
+			var skill_context : SkillSystem.SkillExecutionContext = params.get("skill_context", null)
+			result = await _execute_skill(params.skill, params.targets, skill_context)
 		ActionType.ITEM:
-			result = await _execute_item(source, params.item, params.targets)
+			result = await _execute_item(params.item, params.targets)
 		_:
 			push_error("未知的动作类型：" + str(action_type))
 			result = {"success": false, "error": "未知的动作类型"}
 	
 	# 发出动作执行信号
-	action_executed.emit(action_type, source, target, result)
+	action_executed.emit(action_type, target, result)
 	
 	return result
 
-## 设置防御状态
-func set_defending(value: bool) -> void:
-	is_defending = value
-
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
-## [param source] 伤害来源角色
 ## [return] 实际造成的伤害值
 func take_damage(base_damage: float) -> float:
 	var final_damage: float = base_damage
@@ -88,18 +83,21 @@ func take_damage(base_damage: float) -> float:
 	if is_defending:
 		final_damage = round(final_damage * defense_damage_reduction)
 		print(owner.to_string() + " 正在防御，伤害减半！")
-		set_defending(false)  # 防御效果通常在受到一次攻击后解除
+		_set_defending(false)  # 防御效果通常在受到一次攻击后解除
 
 	if final_damage <= 0:
 		return 0
-	# 消耗生命值	
+	
+	# 播放受击动画
+	owner.play_animation("hit") # 不等待动画完成，允许并行处理
+	
+	# 消耗生命值
 	_skill_component.consume_hp(final_damage)
 
 	return final_damage
 
 ## 治疗处理方法
 ## [param amount] 治疗量
-## [param source] 治疗来源角色
 ## [return] 实际恢复的治疗量
 func heal(amount: float) -> float:
 	if amount <= 0:
@@ -110,29 +108,47 @@ func heal(amount: float) -> float:
 
 ## 回合开始时重置标记
 func reset_turn_flags() -> void:
-	set_defending(false)
+	_set_defending(false)
+
+## 在回合开始时调用
+func on_turn_start() -> void:
+	# 可以在这里添加回合开始时的逻辑
+	pass
+
+## 在回合结束时调用
+func on_turn_end() -> void:
+	# 处理状态效果并更新持续时间
+	if _skill_component:
+		await _skill_component.process_status_effects()
+	
+	# 可以在这里添加其他回合结束时的逻辑
+
+## 死亡处理方法
+func _die(death_source: Variant = null):
+	print_rich("[color=red][b]%s[/b] has been defeated by %s![/color]" % [owner.character_name, death_source])
+	character_defeated.emit()
 
 ## 执行攻击
-## [param attacker] 攻击者
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(attacker: Character, target: Character) -> Dictionary:
-	if not is_instance_valid(attacker) or not is_instance_valid(target):
+func _execute_attack(target: Character) -> Dictionary:
+	var attacker : Character = get_parent()
+	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
 	
 	await get_tree().create_timer(0.5).timeout
 	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name])
 	
 	# 计算伤害
-	var base_damage = attacker.physical_attack
-	var damage_reduction = target.physical_defense / (target.physical_defense + 100.0)
+	var base_damage = attacker.attack_power
+	var damage_reduction = target.defense_power / (target.defense_power + 100.0)
 	var final_damage = round(base_damage * (1.0 - damage_reduction))
 	
 	# 确保伤害至少为1
 	final_damage = max(1, final_damage)
 	
 	# 应用伤害
-	var actual_damage = target.combat_component.take_damage(final_damage)
+	var actual_damage = target.take_damage(final_damage)
 	
 	# 构建结果
 	var result = {
@@ -147,9 +163,9 @@ func _execute_attack(attacker: Character, target: Character) -> Dictionary:
 	return result
 
 ## 执行防御
-## [param character] 防御的角色
 ## [return] 防御结果
-func _execute_defend(character: Character) -> Dictionary:
+func _execute_defend() -> Dictionary:
+	var character = get_parent()
 	if not is_instance_valid(character):
 		return {"success": false, "error": "无效的角色引用"}
 	
@@ -157,7 +173,7 @@ func _execute_defend(character: Character) -> Dictionary:
 	print_rich("[color=cyan]%s 选择防御[/color]" % [character.character_name])
 	
 	# 设置防御状态
-	set_defending(true)
+	_set_defending(true)
 	
 	# 构建结果
 	var result = {
@@ -171,12 +187,12 @@ func _execute_defend(character: Character) -> Dictionary:
 	return result
 
 ## 执行技能
-## [param caster] 施法者
 ## [param skill] 技能数据
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
-func _execute_skill(caster: Character, skill: SkillData, targets: Array, skill_context = null) -> Dictionary:
+func _execute_skill(skill: SkillData, targets: Array[Character], skill_context : SkillSystem.SkillExecutionContext = null) -> Dictionary:
+	var caster = get_parent()
 	if not is_instance_valid(caster) or not skill:
 		return {"success": false, "error": "无效的施法者或技能"}
 	
@@ -195,11 +211,11 @@ func _execute_skill(caster: Character, skill: SkillData, targets: Array, skill_c
 	return result
 
 ## 执行使用道具
-## [param user] 使用者
 ## [param item] 道具数据
 ## [param targets] 目标列表
 ## [return] 道具使用结果
-func _execute_item(user: Character, item, targets: Array) -> Dictionary:
+func _execute_item(item, targets: Array) -> Dictionary:
+	var user = get_parent()
 	if not is_instance_valid(user) or not item:
 		return {"success": false, "error": "无效的使用者或道具"}
 	
@@ -219,10 +235,23 @@ func _execute_item(user: Character, item, targets: Array) -> Dictionary:
 	
 	return result
 
-## 死亡处理方法
-func _die(death_source: Variant = null):
-	print_rich("[color=red][b]%s[/b] has been defeated by %s![/color]" % [owner.character_name, death_source])
-	character_defeated.emit()
+## 设置防御状态
+func _set_defending(value: bool) -> void:
+	is_defending = value
+
+## 计算伤害
+## [param attacker] 攻击者
+## [param target] 目标
+## [return] 计算后的伤害值
+func _calculate_damage(attacker: Character, target: Character) -> float:
+	# 基础伤害计算
+	var base_damage := attacker.attack_power
+	var final_damage = round(base_damage - target.defense_power)
+	
+	# 确保伤害至少为1
+	final_damage = max(1, final_damage)
+	
+	return final_damage
 
 #region --- 信号处理 ---
 ## 属性当前值变化的处理

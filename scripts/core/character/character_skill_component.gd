@@ -211,7 +211,7 @@ func remove_status(status_id: StringName, trigger_end_effects: bool = true) -> b
 	
 	# 触发结束效果
 	if trigger_end_effects and not runtime_status_instance.end_effects.is_empty():
-		SkillSystem.attempt_process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_char, get_parent(), SkillSystem.SkillExecutionContext.new())
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, get_parent(), SkillSystem.SkillExecutionContext.new())
 	
 	# 发出状态移除信号
 	status_removed.emit(status_id, runtime_status_instance)
@@ -341,30 +341,30 @@ func _update_existing_status(
 	var status_id: StringName = status_template.status_id
 	var runtime_status_instance: SkillStatusData = _active_statuses[status_id]
 	var old_stacks: int = runtime_status_instance.stacks
-	var old_duration: int = runtime_status_instance.left_duration
+	var old_duration: int = runtime_status_instance.remaining_duration
 	
-	runtime_status_instance.source_char = p_source_char
+	runtime_status_instance.source_character = p_source_char
 	var new_duration_base = duration_override if duration_override > -1 else status_template.duration
 	var new_stack_count = runtime_status_instance.stacks
 
 	# 根据不同的堆叠行为处理状态
 	match status_template.stack_behavior:
 		SkillStatusData.StackBehavior.NO_STACK:
-			runtime_status_instance.left_duration = new_duration_base
+			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "no_stack_refreshed"
 		SkillStatusData.StackBehavior.REFRESH_DURATION:
-			runtime_status_instance.left_duration = new_duration_base
+			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "duration_refreshed"
 		SkillStatusData.StackBehavior.ADD_DURATION:
-			runtime_status_instance.left_duration += new_duration_base
+			runtime_status_instance.remaining_duration += new_duration_base
 			result_info.reason = "duration_added"
 		SkillStatusData.StackBehavior.ADD_STACKS_REFRESH_DURATION:
 			new_stack_count = min(old_stacks + stacks_to_apply, status_template.max_stacks)
-			runtime_status_instance.left_duration = new_duration_base
+			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "stacked_duration_refreshed"
 		SkillStatusData.StackBehavior.ADD_STACKS_INDEPENDENT_DURATION:
 			new_stack_count = min(old_stacks + stacks_to_apply, status_template.max_stacks)
-			runtime_status_instance.left_duration = max(runtime_status_instance.left_duration, new_duration_base)
+			runtime_status_instance.remaining_duration = max(runtime_status_instance.remaining_duration, new_duration_base)
 			result_info.reason = "stacked_independent_simplified"
 	
 	# 如果层数变化，需要重新应用属性修改器
@@ -376,7 +376,7 @@ func _update_existing_status(
 	result_info.applied_successfully = true
 	
 	# 如果状态有变化，发出信号
-	if old_stacks != runtime_status_instance.stacks or old_duration != runtime_status_instance.left_duration:
+	if old_stacks != runtime_status_instance.stacks or old_duration != runtime_status_instance.remaining_duration:
 		status_updated.emit(runtime_status_instance, old_stacks, old_duration)
 	
 	return runtime_status_instance
@@ -410,7 +410,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 
 	# 触发初始效果
 	if not runtime_status_instance.initial_effects.is_empty():
-		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_char, get_parent(), SkillSystem.SkillExecutionContext.new())
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillSystem.SkillExecutionContext.new())
 
 	result_info["applied_successfully"] = true
 	result_info["reason"] = "new_status_applied"

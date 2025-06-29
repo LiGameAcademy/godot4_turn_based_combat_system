@@ -37,3 +37,7 @@ func change_state(new_state: BattleState) -> void:
 	# 打印日志并发出信号
 	print_rich("[color=purple][状态机][/color] 状态切换: [color=gray]%s[/color] -> [color=yellow]%s[/color]" % [BattleState.keys()[previous_state], BattleState.keys()[new_state]])
 	state_changed.emit(previous_state, new_state)
+
+func is_in_state(state: BattleState) -> bool:
+	return current_state == state
+	

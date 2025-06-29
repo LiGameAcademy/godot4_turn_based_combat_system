@@ -1,8 +1,6 @@
 extends Node
 class_name BattleManager
 
-const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
-
 @onready var state_manager: BattleStateManager = $BattleStateManager
 
 # 战斗参与者
@@ -37,38 +35,16 @@ func start_battle() -> void:
 		return
 	state_manager.change_state(BattleStateManager.BattleState.START)
 
-# 玩家选择行动
-func player_select_action(action_type: String, target = null, skill_data: SkillData = null, targets : Array[Character] = []) -> void:
-	print("玩家选择行动: ", action_type)
+# 玩家选择行动 - 由BattleScene调用
+func player_select_action(action_type: CharacterCombatComponent.ActionType, target: Character = null, params: Dictionary = {}) -> void:
+	if not state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
+		return
+		
+	print_rich("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
-	# 执行选择的行动
-	match action_type:
-		"attack":
-			if target and target is Character:
-				_execute_attack(current_turn_character, target)
-			else:
-				# 默认选择第一个敌人作为目标
-				var default_target = null
-				for enemy in enemy_characters:
-					if enemy.current_hp > 0:
-						default_target = enemy
-						break
-						
-				if default_target:
-					_execute_attack(current_turn_character, default_target)
-				else:
-					print("错误：没有可用的目标")
-					return
-		"defend":
-			_execute_defend(current_turn_character)
-		"skill":
-			var skill_targets : Array[Character] = targets
-			if skill_targets.is_empty():
-				skill_targets.append(target)
-			_execute_skill(current_turn_character, skill_targets, skill_data)
-		_:
-			print("未知行动类型: ", action_type)
-			return
+	params.merge({"skill_context": SkillSystem.SkillExecutionContext.new(self)}, true)
+	current_turn_character.execute_action(action_type, target, params)
+
 	# 检查战斗是否结束
 	if check_battle_end_condition():
 		return # 战斗已结束
@@ -82,10 +58,9 @@ func execute_enemy_ai() -> void:
 		if player.current_hp > 0:
 			target = player
 			break
-			
 	if target:
 		_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
-		_execute_attack(current_turn_character, target)
+		current_turn_character.execute_action(CharacterCombatComponent.ActionType.ATTACK, target)
 	else:
 		_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
 		
@@ -144,13 +119,6 @@ func remove_character(character: Character) -> void:
 	_log_battle_info("[color=gray][b]{0}[/b] 已从战斗中移除[/color]".format([character.character_name]))
 	check_battle_end_condition()
 
-## 生成伤害数字
-func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
-	var damage_number : DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
-	get_parent().add_child(damage_number)
-	damage_number.global_position = position + Vector2(0, -50)
-	damage_number.show_number(str(amount), color)
-
 # MP检查和消耗
 func check_and_consume_mp(caster: Character, skill: SkillData) -> bool:
 	if caster.current_mp < skill.mp_cost:
@@ -186,35 +154,6 @@ func get_valid_ally_targets(include_self: bool = false, caster : Character = nul
 			valid_targets.append(ally)
 	
 	return valid_targets
-#region 执行动作
-# 执行攻击
-func _execute_attack(attacker: Character, target: Character) -> void:
-	_log_battle_info("[color=purple][战斗行动][/color] [color=orange][b]{0}[/b][/color] 攻击 [color=cyan][b]{1}[/b][/color]".format([attacker.character_name, target.character_name]))
-	
-	var damage : float = attacker.attack_power - target.defense_power
-
-	var final_damage = target.take_damage(damage)
-
-	# 显示伤害数字
-	spawn_damage_number(target.global_position, final_damage, Color.RED)
-
-	# 检查战斗是否结束
-	check_battle_end_condition()
-	
-# 执行防御
-func _execute_defend(character: Character) -> void:
-	if character == null:
-		return
-
-	_log_battle_info("[color=purple][战斗行动][/color] [color=cyan][b]{0}[/b][/color] 选择[color=teal][防御][/color]，受到的伤害将减少".format([character.character_name]))
-	# TODO: 实现防御逻辑，可能是添加临时buff或设置状态
-	character.set_defending(true)
-
-## 执行技能 - 由BattleScene调用
-func _execute_skill(caster: Character, custom_targets: Array[Character], skill_data: SkillData) -> Dictionary:
-	return await SkillSystem.attempt_execute_skill(skill_data, caster, custom_targets, SkillSystem.SkillExecutionContext.new(self))
-
-#endregion
 
 ## 构建回合队列
 func _build_turn_queue() -> void:
@@ -320,9 +259,6 @@ func _play_heal_effect(target: Character, _params : Dictionary = {}):
 
 func _play_hit_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
-
-func _play_damage_number_effect(target: Character, params: Dictionary = {}) -> void:
-	spawn_damage_number(target.global_position, params.get("damage", 0), params.get("color", Color.RED))
 
 func _play_status_applied_success_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass

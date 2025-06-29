@@ -66,13 +66,13 @@ func _on_action_panel_attack_pressed() -> void:
 		var valid_targets = battle_manager.get_valid_enemy_targets()
 		if !valid_targets.is_empty():
 			var target = valid_targets[0] # 这里简化为直接选择第一个敌人
-			battle_manager.player_select_action("attack", target)
+			battle_manager.player_select_action(CharacterCombatComponent.ActionType.ATTACK, target)
 		else:
 			update_battle_info("没有可攻击的目标！")
 
 func _on_action_panel_defend_pressed() -> void:
 	if battle_manager.is_player_turn:
-		battle_manager.player_select_action("defend")
+		battle_manager.player_select_action(CharacterCombatComponent.ActionType.DEFEND)
 
 func _on_action_panel_skill_pressed() -> void:
 	if battle_manager.is_player_turn:
@@ -87,9 +87,14 @@ func _on_skill_selected(skill: SkillData) -> void:
 	
 	# 根据技能目标类型决定下一步操作
 	match skill.target_type:
-		SkillData.TargetType.SELF:
-			# 自身技能无需选择目标
-			battle_manager.player_select_action("skill", battle_manager.current_turn_character, skill)
+		SkillData.TargetType.SELF, \
+		SkillData.TargetType.ENEMY_ALL, \
+		SkillData.TargetType.ALLY_ALL, \
+		SkillData.TargetType.ALLY_ALL_INC_SELF:
+			# 自动目标技能，直接执行
+			var params = {"skill": skill, "targets": []}
+			battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, params)
+			
 		SkillData.TargetType.ENEMY_SINGLE:
 			# 显示敌人目标选择菜单
 			var valid_targets = battle_manager.get_valid_enemy_targets()
@@ -102,7 +107,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 			# 群体敌人技能无需选择目标
 			var valid_targets = battle_manager.get_valid_enemy_targets()
 			if !valid_targets.is_empty():
-				battle_manager.player_select_action("skill", null, skill, valid_targets)
+				battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, {"skill": skill, "targets": valid_targets})
 			else:
 				update_battle_info("没有可选择的敌方目标！")
 				_on_skill_selection_cancelled()
@@ -129,7 +134,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 			# 群体我方(不含自己)技能
 			var valid_targets = battle_manager.get_valid_ally_targets(false)
 			if !valid_targets.is_empty():
-				battle_manager.player_select_action("skill", null, skill, valid_targets)
+				battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, {"skill": skill, "targets": valid_targets})
 			else:
 				update_battle_info("没有可选择的友方目标！")
 				_on_skill_selection_cancelled()
@@ -138,7 +143,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 			# 群体我方(含自己)技能
 			var valid_targets = battle_manager.get_valid_ally_targets(true)
 			if !valid_targets.is_empty():
-				battle_manager.player_select_action("skill", null, skill, valid_targets)
+				battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, {"skill": skill, "targets": valid_targets})
 			else:
 				update_battle_info("没有可选择的友方目标！")
 				_on_skill_selection_cancelled()
@@ -162,14 +167,10 @@ func _on_target_selected(target: Character) -> void:
 		_show_action_menu()
 		return
 	
-	# 单体技能处理
-	if current_selected_skill.target_type == SkillData.TargetType.ENEMY_SINGLE || \
-	   current_selected_skill.target_type == SkillData.TargetType.ALLY_SINGLE || \
-	   current_selected_skill.target_type == SkillData.TargetType.ALLY_SINGLE_INC_SELF:
-		battle_manager.player_select_action("skill", target, current_selected_skill)
-	else:
-		push_error("非单体技能不应该调用单体目标选择")
-		_show_action_menu()
+	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
+	var targets : Array[Character] = [target]
+	var params = {"skill": current_selected_skill, "targets": targets, "skill_context": null}
+	battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, target, params)
 
 # 当玩家取消目标选择时调用
 func _on_target_selection_cancelled() -> void:
