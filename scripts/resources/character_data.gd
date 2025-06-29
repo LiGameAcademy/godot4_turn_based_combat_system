@@ -4,6 +4,8 @@ class_name CharacterData
 @export var character_name: String = "英雄"
 @export_multiline var description: String = "一个勇敢的战士。"
 @export var attribute_set_resource: SkillAttributeSet = null
+## 元素属性
+@export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE
 
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能

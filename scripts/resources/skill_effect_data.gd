@@ -5,6 +5,8 @@ class_name SkillEffectData
 @export var visual_effect: String = ""  		## 视觉效果标识符
 @export var sound_effect: String = ""   		## 音效标识符
 @export_enum("none", "self_only", "all_allies", "all_enemies", "main_target_and_adjacent") var target_override: String = "none" 		## 目标覆盖类型
+## 元素属性
+@export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE 
 
 ## 获取效果描述
 func get_description() -> String:

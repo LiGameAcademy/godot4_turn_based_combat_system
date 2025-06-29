@@ -12,11 +12,8 @@ func get_description() -> String:
 	return "造成 %d 点伤害" % [amount]
 
 ## 处理伤害效果
-func process_effect(caster: Character, target: Character) -> Dictionary:
+func process_effect(source: Character, target: Character) -> Dictionary:
 	var results = {}
-	
-	# 播放施法动画
-	_request_visual_effect("cast", caster, {})
 	
 	# 等待短暂时间
 	if Engine.get_main_loop():
@@ -27,15 +24,11 @@ func process_effect(caster: Character, target: Character) -> Dictionary:
 		return {}
 		
 	# 计算伤害
-	var damage_result = _calculate_damage(caster, target)
+	var damage_result := _calculate_damage(source, target)
 	var damage = damage_result["damage"]
 	
-	# 播放命中动画，根据克制关系选择不同效果
-	#var hit_params = {"element": effect.damage_element}
-	var hit_params = {}
-	# 普通效果
-	_request_visual_effect("hit", target, hit_params)
-	_request_visual_effect("damage_number", target, {"damage": damage, "color": Color.RED})
+	# 根据元素克制关系选择不同效果
+	_request_element_effect(damage_result, target, {"amount": damage, "element": element})
 	
 	# 应用伤害
 	var actual_damage = target.take_damage(damage)
@@ -44,8 +37,7 @@ func process_effect(caster: Character, target: Character) -> Dictionary:
 	results["damage"] = actual_damage
 	
 	# 显示伤害信息
-	var message = ""
-	message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, actual_damage]
+	var message = _get_damage_info(target, damage, damage_result["is_effective"], damage_result["is_ineffective"])
 	print_rich(message)
 	
 	# 检查死亡状态
@@ -54,22 +46,52 @@ func process_effect(caster: Character, target: Character) -> Dictionary:
 	
 	return results
 
+## 根据元素克制关系请求不同的视觉效果
+func _request_element_effect(damage_result: Dictionary, target: Character, hit_params: Dictionary) -> void:
+	if damage_result.get("is_effective", false):
+		# 克制效果
+		_request_visual_effect(&"effective_hit", target, hit_params)
+		# 使用自定义颜色
+		_request_visual_effect(&"damage_number", target, {"damage": damage_result["damage"], "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
+	elif damage_result.get("is_ineffective", false):
+		# 抵抗效果
+		_request_visual_effect(&"ineffective_hit", target, hit_params)
+		_request_visual_effect(&"damage_number", target, {"damage": damage_result["damage"], "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
+	else:
+		# 普通效果
+		_request_visual_effect(&"damage", target, hit_params)
+
+## 获取伤害信息
+func _get_damage_info(target: Character, damage: int, is_effective: bool, is_ineffective: bool) -> String:
+	var message = ""
+	if is_effective:
+		message += "[color=yellow]【克制！】[/color]"
+	elif is_ineffective:
+		message += "[color=teal]【抵抗！】[/color]"
+	
+	message += "[color=red]%s 受到 %d 点伤害[/color]" % [target.character_name, damage]
+	return message
+
 ## 计算伤害
 func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 	# 获取基础伤害
 	var power = damage_amount
 	
 	# 基础伤害计算
-	var base_damage = power + (caster.attack_power * damage_power_scale)
+	var base_damage = power + (caster.magic_attack * 0.8)
 	
 	# 考虑目标防御
-	var damage_after_defense = base_damage - (target.defense_power * 0.5)
+	var damage_after_defense = base_damage - (target.magic_defense * 0.5)
+	
+	# 元素相克系统
+	var element_result = _calculate_element_modifier(element, target)
+	var element_modifier = element_result["multiplier"]
 	
 	# 加入随机浮动因素 (±10%)
 	var random_factor = randf_range(0.9, 1.1)
 	
 	# 计算最终伤害
-	var final_damage = damage_after_defense * random_factor
+	var final_damage = damage_after_defense * element_modifier * random_factor
 	
 	# 确保伤害至少为1
 	final_damage = max(1, round(final_damage))
@@ -78,28 +100,23 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 	return {
 		"damage": int(final_damage),
 		"base_damage": damage_after_defense,
+		"is_effective": element_result["is_effective"],
+		"is_ineffective": element_result["is_ineffective"],
+		"element_multiplier": element_modifier,
+		"skill_element": element,
+		"target_element": target.element
 	}
 
-## 计算技能伤害
-#func _calculate_skill_damage(caster: Character, target: Character, skill: SkillData) -> int:
-	## 基础伤害计算
-	#var base_damage = skill.power
-	#
-	## 根据技能类型添加不同的属性加成
-	#if skill.damage_type == "physical":
-		#base_damage += caster.physical_attack * 1.5
-	#else: # 魔法伤害
-		#base_damage += caster.magic_attack * 1.5
-	#
-	## 考虑目标防御
-	#var defense = skill.damage_type == "physical" ? target.physical_defense : target.magic_defense
-	#var damage_reduction = defense / (defense + 100.0)
-	#
-	## 应用伤害减免
-	#var reduced_damage = base_damage * (1.0 - damage_reduction)
-	#
-	## 随机浮动 (±10%)
-	#var random_factor = randf_range(0.9, 1.1)
-	#var final_damage = reduced_damage * random_factor
-	#
-	#return max(1, round(final_damage))
+## 计算元素系数
+func _calculate_element_modifier(attack_element: int, target: Character) -> Dictionary:
+	# 获取目标元素
+	var defense_element = target.element
+	
+	# 使用ElementTypes计算克制效果
+	var multiplier = ElementTypes.get_effectiveness(attack_element, defense_element)
+	
+	return {
+		"multiplier": multiplier,
+		"is_effective": multiplier > ElementTypes.NEUTRAL_MULTIPLIER,
+		"is_ineffective": multiplier < ElementTypes.NEUTRAL_MULTIPLIER
+	}

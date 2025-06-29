@@ -55,6 +55,8 @@ var is_defending: bool:
 	get: return combat_component.is_defending if combat_component else false
 var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
+var element: int:
+	get : return combat_component.element
 
 # 信号 - 这些信号将转发组件的信号
 signal character_defeated
@@ -86,11 +88,11 @@ func execute_action(action_type: CharacterCombatComponent.ActionType, target: Ch
 	combat_component.execute_action(action_type, target, params)
 
 ## 生成伤害数字
-func spawn_damage_number(amount: int, color : Color) -> void:
+func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> void:
 	var damage_number : DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(damage_number)
 	damage_number.global_position = global_position + Vector2(0, -50)
-	damage_number.show_number(str(amount), color)
+	damage_number.show_damage(amount, false, color, prefix)
 
 ## 更新显示
 func update_visual() -> void:
@@ -165,7 +167,7 @@ func _init_components() -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize()
+	combat_component.initialize(character_data.element)
 
 	# 连接组件信号
 	combat_component.defending_changed.connect(_on_defending_changed)

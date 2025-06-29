@@ -13,6 +13,7 @@ heal_power_scale = 0.5
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
+element = 4
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
 [sub_resource type="Resource" id="Resource_f7p23"]
@@ -24,6 +25,7 @@ status_stacks_to_apply = 1
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
+element = 0
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]

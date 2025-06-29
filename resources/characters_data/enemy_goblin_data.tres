@@ -95,5 +95,6 @@ script = ExtResource("1_45vgr")
 character_name = "哥布林"
 description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
+element = 3
 skills = Array[ExtResource("2_fr6p1")]([])
 color = Color(0.2, 0.7, 0.2, 1)

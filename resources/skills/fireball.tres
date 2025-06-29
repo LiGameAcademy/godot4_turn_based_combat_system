@@ -13,6 +13,7 @@ damage_power_scale = 1.0
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
+element = 1
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [sub_resource type="Resource" id="Resource_so6qb"]
@@ -24,6 +25,7 @@ status_stacks_to_apply = 1
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
+element = 0
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]

@@ -26,5 +26,6 @@ script = ExtResource("1_prr5c")
 character_name = "勇者"
 description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
 attribute_set_resource = SubResource("Resource_ph3fh")
+element = 2
 skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i")])
 color = Color(0.2, 0.4, 0.8, 1)

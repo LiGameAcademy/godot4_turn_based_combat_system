@@ -263,6 +263,12 @@ func _play_hit_effect(_target: Character, _params: Dictionary = {}) -> void:
 func _play_status_applied_success_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
 
+func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) -> void:
+	var damage : float = _params.get("damage", 0)
+	var color : Color = _params.get("color", Color.RED)
+	var prefix : String = _params.get("prefix", "")
+	_target.spawn_damage_number(damage, color, prefix)
+
 #endregion
 
 #region 信号处理
