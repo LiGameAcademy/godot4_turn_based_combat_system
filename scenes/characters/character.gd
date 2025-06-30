@@ -15,6 +15,8 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
 @onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
 
+@export var character_data: CharacterData
+
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
 	get: return skill_component.get_attribute_current_value(&"CurrentHealth") if skill_component else 0.0
@@ -48,23 +50,19 @@ var character_name : StringName:
 	set(value): assert(false, "cannot set character_name")
 #endregion
 
-@export var character_data: CharacterData
-
 # 属性委托给战斗组件
-var is_defending: bool:
-	get: return combat_component.is_defending if combat_component else false
 var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
 var element: int:
 	get : return combat_component.element
 
 # 信号 - 这些信号将转发组件的信号
-signal character_defeated
-signal health_changed(current_hp: float, max_hp: float, character: Character)
-signal mana_changed(current_mp: float, max_mp: float, character: Character)
-signal status_applied_to_character(character: Character, status_instance: SkillStatusData)
-signal status_removed_from_character(character: Character, status_id: StringName, status_instance_data_before_removal: SkillStatusData)
-signal status_updated_on_character(character: Character, status_instance: SkillStatusData, old_stacks: int, old_duration: int)
+signal character_defeated																														## 当角色死亡时触发
+signal health_changed(current_hp: float, max_hp: float, character: Character)																	## 当角色血量变化时触发
+signal mana_changed(current_mp: float, max_mp: float, character: Character)																		## 当角色法力变化时触发
+signal status_applied_to_character(character: Character, status_instance: SkillStatusData)														## 当角色获得状态时触发
+signal status_removed_from_character(character: Character, status_id: StringName, status_instance_data_before_removal: SkillStatusData)			## 当角色失去状态时触发
+signal status_updated_on_character(character: Character, status_instance: SkillStatusData, old_stacks: int, old_duration: int)					## 当角色状态更新时触发
 
 func _ready():
 	if character_data:
@@ -110,6 +108,7 @@ func take_damage(base_damage: float) -> float:
 	spawn_damage_number(result, Color.RED)
 	return result
 
+## 治疗处理方法
 func heal(amount: float) -> float:
 	if not combat_component:
 		return 0.0
@@ -117,10 +116,12 @@ func heal(amount: float) -> float:
 	spawn_damage_number(result, Color.GREEN)
 	return result
 
+## 开始回合
 func on_turn_start(battle_manager : BattleManager) -> void:
 	if combat_component:
 		combat_component.on_turn_start(battle_manager)
 
+## 结束回合
 func on_turn_end(battle_manager : BattleManager) -> void:
 	if combat_component:
 		combat_component.on_turn_end(battle_manager)
@@ -153,6 +154,7 @@ func restore_mp(amount: float) -> float:
 func play_animation(animation_name: String) -> void:
 	print("假装播放了动画：", animation_name)
 
+## 应用技能状态
 func apply_skill_status(status_instance: SkillStatusData, source_character: Character, effect_data_from_skill: SkillEffectData) -> Dictionary:
 	if skill_component:
 		return skill_component.apply_status(status_instance, source_character, effect_data_from_skill)
@@ -173,12 +175,8 @@ func _init_components() -> void:
 	combat_component.defending_changed.connect(_on_defending_changed)
 	combat_component.character_defeated.connect(_on_character_defeated)
 
-	skill_component.status_applied.connect(func(character, status_instance): 
-		status_applied_to_character.emit(character, status_instance))
-		
-	skill_component.status_removed.connect(func(character, status_id, status_instance): 
-		status_removed_from_character.emit(character, status_id, status_instance))
-		
+	skill_component.status_applied.connect(_on_status_applied)
+	skill_component.status_removed.connect(_on_status_removed)
 	skill_component.status_updated.connect(func(character, status_instance, old_stacks, old_duration): 
 		status_updated_on_character.emit(character, status_instance, old_stacks, old_duration))
 
@@ -186,7 +184,7 @@ func _init_components() -> void:
 	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
 
 ## 初始化玩家数据
-func _initialize_from_data(data: CharacterData):
+func _initialize_from_data(data: CharacterData) -> void:
 	# 保存数据引用
 	character_data = data
 	
@@ -197,10 +195,12 @@ func _initialize_from_data(data: CharacterData):
 	_init_components()
 
 #region --- UI 更新辅助方法 ---
+## 更新名称显示
 func _update_name_display() -> void:
 	if name_label and character_data:
 		name_label.text = character_data.character_name
 
+## 更新血量显示
 func _update_health_display() -> void:
 	if hp_bar and skill_component: # 确保active_attribute_set已初始化
 		var current_val = skill_component.get_attribute_current_value(&"CurrentHealth")
@@ -209,6 +209,7 @@ func _update_health_display() -> void:
 		hp_bar.value = current_val
 		hp_label.text = "%d/%d" % [roundi(current_val), roundi(max_val)]
 
+## 更新法力显示
 func _update_mana_display() -> void:
 	if mp_bar and skill_component: # 确保active_attribute_set已初始化
 		var current_val = skill_component.get_attribute_current_value(&"CurrentMana")
@@ -238,13 +239,14 @@ func _on_attribute_current_value_changed(
 		_update_mana_display()
 
 ## 当AttributeSet中的属性基础值变化时调用
-func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float):
+func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float) -> void:
 	# 通常基础值变化也会导致当前值变化，相关信号已在_on_attribute_current_value_changed处理
 	# 但如果UI需要特别区分显示基础值和当前值，可以在这里做处理
 	if attribute_instance.attribute_name == &"MaxHealth": # 例如基础MaxHealth变化
 		_update_health_display() # 确保UI同步
-	
-func _on_defending_changed(value: bool):
+
+## 当防御状态变化时调用
+func _on_defending_changed(value: bool) -> void:
 	if not defense_indicator:
 		return
 	if value:
@@ -252,10 +254,35 @@ func _on_defending_changed(value: bool):
 	else:
 		defense_indicator.hide_indicator()
 
-func _on_character_defeated():
+## 当角色死亡时调用
+func _on_character_defeated() -> void:
 	if defense_indicator:
 		defense_indicator.hide_indicator()
 	modulate = Color(0.5, 0.5, 0.5, 0.5) # 变灰示例
 	character_defeated.emit()
+
+## 当状态被应用时调用
+func _on_status_applied(status_instance: SkillStatusData):
+	if not defense_indicator:
+		return
+	
+	# 检查是否是防御状态
+	if status_instance.status_id == &"defend":
+		defense_indicator.show_indicator()
+		print_rich("[color=cyan]%s 进入防御状态[/color]" % character_data.character_name)
+
+	status_applied_to_character.emit(self, status_instance)
+
+## 当状态被移除时调用
+func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData):
+	if not defense_indicator:
+		return
+	
+	# 检查是否是防御状态
+	if status_id == &"defend":
+		defense_indicator.hide_indicator()
+		print_rich("[color=orange]%s 防御状态结束[/color]" % character_data.character_name)
+
+	status_removed_from_character.emit(self, status_id, _status_instance_data_before_removal)
 
 #endregion

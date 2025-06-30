@@ -15,7 +15,7 @@ func get_description() -> String:
 	var type_name = "增益" if is_positive else "减益"
 	return "驱散 %d 个%s效果" % [count, type_name]
 
-func process_effect(source: Character, target: Character) -> Dictionary:
+func process_effect(source: Character, target: Character, _context : Dictionary = {}) -> Dictionary:
 	var results := { "success": false, "dispelled_count": 0, "dispelled_ids": [] }
 
 	if not is_instance_valid(target):

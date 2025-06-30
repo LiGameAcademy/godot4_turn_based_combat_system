@@ -50,6 +50,18 @@ enum StatusType {
 @export var overrides_states: Array[StringName] = []							## 此状态应用时会移除的目标状态ID列表
 @export var resisted_by_states: Array[StringName] = []							## 如果目标拥有这些状态之一，则此状态无法应用
 
+# 触发条件
+@export_group("触发条件", "trigger_")
+## 此状态可以响应的游戏事件类型
+## 例如: [&"on_damage_taken", &"on_turn_start", &"on_attack"]
+@export var trigger_on_events: Array[StringName] = []
+## 触发时执行的效果
+@export var trigger_effects: Array[SkillEffectData] = []
+## 回合触发次数
+@export var trigger_turns: int = 1
+## 触发总数
+@export var trigger_count: int = 1
+
 # 行动限制
 @export_group("行动限制")
 ## 角色拥有此状态时，无法执行哪些类别的行动。
@@ -66,13 +78,19 @@ var is_permanent: bool :
 	get :
 		return duration_type == DurationType.INFINITE or duration_type == DurationType.COMBAT_LONG
 
+## 本回合触发次数
+var current_turn_trigger_count: int = 0
+## 触发总数
+var current_total_trigger_count: int = 0
+
 #region --- 方法 ---
-func _init(): 
+func _init() -> void:
 	source_character = null
 	target_character = null
 	remaining_duration = duration 
 	stacks = 1
 
+## 获取状态的完整描述
 func get_full_description() -> String:
 	var desc = "%s: %s\n" % [status_name, description]
 	if duration_type == DurationType.TURNS:
@@ -90,9 +108,19 @@ func get_full_description() -> String:
 
 	return desc.strip_edges()
 
+## 检查此状态是否可以被抵抗
 func is_countered_by(other_status_id: StringName) -> bool:
 	return resisted_by_states.has(other_status_id)
 
+## 检查此状态是否可以覆盖其他状态
 func overrides_other_status(other_status_id: StringName) -> bool:
 	return overrides_states.has(other_status_id)
+
+## 检查此状态是否可以被指定事件触发
+func can_trigger_on_event(event_type: StringName) -> bool:
+	return trigger_on_events.has(event_type)
+
+## 获取触发效果
+func get_trigger_effects() -> Array[SkillEffectData]:
+	return trigger_effects
 #endregion

@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://tlc7ibafdnkx"]
+
+[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_jrcne"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_o56po"]
+[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_fim4e"]
+[ext_resource type="Script" uid="uid://47pmrvmk5e7c" path="res://scripts/resources/skill_effect_data/modifiy_damage_effect_data.gd" id="4_o56po"]
+
+[sub_resource type="Resource" id="Resource_fim4e"]
+script = ExtResource("4_o56po")
+damage_mod_percent = 0.5
+damage_mod_flat = 0.0
+damage_mod_min = 1.0
+damage_mod_max = 9999.0
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://47pmrvmk5e7c"
+
+[resource]
+script = ExtResource("3_fim4e")
+status_id = &"defend"
+status_name = "防御"
+description = ""
+status_type = 2
+duration = 3
+duration_type = 0
+max_stacks = 1
+stack_behavior = 1
+attribute_modifiers = Array[ExtResource("1_jrcne")]([])
+initial_effects = Array[ExtResource("2_o56po")]([])
+ongoing_effects = Array[ExtResource("2_o56po")]([])
+end_effects = Array[ExtResource("2_o56po")]([])
+overrides_states = Array[StringName]([])
+resisted_by_states = Array[StringName]([])
+trigger_on_events = Array[StringName]([&"on_damage_taken"])
+trigger_effects = Array[ExtResource("2_o56po")]([SubResource("Resource_fim4e")])
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[StringName]([])
+metadata/_custom_type_script = "uid://do7l16ao2ut6t"

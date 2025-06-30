@@ -12,7 +12,7 @@ func get_description() -> String:
 	return "恢复 %d 点生命值" % [amount]
 
 ## 处理治疗效果
-func process_effect(source: Character, target: Character) -> Dictionary:
+func process_effect(source: Character, target: Character, _context : Dictionary = {}) -> Dictionary:
 	var results = {}
 	
 	# 播放施法动画

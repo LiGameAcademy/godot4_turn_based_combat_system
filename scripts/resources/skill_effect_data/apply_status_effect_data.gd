@@ -15,7 +15,7 @@ func get_description() -> String:
 		return "%s目标 %d 回合 (%.1f%%几率)" % [status_to_apply.status_name, duration, status_application_chance * 100]
 	return "%s目标 %d 回合" % [status_to_apply.status_name, duration]
 
-func process_effect(source: Character, target: Character) -> Dictionary:
+func process_effect(source: Character, target: Character, _context : Dictionary = {}) -> Dictionary:
 	var results := {"success": false, "applied_status_id": null, "reason": "unknown"}
 	
 	var status_template_to_apply: SkillStatusData = status_to_apply

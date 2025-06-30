@@ -5,12 +5,14 @@ extends Node
 ## 不直接依赖战斗系统组件，而是通过上下文获取必要的信息
 
 var battle_manager : BattleManager = null
+var _current_event_context: Dictionary = {}	## 当前事件上下文
 
 # 信号
-signal skill_execution_started(caster: Character, skill: SkillData, targets: Array[Character])
-signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) # results 可以包含伤害、治疗、状态等信息
-signal skill_failed(caster: Character, skill: SkillData, reason: String) # 例如 MP不足, 目标无效等
-signal effect_applied(effect: SkillEffectData, source: Character, target: Character, result: Dictionary)
+signal skill_execution_started(caster: Character, skill: SkillData, targets: Array[Character])							## 技能执行开始信号	
+signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) 	## 技能执行完成信号 results 可以包含伤害、治疗、状态等信息
+signal skill_failed(caster: Character, skill: SkillData, reason: String) 												## 技能失败信号 例如 MP不足, 目标无效等
+signal effect_applied(effect: SkillEffectData, source: Character, target: Character, result: Dictionary)				## 效果应用信号
+signal game_event_occurred(event_type: StringName, context: Dictionary)													## 游戏事件信号 - 用于触发状态效果
 
 ## 技能执行上下文
 class SkillExecutionContext:
@@ -58,11 +60,58 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 func attempt_process_status_effects(effects : Array[SkillEffectData], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
 	var result = {"success": true, "reason": ""}
 	for effect in effects:
-		if not await _apply_single_effect(caster, target, effect, context):
+		if not await _apply_single_effect(caster, target, effect, {"skill_execution_context": context}):
 			result.success = false
 			result.reason = "Failed to apply effect: %s" % effect
 			return result
 	return result
+
+## 触发游戏事件
+## [param event_type] 事件类型，如 "on_damage_taken", "on_turn_start", "on_attack" 等
+## [param context] 事件上下文，包含事件相关的所有信息
+  ## Privately validates if a skill can be used based on its target type and other conditions.
+  ## [param skill] The SkillData to validate
+  ## [param caster] The Character attempting to cast the skill
+  ## [param targets] The optional list of targets to validate against
+  ## [param context] The SkillExecutionContext containing the BattleManager and other relevant information
+  ## [return] A dictionary with two keys: "is_usable" (bool) and "reason" (string)
+func trigger_game_event(event_type: StringName, context: Dictionary) -> void:
+	# 存储当前事件上下文
+	_current_event_context = context.duplicate()
+	_current_event_context["event_type"] = event_type
+	
+	# 发出游戏事件信号
+	game_event_occurred.emit(event_type, context)
+	
+	# 打印事件日志（调试用）
+	print_rich("[color=purple]游戏事件触发: %s[/color]" % event_type)
+	
+	# 事件处理完成后清空上下文
+	await get_tree().process_frame
+	_current_event_context = {}
+
+## 获取当前事件上下文
+## [return] 当前事件上下文字典
+func get_current_event_context() -> Dictionary:
+	return _current_event_context
+
+## 应用效果集
+## [param source_character] 效果来源角色
+## [param target_character] 目标角色
+## [param effects] 效果数组
+## [param context] 执行上下文，包含额外信息
+## [return] 效果应用结果
+func apply_effects(source_character: Character, target_character: Character, effects: Array[SkillEffectData], context: Dictionary = {}) -> Dictionary:
+	var results = {}
+	
+	if not is_instance_valid(source_character) or not is_instance_valid(target_character):
+		return {"success": false, "error": "无效的角色引用"}
+	
+	for effect in effects:
+		var effect_result = await _apply_single_effect(source_character, target_character, effect, context)
+		results[effect.get_instance_id()] = effect_result
+	
+	return {"success": true, "effect_results": results}
 
 ## 私有方法：验证技能可用性
 func _validate_skill_usability(skill: SkillData, caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
@@ -208,7 +257,7 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 					continue
 					
 				# 应用单个效果
-				var effect_result = await _apply_single_effect(caster, effect_target, effect, context)
+				var effect_result = await _apply_single_effect(caster, effect_target, effect, {"skill_execution_context": context})
 				
 				# 合并结果
 				for key in effect_result:
@@ -228,7 +277,7 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 ## [param target] 目标角色
 ## [param effect] 效果数据
 ## [return] 效果应用结果
-func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, _context : SkillExecutionContext) -> Dictionary:
+func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, context: Dictionary = {}) -> Dictionary:
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -238,8 +287,15 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 		push_error("SkillSystem: 无效的效果引用")
 		return {}
 	
+	# 准备执行上下文
+	var execution_context = context.duplicate()
+	# 添加标准字段
+	if not execution_context.has("source_character"):
+		execution_context["source_character"] = caster
+	if not execution_context.has("primary_target"):
+		execution_context["primary_target"] = target
 	# 处理效果
-	var result = await effect.process_effect(caster, target)
+	var result = await effect.process_effect(caster, target, context)
 		
 	# 发出信号
 	effect_applied.emit(effect, caster, target, result)

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://rxkf72h6p0s2"]
+
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_ggsii"]
+[ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://resources/skill_status/defend.tres" id="2_3uyfq"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_v0cas"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_yqq3l"]
+
+[sub_resource type="Resource" id="Resource_1x2lo"]
+script = ExtResource("2_v0cas")
+status_to_apply = ExtResource("2_3uyfq")
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_yqq3l")
+skill_id = &"defend"
+skill_name = "防御"
+description = ""
+mp_cost = 0
+target_type = 5
+effects = Array[ExtResource("1_ggsii")]([SubResource("Resource_1x2lo")])
+action_categories = Array[String](["any_action"])
+cast_animation = &""
+can_target_dead = false
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"
