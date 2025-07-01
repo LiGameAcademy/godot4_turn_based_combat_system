@@ -1,29 +1,32 @@
 extends Node
 class_name BattleManager
 
+## 战斗管理器
+## 负责管理战斗的流程和状态
+
+## 状态管理器
 @onready var state_manager: BattleStateManager = $BattleStateManager
 
 # 战斗参与者
-var player_characters: Array[Character] = []
-var enemy_characters: Array[Character] = []
+var player_characters: Array[Character] = []			## 玩家角色列表
+var enemy_characters: Array[Character] = []				## 敌人角色列表
 
 # 回合顺序管理
-var turn_queue: Array = []
-var current_turn_character: Character = null
-var is_player_turn : bool = false :
+var turn_queue: Array = []								## 回合队列
+var current_turn_character: Character = null			## 当前行动者
+var is_player_turn : bool = false :						## 是否是玩家回合
 	get:
 		return state_manager.current_state == BattleStateManager.BattleState.PLAYER_TURN
-var effect_processors = {}		## 效果处理器
+var effect_processors = {}								## 效果处理器
 
-# 信号
-signal turn_changed(character)
-signal battle_ended(is_victory)
-signal battle_info_logged(text)
-#signal skill_executed(caster : Character, targets : Array[Character], skill_data : SkillData, results : Dictionary)
+## 信号
+signal turn_changed(character)							## 当前行动者改变时触发
+signal battle_ended(is_victory)							## 战斗结束时触发
+signal battle_info_logged(text)							## 战斗日志记录时触发
 
-func _ready():
-	SkillSystem.battle_manager = self
+func _ready() -> void:
 	state_manager.state_changed.connect(_on_state_changed)
+	SkillSystem.battle_manager = self
 	state_manager.initialize(BattleStateManager.BattleState.IDLE)
 
 ## 开始战斗
@@ -35,14 +38,22 @@ func start_battle() -> void:
 		return
 	state_manager.change_state(BattleStateManager.BattleState.START)
 
-# 玩家选择行动 - 由BattleScene调用
-func player_select_action(action_type: CharacterCombatComponent.ActionType, target: Character = null, params: Dictionary = {}) -> void:
+## 玩家选择行动 - 由BattleScene调用
+## [param action_type] 行动类型
+## [param target] 目标角色
+## [param params] 行动参数
+func player_select_action(
+		action_type: CharacterCombatComponent.ActionType, 
+		target: Character = null, 
+		params: Dictionary = {}
+		) -> void:
 	if not state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
+		print_rich("[color=red]当前不是玩家回合，无法选择行动![/color]")
 		return
 		
 	print_rich("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
-	params.merge({"skill_context": SkillSystem.SkillExecutionContext.new(self)}, true)
+	params.merge({"skill_context": SkillExecutionContext.new(self)}, true)
 	current_turn_character.execute_action(action_type, target, params)
 
 	# 检查战斗是否结束
@@ -50,7 +61,7 @@ func player_select_action(action_type: CharacterCombatComponent.ActionType, targ
 		return # 战斗已结束
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
-# 执行敌人AI
+## 执行敌人AI
 func execute_enemy_ai() -> void:
 	# 简单的AI逻辑：总是攻击第一个存活的玩家角色
 	var target = null
@@ -61,7 +72,7 @@ func execute_enemy_ai() -> void:
 	if target:
 		_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
 		current_turn_character.execute_action(CharacterCombatComponent.ActionType.ATTACK, target, {
-			"skill_context": SkillSystem.SkillExecutionContext.new(self)
+			"skill_context": SkillExecutionContext.new(self)
 		})
 	else:
 		_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
@@ -72,7 +83,8 @@ func execute_enemy_ai() -> void:
 	
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
-# 检查战斗结束条件
+## 检查战斗结束条件
+## [return] 战斗是否结束
 func check_battle_end_condition() -> bool:
 	# 检查玩家是否全部阵亡
 	var all_players_defeated = true
@@ -99,17 +111,22 @@ func check_battle_end_condition() -> bool:
 		return true
 	return false
 
-# 添加和管理角色
+## 添加玩家角色
+## [param character] 角色
 func add_player_character(character: Character) -> void:
 	if not player_characters.has(character):
 		player_characters.append(character)
 		_log_battle_info("[color=blue][玩家注册][/color] 添加角色: [color=cyan][b]{0}[/b][/color]".format([character.character_name]))
 
+## 添加敌人角色
+## [param character] 角色
 func add_enemy_character(character: Character) -> void:
 	if not enemy_characters.has(character):
 		enemy_characters.append(character)
 		_log_battle_info("[color=red][敌人注册][/color] 添加角色: [color=orange][b]{0}[/b][/color]".format([character.character_name]))
 
+## 移除角色
+## [param character] 角色
 func remove_character(character: Character) -> void:
 	if player_characters.has(character):
 		player_characters.erase(character)
@@ -121,16 +138,9 @@ func remove_character(character: Character) -> void:
 	_log_battle_info("[color=gray][b]{0}[/b] 已从战斗中移除[/color]".format([character.character_name]))
 	check_battle_end_condition()
 
-# MP检查和消耗
-func check_and_consume_mp(caster: Character, skill: SkillData) -> bool:
-	if caster.current_mp < skill.mp_cost:
-		print_rich("[color=red]魔力不足，法术施放失败！[/color]")
-		return false
-	
-	caster.use_mp(skill.mp_cost)
-	return true
-
-# 获取有效的敌方目标列表（过滤掉已倒下的角色）
+## 获取有效的敌方目标列表（过滤掉已倒下的角色）
+## [param caster] 施法者
+## [return] 有效的敌方目标列表
 func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
 	if caster == null:
 		caster = current_turn_character
@@ -143,8 +153,10 @@ func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
 	
 	return valid_targets
 
-# 获取有效的友方目标列表
-# include_self: 是否包括施法者自己
+## 获取有效的友方目标列表
+## [param include_self] 是否包括施法者自己
+## [param caster] 施法者
+## [return] 有效的友方目标列表
 func get_valid_ally_targets(include_self: bool = false, caster : Character = null) -> Array[Character]:
 	if caster == null:
 		caster = current_turn_character
@@ -178,12 +190,15 @@ func _build_turn_queue() -> void:
 
 
 ## 战斗日志
+## [param text] 日志文本
 func _log_battle_info(text: String) -> void:
 	print_rich(text)
 	battle_info_logged.emit(text)
 
 #region 视觉反馈
-# 状态效果应用视觉反馈
+## 状态效果应用视觉反馈
+## [param target] 目标角色
+## [param params] 参数
 func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
 	#var status_type = params.get("status_type", "buff")
 	var is_positive = params.get("is_positive", true)
@@ -206,6 +221,8 @@ func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
 	if target.has_method("play_animation") and "animation" in params:
 		target.play_animation(params["animation"])
 
+## 播放施法动画
+## [param caster] 施法者
 func _play_cast_animation(caster: Character) -> void:
 	var tween = create_tween()
 	# 角色短暂发光效果
@@ -216,10 +233,12 @@ func _play_cast_animation(caster: Character) -> void:
 	# AudioManager.play_sfx("spell_cast")
 
 ## 播放施法动画
+## [param caster] 施法者
 func _play_heal_cast_animation(caster: Character) -> void:
 	_play_cast_animation(caster)
 
 ## 播放命中动画
+## [param target] 目标角色
 func _play_hit_animation(target: Character):
 	var tween = create_tween()
 	
@@ -238,14 +257,22 @@ func _play_hit_animation(target: Character):
 	# 这里可以播放命中音效
 	# AudioManager.play_sfx("hit_impact")
 
+## 播放施法效果
+## [param target] 目标角色
+## [param params] 参数
 func _play_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
 
+## 播放治疗施法效果
+## [param target] 目标角色
+## [param params] 参数
 func _play_heal_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
 
-# 治疗效果视觉反馈
-func _play_heal_effect(target: Character, _params : Dictionary = {}):
+## 治疗效果视觉反馈
+## [param target] 目标角色
+## [param params] 参数
+func _play_heal_effect(target: Character, _params : Dictionary = {}) -> void:
 	var tween = create_tween()
 	
 	# 目标变绿效果（表示恢复）
@@ -259,12 +286,21 @@ func _play_heal_effect(target: Character, _params : Dictionary = {}):
 	# 恢复正常颜色
 	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
 
+## 受击效果视觉反馈
+## [param target] 目标角色
+## [param params] 参数
 func _play_hit_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
 
+## 状态效果应用成功视觉反馈
+## [param target] 目标角色
+## [param params] 参数
 func _play_status_applied_success_effect(_target: Character, _params: Dictionary = {}) -> void:
 	pass
 
+## 受击数字效果
+## [param target] 目标角色
+## [param params] 参数
 func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) -> void:
 	var damage : float = _params.get("damage", 0)
 	var color : Color = _params.get("color", Color.RED)
@@ -275,7 +311,8 @@ func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) ->
 
 #region 信号处理
 
-# 角色死亡信号处理函数
+## 角色死亡信号处理函数
+## [param character] 角色
 func _on_character_died(character: Character) -> void:
 	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
 	
@@ -297,7 +334,11 @@ func _on_character_died(character: Character) -> void:
 	check_battle_end_condition()	
 
 ## 状态改变处理函数
-func _on_state_changed(_previous_state: BattleStateManager.BattleState, new_state: BattleStateManager.BattleState) -> void:
+## [param _previous_state] 上一个状态
+## [param new_state] 新状态
+func _on_state_changed(
+		_previous_state: BattleStateManager.BattleState, 
+		new_state: BattleStateManager.BattleState) -> void:
 	# 所有状态下的动作逻辑都在这里
 	match new_state:
 		BattleStateManager.BattleState.START:

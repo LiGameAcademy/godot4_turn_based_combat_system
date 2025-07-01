@@ -79,4 +79,3 @@ script = ExtResource("5_o3k7m")
 
 [node name="BattleStateManager" type="Node" parent="BattleManager"]
 script = ExtResource("6_lbt8a")
-metadata/_custom_type_script = "uid://di683i6hqfos5"

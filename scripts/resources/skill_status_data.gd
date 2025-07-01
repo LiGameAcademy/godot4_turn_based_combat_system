@@ -118,6 +118,12 @@ func overrides_other_status(other_status_id: StringName) -> bool:
 
 ## 检查此状态是否可以被指定事件触发
 func can_trigger_on_event(event_type: StringName) -> bool:
+	if trigger_on_events.is_empty():
+		return false
+	if current_turn_trigger_count >= trigger_turns:
+		return false
+	if current_total_trigger_count >= trigger_count:
+		return false
 	return trigger_on_events.has(event_type)
 
 ## 获取触发效果

@@ -160,6 +160,10 @@ func apply_skill_status(status_instance: SkillStatusData, source_character: Char
 		return skill_component.apply_status(status_instance, source_character, effect_data_from_skill)
 	return {"applied_successfully": false, "reason": "invalid_status_template"}
 
+## 获取技能组件
+func get_skill_component() -> CharacterSkillComponent:
+	return skill_component
+
 ## 初始化组件
 func _init_components() -> void:
 	if not combat_component:
@@ -172,7 +176,6 @@ func _init_components() -> void:
 	combat_component.initialize(character_data.element, character_data.attack_skill)
 
 	# 连接组件信号
-	combat_component.defending_changed.connect(_on_defending_changed)
 	combat_component.character_defeated.connect(_on_character_defeated)
 
 	skill_component.status_applied.connect(_on_status_applied)
@@ -244,15 +247,6 @@ func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_v
 	# 但如果UI需要特别区分显示基础值和当前值，可以在这里做处理
 	if attribute_instance.attribute_name == &"MaxHealth": # 例如基础MaxHealth变化
 		_update_health_display() # 确保UI同步
-
-## 当防御状态变化时调用
-func _on_defending_changed(value: bool) -> void:
-	if not defense_indicator:
-		return
-	if value:
-		defense_indicator.show_indicator()
-	else:
-		defense_indicator.hide_indicator()
 
 ## 当角色死亡时调用
 func _on_character_defeated() -> void:

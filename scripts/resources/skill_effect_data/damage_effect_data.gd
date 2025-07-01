@@ -12,7 +12,7 @@ func get_description() -> String:
 	return "造成 %d 点伤害" % [amount]
 
 ## 处理伤害效果
-func process_effect(source: Character, target: Character, _context : Dictionary = {}) -> Dictionary:
+func process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
 	var results = {}
 	
 	# 等待短暂时间

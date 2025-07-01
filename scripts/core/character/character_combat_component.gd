@@ -51,20 +51,21 @@ func initialize(p_element : int = 0, p_attack_skill : SkillData = null, p_defens
 ## [return] 动作执行结果
 func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
 	var result = {}
-	
+	var skill_context : SkillExecutionContext = params.get("skill_context", null)
+	var targets : Array[Character] = params.get("targets", [] as Array[Character])
 	match action_type:
 		ActionType.ATTACK:
-			result = await _execute_attack(target, params)
+			result = await _execute_attack(target, skill_context)
 		ActionType.DEFEND:
-			result = await _execute_defend(params)
+			result = await _execute_defend(skill_context)
 		ActionType.SKILL:
 			var skill : SkillData = params.get("skill", null)
-			var targets : Array[Character] = params.get("targets", [] as Array[Character])
 			targets.append(target)
-			var skill_context : SkillSystem.SkillExecutionContext = params.get("skill_context", null)
 			result = await _execute_skill(skill, targets, skill_context)
 		ActionType.ITEM:
-			result = await _execute_item(params.item, params.targets)
+			var item = params.get("item", null)
+			targets.append(target)
+			result = await _execute_item(item, targets)
 		_:
 			push_error("未知的动作类型：" + str(action_type))
 			result = {"success": false, "error": "未知的动作类型"}
@@ -77,29 +78,18 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
 ## [return] 实际造成的伤害值
-func take_damage(base_damage: float, source : Character = null) -> float:
+func take_damage(base_damage: float, source : Character = null, p_element : int = 0) -> float:
 	var final_damage: float = base_damage
 	
-	# 创建伤害信息对象（根据记忆中的DamageInfo结构）
-	var damage_info = {
-		"original_base_damage": base_damage,
-		"current_base_damage": base_damage,
-		"damage_value": base_damage,
-		"source_character": source,
-		"target_character": owner,
-		"can_be_modified": true,
-		"modifications": []
-	}
+	# 创建伤害信息对象
+	var damage_info: DamageInfo = DamageInfo.new(base_damage,source, get_parent(), p_element)
 	
 	# 触发伤害修改事件，允许状态效果修改伤害值
-	SkillSystem.trigger_game_event(&"on_damage_taken", {
-		"source_character": source,
-		"target_character": owner,
-		"damage_info": damage_info
-	})
+	var damage_event_context : DamageEventContext = DamageEventContext.new(source, get_parent(), damage_info)
+	SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken", damage_event_context)
 	
 	# 获取可能被修改后的伤害值
-	final_damage = damage_info.damage_value
+	final_damage = damage_info.final_damage
 
 	if final_damage <= 0:
 		return 0
@@ -109,15 +99,9 @@ func take_damage(base_damage: float, source : Character = null) -> float:
 	
 	# 消耗生命值
 	_skill_component.consume_hp(final_damage)
-
 	
 	# 触发伤害完成事件
-	SkillSystem.trigger_game_event(&"on_damage_taken_completed", {
-		"source_character": source,
-		"target_character": owner,
-		"original_damage": base_damage,
-		"final_damage": final_damage
-	})
+	SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken_completed", damage_event_context)
 	return final_damage
 
 ## 治疗处理方法
@@ -152,7 +136,7 @@ func _die(death_source: Variant = null):
 ## 执行攻击
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(target: Character, params : Dictionary) -> Dictionary:
+func _execute_attack(target: Character, skill_context: SkillExecutionContext) -> Dictionary:
 	var attacker = get_parent()
 	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
@@ -160,7 +144,7 @@ func _execute_attack(target: Character, params : Dictionary) -> Dictionary:
 	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name])
 	
 	var targets : Array[Character] = [target]
-	var result : Dictionary = await _execute_skill(attack_skill, targets, params.skill_context)
+	var result : Dictionary = await _execute_skill(attack_skill, targets, skill_context)
 	
 	# 发出攻击执行信号
 	attack_executed.emit(target, result)
@@ -169,7 +153,7 @@ func _execute_attack(target: Character, params : Dictionary) -> Dictionary:
 
 ## 执行防御
 ## [return] 防御结果
-func _execute_defend(params : Dictionary) -> Dictionary:
+func _execute_defend(skill_context: SkillExecutionContext) -> Dictionary:
 	var character = get_parent()
 	if not is_instance_valid(character):
 		return {"success": false, "error": "无效的角色引用"}
@@ -178,7 +162,7 @@ func _execute_defend(params : Dictionary) -> Dictionary:
 	
 	# 使用防御技能
 	var targets: Array[Character] = [character] # 目标是自己
-	var result: Dictionary = await _execute_skill(defense_skill, targets, params.skill_context)
+	var result: Dictionary = await _execute_skill(defense_skill, targets, skill_context)
 
 	# 发出防御执行信号
 	defend_executed.emit(character)
@@ -190,7 +174,10 @@ func _execute_defend(params : Dictionary) -> Dictionary:
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
-func _execute_skill(skill: SkillData, targets: Array[Character], skill_context : SkillSystem.SkillExecutionContext = null) -> Dictionary:
+func _execute_skill(
+		skill: SkillData, 
+		targets: Array[Character], 
+		skill_context: SkillExecutionContext) -> Dictionary:
 	var caster = get_parent()
 	if not is_instance_valid(caster) or not skill:
 		return {"success": false, "error": "无效的施法者或技能"}

@@ -14,7 +14,7 @@ func get_description() -> String:
 
 ## 处理效果 - 主要接口方法
 ## [return] 处理结果的字典
-func process_effect(source: Character, _target: Character, _context : Dictionary = {}) -> Dictionary:
+func process_effect(source: Character, _target: Character, _context : SkillExecutionContext) -> Dictionary:
 	await source.get_tree().create_timer(0.1).timeout
 	push_error("EffectProcessor.process_effect() 必须被子类重写", self)
 	return {}

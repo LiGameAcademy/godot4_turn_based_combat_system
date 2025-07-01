@@ -8,16 +8,12 @@ var _active_statuses: Dictionary = {}
 ## 可用的技能
 var _skills: Array[SkillData] = []
 
-## 当状态效果被应用到角色身上时发出
-signal status_applied(status_instance: SkillStatusData)							
-## 当状态效果从角色身上移除时发出
-signal status_removed(status_id: StringName, status_instance_data_before_removal: SkillStatusData)
-## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
-signal status_updated(status_instance: SkillStatusData, old_stacks: int, old_duration: int)
-## 属性基础值改变
-signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)
-## 属性当前值改变
-signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)
+## 信号
+signal status_applied(status_instance: SkillStatusData)																	## 当状态效果被应用到角色身上时发出
+signal status_removed(status_id: StringName, status_instance_data_before_removal: SkillStatusData)						## 当状态效果从角色身上移除时发出
+signal status_updated(status_instance: SkillStatusData, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
+signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)				## 属性基础值改变
+signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)			## 属性当前值改变
 
 ## 初始化组件
 func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
@@ -43,8 +39,6 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
 			attribute_base_value_changed.emit(attribute_instance, old_value, new_value)
 	)
-	# 连接游戏事件信号
-	SkillSystem.game_event_occurred.connect(_on_game_event_occurred)
 
 #region --- 属性管理 ---
 ## 获取属性基础值
@@ -213,7 +207,7 @@ func remove_status(status_id: StringName, trigger_end_effects: bool = true) -> b
 	
 	# 触发结束效果
 	if trigger_end_effects and not runtime_status_instance.end_effects.is_empty():
-		SkillSystem.attempt_process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, get_parent(), SkillSystem.SkillExecutionContext.new())
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
 	
 	# 发出状态移除信号
 	status_removed.emit(status_id, runtime_status_instance)
@@ -269,8 +263,55 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 		var status_instance: SkillStatusData = _active_statuses[status_id]
 		if not status_instance.ongoing_effects.is_empty():
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
-			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillSystem.SkillExecutionContext.new(battle_manager))
+			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
 #endregion
+
+## 私有方法：更新状态触发次数
+## [param status] 要更新的状态
+func update_status_trigger_counts(status: SkillStatusData) -> void:
+	status.current_turn_trigger_count += 1
+	status.current_total_trigger_count += 1
+	
+	# 检查是否达到最大触发次数
+	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
+		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
+		# 使用延迟调用移除状态，避免在遍历过程中修改集合
+		call_deferred("remove_status", status.status_id)
+
+## 重置状态触发计数
+func reset_status_trigger_counts() -> void:
+	# 重置所有状态的回合触发计数
+	for status_id in _active_statuses.keys():
+		var status = _active_statuses[status_id]
+		status.current_turn_trigger_count = 0
+
+## 处理回合开始时的状态更新
+func process_turn_start() -> void:
+	# 更新所有状态的持续时间
+	var expired_status_ids: Array[StringName] = []
+	
+	for status_id in _active_statuses.keys():
+		var status = _active_statuses[status_id]
+		
+		if status.duration_type == SkillStatusData.DurationType.TURNS:
+			status.remaining_duration -= 1
+			if status.remaining_duration <= 0:
+				expired_status_ids.append(status_id)
+			else:
+				# 触发回合开始事件
+				SkillSystem.trigger_game_event(get_parent(), &"on_turn_start", EventContext.new(get_parent()))
+	
+	# 移除过期状态
+	for status_id in expired_status_ids:
+		remove_status(status_id)
+
+## 获取触发状态
+func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
+	var triggerable_statuses: Array[SkillStatusData] = _active_statuses.values().filter(
+		func(status: SkillStatusData) -> bool:
+			return status.can_trigger_on_event(event_type)
+	)
+	return triggerable_statuses
 
 #region --- 私有方法 ---
 ## 私有方法：应用或移除属性修饰符
@@ -412,7 +453,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 
 	# 触发初始效果
 	if not runtime_status_instance.initial_effects.is_empty():
-		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillSystem.SkillExecutionContext.new())
+		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
 
 	result_info["applied_successfully"] = true
 	result_info["reason"] = "new_status_applied"
@@ -429,101 +470,3 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 	
 	return runtime_status_instance
 #endregion
-
-## 私有方法：检查状态触发次数限制
-## [param status] 要检查的状态
-## [return] 是否可以触发
-func _can_status_trigger(status: SkillStatusData) -> bool:
-	if status.trigger_turns > 0 and status.current_turn_trigger_count >= status.trigger_turns:
-		return false
-	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
-		return false
-	return true
-
-## 私有方法：更新状态触发次数
-## [param status] 要更新的状态
-func _update_status_trigger_counts(status: SkillStatusData) -> void:
-	status.current_turn_trigger_count += 1
-	status.current_total_trigger_count += 1
-	
-	# 检查是否达到最大触发次数
-	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
-		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
-		# 使用延迟调用移除状态，避免在遍历过程中修改集合
-		call_deferred("remove_status", status.status_id)
-
-## 重置状态触发计数
-func reset_status_trigger_counts() -> void:
-	# 重置所有状态的回合触发计数
-	for status_id in _active_statuses.keys():
-		var status = _active_statuses[status_id]
-		status.current_turn_trigger_count = 0
-
-## 处理回合开始时的状态更新
-func process_turn_start() -> void:
-	# 更新所有状态的持续时间
-	var expired_status_ids: Array[StringName] = []
-	
-	for status_id in _active_statuses.keys():
-		var status = _active_statuses[status_id]
-		
-		if status.duration_type == SkillStatusData.DurationType.TURNS:
-			status.remaining_duration -= 1
-			if status.remaining_duration <= 0:
-				expired_status_ids.append(status_id)
-			else:
-				# 触发回合开始事件
-				SkillSystem.trigger_game_event(&"on_turn_start", {"character": get_parent()})
-	
-	# 移除过期状态
-	for status_id in expired_status_ids:
-		remove_status(status_id)
-
-## 处理游戏事件触发的状态效果
-func _on_game_event_occurred(event_type: StringName, context: Dictionary) -> void:
-	# 检查事件是否与当前角色相关
-	var character = get_parent() as Character
-	if not is_instance_valid(character):
-		return
-	
-	# 检查事件上下文中的目标或源是否为当前角色
-	var is_related_to_character = false
-	if context.has("source_character") and context["source_character"] == character:
-		is_related_to_character = true
-	elif context.has("target_character") and context["target_character"] == character:
-		is_related_to_character = true
-	elif context.has("character") and context["character"] == character:
-		is_related_to_character = true
-	
-	# 如果事件与当前角色无关，则返回
-	if not is_related_to_character:
-		return
-	
-	# 遍历所有状态，检查是否有可触发的状态
-	for status_id in _active_statuses:
-		var status = _active_statuses[status_id]
-		if status.can_trigger_on_event(event_type):
-			# 检查触发次数限制
-			if not _can_status_trigger(status):
-				print_rich("[color=gray]状态 %s 触发次数已达上限[/color]" % [status.status_name])
-				continue
-			
-			print_rich("[color=orange]状态 %s 响应事件 %s[/color]" % [status.status_name, event_type])
-			
-			# 创建执行上下文
-			var execution_context = {
-				"source_character": status.source_character,
-				"primary_target": character,
-				"status_data": status,
-				"original_event_context": context
-			}
-			
-			# 执行触发效果
-			var trigger_effects = status.get_trigger_effects()
-			if not trigger_effects.is_empty():
-				# 注意：第四个参数是 skill_data，第五个参数才是 context
-				# 使用下划线前缀标记未使用的变量
-				var _effect_result = await SkillSystem.apply_effects(status.source_character, character, trigger_effects, execution_context)
-				
-				# 更新触发计数
-				_update_status_trigger_counts(status)
