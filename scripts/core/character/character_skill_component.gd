@@ -307,10 +307,11 @@ func process_turn_start() -> void:
 
 ## 获取触发状态
 func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
-	var triggerable_statuses: Array[SkillStatusData] = _active_statuses.values().filter(
-		func(status: SkillStatusData) -> bool:
-			return status.can_trigger_on_event(event_type)
-	)
+	var triggerable_statuses: Array[SkillStatusData] = []
+	for status in _active_statuses.values():
+		if status.can_trigger_on_event(event_type):
+			triggerable_statuses.append(status)
+
 	return triggerable_statuses
 
 #region --- 私有方法 ---

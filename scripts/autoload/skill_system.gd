@@ -83,7 +83,7 @@ func trigger_game_event(event_source: Character, event_type: StringName, context
 		if context is DamageEventContext:
 			skill_context.damage_info = context.damage_info
 		var _effect_result := await _process_effects_async(trigger_effects, status.source_character, [event_source], skill_context)
-		status.update_status_trigger_counts()
+		skill_component.update_status_trigger_counts(status)
 
 ## 私有方法：验证技能可用性
 func _validate_skill_usability(skill: SkillData, caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
@@ -103,7 +103,7 @@ func _validate_skill_usability(skill: SkillData, caster: Character, targets: Arr
 
 	# 检查目标选择是否有效
 	# First, determine the actual list of targets based on skill's target type if not explicitly provided
-	var actual_targets_for_validation = targets
+	var actual_targets_for_validation : Array[Character] = targets
 	match skill.target_type:
 		SkillData.TargetType.NONE:
 			actual_targets_for_validation = []
@@ -285,20 +285,20 @@ func _determine_execution_targets(caster: Character, skill: SkillData, selected_
 	var final_targets: Array[Character] = []
 	if skill.needs_target():
 		final_targets = selected_targets
-
-	match skill.target_type:
-		SkillData.TargetType.SELF:
-			if is_instance_valid(caster) and (caster.is_alive or skill.can_target_dead):
-				final_targets.append(caster)
-		SkillData.TargetType.ALLY_ALL:
-			final_targets = context.battle_manager.get_valid_ally_targets(false, caster)
-		SkillData.TargetType.ALLY_ALL_INC_SELF:
-			final_targets = context.battle_manager.get_valid_ally_targets(true, caster)
-		SkillData.TargetType.ENEMY_ALL:
-			final_targets = context.battle_manager.get_valid_enemy_targets(caster)
-		_:
-			push_warning("SkillSystem: Unhandled skill.target_type in _determine_execution_targets: %s" % skill.target_type)
-			# Could implement a fallback here
+	else:
+		match skill.target_type:
+			SkillData.TargetType.SELF:
+				if is_instance_valid(caster) and (caster.is_alive or skill.can_target_dead):
+					final_targets.append(caster)
+			SkillData.TargetType.ALLY_ALL:
+				final_targets = context.battle_manager.get_valid_ally_targets(false, caster)
+			SkillData.TargetType.ALLY_ALL_INC_SELF:
+				final_targets = context.battle_manager.get_valid_ally_targets(true, caster)
+			SkillData.TargetType.ENEMY_ALL:
+				final_targets = context.battle_manager.get_valid_enemy_targets(caster)
+			_:
+				push_warning("SkillSystem: Unhandled skill.target_type in _determine_execution_targets: %s" % skill.target_type)
+				# Could implement a fallback here
 
 	# 过滤掉无效目标
 	var valid_targets: Array[Character] = []

@@ -95,7 +95,7 @@ func take_damage(base_damage: float, source : Character = null, p_element : int 
 		return 0
 	
 	# 播放受击动画
-	owner.play_animation("hit") # 不等待动画完成，允许并行处理
+	get_parent().play_animation("hit") # 不等待动画完成，允许并行处理
 	
 	# 消耗生命值
 	_skill_component.consume_hp(final_damage)

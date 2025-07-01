@@ -239,7 +239,7 @@ func _play_heal_cast_animation(caster: Character) -> void:
 
 ## 播放命中动画
 ## [param target] 目标角色
-func _play_hit_animation(target: Character):
+func _play_damage_effect(target: Character, _parames: Dictionary = {}) -> void:
 	var tween = create_tween()
 	
 	# 目标变红效果

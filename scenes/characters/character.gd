@@ -173,10 +173,11 @@ func _init_components() -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize(character_data.element, character_data.attack_skill)
+	combat_component.initialize(character_data.element, character_data.attack_skill, character_data.defense_skill)
 
 	# 连接组件信号
-	combat_component.character_defeated.connect(_on_character_defeated)
+	if not combat_component.character_defeated.is_connected(_on_character_defeated):
+		combat_component.character_defeated.connect(_on_character_defeated)
 
 	skill_component.status_applied.connect(_on_status_applied)
 	skill_component.status_removed.connect(_on_status_removed)
@@ -194,9 +195,6 @@ func _initialize_from_data(data: CharacterData) -> void:
 	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
 	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 	
-	# 初始化组件
-	_init_components()
-
 #region --- UI 更新辅助方法 ---
 ## 更新名称显示
 func _update_name_display() -> void:

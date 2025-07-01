@@ -18,7 +18,7 @@ func get_description() -> String:
 
 ## 处理修改伤害效果
 ## 这个处理器不直接应用伤害，而是修改传入的伤害信息对象
-func process_effect(source: Character, _target: Character, context : SkillExecutionContext) -> Dictionary:
+func process_effect(_source: Character, _target: Character, context : SkillExecutionContext) -> Dictionary:
 	var results = {}
 	
 	# 检查伤害信息
@@ -36,10 +36,12 @@ func process_effect(source: Character, _target: Character, context : SkillExecut
 	var original_damage = damage_info.final_damage
 
 	# 应用百分比修改
-	damage_info.modify_damage("percent", damage_mod_percent, damage_mod_min, damage_mod_max)
+	if damage_mod_percent != 0:
+		damage_info.modify_damage("percent", damage_mod_percent, damage_mod_min, damage_mod_max)
 	
 	# 应用固定值修改
-	damage_info.modify_damage("flat", damage_mod_flat, damage_mod_min, damage_mod_max)
+	if damage_mod_flat !=0:
+		damage_info.modify_damage("flat", damage_mod_flat, damage_mod_min, damage_mod_max)
 	
 	# 返回结果
 	results["success"] = true
