@@ -16,6 +16,15 @@ enum ActionType {
 @export_enum("none", "fire", "water", "earth", "light")var element: int = 0 			## 元素属性 ElementTypes.Element.NONE
 var attack_skill : SkillData															## 攻击技能
 var defense_skill : SkillData															## 防御技能
+## 能否行动
+var can_action : bool = true:
+	get:
+		if not is_instance_valid(get_parent()):
+			return false
+		if not _skill_component:
+			return false
+		var restricted_tags := _skill_component.get_restricted_action_tags()
+		return not restricted_tags.has(&"any_action")
 
 # 信号
 signal character_defeated()															## 死亡时发出信号
@@ -35,6 +44,7 @@ func initialize(p_element : int = 0, p_attack_skill : SkillData = null, p_defens
 		return
 	
 	_skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
+	_skill_component.action_tags_changed.connect(_on_action_tags_changed)
 	element = p_element
 
 	if p_attack_skill:
@@ -50,7 +60,26 @@ func initialize(p_element : int = 0, p_attack_skill : SkillData = null, p_defens
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
 func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
-	var result = {}
+	var result = {"success": false, "action_type": action_type, "target": target, "params": params}
+
+	# 检查是否可以执行该动作类型
+	if not can_perform_action(action_type):
+		result["error"] = "无法执行该动作类型"
+		return result
+
+	# 如果是技能动作，检查技能是否可以使用
+	if action_type == ActionType.SKILL:
+		var skill : SkillData = params.get("skill", null)
+		if not skill:
+			result["error"] = "技能数据为空"
+			return result
+		if not _skill_component.is_skill_available(params.skill):
+			result["error"] = "技能不可用"
+			return result
+		if not _skill_component.has_enough_mp_for_skill(skill):
+			result["error"] = "魔法值不足"
+			return result
+
 	var skill_context : SkillExecutionContext = params.get("skill_context", null)
 	var targets : Array[Character] = params.get("targets", [] as Array[Character])
 	match action_type:
@@ -126,6 +155,22 @@ func on_turn_start(battle_manager : BattleManager) -> void:
 ## 在回合结束时调用
 func on_turn_end(_battle_manager : BattleManager) -> void:
 	pass
+
+## 检查是否可以执行该动作类型
+func can_perform_action(action_type: ActionType) -> bool:
+	if not _skill_component:
+		return false
+	match action_type:
+		ActionType.ATTACK:
+			return _skill_component.can_perform_action_category(&"attack")
+		ActionType.DEFEND:
+			return _skill_component.can_perform_action_category(&"defend")
+		ActionType.SKILL:
+			return _skill_component.can_perform_action_category(&"any_skill")
+		ActionType.ITEM:
+			return _skill_component.can_perform_action_category(&"item")
+		_:
+			return false			
 
 #region --- 私有方法 ---
 ## 死亡处理方法
@@ -230,4 +275,11 @@ func _on_attribute_current_value_changed(
 	# 检查是否是生命值变化
 	if attribute_instance.attribute_name == &"CurrentHealth" and new_value <= 0:
 		_die()
+
+func _on_action_tags_changed(restricted_tags: Array[String]) -> void:
+	# 可以在这里添加额外的处理逻辑，例如更新UI
+	print_rich("[color=yellow]%s 的动作限制更新: %s[/color]" % [owner.character_name, restricted_tags])
+	
+	# 可以发出信号通知UI更新
+	# action_restriction_changed.emit(restricted_tags)
 #endregion

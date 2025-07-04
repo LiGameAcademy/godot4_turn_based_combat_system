@@ -55,6 +55,12 @@ var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
 var element: int:
 	get : return combat_component.element
+var can_action: bool = true:
+	get: 
+		if not combat_component:
+			push_error("战斗组件未初始化！")
+			return false
+		return combat_component.can_action
 
 # 信号 - 这些信号将转发组件的信号
 signal character_defeated																														## 当角色死亡时触发

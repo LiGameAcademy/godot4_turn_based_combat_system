@@ -366,6 +366,13 @@ func _on_state_changed(
 			current_turn_character = turn_queue.pop_front()
 			_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([current_turn_character.character_name]))
 			current_turn_character.on_turn_start(self)
+
+			# 检查角色能否行动
+			if not current_turn_character.can_action:
+				_log_battle_info("[color=red][错误][/color] 角色无法行动, 跳过回合")
+				state_manager.change_state(BattleStateManager.BattleState.TURN_END)
+				return
+
 			# 根据角色类型决定下一个状态
 			var next_state = BattleStateManager.BattleState.PLAYER_TURN if player_characters.has(current_turn_character) else BattleStateManager.BattleState.ENEMY_TURN
 			state_manager.change_state(next_state)

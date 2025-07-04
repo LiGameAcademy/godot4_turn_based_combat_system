@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=19 format=3 uid="uid://x3ps14kdto0r"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://x3ps14kdto0r"]
 
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_bdupk"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_j3npa"]
@@ -17,6 +17,8 @@
 [ext_resource type="Resource" uid="uid://pcfthqa77ccw" path="res://resources/skill_attributes/magic_attack.tres" id="9_j3npa"]
 [ext_resource type="Resource" uid="uid://bkfxmw6ak8p55" path="res://resources/skill_attributes/magic_defense.tres" id="10_ikb8i"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="13_ikb8i"]
+[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="18_yl7in"]
+[ext_resource type="Resource" uid="uid://cifl76nnd4nf" path="res://resources/skills/stun.tres" id="19_p7u1d"]
 
 [sub_resource type="Resource" id="Resource_ph3fh"]
 script = ExtResource("1_m1y3i")
@@ -29,7 +31,7 @@ character_name = "勇者"
 description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
 attribute_set_resource = SubResource("Resource_ph3fh")
 element = 2
-skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i")])
+skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i"), ExtResource("18_yl7in"), ExtResource("19_p7u1d")])
 attack_skill = ExtResource("1_j3npa")
 defense_skill = ExtResource("13_ikb8i")
 sprite_offset = Vector2(0, 0)

@@ -67,7 +67,8 @@ enum StatusType {
 ## 角色拥有此状态时，无法执行哪些类别的行动。
 ## 数组元素为StringName，对应 SkillData.action_categories 中的类别。
 ## 例如: [&"any_action"] (眩晕), [&"magic_skill"] (沉默)
-@export var restricted_action_categories: Array[StringName] = []
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "attack", "defend", "item")
+var restricted_action_categories: Array[String] = []
 
 # --- 运行时变量 (在 duplicate(true) 后由 character.gd 设置和管理) ---
 var source_character: Character   													## 施加此状态的角色
