@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
-[ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2e" path="res://scenes/ui/defense_indicator.tscn" id="2_lv1ak"]
 [ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://scripts/core/character/character_combat_component.gd" id="3_e22cc"]
 [ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://scripts/core/character/character_skill_component.gd" id="4_2qjml"]
+[ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://scenes/ui/state_indicator.tscn" id="4_ma1fs"]
 
 [node name="Character" type="Node2D"]
 script = ExtResource("1_f5tgq")
@@ -65,8 +65,6 @@ grow_vertical = 2
 text = "MP: 100/100"
 horizontal_alignment = 1
 
-[node name="DefenseIndicator" parent="." instance=ExtResource("2_lv1ak")]
-
 [node name="CharacterCombatComponent" type="Node" parent="." node_paths=PackedStringArray("_skill_component")]
 unique_name_in_owner = true
 script = ExtResource("3_e22cc")
@@ -77,3 +75,5 @@ metadata/_custom_type_script = "uid://bnwrmd7xm1v5n"
 unique_name_in_owner = true
 script = ExtResource("4_2qjml")
 metadata/_custom_type_script = "uid://blrs4jiqbl4v5"
+
+[node name="StateIndicator" parent="." instance=ExtResource("4_ma1fs")]

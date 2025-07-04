@@ -10,7 +10,7 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number
 @onready var mp_label: Label = %MPLabel
 @onready var name_label := $Container/NameLabel
 @onready var character_rect := $Container/CharacterRect
-@onready var defense_indicator : DefenseIndicator = $DefenseIndicator
+@onready var state_indicator : StateIndicator = $StateIndicator
 # 组件引用
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
 @onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
@@ -254,31 +254,42 @@ func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_v
 
 ## 当角色死亡时调用
 func _on_character_defeated() -> void:
-	if defense_indicator:
-		defense_indicator.hide_indicator()
+	if state_indicator:
+		state_indicator.hide_indicator()
 	modulate = Color(0.5, 0.5, 0.5, 0.5) # 变灰示例
 	character_defeated.emit()
 
 ## 当状态被应用时调用
 func _on_status_applied(status_instance: SkillStatusData):
-	if not defense_indicator:
+	if not state_indicator:
+		push_warning("状态指示器未初始化,无法显示状态！")
 		return
 	
 	# 检查是否是防御状态
-	if status_instance.status_id == &"defend":
-		defense_indicator.show_indicator()
-		print_rich("[color=cyan]%s 进入防御状态[/color]" % character_data.character_name)
-
+	match status_instance.status_id:
+		&"defend":
+			state_indicator.show_indicator(state_indicator.StateType.DEFENSE)
+			print_rich("[color=cyan]%s 进入防御状态[/color]" % character_data.character_name)
+		&"silence":
+			state_indicator.show_indicator(state_indicator.StateType.SILENCE)
+			print_rich("[color=cyan]%s 进入沉默状态[/color]" % character_data.character_name)
+		&"stun":
+			state_indicator.show_indicator(state_indicator.StateType.STUN)
+			print_rich("[color=cyan]%s 进入眩晕状态[/color]" % character_data.character_name)
+		_:
+			print_rich("[color=orange]%s 未知状态 %s[/color], 不显示状态指示器" % [character_data.character_name, status_instance.status_id])
+			return
 	status_applied_to_character.emit(self, status_instance)
 
 ## 当状态被移除时调用
 func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData):
-	if not defense_indicator:
+	if not state_indicator:
+		push_warning("状态指示器未初始化,无法移除状态！")
 		return
 	
 	# 检查是否是防御状态
-	if status_id == &"defend":
-		defense_indicator.hide_indicator()
+	if status_id in [&"defend", &"silence", &"stun"]:
+		state_indicator.hide_indicator()
 		print_rich("[color=orange]%s 防御状态结束[/color]" % character_data.character_name)
 
 	status_removed_from_character.emit(self, status_id, _status_instance_data_before_removal)

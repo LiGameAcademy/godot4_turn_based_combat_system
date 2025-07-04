@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_vy3m8")
-status_id = &""
+status_id = &"silence"
 status_name = "沉默"
 description = "无法使用任何需要消耗魔法值的技能。"
 status_type = 2
