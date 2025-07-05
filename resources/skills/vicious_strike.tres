@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=8 format=3 uid="uid://c0dt7jqwtnbr"]
+
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_abcde"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="2_8hv47"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_fghij"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_xok1x"]
+[ext_resource type="Resource" uid="uid://c6f5g4h3i2j1k" path="res://resources/skill_status/bleed.tres" id="3_klmno"]
+
+[sub_resource type="Resource" id="Resource_wwvtt"]
+script = ExtResource("2_8hv47")
+damage_amount = 4
+damage_power_scale = 0.0
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_8hv47"]
+script = ExtResource("2_xok1x")
+status_to_apply = ExtResource("3_klmno")
+status_application_chance = 0.8
+status_duration_override = -1
+status_stacks_to_apply = 1
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("1_abcde")
+skill_id = &"vicious_strike"
+skill_name = "恶毒突刺"
+description = "用生锈的匕首刺向敌人，造成少量伤害，并有很高几率使其流血。"
+mp_cost = 5
+target_type = 1
+effects = Array[ExtResource("2_fghij")]([SubResource("Resource_wwvtt"), SubResource("Resource_8hv47")])
+action_categories = Array[String](["any_action", "basic_attack", "physical_attack"])
+cast_animation = &""
+can_target_dead = false
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

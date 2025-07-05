@@ -172,6 +172,14 @@ func can_perform_action(action_type: ActionType) -> bool:
 		_:
 			return false			
 
+## 获取可用技能列表
+## [return] 可用技能列表
+func get_available_skills() -> Array:
+	var available_skills : Array = _skill_component.get_available_skills().duplicate(true)
+	available_skills.erase(attack_skill)
+	available_skills.erase(defense_skill)
+	return available_skills
+
 #region --- 私有方法 ---
 ## 死亡处理方法
 func _die(death_source: Variant = null):

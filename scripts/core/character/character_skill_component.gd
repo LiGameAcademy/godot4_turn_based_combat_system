@@ -148,6 +148,15 @@ func has_skill(skill_id: StringName) -> bool:
 ## [return] 技能数量
 func get_skill_count() -> int:
 	return _skills.size()
+
+## 获取可用技能列表
+## [return] 可用技能列表
+func get_available_skills() -> Array:
+	var available_skills : Array = []
+	for skill in _skills:
+		if has_enough_mp_for_skill(skill):
+			available_skills.append(skill)
+	return available_skills
 #endregion
 
 #region --- 状态管理 ---
@@ -156,7 +165,10 @@ func get_active_statuses() -> Dictionary:
 	return _active_statuses
 
 ## 添加状态效果到角色身上
+## [param status_template] 状态模板
+## [param p_source_char] 状态来源角色
 ## [param effect_data_from_skill] 是那个类型为STATUS的SkillEffectData，用于获取duration_override等
+## [return] 应用状态的结果
 func apply_status(status_template: SkillStatusData, p_source_char: Character, effect_data_from_skill: SkillEffectData) -> Dictionary:
 	var result = {"applied_successfully": false, "status_instance": null, "reason": "unknown"}
 	

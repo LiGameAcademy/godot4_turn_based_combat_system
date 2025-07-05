@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=17 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=19 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
@@ -8,6 +8,8 @@
 [ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="5_443mk"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="6_jf55n"]
 [ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
+[ext_resource type="Resource" uid="uid://dl6veckqncbeh" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
+[ext_resource type="Resource" uid="uid://c0dt7jqwtnbr" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true
@@ -98,7 +100,7 @@ character_name = "哥布林"
 description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
 element = 3
-skills = Array[ExtResource("2_fr6p1")]([])
+skills = Array[ExtResource("2_fr6p1")]([ExtResource("9_ixuka"), ExtResource("10_hhnc7")])
 attack_skill = ExtResource("1_n1w7c")
 defense_skill = ExtResource("6_jf55n")
-sprite_offset = Vector2(0, 0)
+color = Color(0, 0, 1, 1)

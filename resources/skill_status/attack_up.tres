@@ -32,4 +32,4 @@ trigger_on_events = Array[StringName]([])
 trigger_effects = Array[ExtResource("2_7cgdo")]([])
 trigger_turns = 1
 trigger_count = 1
-restricted_action_categories = Array[StringName]([])
+restricted_action_categories = Array[String]([])

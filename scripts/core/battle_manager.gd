@@ -20,9 +20,11 @@ var is_player_turn : bool = false :						## 是否是玩家回合
 var effect_processors = {}								## 效果处理器
 
 ## 信号
-signal turn_changed(character)							## 当前行动者改变时触发
-signal battle_ended(is_victory)							## 战斗结束时触发
-signal battle_info_logged(text)							## 战斗日志记录时触发
+signal turn_changed(character: Character)						## 当前行动者改变时触发
+signal battle_ended(is_victory: bool)							## 战斗结束时触发
+signal battle_info_logged(text: String)							## 战斗日志记录时触发
+## 敌人行动执行时触发
+signal enemy_action_executed(source: Character, target: Character, damage: float)	
 
 func _ready() -> void:
 	state_manager.state_changed.connect(_on_state_changed)
@@ -63,24 +65,43 @@ func player_select_action(
 
 ## 执行敌人AI
 func execute_enemy_ai() -> void:
-	# 简单的AI逻辑：总是攻击第一个存活的玩家角色
-	var target = null
-	for player in player_characters:
-		if player.current_hp > 0:
-			target = player
-			break
-	if target:
-		_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
-		current_turn_character.execute_action(CharacterCombatComponent.ActionType.ATTACK, target, {
-			"skill_context": SkillExecutionContext.new(self)
-		})
+	var character : Character = current_turn_character
+	if not is_instance_valid(character):
+		push_error("当前行动者不存在！")
+		return
+
+	# 检查角色是否有AI组件
+	var ai_component = character.get_ai_component()
+	if not ai_component:
+		push_error("敌人没有AI组件！")
+		# 简单的AI逻辑：总是攻击第一个存活的玩家角色
+		var target = null
+		for player in player_characters:
+			if player.current_hp > 0:
+				target = player
+				break
+		if target:
+			_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
+			current_turn_character.execute_action(
+				CharacterCombatComponent.ActionType.ATTACK, 
+				target, 
+				{
+					"skill_context": SkillExecutionContext.new(self)
+				})
+		else:
+			_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
 	else:
-		_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
-		
-	# 检查战斗是否结束
-	if check_battle_end_condition():
-		return # 战斗已结束
-	
+		# 执行AI行动
+		var action_result = await ai_component.execute_action()
+
+		# 如果AI无法决策或执行失败，直接结束回合
+		if not action_result or not action_result.is_valid:
+			_log_battle_info("[color=red][错误][/color] AI无法决策或执行失败，跳过回合")
+		else:
+			# 发送敌人行动执行信号
+			enemy_action_executed.emit(action_result.source, action_result.target, action_result.damage)
+
+	await get_tree().create_timer(1.0).timeout
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
 ## 检查战斗结束条件
@@ -111,20 +132,24 @@ func check_battle_end_condition() -> bool:
 		return true
 	return false
 
-## 添加玩家角色
-## [param character] 角色
-func add_player_character(character: Character) -> void:
-	if not player_characters.has(character):
+## 添加角色
+func add_character(character: Character, is_player: bool = true) -> void:
+	if is_player and player_characters.has(character):
+		return
+	if not is_player and enemy_characters.has(character):
+		return
+	
+	var info_text : String
+	if is_player:
 		player_characters.append(character)
-		_log_battle_info("[color=blue][玩家注册][/color] 添加角色: [color=cyan][b]{0}[/b][/color]".format([character.character_name]))
-
-## 添加敌人角色
-## [param character] 角色
-func add_enemy_character(character: Character) -> void:
-	if not enemy_characters.has(character):
+		info_text = "[color=blue][玩家注册][/color] 添加角色: [color=cyan][b]{0}[/b][/color]".format([character.character_name])
+	else:
 		enemy_characters.append(character)
-		_log_battle_info("[color=red][敌人注册][/color] 添加角色: [color=orange][b]{0}[/b][/color]".format([character.character_name]))
-
+		info_text = "[color=red][敌人注册][/color] 添加角色: [color=orange][b]{0}[/b][/color]".format([character.character_name])
+	
+	character.initialize(self)
+	_log_battle_info(info_text)
+	
 ## 移除角色
 ## [param character] 角色
 func remove_character(character: Character) -> void:

@@ -34,11 +34,11 @@ func _ready() -> void:
 	action_panel.hide()
 	for player in player_area.get_children():
 		if player is Character:
-			battle_manager.add_player_character(player)
+			battle_manager.add_character(player, true)
 			
 	for enemy in enemy_area.get_children():
 		if enemy is Character:
-			battle_manager.add_enemy_character(enemy)
+			battle_manager.add_character(enemy, false)
 
 	battle_manager.start_battle()
 

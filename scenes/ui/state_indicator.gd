@@ -6,6 +6,7 @@ enum StateType {
 	STUN,           ## 眩晕
 	SILENCE,        ## 沉默
 	DEFENSE,        ## 防御
+	BLEED,			## 流血
 }
 
 @onready var label : Label = $Label
@@ -13,6 +14,7 @@ enum StateType {
 	StateType.STUN: "💫",
 	StateType.SILENCE: "🔇",
 	StateType.DEFENSE: "🛡️",
+	StateType.BLEED: "🩸",
 }
 
 func _ready() -> void:

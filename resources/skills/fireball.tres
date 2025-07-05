@@ -38,3 +38,4 @@ target_type = 1
 effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_whgey"), SubResource("Resource_so6qb")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
+can_target_dead = false

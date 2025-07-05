@@ -4,14 +4,14 @@ class_name CharacterData
 @export var character_name: String = "英雄"								## 角色名称
 @export_multiline var description: String = "一个勇敢的战士"		  	## 描述
 @export var attribute_set_resource: SkillAttributeSet = null			## 属性模版
-@export var attack_skill : SkillData = null								## 攻击技能
-@export var defense_skill : SkillData = null							## 防御技能
 
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE
 
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
+@export var attack_skill : SkillData = null
+@export var defense_skill : SkillData = null
 
 @export_group("视觉表现")
 @export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色

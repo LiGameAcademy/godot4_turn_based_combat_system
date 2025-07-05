@@ -14,6 +14,7 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number
 # 组件引用
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
 @onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
+@onready var ai_component: CharacterAIComponent = %CharacterAIComponent
 
 @export var character_data: CharacterData
 
@@ -53,7 +54,7 @@ var character_name : StringName:
 # 属性委托给战斗组件
 var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
-var element: int:
+var element: int:									## 元素类型
 	get : return combat_component.element
 var can_action: bool = true:
 	get: 
@@ -71,12 +72,17 @@ signal status_removed_from_character(character: Character, status_id: StringName
 signal status_updated_on_character(character: Character, status_instance: SkillStatusData, old_stacks: int, old_duration: int)					## 当角色状态更新时触发
 
 func _ready():
+	if state_indicator:
+		state_indicator.hide()
+
+## 初始化角色
+func initialize(battle_manager: BattleManager) -> void:
 	if character_data:
 		_initialize_from_data(character_data)
 	else:
 		push_error("角色场景 " + name + " 没有分配CharacterData!")
 	# 初始化组件
-	_init_components()
+	_init_components(battle_manager)
 
 	# 初始化UI显示
 	_update_name_display()
@@ -170,8 +176,12 @@ func apply_skill_status(status_instance: SkillStatusData, source_character: Char
 func get_skill_component() -> CharacterSkillComponent:
 	return skill_component
 
+## 获取AI组件
+func get_ai_component() -> CharacterAIComponent:
+	return ai_component
+
 ## 初始化组件
-func _init_components() -> void:
+func _init_components(battle_manager: BattleManager) -> void:
 	if not combat_component:
 		push_error("战斗组件未初始化！")
 		return
@@ -192,6 +202,8 @@ func _init_components() -> void:
 
 	skill_component.attribute_base_value_changed.connect(_on_attribute_base_value_changed)
 	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
+
+	ai_component.initialize(battle_manager)
 
 ## 初始化玩家数据
 func _initialize_from_data(data: CharacterData) -> void:
@@ -276,6 +288,9 @@ func _on_status_applied(status_instance: SkillStatusData):
 		&"stun":
 			state_indicator.show_indicator(state_indicator.StateType.STUN)
 			print_rich("[color=cyan]%s 进入眩晕状态[/color]" % character_data.character_name)
+		&"bleed":
+			state_indicator.show_indicator(state_indicator.StateType.BLEED)
+			print_rich("[color=cyan]%s 进入流血状态[/color]" % character_data.character_name)
 		_:
 			print_rich("[color=orange]%s 未知状态 %s[/color], 不显示状态指示器" % [character_data.character_name, status_instance.status_id])
 			return
@@ -288,7 +303,7 @@ func _on_status_removed(status_id: StringName, _status_instance_data_before_remo
 		return
 	
 	# 检查是否是防御状态
-	if status_id in [&"defend", &"silence", &"stun"]:
+	if status_id in [&"defend", &"silence", &"stun", &"bleed"]:
 		state_indicator.hide_indicator()
 		print_rich("[color=orange]%s 防御状态结束[/color]" % character_data.character_name)
 

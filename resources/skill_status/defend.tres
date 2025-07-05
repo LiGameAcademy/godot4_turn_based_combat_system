@@ -37,5 +37,5 @@ trigger_on_events = Array[StringName]([&"on_damage_taken"])
 trigger_effects = Array[ExtResource("2_o56po")]([SubResource("Resource_fim4e")])
 trigger_turns = 1
 trigger_count = 1
-restricted_action_categories = Array[StringName]([])
+restricted_action_categories = Array[String]([])
 metadata/_custom_type_script = "uid://do7l16ao2ut6t"

@@ -26,7 +26,7 @@ enum TargetType {
 
 @export_group("效果")
 @export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
-@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack")
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
 var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
 
 @export_group("视觉与音效 (可选)")

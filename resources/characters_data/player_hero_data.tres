@@ -34,4 +34,4 @@ element = 2
 skills = Array[ExtResource("2_l2ikc")]([ExtResource("3_ylfyt"), ExtResource("4_m1y3i"), ExtResource("18_yl7in"), ExtResource("19_p7u1d")])
 attack_skill = ExtResource("1_j3npa")
 defense_skill = ExtResource("13_ikb8i")
-sprite_offset = Vector2(0, 0)
+color = Color(0, 0, 1, 1)
