@@ -146,8 +146,8 @@ func _get_skill_tags(skill: SkillData) -> Array:
 ## [return] 是否敌对
 func _is_enemy(character1: Character, character2: Character) -> bool:
 	# 使用角色组件中的character_registry来判断敌对关系
-	if character1.ai_component and character1.ai_component.character_registry:
-		return character1.ai_component.character_registry.is_enemy_of(character1, character2)
+	if character1.ai_component:
+		return character1.ai_component.is_enemy(character2)
 	
 	# 如果没有角色注册管理器，则无法判断
 	return false

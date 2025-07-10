@@ -240,6 +240,9 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 func set_ai_enabled(enabled: bool) -> void:
 	ai_enabled = enabled
 
+func is_enemy(target: Character) -> bool:
+	return _battle_manager.is_enemy(get_parent(), target)
+
 # 判断是否应该使用防御动作
 ## [param character] 角色
 ## [return] 是否应该防御

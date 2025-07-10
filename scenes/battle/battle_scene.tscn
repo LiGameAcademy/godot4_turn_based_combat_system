@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://bvnf2raqi3v41"]
+[gd_scene load_steps=14 format=3 uid="uid://bvnf2raqi3v41"]
 
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
@@ -7,8 +7,12 @@
 [ext_resource type="PackedScene" uid="uid://dytp20hph55tl" path="res://scenes/ui/skill_select_menu.tscn" id="3_2wmvw"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
 [ext_resource type="PackedScene" uid="uid://b3kx6r5a7lfil" path="res://scenes/ui/target_selection_menu.tscn" id="4_ww1p6"]
-[ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://scripts/core/battle_manager.gd" id="5_o3k7m"]
-[ext_resource type="Script" uid="uid://di683i6hqfos5" path="res://scripts/core/battle_state_manager.gd" id="6_lbt8a"]
+[ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://scripts/core/battle/battle_manager.gd" id="8_2wmvw"]
+[ext_resource type="Script" uid="uid://di683i6hqfos5" path="res://scripts/core/battle/battle_state_manager.gd" id="9_puhd7"]
+[ext_resource type="Script" uid="uid://htsaaa4uwn2u" path="res://scripts/core/battle/battle_visual_effects.gd" id="10_mpswg"]
+[ext_resource type="Script" uid="uid://bs03e3t582ml2" path="res://scripts/core/battle/battle_character_registry_manager.gd" id="11_te27b"]
+[ext_resource type="Script" uid="uid://di1d00tvbpiq3" path="res://scripts/core/battle/turn_order_manager.gd" id="12_7i1my"]
+[ext_resource type="Script" uid="uid://brbk1v6j3gefy" path="res://scripts/core/battle/combat_rule_manager.gd" id="13_7s01p"]
 
 [node name="BattleScene" type="Node2D"]
 script = ExtResource("1_ugm31")
@@ -75,7 +79,30 @@ character_data = ExtResource("3_13vd6")
 
 [node name="BattleManager" type="Node" parent="."]
 unique_name_in_owner = true
-script = ExtResource("5_o3k7m")
+script = ExtResource("8_2wmvw")
+metadata/_custom_type_script = "uid://dq50of22ae7fx"
 
 [node name="BattleStateManager" type="Node" parent="BattleManager"]
-script = ExtResource("6_lbt8a")
+unique_name_in_owner = true
+script = ExtResource("9_puhd7")
+metadata/_custom_type_script = "uid://di683i6hqfos5"
+
+[node name="BattleVisualEffects" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("10_mpswg")
+metadata/_custom_type_script = "uid://htsaaa4uwn2u"
+
+[node name="BattleCharacterRegistryManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("11_te27b")
+metadata/_custom_type_script = "uid://bs03e3t582ml2"
+
+[node name="TurnOrderManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("12_7i1my")
+metadata/_custom_type_script = "uid://di1d00tvbpiq3"
+
+[node name="CombatRuleManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("13_7s01p")
+metadata/_custom_type_script = "uid://brbk1v6j3gefy"

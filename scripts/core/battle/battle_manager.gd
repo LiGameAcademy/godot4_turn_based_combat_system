@@ -1,23 +1,33 @@
 extends Node
 class_name BattleManager
 
-## 战斗管理器
+## 战斗管理器-全局单例
 ## 负责管理战斗的流程和状态
 
 ## 状态管理器
-@onready var state_manager: BattleStateManager = $BattleStateManager
-
-# 战斗参与者
-var player_characters: Array[Character] = []			## 玩家角色列表
-var enemy_characters: Array[Character] = []				## 敌人角色列表
+@onready var state_manager: BattleStateManager = %BattleStateManager
+@onready var battle_visual_effects: BattleVisualEffects = %BattleVisualEffects
+@onready var battle_character_registry_manager: BattleCharacterRegistryManager = %BattleCharacterRegistryManager
+@onready var turn_order_manager: TurnOrderManager = %TurnOrderManager
+@onready var combat_rule_manager: CombatRuleManager = %CombatRuleManager
 
 # 回合顺序管理
-var turn_queue: Array = []								## 回合队列
-var current_turn_character: Character = null			## 当前行动者
+var turn_queue: Array = []:								## 回合队列
+	get:
+		return turn_order_manager.turn_queue
+	set(_value):
+		push_error("cannot set turn_queue becouse its readonly!")
+
+var current_turn_character: Character = null:			## 当前行动者
+	get:
+		return turn_order_manager.current_character
+	set(_value):
+		push_error("cannot set current_turn_character becouse its readonly!")
 var is_player_turn : bool = false :						## 是否是玩家回合
 	get:
 		return state_manager.current_state == BattleStateManager.BattleState.PLAYER_TURN
-var effect_processors = {}								## 效果处理器
+	set(_value):
+		push_error("cannot set is_player_turn becouse its readonly!")
 
 ## 信号
 signal turn_changed(character: Character)						## 当前行动者改变时触发
@@ -27,6 +37,19 @@ signal battle_info_logged(text: String)							## 战斗日志记录时触发
 signal enemy_action_executed(source: Character, target: Character, damage: float)	
 
 func _ready() -> void:
+	battle_character_registry_manager.initialize()
+	battle_character_registry_manager.character_registered.connect(_on_character_registered)
+	battle_character_registry_manager.character_unregistered.connect(_on_character_unregistered)
+	battle_character_registry_manager.team_changed.connect(_on_team_changed)
+
+	combat_rule_manager.initialize(battle_character_registry_manager)
+	combat_rule_manager.player_victory.connect(_on_player_victory)
+	combat_rule_manager.player_defeat.connect(_on_player_defeat)
+
+	turn_order_manager.initialize(battle_character_registry_manager)
+	turn_order_manager.turn_changed.connect(_on_turn_changed)
+	turn_order_manager.round_ended.connect(_on_round_ended)
+
 	state_manager.state_changed.connect(_on_state_changed)
 	SkillSystem.battle_manager = self
 	state_manager.initialize(BattleStateManager.BattleState.IDLE)
@@ -35,8 +58,13 @@ func _ready() -> void:
 func start_battle() -> void:
 	_log_battle_info("[color=yellow][b]===== 战斗开始! =====[/b][/color]")
 	
-	if player_characters.is_empty() or enemy_characters.is_empty():
-		push_error("无法开始战斗：缺少玩家或敌人!")
+	var player_characters = battle_character_registry_manager.get_player_team(true)
+	if player_characters.is_empty():
+		push_error("无法开始战斗：缺少玩家!")
+		return
+	var enemy_characters = battle_character_registry_manager.get_enemy_team(true)
+	if enemy_characters.is_empty():
+		push_error("无法开始战斗：缺少敌人!")
 		return
 	state_manager.change_state(BattleStateManager.BattleState.START)
 
@@ -50,16 +78,16 @@ func player_select_action(
 		params: Dictionary = {}
 		) -> void:
 	if not state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
-		print_rich("[color=red]当前不是玩家回合，无法选择行动![/color]")
+		_log_battle_info("[color=red]当前不是玩家回合，无法选择行动![/color]")
 		return
 		
-	print_rich("[color=cyan]玩家选择行动: %s[/color]" % action_type)
+	_log_battle_info("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
 	params.merge({"skill_context": SkillExecutionContext.new(self)}, true)
 	current_turn_character.execute_action(action_type, target, params)
 
 	# 检查战斗是否结束
-	if check_battle_end_condition():
+	if _check_battle_end_condition():
 		return # 战斗已结束
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
@@ -76,7 +104,7 @@ func execute_enemy_ai() -> void:
 		push_error("敌人没有AI组件！")
 		# 简单的AI逻辑：总是攻击第一个存活的玩家角色
 		var target = null
-		for player in player_characters:
+		for player in battle_character_registry_manager.get_player_team(true):
 			if player.current_hp > 0:
 				target = player
 				break
@@ -106,113 +134,44 @@ func execute_enemy_ai() -> void:
 
 ## 检查战斗结束条件
 ## [return] 战斗是否结束
-func check_battle_end_condition() -> bool:
+func _check_battle_end_condition() -> bool:
 	# 检查玩家是否全部阵亡
-	var all_players_defeated = true
-	for player in player_characters:
-		if player.current_hp > 0:
-			all_players_defeated = false
-			break
-			
-	# 检查敌人是否全部阵亡
-	var all_enemies_defeated = true
-	for enemy in enemy_characters:
-		if enemy.current_hp > 0:
-			all_enemies_defeated = false
-			break
-			
-	# 判断战斗结果
-	if all_players_defeated:
-		# 玩家全部阵亡，战斗失败
-		state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
-		return true
-	if all_enemies_defeated:
-		# 敌人全部阵亡，战斗胜利
-		state_manager.change_state(BattleStateManager.BattleState.VICTORY)
-		return true
-	return false
+	return combat_rule_manager.check_battle_end_conditions()
 
 ## 添加角色
 func add_character(character: Character, is_player: bool = true) -> void:
-	if is_player and player_characters.has(character):
-		return
-	if not is_player and enemy_characters.has(character):
-		return
-	
-	var info_text : String
-	if is_player:
-		player_characters.append(character)
-		info_text = "[color=blue][玩家注册][/color] 添加角色: [color=cyan][b]{0}[/b][/color]".format([character.character_name])
-	else:
-		enemy_characters.append(character)
-		info_text = "[color=red][敌人注册][/color] 添加角色: [color=orange][b]{0}[/b][/color]".format([character.character_name])
-	
-	character.initialize(self)
-	_log_battle_info(info_text)
+	battle_character_registry_manager.register_character(character, is_player)
 	
 ## 移除角色
 ## [param character] 角色
 func remove_character(character: Character) -> void:
-	if player_characters.has(character):
-		player_characters.erase(character)
-	if enemy_characters.has(character):
-		enemy_characters.erase(character)
-	if turn_queue.has(character):
-		turn_queue.erase(character)
-		
-	_log_battle_info("[color=gray][b]{0}[/b] 已从战斗中移除[/color]".format([character.character_name]))
-	check_battle_end_condition()
+	battle_character_registry_manager.unregister_character(character)		
+	_check_battle_end_condition()
 
 ## 获取有效的敌方目标列表（过滤掉已倒下的角色）
 ## [param caster] 施法者
 ## [return] 有效的敌方目标列表
 func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
-	if caster == null:
-		caster = current_turn_character
-	var valid_targets: Array[Character] = []
-	
-	var enemies = enemy_characters if caster not in enemy_characters else player_characters
-	for enemy in enemies:
-		if enemy.is_alive and enemy != caster:
-			valid_targets.append(enemy)
-	
-	return valid_targets
+	if is_instance_valid(caster):
+		return battle_character_registry_manager.get_opposing_team_for_character(caster)
+	return battle_character_registry_manager.get_opposing_team_for_character(current_turn_character)
 
 ## 获取有效的友方目标列表
 ## [param include_self] 是否包括施法者自己
 ## [param caster] 施法者
 ## [return] 有效的友方目标列表
 func get_valid_ally_targets(include_self: bool = false, caster : Character = null) -> Array[Character]:
-	if caster == null:
-		caster = current_turn_character
-	var valid_targets: Array[Character] = []
-	
-	var allies = player_characters if caster in player_characters else enemy_characters
-	for ally in allies:
-		if ally.is_alive && (include_self || ally != caster):
-			valid_targets.append(ally)
-	
-	return valid_targets
+	if is_instance_valid(caster):
+		return battle_character_registry_manager.get_allied_team_for_character(caster, include_self)
+	return battle_character_registry_manager.get_allied_team_for_character(current_turn_character, include_self)
+
+func is_enemy(character1: Character, character2: Character) -> bool:
+	return battle_character_registry_manager.is_enemy_of(character1, character2)
 
 ## 构建回合队列
 func _build_turn_queue() -> void:
-	# 清空当前队列
-	turn_queue.clear()
-	
-	# 将所有存活的角色添加到队列中
-	for character in player_characters:
-		if character.current_hp > 0:
-			turn_queue.append(character)
-			
-	for character in enemy_characters:
-		if character.current_hp > 0:
-			turn_queue.append(character)
-	
-	# 根据速度属性排序
-	turn_queue.sort_custom(func(a, b): return a.speed > b.speed)
-	
+	turn_order_manager.build_queue()
 	_log_battle_info("[color=yellow][战斗系统][/color] 回合队列已建立: [color=green][b]{0}[/b][/color] 个角色".format([turn_queue.size()]))
-
 
 ## 战斗日志
 ## [param text] 日志文本
@@ -225,92 +184,42 @@ func _log_battle_info(text: String) -> void:
 ## [param target] 目标角色
 ## [param params] 参数
 func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
-	#var status_type = params.get("status_type", "buff")
-	var is_positive = params.get("is_positive", true)
-	
-	var effect_color = Color(0.7, 1, 0.7) if is_positive else Color(1, 0.7, 0.7)
-	
-	var tween = create_tween()
-	tween.tween_property(target, "modulate", effect_color, 0.2)
-	
-	# 正面状态上升效果，负面状态下沉效果
-	var original_pos = target.position
-	var offset = Vector2(0, -4) if is_positive else Vector2(0, 4)
-	tween.tween_property(target, "position", original_pos + offset, 0.1)
-	tween.tween_property(target, "position", original_pos, 0.1)
-	
-	# 恢复正常颜色
-	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
-	
-	# 如果有指定动画，则播放
-	if target.has_method("play_animation") and "animation" in params:
-		target.play_animation(params["animation"])
+	battle_visual_effects.play_status_effect(target, params)
 
 ## 播放施法动画
 ## [param caster] 施法者
 func _play_cast_animation(caster: Character) -> void:
-	var tween = create_tween()
-	# 角色短暂发光效果
-	tween.tween_property(caster, "modulate", Color(1.5, 1.5, 1.5), 0.2)
-	tween.tween_property(caster, "modulate", Color(1, 1, 1), 0.2)
+	battle_visual_effects.play_cast_animation(caster)
 	
-	# 这里可以播放施法音效
-	# AudioManager.play_sfx("spell_cast")
-
 ## 播放施法动画
 ## [param caster] 施法者
 func _play_heal_cast_animation(caster: Character) -> void:
-	_play_cast_animation(caster)
+	battle_visual_effects.play_heal_cast_animation(caster)
 
 ## 播放命中动画
 ## [param target] 目标角色
 func _play_damage_effect(target: Character, _parames: Dictionary = {}) -> void:
-	var tween = create_tween()
+	#battle_visual_effects.play_damage_effect(target, _parames)
+	pass
 	
-	# 目标变红效果
-	tween.tween_property(target, "modulate", Color(2, 0.5, 0.5), 0.1)
-	
-	# 抖动效果
-	var original_pos = target.position
-	tween.tween_property(target, "position", original_pos + Vector2(5, 0), 0.05)
-	tween.tween_property(target, "position", original_pos - Vector2(5, 0), 0.05)
-	tween.tween_property(target, "position", original_pos, 0.05)
-	
-	# 恢复正常颜色
-	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.1)
-	
-	# 这里可以播放命中音效
-	# AudioManager.play_sfx("hit_impact")
-
 ## 播放施法效果
 ## [param target] 目标角色
 ## [param params] 参数
 func _play_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
-	pass
+	battle_visual_effects.play_cast_effect(_target, _params)
 
 ## 播放治疗施法效果
 ## [param target] 目标角色
 ## [param params] 参数
 func _play_heal_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
-	pass
+	battle_visual_effects.play_heal_cast_effect(_target, _params)
 
 ## 治疗效果视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
 func _play_heal_effect(target: Character, _params : Dictionary = {}) -> void:
-	var tween = create_tween()
+	battle_visual_effects.play_heal_effect(target, _params)
 	
-	# 目标变绿效果（表示恢复）
-	tween.tween_property(target, "modulate", Color(0.7, 1.5, 0.7), 0.2)
-	
-	# 上升的小动画，暗示"提升"
-	var original_pos = target.position
-	tween.tween_property(target, "position", original_pos - Vector2(0, 5), 0.2)
-	tween.tween_property(target, "position", original_pos, 0.1)
-	
-	# 恢复正常颜色
-	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
-
 ## 受击效果视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
@@ -340,13 +249,7 @@ func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) ->
 ## [param character] 角色
 func _on_character_died(character: Character) -> void:
 	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
-	
-	# 从相应列表中移除
-	if player_characters.has(character):
-		player_characters.erase(character)
-	elif enemy_characters.has(character):
-		enemy_characters.erase(character)
-	
+
 	# 从回合队列中移除
 	if turn_queue.has(character):
 		turn_queue.erase(character)
@@ -356,7 +259,7 @@ func _on_character_died(character: Character) -> void:
 		print("当前行动者 " + character.character_name + " 已阵亡。")
 	
 	# 检查战斗是否结束
-	check_battle_end_condition()	
+	_check_battle_end_condition()	
 
 ## 状态改变处理函数
 ## [param _previous_state] 上一个状态
@@ -371,8 +274,9 @@ func _on_state_changed(
 		BattleStateManager.BattleState.ROUND_START:
 			# 大回合开始，构建回合队列
 			_log_battle_info("[color=yellow][战斗系统][/color] 新的回合开始")
-			if check_battle_end_condition():
-				# 战斗已结束，状态已在check_battle_end_condition中切换
+			combat_rule_manager.add_turn_count()
+			if _check_battle_end_condition():
+				# 战斗已结束，状态已在_check_battle_end_condition中切换
 				return
 				
 			_build_turn_queue()
@@ -383,26 +287,7 @@ func _on_state_changed(
 				
 		BattleStateManager.BattleState.TURN_START:
 			# 小回合开始，确定当前行动角色
-			if turn_queue.is_empty():
-				# 所有角色都行动完毕，回合结束
-				state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
-				return
-				
-			current_turn_character = turn_queue.pop_front()
-			_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([current_turn_character.character_name]))
-			current_turn_character.on_turn_start(self)
-
-			# 检查角色能否行动
-			if not current_turn_character.can_action:
-				_log_battle_info("[color=red][错误][/color] 角色无法行动, 跳过回合")
-				state_manager.change_state(BattleStateManager.BattleState.TURN_END)
-				return
-
-			# 根据角色类型决定下一个状态
-			var next_state = BattleStateManager.BattleState.PLAYER_TURN if player_characters.has(current_turn_character) else BattleStateManager.BattleState.ENEMY_TURN
-			state_manager.change_state(next_state)
-			turn_changed.emit(current_turn_character) # 通知UI
-			
+			current_turn_character = turn_order_manager.get_next_character()
 		BattleStateManager.BattleState.PLAYER_TURN:
 			pass
 						
@@ -412,8 +297,8 @@ func _on_state_changed(
 			
 		BattleStateManager.BattleState.TURN_END:
 			# 小回合结束，检查战斗状态
-			if check_battle_end_condition():
-				# 战斗已结束，状态已在check_battle_end_condition中切换
+			if _check_battle_end_condition():
+				# 战斗已结束，状态已在_check_battle_end_condition中切换
 				return
 			current_turn_character.on_turn_end(self)
 			# 进入下一个角色的回合
@@ -429,4 +314,43 @@ func _on_state_changed(
 		BattleStateManager.BattleState.DEFEAT:
 			_log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
 			battle_ended.emit(false)
+
+func _on_character_registered(character: Character) -> void:
+	_log_battle_info("[color=green][b]{0}[/b][/color] 已注册到战斗中".format([character.character_name]))
+	character.initialize(self)
+
+func _on_character_unregistered(character: Character) -> void:
+	_log_battle_info("[color=red][b]{0}[/b][/color] 已从战斗中移除".format([character.character_name]))
+
+func _on_team_changed(team_characters: Array[Character], team_id: String) -> void:
+	_log_battle_info("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters, team_id]))
+
+func _on_player_victory() -> void:
+	_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
+	state_manager.change_state(BattleStateManager.BattleState.VICTORY)
+
+func _on_player_defeat() -> void:
+	_log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
+	state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
+
+func _on_turn_changed(character: Character) -> void:
+	_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([character.character_name]))
+	character.on_turn_start(self)
+
+	# 检查角色能否行动
+	if not character.can_action:
+		_log_battle_info("[color=red][错误][/color] 角色无法行动, 跳过回合")
+		state_manager.change_state(BattleStateManager.BattleState.TURN_END)
+		return
+
+	# 根据角色类型决定下一个状态
+	var is_player = battle_character_registry_manager.is_player_character(character)
+	var next_state = BattleStateManager.BattleState.PLAYER_TURN if is_player else BattleStateManager.BattleState.ENEMY_TURN
+	state_manager.change_state(next_state)
+	turn_changed.emit(character) # 通知UI
+
+func _on_round_ended() -> void:
+	_log_battle_info("[color=yellow][战斗系统][/color] 回合结束")
+	state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
+
 #endregion
