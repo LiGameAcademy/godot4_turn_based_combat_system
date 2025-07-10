@@ -124,6 +124,7 @@ text = "魔法值"
 
 [node name="ManaBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer" instance=ExtResource("2_d8pxp")]
 unique_name_in_owner = true
+self_modulate = Color(0, 0, 1, 1)
 layout_mode = 2
 size_flags_horizontal = 3
 attribute_color = Color(0, 0, 1, 1)

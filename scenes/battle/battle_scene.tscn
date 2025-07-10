@@ -82,3 +82,6 @@ metadata/_custom_type_script = "uid://di1d00tvbpiq3"
 unique_name_in_owner = true
 script = ExtResource("13_7s01p")
 metadata/_custom_type_script = "uid://brbk1v6j3gefy"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = true

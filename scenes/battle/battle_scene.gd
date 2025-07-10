@@ -1,11 +1,14 @@
 extends Node2D
 class_name BattleScene
 
+const CHARACTER = preload("res://scenes/characters/character.tscn")
+
 ## 战斗场景，负责战斗的UI显示和交互
 @onready var player_area: Node2D = %PlayerArea
 @onready var enemy_area: Node2D = %EnemyArea
 @onready var battle_manager: BattleManager = %BattleManager
 @onready var battle_ui : BattleUI = %BattleUI
+@onready var stream_player: AudioStreamPlayer = $AudioStreamPlayer
 
 var current_action : CharacterCombatComponent.ActionType
 var current_selected_skill : SkillData
@@ -25,12 +28,28 @@ func _ready() -> void:
 	battle_ui.target_selected.connect(_on_target_selected)
 	battle_ui.target_selection_cancelled.connect(_on_target_selection_cancelled)
 
+func initialize_battle(battle_data: BattleData) -> void:
 	for player in player_area.get_children():
-		if player is Character:
-			battle_manager.add_character(player, true)
+		player.queue_free()
+
 	for enemy in enemy_area.get_children():
-		if enemy is Character:
-			battle_manager.add_character(enemy, false)
+		enemy.queue_free()
+
+	for player_data in battle_data.player_data_list:
+		var pos : Vector2 = battle_data.player_data_list[player_data]
+		var player: Character = _spawn_character(player_data, pos)
+		player_area.add_child(player)
+		battle_manager.add_character(player, true)
+
+	for enemy_data in battle_data.enemy_data_list:
+		var pos : Vector2 = battle_data.enemy_data_list[enemy_data]
+		var enemy: Character = _spawn_character(enemy_data, pos)
+		enemy.is_player = false
+		enemy_area.add_child(enemy)
+		battle_manager.add_character(enemy, false)
+
+	stream_player.stream = battle_data.battle_music
+	stream_player.play()
 
 	_connect_character_click_signals()
 	battle_manager.start_battle()
@@ -54,6 +73,12 @@ func _connect_character_click_signals() -> void:
 	# 连接每个角色的点击信号
 	for character in all_characters:
 		character.character_clicked.connect(_on_character_clicked)
+
+func _spawn_character(character_data: CharacterData, position_offset: Vector2) -> Character:
+	var character: Character = CHARACTER.instantiate()
+	character.character_data = character_data
+	character.position = position_offset
+	return character
 
 #region --- 信号处理 ---
 ## 当回合改变时调用

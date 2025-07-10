@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot4_turn_based_combat_system"
-run/main_scene="uid://bvnf2raqi3v41"
+run/main_scene="uid://2jiq8eo0qvn"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
