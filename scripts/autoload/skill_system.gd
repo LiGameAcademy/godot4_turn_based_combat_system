@@ -41,6 +41,9 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	# 2. 消耗资源 (MP, 物品等)
 	_consume_skill_resources(caster, skill_data)
 
+	if not skill_data.cast_animation.is_empty():
+		await caster.play_animation(skill_data.cast_animation)
+
 	# 3. 异步执行技能效果处理
 	# call_deferred("_process_skill_effects_async", skill_data, caster, selected_targets, context)
 	var result = await _process_skill_effects_async(skill_data, caster, selected_targets, context)

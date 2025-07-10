@@ -1,0 +1,161 @@
+[gd_scene load_steps=4 format=3 uid="uid://ts5rp7wqs47y"]
+
+[ext_resource type="Script" uid="uid://s5n6l8husmc" path="res://scenes/ui/battle_log_panel.gd" id="1_m6t8y"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3hxdw"]
+bg_color = Color(0.12549, 0.12549, 0.12549, 0.901961)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32549, 0.32549, 0.32549, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yp4v6"]
+bg_color = Color(0.0784314, 0.0784314, 0.0784314, 0.901961)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32549, 0.32549, 0.32549, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="BattleLogPanel" type="MarginContainer"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -300.0
+offset_right = 400.0
+grow_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_m6t8y")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_3hxdw")
+
+[node name="MainVBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HeaderContainer" type="HBoxContainer" parent="PanelContainer/MainVBoxContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/MainVBoxContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "战斗日志"
+
+[node name="FilterButton" type="Button" parent="PanelContainer/MainVBoxContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "过滤"
+
+[node name="ClearButton" type="Button" parent="PanelContainer/MainVBoxContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "清除"
+
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/MainVBoxContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MainVBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="LogContainer" type="VBoxContainer" parent="PanelContainer/MainVBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="BattleInfo" type="RichTextLabel" parent="PanelContainer/MainVBoxContainer/ScrollContainer/LogContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_yp4v6")
+bbcode_enabled = true
+text = "战斗信息显示栏"
+fit_content = true
+scroll_active = false
+scroll_following = true
+
+[node name="FilterPopup" type="PopupPanel" parent="."]
+unique_name_in_owner = true
+size = Vector2i(200, 250)
+
+[node name="FilterVBox" type="VBoxContainer" parent="FilterPopup"]
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 196.0
+offset_bottom = 350.0
+
+[node name="Label" type="Label" parent="FilterPopup/FilterVBox"]
+layout_mode = 2
+text = "选择要显示的日志类型"
+
+[node name="HSeparator" type="HSeparator" parent="FilterPopup/FilterVBox"]
+layout_mode = 2
+
+[node name="InfoCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "普通信息"
+
+[node name="AttackCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "攻击行为"
+
+[node name="DefendCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "防御行为"
+
+[node name="SkillCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "技能使用"
+
+[node name="ItemCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "道具使用"
+
+[node name="DamageCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "伤害信息"
+
+[node name="HealCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "治疗信息"
+
+[node name="StatusCheckBox" type="CheckBox" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "状态效果"
+
+[node name="ApplyButton" type="Button" parent="FilterPopup/FilterVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "应用过滤"

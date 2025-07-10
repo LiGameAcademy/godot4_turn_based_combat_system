@@ -189,7 +189,7 @@ func get_potential_targets() -> Array:
 ## [param potential_targets] 可能的目标列表
 ## [return] 适合的目标列表
 func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]) -> Array[Character]:
-	var valid_targets = []
+	var valid_targets : Array[Character] = []
 	var owner_character = get_parent() as Character
 
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)

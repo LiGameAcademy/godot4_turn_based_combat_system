@@ -26,6 +26,6 @@ mp_cost = 4
 target_type = 5
 effects = Array[ExtResource("1_o74iy")]([SubResource("Resource_k3dyo")])
 action_categories = Array[String](["magic_skill"])
-cast_animation = &""
+cast_animation = &"attack"
 can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

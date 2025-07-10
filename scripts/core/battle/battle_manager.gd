@@ -28,6 +28,12 @@ var is_player_turn : bool = false :						## 是否是玩家回合
 		return state_manager.current_state == BattleStateManager.BattleState.PLAYER_TURN
 	set(_value):
 		push_error("cannot set is_player_turn becouse its readonly!")
+var characters : Array[Character]:
+	get:
+		return battle_character_registry_manager.get_all_characters()
+var current_turn_index: int :
+	get:
+		return turn_order_manager.current_turn_index
 
 ## 信号
 signal turn_changed(character: Character)						## 当前行动者改变时触发
@@ -185,22 +191,6 @@ func _log_battle_info(text: String) -> void:
 ## [param params] 参数
 func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
 	battle_visual_effects.play_status_effect(target, params)
-
-## 播放施法动画
-## [param caster] 施法者
-func _play_cast_animation(caster: Character) -> void:
-	battle_visual_effects.play_cast_animation(caster)
-	
-## 播放施法动画
-## [param caster] 施法者
-func _play_heal_cast_animation(caster: Character) -> void:
-	battle_visual_effects.play_heal_cast_animation(caster)
-
-## 播放命中动画
-## [param target] 目标角色
-func _play_damage_effect(target: Character, _parames: Dictionary = {}) -> void:
-	#battle_visual_effects.play_damage_effect(target, _parames)
-	pass
 	
 ## 播放施法效果
 ## [param target] 目标角色
@@ -212,7 +202,8 @@ func _play_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
 ## [param target] 目标角色
 ## [param params] 参数
 func _play_heal_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
-	battle_visual_effects.play_heal_cast_effect(_target, _params)
+	if battle_visual_effects.has_method("play_heal_cast_effect"):
+		battle_visual_effects.play_heal_cast_effect(_target, _params)
 
 ## 治疗效果视觉反馈
 ## [param target] 目标角色
@@ -323,7 +314,7 @@ func _on_character_unregistered(character: Character) -> void:
 	_log_battle_info("[color=red][b]{0}[/b][/color] 已从战斗中移除".format([character.character_name]))
 
 func _on_team_changed(team_characters: Array[Character], team_id: String) -> void:
-	_log_battle_info("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters, team_id]))
+	print_rich("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters, team_id]))
 
 func _on_player_victory() -> void:
 	_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")

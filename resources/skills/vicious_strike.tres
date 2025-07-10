@@ -37,6 +37,6 @@ mp_cost = 5
 target_type = 1
 effects = Array[ExtResource("2_fghij")]([SubResource("Resource_wwvtt"), SubResource("Resource_8hv47")])
 action_categories = Array[String](["any_action", "basic_attack", "physical_attack"])
-cast_animation = &""
+cast_animation = &"attack"
 can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

@@ -23,6 +23,6 @@ mp_cost = 0
 target_type = 1
 effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_xskkb")])
 action_categories = Array[String](["any_action"])
-cast_animation = &""
+cast_animation = &"attack"
 can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

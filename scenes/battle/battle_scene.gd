@@ -2,15 +2,12 @@ extends Node2D
 class_name BattleScene
 
 ## 战斗场景，负责战斗的UI显示和交互
-
-@onready var action_panel: Panel = %ActionPanel
-@onready var info_label: RichTextLabel = %InfoLabel
-@onready var skill_select_menu: SkillSelectMenu = $BattleUI/SkillSelectMenu
-@onready var target_selection_menu: TargetSelectionMenu = $BattleUI/TargetSelectionMenu
 @onready var player_area: Node2D = %PlayerArea
 @onready var enemy_area: Node2D = %EnemyArea
 @onready var battle_manager: BattleManager = %BattleManager
+@onready var battle_ui : BattleUI = %BattleUI
 
+var current_action : CharacterCombatComponent.ActionType
 var current_selected_skill : SkillData
 
 func _ready() -> void:
@@ -18,79 +15,107 @@ func _ready() -> void:
 	battle_manager.turn_changed.connect(_on_turn_changed)
 	battle_manager.battle_ended.connect(_on_battle_ended)
 	battle_manager.battle_info_logged.connect(_on_battle_info_logged)
-	# 连接技能选择菜单信号
-	skill_select_menu.skill_selected.connect(_on_skill_selected)
-	skill_select_menu.skill_selection_cancelled.connect(_on_skill_selection_cancelled)
-	skill_select_menu.hide()
-	# 连接目标选择菜单信号
-	target_selection_menu.target_selected.connect(_on_target_selected)
-	target_selection_menu.target_selection_cancelled.connect(_on_target_selection_cancelled)
-	target_selection_menu.hide()
-	# 连接行动菜单信号
-	action_panel.attack_pressed.connect(_on_action_panel_attack_pressed)
-	action_panel.defend_pressed.connect(_on_action_panel_defend_pressed)
-	action_panel.skill_pressed.connect(_on_action_panel_skill_pressed)
-	action_panel.item_pressed.connect(_on_action_panel_item_pressed)
-	action_panel.hide()
+	# 链接BattleUI信号
+	battle_ui.action_attack_pressed.connect(_on_action_attack_pressed)
+	battle_ui.action_defend_pressed.connect(_on_action_defend_pressed)
+	battle_ui.action_skill_pressed.connect(_on_action_skill_pressed)
+	battle_ui.action_item_pressed.connect(_on_action_item_pressed)
+	battle_ui.skill_selected.connect(_on_skill_selected)
+	battle_ui.skill_selection_cancelled.connect(_on_skill_selection_cancelled)
+	battle_ui.target_selected.connect(_on_target_selected)
+	battle_ui.target_selection_cancelled.connect(_on_target_selection_cancelled)
+
 	for player in player_area.get_children():
 		if player is Character:
 			battle_manager.add_character(player, true)
-			
 	for enemy in enemy_area.get_children():
 		if enemy is Character:
 			battle_manager.add_character(enemy, false)
 
+	_connect_character_click_signals()
 	battle_manager.start_battle()
 
 # 显示/隐藏行动UI
 func show_action_ui(should_show: bool) -> void:
-	if action_panel:
-		action_panel.visible = should_show
+	if should_show:
+		battle_ui.show_action_menu(battle_manager.current_turn_character)
+	else:
+		battle_ui.hide_all_menus()
 
 # 更新战斗信息
 func update_battle_info(text: String) -> void:
-	if info_label:
-		info_label.text += "\n" + text
+	battle_ui.update_battle_info(text)
+
+## 连接所有角色的点击信号
+func _connect_character_click_signals() -> void:
+	# 获取所有玩家和敌人角色
+	var all_characters = battle_manager.characters
+	
+	# 连接每个角色的点击信号
+	for character in all_characters:
+		character.character_clicked.connect(_on_character_clicked)
 
 #region --- 信号处理 ---
 ## 当回合改变时调用
 func _on_turn_changed(character: Character) -> void:
 	show_action_ui(battle_manager.is_player_turn)
+	battle_ui.update_turn_order(battle_manager.characters, battle_manager.current_turn_index)
 	update_battle_info("{0} 的回合".format([character.character_name]))
 
-## 当战斗结束时调用
-func _on_battle_ended(_is_victory: bool) -> void:
-	show_action_ui(false)
+## 处理战斗结束
+func _on_battle_ended(is_victory: bool) -> void:
+	# 隐藏所有战斗UI
+	battle_ui.hide_all_menus()
+	
+	# 更新战斗日志
+	if is_victory:
+		battle_ui.battle_log_panel.log_system("战斗胜利！")
+	else:
+		battle_ui.battle_log_panel.log_system("战斗失败...")
+	
+	# 可以在这里处理战斗结束后的逻辑，如显示结算界面等
+	
+## 处理敌人行动执行
+func _on_enemy_action_executed(attacker: Character, target: Character, damage: int) -> void:
+	# 更新战斗信息
+	var info_text = attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!"
+	battle_ui.update_battle_info(info_text)
+	
+	# 添加到战斗日志
+	battle_ui.log_attack(attacker.character_name, target.character_name, damage)
 
 ## 当战斗信息记录时调用
 func _on_battle_info_logged(text: String) -> void:
 	update_battle_info(text)
+
+## 处理角色点击事件
+func _on_character_clicked(character: Character) -> void:
+	# 显示角色详情
+	battle_ui.show_character_details(character)
 #endregion
 
 #region --- UI信号处理函数 ---
 ## 当玩家选择攻击时调用
-func _on_action_panel_attack_pressed() -> void:
-	if battle_manager.is_player_turn:
-		# 选择第一个存活的敌人作为目标
-		var valid_targets = battle_manager.get_valid_enemy_targets()
-		if !valid_targets.is_empty():
-			var target = valid_targets[0] # 这里简化为直接选择第一个敌人
-			battle_manager.player_select_action(CharacterCombatComponent.ActionType.ATTACK, target)
-		else:
-			update_battle_info("没有可攻击的目标！")
+func _on_action_attack_pressed() -> void:
+	if not battle_manager.is_player_turn:
+		return
+	current_action = CharacterCombatComponent.ActionType.ATTACK
+	battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets())
 
 ## 当玩家选择防御时调用
-func _on_action_panel_defend_pressed() -> void:
+func _on_action_defend_pressed() -> void:
 	if battle_manager.is_player_turn:
-		battle_manager.player_select_action(CharacterCombatComponent.ActionType.DEFEND)
+		current_action = CharacterCombatComponent.ActionType.DEFEND
+		battle_manager.player_select_action(current_action)
 
 ## 当玩家选择技能时调用
-func _on_action_panel_skill_pressed() -> void:
+func _on_action_skill_pressed() -> void:
 	if battle_manager.is_player_turn:
-		_open_skill_menu()
+		current_action = CharacterCombatComponent.ActionType.SKILL
+		battle_ui.show_skill_menu(battle_manager.current_turn_character)
 
 ## 当玩家选择道具时调用
-func _on_action_panel_item_pressed() -> void:
+func _on_action_item_pressed() -> void:
 	if battle_manager.is_player_turn:
 		update_battle_info("物品功能尚未实现")
 
@@ -106,7 +131,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 			valid_targets = battle_manager.get_valid_ally_targets(true)
 		else:
 			valid_targets = battle_manager.get_valid_ally_targets(false)
-		target_selection_menu.show_targets(valid_targets)
+		battle_ui.show_target_selection(valid_targets)
 	else:
 		# 自动目标技能，直接执行
 		var params = {"skill": skill, "targets": []}
@@ -118,76 +143,23 @@ func _on_skill_selection_cancelled() -> void:
 	current_selected_skill = null
 	
 	# 返回到玩家行动选择状态
-	_show_action_menu()
+	show_action_ui(battle_manager.is_player_turn)
 
 ## 当玩家选择了技能目标时调用
 func _on_target_selected(target: Character) -> void:
-	# 确保有选中的技能
-	if current_selected_skill == null:
-		push_error("选择了目标但没有当前技能")
-		_show_action_menu()
-		return
-	
+	var params : Dictionary = {}
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
-	var params = {"skill": current_selected_skill}
-	battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, target, params)
+	if current_selected_skill != null:
+		# 确保有选中的技能
+		params = {"skill": current_selected_skill}
+		
+	battle_manager.player_select_action(current_action, target, params)
 
 ## 当玩家取消目标选择时调用
 func _on_target_selection_cancelled() -> void:
 	# 返回技能选择菜单
-	current_selected_skill = null
-	_open_skill_menu()
-
-## 打开技能选择菜单
-func _open_skill_menu() -> void:
-	if battle_manager.current_turn_character == null || !battle_manager.is_player_turn:
-		return
-	
-	# 隐藏行动菜单
-	action_panel.visible = false
-	
-	# 显示技能菜单
-	if skill_select_menu:
-		skill_select_menu.show_menu(
-			battle_manager.current_turn_character.character_data.skills,
-			battle_manager.current_turn_character.current_mp
-		)
-
-## 显示动作菜单
-func _show_action_menu() -> void:
-	# 确保当前是玩家角色的回合
-	if battle_manager.current_turn_character == null || !battle_manager.is_player_turn:
-		return
-	
-	# 隐藏其他可能显示的菜单
-	_hide_all_menus()
-	
-	# 显示行动菜单并更新状态
-	if action_panel:
-		# 更新菜单状态
-		_update_action_menu_state()
-		# 显示菜单
-		action_panel.visible = true
-		# 设置默认焦点
-		action_panel.setup_default_focus()
-
-## 隐藏所有菜单
-func _hide_all_menus() -> void:
-	if skill_select_menu:
-		skill_select_menu.hide()
-	if target_selection_menu:
-		target_selection_menu.hide()
-	if action_panel:
-		action_panel.visible = false
-
-## 更新行动菜单状态
-func _update_action_menu_state() -> void:
-	if !action_panel || !battle_manager.current_turn_character:
-		return
-		
-	# 根据MP是否足够来启用/禁用技能按钮
-	var has_enough_mp_for_any_skill = battle_manager.current_turn_character.has_enough_mp_for_any_skill()
-	action_panel.set_skill_button_enabled(has_enough_mp_for_any_skill)
-	
-	var has_usable_items = false #TODO 这里需要根据实际的物品系统来实现
-	action_panel.set_item_button_enabled(has_usable_items)
+	if current_selected_skill:
+		battle_ui.show_skill_menu(battle_manager.current_turn_character)
+		current_selected_skill = null
+	show_action_ui(battle_manager.is_player_turn)
+#endregion

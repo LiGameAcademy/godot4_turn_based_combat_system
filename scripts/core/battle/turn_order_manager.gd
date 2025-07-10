@@ -9,7 +9,7 @@ class_name TurnOrderManager
 var turn_queue: Array[Character] = []
 ## 当前行动者
 var current_character: Character = null
-
+var current_turn_index: int = -1
 ## 角色注册管理器
 var _character_registry: BattleCharacterRegistryManager
 
@@ -23,6 +23,7 @@ func initialize(character_registry: BattleCharacterRegistryManager) -> void:
 		push_error("TurnOrderManager requires a BattleCharacterRegistryManager reference.")
 		return
 	_character_registry = character_registry
+	current_turn_index = 0
 
 ## 构建回合队列
 func build_queue() -> void:
@@ -53,6 +54,7 @@ func get_next_character() -> Character:
 		return null
 		
 	current_character = turn_queue.pop_front()
+	current_turn_index += 1
 	turn_changed.emit(current_character)
 	return current_character
 

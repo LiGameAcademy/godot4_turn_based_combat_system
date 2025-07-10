@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://1apx83ubxdnv"]
+
+[ext_resource type="Script" uid="uid://bisisfd0x1bap" path="res://scenes/ui/attribute_label.gd" id="1_x64p6"]
+
+[node name="AttributeLabel" type="MarginContainer"]
+script = ExtResource("1_x64p6")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AttributeNameLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "攻击力:"
+
+[node name="AttributeValueLabel" type="Label" parent="HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+text = "50"

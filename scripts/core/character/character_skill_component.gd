@@ -18,7 +18,6 @@ signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_valu
 signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)			## 属性当前值改变
 signal action_tags_changed(restricted_tags: Array[String])																## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
 
-
 ## 初始化组件
 func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
 	# 这是因为AttributeSet本身是一个Resource, 直接使用会导致所有实例共享数据
@@ -70,8 +69,8 @@ func get_attribute_modifiers(attribute_name: StringName) -> Array[SkillAttribute
 	return _active_attribute_set.get_attribute_modifiers(attribute_name)
 
 ## 获取属性实例
-func get_attribute_instance(attribute_name: StringName) -> SkillAttribute:
-	return _active_attribute_set.get_attribute_instance(attribute_name)
+func get_attribute(attribute_name: StringName) -> SkillAttribute:
+	return _active_attribute_set.get_attribute(attribute_name)
 
 ## 获取AttributeSet
 func get_attribute_set() -> SkillAttributeSet:

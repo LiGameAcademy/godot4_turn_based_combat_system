@@ -1,11 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://cb2e2cndtui6m"]
+[gd_scene load_steps=12 format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://scenes/characters/character.gd" id="1_f5tgq"]
+[ext_resource type="PackedScene" uid="uid://djpwdkkb8ufbt" path="res://scenes/ui/character_info_container.tscn" id="2_ysl2u"]
 [ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://scripts/core/character/character_combat_component.gd" id="3_e22cc"]
 [ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://scripts/core/character/character_skill_component.gd" id="4_2qjml"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://scenes/ui/state_indicator.tscn" id="4_ma1fs"]
 [ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://scripts/core/character/character_ai_component.gd" id="5_ma1fs"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="5_yscb1"]
+[ext_resource type="Texture2D" uid="uid://dfl4443uqmgkr" path="res://assets/sprites/characters/enemies/goblin/Attack.png" id="8_03c51"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="9_8gmw8"]
 
 [sub_resource type="Resource" id="Resource_ysl2u"]
 script = ExtResource("5_yscb1")
@@ -20,65 +23,11 @@ heal_low_health_weight = 2.0
 self_preservation_weight = 1.0
 metadata/_custom_type_script = "uid://c1h2m46l2lj50"
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_03c51"]
+size = Vector2(120, 120)
+
 [node name="Character" type="Node2D"]
 script = ExtResource("1_f5tgq")
-
-[node name="Container" type="VBoxContainer" parent="."]
-offset_right = 150.0
-offset_bottom = 176.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 1
-
-[node name="NameLabel" type="Label" parent="Container"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "角色名称"
-horizontal_alignment = 1
-
-[node name="CharacterRect" type="ColorRect" parent="Container"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 100)
-layout_mode = 2
-color = Color(0.2, 0.4, 0.8, 1)
-
-[node name="HPBar" type="ProgressBar" parent="Container"]
-unique_name_in_owner = true
-self_modulate = Color(0, 1, 0, 1)
-custom_minimum_size = Vector2(0, 25)
-layout_mode = 2
-value = 30.0
-show_percentage = false
-
-[node name="HPLabel" type="Label" parent="Container/HPBar"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "HP: 100/100"
-horizontal_alignment = 1
-
-[node name="MPBar" type="ProgressBar" parent="Container"]
-unique_name_in_owner = true
-self_modulate = Color(0.0352941, 0.0666667, 0.972549, 1)
-custom_minimum_size = Vector2(0, 25)
-layout_mode = 2
-value = 30.0
-show_percentage = false
-
-[node name="MPLabel" type="Label" parent="Container/MPBar"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-text = "MP: 100/100"
-horizontal_alignment = 1
 
 [node name="CharacterCombatComponent" type="Node" parent="." node_paths=PackedStringArray("_skill_component")]
 unique_name_in_owner = true
@@ -99,3 +48,39 @@ behavior_resource = SubResource("Resource_ysl2u")
 metadata/_custom_type_script = "uid://wbh0x8825w2b"
 
 [node name="StateIndicator" parent="." instance=ExtResource("4_ma1fs")]
+visible = false
+
+[node name="CharacterInfoContainer" parent="." instance=ExtResource("2_ysl2u")]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -220.0
+offset_right = 70.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -125)
+scale = Vector2(2, 2)
+texture = ExtResource("8_03c51")
+hframes = 8
+frame = 7
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {
+&"": ExtResource("9_8gmw8")
+}
+
+[node name="CharacterClickArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterClickArea"]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_03c51")

@@ -4,19 +4,19 @@ class_name Character
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
 # 引用场景中的节点
-@onready var hp_bar : ProgressBar = %HPBar
-@onready var hp_label := %HPLabel
-@onready var mp_bar: ProgressBar = %MPBar
-@onready var mp_label: Label = %MPLabel
-@onready var name_label := $Container/NameLabel
 @onready var character_rect := $Container/CharacterRect
 @onready var state_indicator : StateIndicator = $StateIndicator
 # 组件引用
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
 @onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
 @onready var ai_component: CharacterAIComponent = %CharacterAIComponent
+@onready var character_info_container : CharacterInfoContainer = %CharacterInfoContainer
+@onready var sprite_2d : Sprite2D = %Sprite2D
+@onready var animation_player : AnimationPlayer = %AnimationPlayer
+@onready var character_click_area: Area2D = %CharacterClickArea
 
 @export var character_data: CharacterData
+@export var is_player : bool = true
 
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
@@ -65,15 +65,17 @@ var can_action: bool = true:
 
 # 信号 - 这些信号将转发组件的信号
 signal character_defeated																														## 当角色死亡时触发
-signal health_changed(current_hp: float, max_hp: float, character: Character)																	## 当角色血量变化时触发
-signal mana_changed(current_mp: float, max_mp: float, character: Character)																		## 当角色法力变化时触发
-signal status_applied_to_character(character: Character, status_instance: SkillStatusData)														## 当角色获得状态时触发
-signal status_removed_from_character(character: Character, status_id: StringName, status_instance_data_before_removal: SkillStatusData)			## 当角色失去状态时触发
-signal status_updated_on_character(character: Character, status_instance: SkillStatusData, old_stacks: int, old_duration: int)					## 当角色状态更新时触发
+signal character_clicked(character)
 
-func _ready():
+func _ready() -> void:
 	if state_indicator:
 		state_indicator.hide()
+	sprite_2d.position += character_data.sprite_offset
+	if not is_player:
+		sprite_2d.flip_h = true
+	
+	# 设置鼠标交互
+	_setup_character_click_area()
 
 ## 初始化角色
 func initialize(battle_manager: BattleManager) -> void:
@@ -85,9 +87,8 @@ func initialize(battle_manager: BattleManager) -> void:
 	_init_components(battle_manager)
 
 	# 初始化UI显示
-	_update_name_display()
-	_update_health_display()
-	_update_mana_display()
+	character_info_container.initialize(self)
+	_setup_animations()
 
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
 
@@ -103,14 +104,6 @@ func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> 
 	get_parent().add_child(damage_number)
 	damage_number.global_position = global_position + Vector2(0, -50)
 	damage_number.show_damage(amount, false, color, prefix)
-
-## 更新显示
-func update_visual() -> void:
-	if name_label:
-		name_label.text = character_name
-	
-	if character_rect and character_data:
-		character_rect.color = character_data.color
 
 ## 伤害处理方法
 func take_damage(base_damage: float) -> float:
@@ -164,8 +157,17 @@ func restore_mp(amount: float) -> float:
 
 ## 播放动画
 func play_animation(animation_name: String) -> void:
-	print("假装播放了动画：", animation_name)
-
+	print("%s 播放动画：%s" % [character_name, animation_name])
+	
+	# 检查是否有对应的动画
+	if animation_player.has_animation(animation_name):
+		# 直接播放动画
+		animation_player.play(animation_name)
+		await animation_player.animation_finished
+		animation_player.play(&"idle")
+	else:
+		push_warning("动画 %s 不存在" % animation_name)
+		
 ## 应用技能状态
 func apply_skill_status(status_instance: SkillStatusData, source_character: Character, effect_data_from_skill: SkillEffectData) -> Dictionary:
 	if skill_component:
@@ -195,14 +197,6 @@ func _init_components(battle_manager: BattleManager) -> void:
 	if not combat_component.character_defeated.is_connected(_on_character_defeated):
 		combat_component.character_defeated.connect(_on_character_defeated)
 
-	skill_component.status_applied.connect(_on_status_applied)
-	skill_component.status_removed.connect(_on_status_removed)
-	skill_component.status_updated.connect(func(character, status_instance, old_stacks, old_duration): 
-		status_updated_on_character.emit(character, status_instance, old_stacks, old_duration))
-
-	skill_component.attribute_base_value_changed.connect(_on_attribute_base_value_changed)
-	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
-
 	ai_component.initialize(battle_manager)
 
 ## 初始化玩家数据
@@ -212,58 +206,28 @@ func _initialize_from_data(data: CharacterData) -> void:
 	
 	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
 	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
+
+## 设置角色动画
+func _setup_animations() -> void:
+	if animation_player:
+		animation_player.remove_animation_library(&"")
+		animation_player.add_animation_library(&"", character_data.animation_library)
+		animation_player.play(&"idle")
+	else:
+		push_error("找不到AnimationPlayer组件，无法设置动画")
+		
+## 设置角色点击区域和鼠标交互
+func _setup_character_click_area() -> void:
+	if not character_click_area:
+		push_error("Character: 找不到CharacterClickArea节点")
+		return
 	
-#region --- UI 更新辅助方法 ---
-## 更新名称显示
-func _update_name_display() -> void:
-	if name_label and character_data:
-		name_label.text = character_data.character_name
-
-## 更新血量显示
-func _update_health_display() -> void:
-	if hp_bar and skill_component: # 确保active_attribute_set已初始化
-		var current_val = skill_component.get_attribute_current_value(&"CurrentHealth")
-		var max_val = skill_component.get_attribute_current_value(&"MaxHealth")
-		hp_bar.max_value = max_val
-		hp_bar.value = current_val
-		hp_label.text = "%d/%d" % [roundi(current_val), roundi(max_val)]
-
-## 更新法力显示
-func _update_mana_display() -> void:
-	if mp_bar and skill_component: # 确保active_attribute_set已初始化
-		var current_val = skill_component.get_attribute_current_value(&"CurrentMana")
-		var max_val = skill_component.get_attribute_current_value(&"MaxMana")
-		mp_bar.max_value = max_val
-		mp_bar.value = current_val
-		mp_label.text = "%d/%d" % [roundi(current_val), roundi(max_val)]
-
-#endregion
+	# 连接鼠标信号
+	character_click_area.mouse_entered.connect(_on_character_mouse_entered)
+	character_click_area.mouse_exited.connect(_on_character_mouse_exited)
+	character_click_area.input_event.connect(_on_character_input_event)
 
 #region --- 信号处理 ---
-## 当AttributeSet中的属性当前值变化时调用
-func _on_attribute_current_value_changed(
-		attribute_instance: SkillAttribute, _old_value: float, new_value: float) -> void:
-	if attribute_instance.attribute_name == &"CurrentHealth":
-		health_changed.emit(new_value, max_hp, self)
-		_update_health_display()
-	elif attribute_instance.attribute_name == &"MaxHealth":
-		# MaxHealth变化也需要通知UI更新，并可能影响CurrentHealth的钳制（已在AttributeSet钩子中处理）
-		health_changed.emit(current_hp, new_value, self)
-		_update_health_display()
-	elif attribute_instance.attribute_name == &"CurrentMana":
-		mana_changed.emit(new_value, max_mp, self)
-		_update_mana_display()
-	elif attribute_instance.attribute_name == &"MaxMana":
-		mana_changed.emit(current_mp, new_value, self)
-		_update_mana_display()
-
-## 当AttributeSet中的属性基础值变化时调用
-func _on_attribute_base_value_changed(attribute_instance: SkillAttribute, _old_value: float, _new_value: float) -> void:
-	# 通常基础值变化也会导致当前值变化，相关信号已在_on_attribute_current_value_changed处理
-	# 但如果UI需要特别区分显示基础值和当前值，可以在这里做处理
-	if attribute_instance.attribute_name == &"MaxHealth": # 例如基础MaxHealth变化
-		_update_health_display() # 确保UI同步
-
 ## 当角色死亡时调用
 func _on_character_defeated() -> void:
 	if state_indicator:
@@ -271,42 +235,26 @@ func _on_character_defeated() -> void:
 	modulate = Color(0.5, 0.5, 0.5, 0.5) # 变灰示例
 	character_defeated.emit()
 
-## 当状态被应用时调用
-func _on_status_applied(status_instance: SkillStatusData):
-	if not state_indicator:
-		push_warning("状态指示器未初始化,无法显示状态！")
-		return
+## 当鼠标进入角色区域
+func _on_character_mouse_entered() -> void:
+	# 改变鼠标光标
+	Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 	
-	# 检查是否是防御状态
-	match status_instance.status_id:
-		&"defend":
-			state_indicator.show_indicator(state_indicator.StateType.DEFENSE)
-			print_rich("[color=cyan]%s 进入防御状态[/color]" % character_data.character_name)
-		&"silence":
-			state_indicator.show_indicator(state_indicator.StateType.SILENCE)
-			print_rich("[color=cyan]%s 进入沉默状态[/color]" % character_data.character_name)
-		&"stun":
-			state_indicator.show_indicator(state_indicator.StateType.STUN)
-			print_rich("[color=cyan]%s 进入眩晕状态[/color]" % character_data.character_name)
-		&"bleed":
-			state_indicator.show_indicator(state_indicator.StateType.BLEED)
-			print_rich("[color=cyan]%s 进入流血状态[/color]" % character_data.character_name)
-		_:
-			print_rich("[color=orange]%s 未知状态 %s[/color], 不显示状态指示器" % [character_data.character_name, status_instance.status_id])
-			return
-	status_applied_to_character.emit(self, status_instance)
+	# 添加高亮效果
+	sprite_2d.modulate = Color(1.2, 1.2, 1.2)
 
-## 当状态被移除时调用
-func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData):
-	if not state_indicator:
-		push_warning("状态指示器未初始化,无法移除状态！")
-		return
+## 当鼠标离开角色区域
+func _on_character_mouse_exited() -> void:
+	# 恢复默认光标
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 	
-	# 检查是否是防御状态
-	if status_id in [&"defend", &"silence", &"stun", &"bleed"]:
-		state_indicator.hide_indicator()
-		print_rich("[color=orange]%s 防御状态结束[/color]" % character_data.character_name)
+	# 移除高亮效果
+	sprite_2d.modulate = Color.WHITE
 
-	status_removed_from_character.emit(self, status_id, _status_instance_data_before_removal)
-
+## 处理角色区域的输入事件
+func _on_character_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	# 检测鼠标左键点击
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# 发射点击信号
+		character_clicked.emit(self)
 #endregion

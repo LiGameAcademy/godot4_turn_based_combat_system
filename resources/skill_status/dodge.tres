@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://607u2kvxyogs"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://607u2kvxyogs"]
 
 [ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="1_abcde"]
 [ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_4ih74"]
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="2_fghij"]
+[ext_resource type="Texture2D" uid="uid://duqwbwc07qk21" path="res://assets/textures/icons/status/dodge.svg" id="3_4ih74"]
 
 [sub_resource type="Resource" id="Resource_ka2b5"]
 script = ExtResource("2_fghij")
@@ -17,6 +18,7 @@ script = ExtResource("1_abcde")
 status_id = &"dodge"
 status_name = "狡猾闪躲"
 description = "变得极其警觉和敏捷，速度大幅提升。"
+icon = ExtResource("3_4ih74")
 status_type = 0
 duration = 2
 duration_type = 0

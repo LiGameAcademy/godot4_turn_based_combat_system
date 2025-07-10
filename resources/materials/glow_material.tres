@@ -1,0 +1,31 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://c06l1fhnnaylx"]
+
+[sub_resource type="Shader" id="Shader_uxvlh"]
+code = "
+shader_type canvas_item;
+
+uniform vec4 glow_color : source_color = vec4(1.2, 1.2, 1.2, 1.0);
+uniform float glow_intensity : hint_range(0.0, 2.0) = 0.4;
+uniform float pulse_speed : hint_range(0.0, 5.0) = 1.0;
+
+void fragment() {
+    vec4 current_color = texture(TEXTURE, UV);
+    
+    // 只对非透明部分应用发光效果
+    if (current_color.a > 0.1) {
+        // 创建脉冲效果
+        float pulse = (sin(TIME * pulse_speed) * 0.5 + 0.5) * glow_intensity;
+        
+        // 应用发光效果
+        current_color.rgb = mix(current_color.rgb, glow_color.rgb, pulse);
+    }
+    
+    COLOR = current_color;
+}
+"
+
+[resource]
+shader = SubResource("Shader_uxvlh")
+shader_parameter/glow_color = Color(1.2, 1.2, 1.2, 1)
+shader_parameter/glow_intensity = 0.4
+shader_parameter/pulse_speed = 1.0

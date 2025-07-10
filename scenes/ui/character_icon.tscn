@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://bfptueu5uw87m"]
+
+[ext_resource type="Texture2D" uid="uid://cfn0bibj2tsu8" path="res://assets/sprites/characters/heros/assassin/idle.png" id="1_g1p80"]
+[ext_resource type="Script" uid="uid://u8i6nf74ftfm" path="res://scenes/ui/character_icon.gd" id="1_uxw0k"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cpkrj"]
+atlas = ExtResource("1_g1p80")
+region = Rect2(1280, 80, 32, 32)
+
+[node name="CharacterIcon" type="MarginContainer"]
+script = ExtResource("1_uxw0k")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = SubResource("AtlasTexture_cpkrj")

@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://bn3pbr75oofc6"]
+
+[ext_resource type="Texture2D" uid="uid://cfn0bibj2tsu8" path="res://assets/sprites/characters/heros/assassin/idle.png" id="1_xhdpk"]
+
+[resource]
+atlas = ExtResource("1_xhdpk")
+region = Rect2(1280, 80, 32, 32)
