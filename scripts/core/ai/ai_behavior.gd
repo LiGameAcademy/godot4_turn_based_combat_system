@@ -122,24 +122,16 @@ func _get_skill_tags(skill: SkillData) -> Array:
 	
 	# 根据技能效果判断类型
 	for effect in skill.effects:
-		match effect.effect_type:
-			SkillEffectData.EffectType.DAMAGE:
-				tags.append(SkillTag.OFFENSIVE)
-			SkillEffectData.EffectType.HEAL:
-				tags.append(SkillTag.HEALING)
-			SkillEffectData.EffectType.STATUS:
-				# 根据状态效果类型进一步判断
-				if effect.status_to_apply:
-					var status = effect.status_to_apply
-					# 这里需要根据实际的状态效果系统进行判断
-					# 简单实现：根据状态名称判断
-					if status.status_type == SkillStatusData.StatusType.BUFF:
-						tags.append(SkillTag.SUPPORT)
-					elif status.status_type == SkillStatusData.StatusType.DEBUFF:
-						tags.append(SkillTag.DEBUFF)
-			SkillEffectData.EffectType.MODIFY_DAMAGE:
-				tags.append(SkillTag.OFFENSIVE)
-	
+		if effect is DamageEffectData or effect is ModifyDamageEffectData:
+			tags.append(SkillTag.OFFENSIVE)
+		elif effect is HealEffectData:
+			tags.append(SkillTag.HEALING)
+		elif effect is ApplyStatusEffectData:
+			# 根据状态类型判断
+			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+				tags.append(SkillTag.SUPPORT)
+			elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+				tags.append(SkillTag.DEBUFF)
 	# 去重
 	var unique_tags : Array[SkillTag] = []
 	for tag in tags:
@@ -154,8 +146,8 @@ func _get_skill_tags(skill: SkillData) -> Array:
 ## [return] 是否敌对
 func _is_enemy(character1: Character, character2: Character) -> bool:
 	# 使用角色组件中的character_registry来判断敌对关系
-	if character1.ai_component and character1.ai_component.character_registry:
-		return character1.ai_component.character_registry.is_enemy_of(character1, character2)
+	if character1.ai_component:
+		return character1.ai_component.is_enemy(character2)
 	
 	# 如果没有角色注册管理器，则无法判断
 	return false

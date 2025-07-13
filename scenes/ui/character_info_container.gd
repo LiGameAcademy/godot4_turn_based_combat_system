@@ -112,7 +112,7 @@ func _initialize_status_icons() -> void:
 	clear_status_icons()
 	
 	# 获取当前所有状态
-	var active_statuses = _character.skill_component.get_all_active_statuses()
+	var active_statuses = _character.skill_component.get_active_statuses()
 	for status in active_statuses:
 		_add_status_icon(status)
 
@@ -167,11 +167,7 @@ func clear_status_icons() -> void:
 	_status_icons.clear()
 
 ## 属性当前值变化回调
-func _on_attribute_current_value_changed(
-		attribute: SkillAttribute, 
-		_old_value: float, 
-		_new_value: float, 
-		_source: Variant) -> void:
+func _on_attribute_current_value_changed(attribute: SkillAttribute, _old_value: float, _new_value: float) -> void:
 	# 检查是否是HP或MP属性
 	if attribute.attribute_name == &"CurrentHealth" or attribute.attribute_name == &"MaxHealth":
 		# 更新HP条

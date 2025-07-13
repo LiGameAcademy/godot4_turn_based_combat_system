@@ -1,10 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <circle cx="32" cy="32" r="30" fill="#f5f5f5" stroke="#333333" stroke-width="2"/>
-  <g fill="#e74c3c" transform="translate(32, 32)">
-    <!-- 剑形状 -->
-    <path d="M-16,-16 L0,16 L16,-16 L0,-8 Z" stroke="#333333" stroke-width="1.5" stroke-linejoin="round"/>
-    <!-- 向上箭头 -->
-    <path d="M0,-20 L8,-12 L4,-12 L4,4 L-4,4 L-4,-12 L-8,-12 Z" fill="#4caf50" stroke="#333333" stroke-width="1.5" stroke-linejoin="round"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <path d="M 50 90 L 50 30" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 40 70 L 60 70" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M 50 10 L 40 30 L 60 30 Z" fill="#FFFFFF"/>
+  <path d="M 30 40 L 50 20 L 70 40" fill="none" stroke="#4CAF50" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

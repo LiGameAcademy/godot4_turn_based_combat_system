@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://dce1fg2h3i4j5"]
+
+[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_5liuv"]
+[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="1_vy3m8"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_inbmk"]
+[ext_resource type="Texture2D" uid="uid://cntt4xoqan4ix" path="res://assets/textures/icons/status/silence.svg" id="3_inbmk"]
+
+[resource]
+script = ExtResource("1_vy3m8")
+status_id = &"silence"
+status_name = "沉默"
+description = "无法使用任何需要消耗魔法值的技能。"
+icon = ExtResource("3_inbmk")
+status_type = 2
+duration = 3
+duration_type = 0
+max_stacks = 1
+stack_behavior = 1
+attribute_modifiers = Array[ExtResource("1_5liuv")]([])
+initial_effects = Array[ExtResource("2_inbmk")]([])
+ongoing_effects = Array[ExtResource("2_inbmk")]([])
+end_effects = Array[ExtResource("2_inbmk")]([])
+overrides_states = Array[StringName]([])
+resisted_by_states = Array[StringName]([])
+trigger_on_events = Array[StringName]([])
+trigger_effects = Array[ExtResource("2_inbmk")]([])
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[String](["magic_skill"])
+metadata/_custom_type_script = "uid://do7l16ao2ut6t"

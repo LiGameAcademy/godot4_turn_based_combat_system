@@ -41,6 +41,9 @@ func show_heal_number(
 	heal_num_instance.show_heal(heal_amount)
 
 ## 显示状态文本 (例如 "中毒!", "眩晕!")
+## [param target_character] 受到状态的角色
+## [param text] 状态文本
+## [param is_positive] 是否为正面状态
 func show_status_text(target_character: Character, text: String, is_positive: bool = true) -> void:
 	var status_text_instance : DamageNumber = _create_damage_number(target_character, Vector2(0, 70))
 	status_text_instance.show_status(text, is_positive)

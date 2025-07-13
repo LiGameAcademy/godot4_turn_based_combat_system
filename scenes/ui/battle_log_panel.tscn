@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://yji5ka751gyf"]
+[gd_scene load_steps=4 format=3 uid="uid://ts5rp7wqs47y"]
 
 [ext_resource type="Script" uid="uid://s5n6l8husmc" path="res://scenes/ui/battle_log_panel.gd" id="1_m6t8y"]
 
@@ -98,7 +98,7 @@ size = Vector2i(200, 250)
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 196.0
-offset_bottom = 246.0
+offset_bottom = 350.0
 
 [node name="Label" type="Label" parent="FilterPopup/FilterVBox"]
 layout_mode = 2

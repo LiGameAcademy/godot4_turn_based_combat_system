@@ -1,32 +1,18 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://kacsn8v7n6by"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=5 format=3 uid="uid://kacsn8v7n6by"]
 
-[ext_resource type="Script" path="res://scripts/resources/skill_effect_data.gd" id="1_03g3p"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_xskkb"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_03g3p"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_xskkb"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="3_xyykp"]
 
-[sub_resource type="Resource" id="Resource_03g3p"]
-script = ExtResource("1_03g3p")
-effect_type = 0
-element = 0
-visual_effect = ""
-sound_effect = ""
+[sub_resource type="Resource" id="Resource_xskkb"]
+script = ExtResource("3_xyykp")
 damage_amount = 0
 damage_power_scale = 1.0
-heal_amount = 10
-heal_power_scale = 0.5
-status_application_chance = 1.0
-status_duration_override = -1
-status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-damage_mod_percent = 0.5
-damage_mod_flat = 0.0
-damage_mod_min = 1.0
-damage_mod_max = 9999.0
-special_type = "none"
-special_params = {}
-metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]
 script = ExtResource("2_xskkb")
@@ -35,7 +21,8 @@ skill_name = "普通攻击"
 description = ""
 mp_cost = 0
 target_type = 1
-effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_03g3p")])
+effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_xskkb")])
 action_categories = Array[String](["any_action"])
 cast_animation = &"attack"
+can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

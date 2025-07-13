@@ -1,34 +1,21 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=5 format=3 uid="uid://c6wf7gyb2fa16"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://rxkf72h6p0s2"]
 
-[ext_resource type="Script" path="res://scripts/resources/skill_effect_data.gd" id="1_ggsii"]
-[ext_resource type="Resource" uid="uid://dl3tgs42qchfn" path="res://resources/skill_status/defend.tres" id="2_3uyfq"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_yqq3l"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_ggsii"]
+[ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://resources/skill_status/defend.tres" id="2_3uyfq"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_v0cas"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_yqq3l"]
 
-[sub_resource type="Resource" id="Resource_v0cas"]
-script = ExtResource("1_ggsii")
-effect_type = 2
-element = 0
-visual_effect = ""
-sound_effect = ""
-damage_amount = 10
-damage_power_scale = 1.0
-heal_amount = 10
-heal_power_scale = 0.5
+[sub_resource type="Resource" id="Resource_3uyfq"]
+script = ExtResource("2_v0cas")
 status_to_apply = ExtResource("2_3uyfq")
 status_application_chance = 1.0
 status_duration_override = -1
 status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-damage_mod_percent = 0.5
-damage_mod_flat = 0.0
-damage_mod_min = 1.0
-damage_mod_max = 9999.0
-special_type = "none"
-special_params = {}
-metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
 script = ExtResource("2_yqq3l")
@@ -37,7 +24,8 @@ skill_name = "防御"
 description = ""
 mp_cost = 0
 target_type = 5
-effects = Array[ExtResource("1_ggsii")]([SubResource("Resource_v0cas")])
+effects = Array[ExtResource("1_ggsii")]([SubResource("Resource_3uyfq")])
 action_categories = Array[String](["any_action"])
-cast_animation = &"defend"
+cast_animation = &""
+can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

@@ -1,49 +1,35 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://dblm23dkh168w"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://dblm23dkh168w"]
 
-[ext_resource type="Script" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_oujun"]
-[ext_resource type="Script" path="res://scripts/resources/skill_effect_data.gd" id="2_xyykp"]
-[ext_resource type="Script" path="res://scripts/resources/skill_status_data.gd" id="3_obah3"]
-[ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_xyykp"]
+[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_oujun"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_xyykp"]
+[ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_3heod"]
+[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_obah3"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="3_xyykp"]
 
-[sub_resource type="Resource" id="Resource_oujun"]
-script = ExtResource("2_xyykp")
-effect_type = 0
-element = 1
+[sub_resource type="Resource" id="Resource_obah3"]
+script = ExtResource("3_xyykp")
+damage_amount = 1
+damage_power_scale = 1.0
 visual_effect = ""
 sound_effect = ""
-damage_amount = 5
-damage_power_scale = 0.0
-heal_amount = 10
-heal_power_scale = 0.5
-status_application_chance = 1.0
-status_duration_override = -1
-status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-damage_mod_percent = 0.5
-damage_mod_flat = 0.0
-damage_mod_min = 1.0
-damage_mod_max = 9999.0
-special_type = "none"
-special_params = {}
-metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+target_override = "none"
+element = 1
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]
 script = ExtResource("3_obah3")
 status_id = &"ignite"
 status_name = "点燃"
 description = "每回合受到火焰伤害。"
-icon = ExtResource("3_xyykp")
+icon = ExtResource("3_3heod")
 status_type = 1
-base_duration = 3
+duration = 3
 duration_type = 0
 max_stacks = 1
 stack_behavior = 2
 attribute_modifiers = Array[ExtResource("1_oujun")]([])
 initial_effects = Array[ExtResource("2_xyykp")]([])
-ongoing_effects = Array[ExtResource("2_xyykp")]([SubResource("Resource_oujun")])
+ongoing_effects = Array[ExtResource("2_xyykp")]([SubResource("Resource_obah3")])
 end_effects = Array[ExtResource("2_xyykp")]([])
 overrides_states = Array[StringName]([])
 resisted_by_states = Array[StringName]([])
@@ -51,5 +37,4 @@ trigger_on_events = Array[StringName]([])
 trigger_effects = Array[ExtResource("2_xyykp")]([])
 trigger_turns = 1
 trigger_count = 1
-restricted_action_categories = Array[StringName]([])
-metadata/_custom_type_script = "uid://do7l16ao2ut6t"
+restricted_action_categories = Array[String]([])

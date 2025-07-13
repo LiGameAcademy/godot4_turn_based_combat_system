@@ -1,59 +1,32 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://bra85c6w585gr"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=8 format=3 uid="uid://bra85c6w585gr"]
 
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
-[ext_resource type="Script" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="2_dua1n"]
 [ext_resource type="Resource" uid="uid://dblm23dkh168w" path="res://resources/skill_status/ignite.tres" id="2_wb8wf"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_v0rhv"]
 
-[sub_resource type="Resource" id="Resource_s313m"]
-script = ExtResource("1_wb8wf")
-effect_type = 0
-element = 1
-visual_effect = ""
-sound_effect = ""
+[sub_resource type="Resource" id="Resource_dua1n"]
+script = ExtResource("2_dua1n")
 damage_amount = 10
 damage_power_scale = 1.0
-heal_amount = 10
-heal_power_scale = 0.5
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_v0rhv"]
+script = ExtResource("3_v0rhv")
+status_to_apply = ExtResource("2_wb8wf")
 status_application_chance = 1.0
 status_duration_override = -1
 status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-damage_mod_percent = 0.5
-damage_mod_flat = 0.0
-damage_mod_min = 1.0
-damage_mod_max = 9999.0
-special_type = "none"
-special_params = {}
-metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
-
-[sub_resource type="Resource" id="Resource_c6ojy"]
-script = ExtResource("1_wb8wf")
-effect_type = 2
-element = 0
 visual_effect = ""
 sound_effect = ""
-damage_amount = 10
-damage_power_scale = 1.0
-heal_amount = 10
-heal_power_scale = 0.5
-status_to_apply = ExtResource("2_wb8wf")
-status_application_chance = 1.0
-status_duration_override = 3
-status_stacks_to_apply = 1
-dispel_types = Array[String]([])
-dispel_count = 1
-dispel_is_positive = false
-dispel_is_all = false
-damage_mod_percent = 0.5
-damage_mod_flat = 0.0
-damage_mod_min = 1.0
-damage_mod_max = 9999.0
-special_type = "none"
-special_params = {}
-metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
 script = ExtResource("1_prr5c")
@@ -62,6 +35,7 @@ skill_name = "火球术"
 description = "向敌人投掷一个火球，造成火焰伤害。"
 mp_cost = 8
 target_type = 1
-effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_s313m"), SubResource("Resource_c6ojy")])
-action_categories = Array[String](["any_action"])
+effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
+action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
+can_target_dead = false

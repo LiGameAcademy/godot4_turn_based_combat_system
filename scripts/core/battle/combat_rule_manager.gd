@@ -5,8 +5,8 @@ class_name CombatRuleManager
 ## 负责管理战斗规则和状态
 ## 包括回合管理、胜负判断等
 
-# 引用 CharacterRegistryManager (通常需要它来检查队伍状态)
-var character_registry: BattleCharacterRegistryManager 
+## 引用 CharacterRegistryManager (通常需要它来检查队伍状态)
+var _character_registry: BattleCharacterRegistryManager 
 
 # 战斗状态信号
 signal player_victory	## 玩家胜利
@@ -22,21 +22,20 @@ func initialize(registry: BattleCharacterRegistryManager) -> void:
 	if not registry:
 		push_error("CombatRuleManager requires a BattleCharacterRegistryManager reference.")
 		return
-	character_registry = registry
+	_character_registry = registry
 	current_turn_count = 0
 	print("CombatRuleManager initialized.")
 
-## 在每个回合开始时调用
-## [param turn_number] 当前回合数
-func on_turn_started(turn_number: int) -> void:
-	current_turn_count = turn_number
-	print("CombatRuleManager: Turn %d started." % current_turn_count)
+## 战斗回合计数
+func add_turn_count() -> void:
+	current_turn_count += 1
+	print("[CombatRuleManager] Turn %d started." % current_turn_count)
 	
 	# 检查回合数限制
 	if max_turns > 0 and current_turn_count > max_turns:
 		print_rich("[color=orange]Max turns reached![/color]")
 		# 根据游戏规则处理，可能是平局或玩家失败
-		# player_defeat.emit() 
+		player_defeat.emit() 
 		# battle_draw.emit()
 		return
 
@@ -46,12 +45,12 @@ func on_turn_started(turn_number: int) -> void:
 ## 用于检查战斗是否结束
 ## [return] 是否战斗已结束
 func check_battle_end_conditions() -> bool: # 返回true如果战斗已结束
-	if not character_registry:
+	if not _character_registry:
 		push_error("CharacterRegistry is not set in CombatRuleManager!")
 		return false
 
-	var player_team_defeated = character_registry.is_team_defeated(true)
-	var enemy_team_defeated = character_registry.is_team_defeated(false)
+	var player_team_defeated = _character_registry.is_team_defeated(true)
+	var enemy_team_defeated = _character_registry.is_team_defeated(false)
 
 	if enemy_team_defeated and not player_team_defeated:
 		print_rich("[color=green][b]Player Victory![/b][/color]")
@@ -82,7 +81,7 @@ func check_battle_end_conditions() -> bool: # 返回true如果战斗已结束
 ## [return] 是否成功应用
 # func apply_global_battlefield_effect():
 #   print("Applying global battlefield effect...")
-#   for char in character_registry.get_all_living_characters():
+#   for char in _character_registry.get_all_living_characters():
 #       if is_instance_valid(char):
 #           # 例如，每回合所有角色受到少量毒性伤害
 #           # char.take_damage(5, "Poisonous Fumes") 
@@ -92,7 +91,7 @@ func check_battle_end_conditions() -> bool: # 返回true如果战斗已结束
 ## [return] 是否满足特殊胜利条件
 # func check_special_victory_conditions() -> bool:
 #   # 例如：如果某个特定敌人 (Boss) 被击败
-#   # var boss = character_registry.get_character_by_id("boss_unique_id")
+#   # var boss = _character_registry.get_character_by_id("boss_unique_id")
 #   # if boss and not boss.is_alive:
 #   #    return true
 #   return false

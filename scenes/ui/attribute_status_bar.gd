@@ -1,3 +1,4 @@
+@tool
 extends ProgressBar
 class_name AttributeStatusBar
 
@@ -5,24 +6,20 @@ class_name AttributeStatusBar
 var _current_attribute : SkillAttribute
 var _max_attribute : SkillAttribute
 
+@export var attribute_name : String = "HP"
+@export var attribute_color : Color = Color.GREEN
 # 动画相关变量
 @export var animation_speed: float = 5.0  # 值越大，动画越快
 @export var use_animation: bool = true  # 是否使用动画效果
-var _bar_color: Color = Color(0, 1, 0, 1)
-@export var bar_color: Color = Color(0, 1, 0, 1):  # 进度条颜色
-	get:
-		return _bar_color
-	set(value):
-		_bar_color = value
-		# 立即应用颜色
-		if is_inside_tree():
-			self_modulate = _bar_color
 var _target_value: float = 0.0
 var _target_max_value: float = 0.0
 var _current_displayed_value: float = 0.0
 var _current_displayed_max_value: float = 0.0
 var _tween: Tween
 var _is_animating: bool = false  # 内部使用，标记动画是否正在进行中
+
+func _ready() -> void:
+	self_modulate = attribute_color
 
 func setup(attribute: SkillAttribute, max_attribute: SkillAttribute) -> void:
 	_current_attribute = attribute
@@ -38,11 +35,7 @@ func setup(attribute: SkillAttribute, max_attribute: SkillAttribute) -> void:
 	
 	# 立即更新一次显示
 	_update_display()
-
-func _ready() -> void:
-	# 应用初始颜色
-	self_modulate = _bar_color
-
+	
 func _update_display() -> void:
 	# 更新目标值
 	_target_value = _current_attribute.get_current_value()
@@ -54,7 +47,7 @@ func _update_display() -> void:
 		_current_displayed_max_value = _target_max_value
 		value = _current_displayed_value
 		max_value = _current_displayed_max_value
-		attribute_status_label.text = "%d/%d" % [roundi(_current_displayed_value), roundi(_current_displayed_max_value)]
+		_set_attribute_text(_current_displayed_value, _current_displayed_max_value)
 		return
 	
 	# 如果已经有动画在运行，停止它
@@ -100,7 +93,10 @@ func _update_animated_values(current_values: Vector2) -> void:
 	max_value = _current_displayed_max_value
 	
 	# 更新文本标签
-	attribute_status_label.text = "%d/%d" % [roundi(_current_displayed_value), roundi(_current_displayed_max_value)]
+	_set_attribute_text(_current_displayed_value, _current_displayed_max_value)
+
+func _set_attribute_text(current_value: float, max_value: float) -> void:
+	attribute_status_label.text = attribute_name + ": %d / %d" % [roundi(current_value), roundi(max_value)]
 
 func _on_current_attribute_current_value_changed(_current_value: float) -> void:
 	_update_display()

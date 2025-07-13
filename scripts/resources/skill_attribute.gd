@@ -11,8 +11,9 @@ class_name SkillAttribute
 ## 在被AttributeSet持有的实例中，代表该角色此属性的当前基础值。
 @export var base_value: float = 0.0:
 	set(value):
+		var old_value = base_value
 		base_value = value
-		base_value_changed.emit(base_value)
+		base_value_changed.emit(old_value, value)
 ## 属性允许的最小值
 @export var min_value: float = -INF
 ## 属性允许的最大值
@@ -22,13 +23,14 @@ class_name SkillAttribute
 
 var current_value: float = 0.0:								## 属性的当前值 (运行时计算得出，不直接导出)
 	set(value):
+		var old_value = current_value
 		current_value = value
-		current_value_changed.emit(current_value)
+		current_value_changed.emit(old_value, value)
 var _active_modifiers: Array[SkillAttributeModifier] = []	## 当前作用于此属性实例的修改器列表 (由AttributeSet管理添加和移除)
-var _owner_set: SkillAttributeSet = null						## 对所属AttributeSet的引用 (在AttributeSet初始化时设置)
+var _owner_set: SkillAttributeSet = null					## 对所属AttributeSet的引用 (在AttributeSet初始化时设置)
 
-signal base_value_changed
-signal current_value_changed
+signal current_value_changed(old_value, new_value)
+signal base_value_changed(old_value, new_value)
 
 func _init(p_owner_set: SkillAttributeSet = null, p_base_value_override: float = -1.0) -> void:
 	_owner_set = p_owner_set
@@ -42,30 +44,25 @@ func _init(p_owner_set: SkillAttributeSet = null, p_base_value_override: float =
 	# 注意：current_value的初始计算最好由AttributeSet在所有属性都实例化后统一触发
 	# 此处仅确保变量存在。
 
+func get_active_modifiers() -> Array[SkillAttributeModifier]:
+	return _active_modifiers
+
 ## (由AttributeSet调用) 添加一个Modifier并触发重算
-func add_modifier_internal(modifier: SkillAttributeModifier):
+func add_modifier_internal(modifier: SkillAttributeModifier) -> void:
 	if not modifier in _active_modifiers: # 避免重复添加同一个Modifier实例
 		_active_modifiers.append(modifier)
 		_recalculate_current_value()
 		# print("Added modifier %s to %s" % [modifier, attribute_name])
 
 ## (由AttributeSet调用) 移除一个Modifier并触发重算
-func remove_modifier_internal(modifier: SkillAttributeModifier):
+func remove_modifier_internal(modifier: SkillAttributeModifier) -> void:
 	if modifier in _active_modifiers:
 		_active_modifiers.erase(modifier)
 		_recalculate_current_value()
 		# print("Removed modifier %s from %s" % [modifier, attribute_name])
 
-## 获取当前激活的修饰符列表
-func get_active_modifiers() -> Array[SkillAttributeModifier]:
-	return _active_modifiers
-
-## 是否有Modifier
-func has_modifier(modifier: SkillAttributeModifier) -> bool:
-	return modifier in _active_modifiers
-
 ## (由AttributeSet调用) 设置基础值
-func set_base_value_internal(new_base_value: float):
+func set_base_value_internal(new_base_value: float) -> void:
 	base_value = new_base_value
 	_recalculate_current_value()
 
@@ -78,7 +75,7 @@ func get_base_value() -> float:
 	return base_value
 
 ## 设置所属的AttributeSet (在AttributeSet中实例化此属性时调用)
-func set_owner_set(owner: SkillAttributeSet):
+func set_owner_set(owner: SkillAttributeSet) -> void:
 	_owner_set = owner
 
 ## 重新计算current_value，基于base_value和所有激活的Modifier

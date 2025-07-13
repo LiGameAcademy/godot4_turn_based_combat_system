@@ -1,12 +1,12 @@
-[gd_scene load_steps=8 format=3 uid="uid://d2bbph3gqcku6"]
+[gd_scene load_steps=8 format=3 uid="uid://dqlpd6akofusk"]
 
-[ext_resource type="PackedScene" uid="uid://bhofqlwlav887" path="res://scenes/ui/action_menu.tscn" id="1_ebl3e"]
+[ext_resource type="PackedScene" uid="uid://bsxm37g35mr4n" path="res://scenes/ui/action_menu.tscn" id="1_ebl3e"]
 [ext_resource type="Script" uid="uid://l2076p6rykh7" path="res://scenes/ui/battle_ui.gd" id="1_uoy4w"]
 [ext_resource type="PackedScene" uid="uid://dytp20hph55tl" path="res://scenes/ui/skill_select_menu.tscn" id="2_uoy4w"]
 [ext_resource type="PackedScene" uid="uid://b3kx6r5a7lfil" path="res://scenes/ui/target_selection_menu.tscn" id="3_7sxqq"]
-[ext_resource type="PackedScene" uid="uid://ccq2oyavuskq4" path="res://scenes/ui/character_detail_panel.tscn" id="5_7sxqq"]
-[ext_resource type="PackedScene" uid="uid://yji5ka751gyf" path="res://scenes/ui/battle_log_panel.tscn" id="6_2kidt"]
-[ext_resource type="PackedScene" uid="uid://b6c4tkqx2v05n" path="res://scenes/ui/turn_order_indicator.tscn" id="7_qt65o"]
+[ext_resource type="PackedScene" uid="uid://x8u6jf7mpp37" path="res://scenes/ui/character_detail_panel.tscn" id="5_7sxqq"]
+[ext_resource type="PackedScene" uid="uid://ts5rp7wqs47y" path="res://scenes/ui/battle_log_panel.tscn" id="6_2kidt"]
+[ext_resource type="PackedScene" uid="uid://djf2k5bnmxgcr" path="res://scenes/ui/turn_order_indicator.tscn" id="7_qt65o"]
 
 [node name="BattleUI" type="CanvasLayer"]
 layer = 128
@@ -27,11 +27,12 @@ visible = false
 [node name="TargetSelectionMenu" parent="." instance=ExtResource("3_7sxqq")]
 visible = false
 
+[node name="CharacterDetailPanel" parent="." instance=ExtResource("5_7sxqq")]
+
 [node name="BattleLogPanel" parent="." instance=ExtResource("6_2kidt")]
 offset_top = -217.0
 offset_right = 427.0
 
 [node name="TurnOrderIndicator" parent="." instance=ExtResource("7_qt65o")]
 
-[node name="CharacterDetailPanel" parent="." instance=ExtResource("5_7sxqq")]
-visible = false
+[connection signal="closed" from="CharacterDetailPanel" to="." method="_on_character_detail_panel_closed"]

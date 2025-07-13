@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://bhofqlwlav887"]
+[gd_scene load_steps=2 format=3 uid="uid://bsxm37g35mr4n"]
 
 [ext_resource type="Script" uid="uid://b608sr3puwo6r" path="res://scenes/ui/action_menu.gd" id="1_action"]
 
@@ -35,4 +35,5 @@ text = "Skill"
 [node name="ItemButton" type="Button" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+disabled = true
 text = "Item"

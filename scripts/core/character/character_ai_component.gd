@@ -18,9 +18,7 @@ class_name CharacterAIComponent
 var behavior_type: String = "balanced"
 
 # 引用
-var character_registry: BattleCharacterRegistryManager			## 角色注册管理器
-var skill_system_context: SkillSystem.SkillExecutionContext		## 技能系统上下文
-var battle_manager: BattleManager								## 战斗管理器
+var _battle_manager: BattleManager								## 战斗管理器
 
 ## AI执行结果类
 class AIActionResult:
@@ -37,9 +35,7 @@ class AIActionResult:
 ## 初始化方法
 ## [param p_battle_manager] 战斗管理器
 func initialize(p_battle_manager: BattleManager) -> void:
-	battle_manager = p_battle_manager
-	character_registry = battle_manager.character_registry
-	skill_system_context = SkillSystem.SkillExecutionContext.new(character_registry, battle_manager.visual_effects)
+	_battle_manager = p_battle_manager
 	
 	# 初始化行为资源
 	if not behavior_resource:
@@ -50,6 +46,7 @@ func initialize(p_battle_manager: BattleManager) -> void:
 ## [return] AI决策结果
 func execute_action() -> AIActionResult:
 	if not ai_enabled:
+		push_warning("AI未启用, 无法执行AI决策")
 		return AIActionResult.new(false)
 	
 	# 获取角色
@@ -65,9 +62,7 @@ func execute_action() -> AIActionResult:
 		return AIActionResult.new(false)
 	
 	action_decision.params.merge({
-		"skill_context": SkillSystem.SkillExecutionContext.new(
-				character_registry, battle_manager.visual_effects
-			)
+		"skill_context": SkillExecutionContext.new(_battle_manager)
 	})
 	# 执行决策
 	var combat_component : CharacterCombatComponent = owner_character.combat_component
@@ -150,8 +145,9 @@ func decide_action() -> Dictionary:
 	
 	# 评估每个可能的攻击目标
 	var valid_attack_targets = []
+	var enemies : Array[Character] = _battle_manager.get_valid_enemy_targets(get_parent())
 	for target in potential_targets:
-		if character_registry.is_enemy_of(owner_character, target):
+		if target in enemies:
 			valid_attack_targets.append(target)
 	
 	if valid_attack_targets.is_empty():
@@ -173,13 +169,14 @@ func decide_action() -> Dictionary:
 		"params": {}
 	}
 
-# 获取潜在目标
+## 获取潜在目标
+## [return] 潜在目标列表
 func get_potential_targets() -> Array:
 	var targets : Array[Character]= []
 	var owner_character = get_parent() as Character
 	# 根据技能类型获取不同的目标列表
-	var enemy_targets = SkillSystem.get_valid_enemy_targets(skill_system_context, owner_character)
-	var ally_targets = SkillSystem.get_valid_ally_targets(skill_system_context, owner_character, true)
+	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
 	
 	# 合并目标列表
 	targets.append_array(enemy_targets)
@@ -187,20 +184,27 @@ func get_potential_targets() -> Array:
 	
 	return targets
 
-# 为特定技能选择合适的目标
+## 为特定技能选择合适的目标
+## [param skill] 技能数据
+## [param potential_targets] 可能的目标列表
+## [return] 适合的目标列表
 func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]) -> Array[Character]:
-	var valid_targets = []
+	var valid_targets : Array[Character] = []
 	var owner_character = get_parent() as Character
+
+	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
+	
 	# 根据技能目标类型筛选目标
 	match skill.target_type:
 		SkillData.TargetType.ENEMY_SINGLE:
 			for target in potential_targets:
-				if character_registry.is_enemy_of(owner_character, target):
+				if target in enemy_targets:
 					valid_targets.append(target)
 		
 		SkillData.TargetType.ALLY_SINGLE, SkillData.TargetType.ALLY_SINGLE_INC_SELF:
 			for target in potential_targets:
-				if not character_registry.is_enemy_of(owner_character, target):
+				if not target in ally_targets:
 					# 如果是ALLY_SINGLE，不包含自己
 					if skill.target_type == SkillData.TargetType.ALLY_SINGLE and target == owner_character:
 						continue
@@ -211,12 +215,12 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 		
 		SkillData.TargetType.ENEMY_ALL:
 			for target in potential_targets:
-				if character_registry.is_enemy_of(owner_character, target):
+				if target in enemy_targets:
 					valid_targets.append(target)
 		
 		SkillData.TargetType.ALLY_ALL, SkillData.TargetType.ALLY_ALL_INC_SELF:
 			for target in potential_targets:
-				if not character_registry.is_enemy_of(owner_character, target):
+				if not target in ally_targets:
 					# 如果是ALLY_ALL，不包含自己
 					if skill.target_type == SkillData.TargetType.ALLY_ALL and target == owner_character:
 						continue
@@ -231,9 +235,13 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 	
 	return valid_targets
 
-# 启用/禁用AI
+## 启用/禁用AI
+## [param enabled] 是否启用AI
 func set_ai_enabled(enabled: bool) -> void:
 	ai_enabled = enabled
+
+func is_enemy(target: Character) -> bool:
+	return _battle_manager.is_enemy(get_parent(), target)
 
 # 判断是否应该使用防御动作
 ## [param character] 角色
@@ -253,40 +261,42 @@ func _should_use_defense(character: Character) -> bool:
 	# 如果生命值足够高，不需要防御
 	return false
 
-# 为技能选择最佳目标
+## 为技能选择最佳目标
+## [param skill] 技能数据
+## [param valid_targets] 有效目标列表
+## [return] 最佳目标
 func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Character:
 	# 根据技能类型和行为选择最佳目标
 	var owner_character = get_parent() as Character
 	var best_target = null
 	var best_score = -1.0
+
+	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
 	
 	for target in valid_targets:
 		var score = 0.0
 		
 		# 根据技能效果评分
 		for effect in skill.effects:
-			match effect.effect_type:
-				SkillEffectData.EffectType.DAMAGE:
-					# 攻击性技能优先选择低血量目标
-					var health_percent = target.current_hp / float(target.max_hp)
-					score += behavior_resource.weights["target_low_health"] * (1.0 - health_percent)
-				
-				SkillEffectData.EffectType.HEAL:
-					# 治疗技能优先选择低血量友方
-					var health_percent = target.current_hp / float(target.max_hp)
-					score += behavior_resource.weights["heal_low_health"] * (1.0 - health_percent)
-				
-				SkillEffectData.EffectType.STATUS:
-					# 状态技能根据状态类型评分
-					if effect.status_to_apply:
-						if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
-							# 增益状态优先给予友方
-							if not character_registry.is_enemy_of(owner_character, target):
-								score += behavior_resource.weights["skill_support"]
-						elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
-							# 减益状态优先给予敌方
-							if character_registry.is_enemy_of(owner_character, target):
-								score += behavior_resource.weights["skill_offensive"]
+			if effect is DamageEffectData:
+				# 攻击性技能优先选择低血量目标
+				var health_percent = target.current_hp / float(target.max_hp)
+				score += behavior_resource.weights["target_low_health"] * (1.0 - health_percent)
+			elif effect is HealEffectData:
+				# 治疗技能优先选择低血量友方
+				var health_percent = target.current_hp / float(target.max_hp)
+				score += behavior_resource.weights["heal_low_health"] * (1.0 - health_percent)
+			elif effect is ApplyStatusEffectData:
+				# 状态技能根据状态类型评分
+				if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+					# 增益状态优先给予友方
+					if not target in enemy_targets:
+						score += behavior_resource.weights["skill_support"]
+				elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+					# 减益状态优先给予敌方
+					if target in enemy_targets:
+						score += behavior_resource.weights["skill_offensive"]
 		
 		# 随机因素
 		score += randf_range(-0.2, 0.2)
@@ -301,7 +311,8 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 	
 	return best_target
 
-# 获取角色可用的技能列表
+## 获取角色可用的技能列表
+## [return] 可用技能列表
 func _get_available_skills() -> Array:
 	var owner_character : Character = get_parent() as Character
 	if not owner_character.skill_component or not owner_character.combat_component:

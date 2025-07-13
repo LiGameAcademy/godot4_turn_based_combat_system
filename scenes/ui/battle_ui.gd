@@ -2,15 +2,15 @@ extends CanvasLayer
 class_name BattleUI
 
 # UI组件引用
+@onready var battle_log_panel: BattleLogPanel = $BattleLogPanel
 @onready var action_menu: ActionMenu = $ActionMenu
 @onready var skill_select_menu: SkillSelectMenu = $SkillSelectMenu
 @onready var target_selection_menu: TargetSelectionMenu = $TargetSelectionMenu
-@onready var character_detail_panel : CharacterDetailPanel = $CharacterDetailPanel
-@onready var battle_log_panel: BattleLogPanel = $BattleLogPanel
+@onready var _character_detail_panel : CharacterDetailPanel = $CharacterDetailPanel
 @onready var turn_order_indicator: TurnOrderIndicator = $TurnOrderIndicator
 
 # 信号
-signal action_attack_pressed
+signal action_attack_pressed						## 攻击动作按下
 signal action_defend_pressed
 signal action_skill_pressed
 signal action_item_pressed
@@ -21,6 +21,9 @@ signal target_selection_cancelled
 
 func _ready() -> void:
 	# 确保UI组件已正确引用
+	if !battle_log_panel:
+		push_error("BattleUI: BattleInfo label not found")
+	
 	if !skill_select_menu:
 		push_error("BattleUI: SkillSelectMenu not found")
 	else:
@@ -39,12 +42,9 @@ func _ready() -> void:
 	
 	if !action_menu:
 		push_error("BattleUI: ActionMenu not found")
-	
-	character_detail_panel.closed.connect(_on_character_detail_panel_closed)
-
+		
 	# 初始化时重置UI状态
 	reset()
-
 
 ## 重置UI状态
 func reset() -> void:
@@ -72,40 +72,8 @@ func reset() -> void:
 	if !turn_order_indicator:
 		push_error("BattleUI: TurnOrderIndicator not found")
 
-# 处理UI信号并转发给BattleScene
-func _on_action_menu_attack_pressed() -> void:
-	action_attack_pressed.emit()
-
-
-func _on_action_menu_defend_pressed() -> void:
-	action_defend_pressed.emit()
-
-
-func _on_action_menu_skill_pressed() -> void:
-	action_skill_pressed.emit()
-
-
-func _on_action_menu_item_pressed() -> void:
-	action_item_pressed.emit()
-
-
-func _on_skill_selected(skill: SkillData) -> void:
-	skill_selected.emit(skill)
-
-
-func _on_skill_selection_cancelled() -> void:
-	skill_selection_cancelled.emit()
-
-
-func _on_target_selected(target: Character) -> void:
-	target_selected.emit(target)
-
-
-func _on_target_selection_cancelled() -> void:
-	target_selection_cancelled.emit()
-
 # UI显示和隐藏方法
-func show_action_menu(current_character: Character = null) -> void:
+func show_action_menu(current_character) -> void:
 	hide_all_menus() # 先隐藏其他菜单
 	
 	if not action_menu:
@@ -120,7 +88,7 @@ func show_action_menu(current_character: Character = null) -> void:
 	action_menu.visible = true
 	action_menu.setup_default_focus()
 
-
+## 显示技能选择菜单
 func show_skill_menu(character: Character) -> bool:
 	hide_all_menus()
 	
@@ -128,12 +96,12 @@ func show_skill_menu(character: Character) -> bool:
 		if character and character.character_data:
 			var character_data: CharacterData = character.character_data
 			var skills: Array[SkillData] = character_data.skills
-			skill_select_menu.show_menu(skills, character)
+			skill_select_menu.show_menu(skills, character.current_mp)
 			return true
 	
 	return false
 
-
+## 显示目标选择菜单
 func show_target_selection(targets: Array[Character]) -> bool:
 	if target_selection_menu and not targets.is_empty():
 		target_selection_menu.show_targets(targets)
@@ -141,7 +109,7 @@ func show_target_selection(targets: Array[Character]) -> bool:
 	
 	return false
 
-
+## 隐藏所有菜单
 func hide_all_menus() -> void:
 	if action_menu:
 		action_menu.visible = false
@@ -152,11 +120,12 @@ func hide_all_menus() -> void:
 	if target_selection_menu:
 		target_selection_menu.visible = false
 
-# 战斗信息显示
+## 战斗信息显示
 func update_battle_info(text: String) -> void:
-	# 同时添加到战斗日志
-	if battle_log_panel:
-		battle_log_panel.log_system(text)
+	if not battle_log_panel:
+		return
+	
+	battle_log_panel.log_system(text)
 
 # 更新回合顺序显示
 func update_turn_order(characters: Array, current_character_index: int) -> void:
@@ -190,8 +159,35 @@ func log_heal(target_name: String, amount: int, source: String = "") -> void:
 
 # 角色详情面板相关方法
 func show_character_details(character: Character) -> void:
+	if not _character_detail_panel:
+		_character_detail_panel = $CharacterDetailPanel
 	# 显示角色详情
-	character_detail_panel.show_character_details(character)
+	_character_detail_panel.show_character_details(character)
 
 func _on_character_detail_panel_closed() -> void:
-	character_detail_panel.hide()
+	pass
+
+# 处理UI信号并转发给BattleScene
+func _on_action_menu_attack_pressed() -> void:
+	action_attack_pressed.emit()
+
+func _on_action_menu_defend_pressed() -> void:
+	action_defend_pressed.emit()
+
+func _on_action_menu_skill_pressed() -> void:
+	action_skill_pressed.emit()
+
+func _on_action_menu_item_pressed() -> void:
+	action_item_pressed.emit()
+
+func _on_skill_selected(skill: SkillData) -> void:
+	skill_selected.emit(skill)
+
+func _on_skill_selection_cancelled() -> void:
+	skill_selection_cancelled.emit()
+
+func _on_target_selected(target: Character) -> void:
+	target_selected.emit(target)
+
+func _on_target_selection_cancelled() -> void:
+	target_selection_cancelled.emit()

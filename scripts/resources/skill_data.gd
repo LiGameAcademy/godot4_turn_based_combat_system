@@ -26,12 +26,15 @@ enum TargetType {
 
 @export_group("效果")
 @export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
-@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack")
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
 var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标
 @export var cast_animation: StringName = "" # 施法动画名 (如果角色动画器中有)
+
+@export var can_target_dead : bool = false # 是否可以对死亡目标施放
+
 # 未来可扩展其他视觉和音效选项
 # @export var vfx_scene: PackedScene # 技能特效场景
 # @export var sfx: AudioStream # 技能音效
@@ -58,6 +61,18 @@ func get_full_description() -> String:
 	desc += "[color=gray]" + description + "[/color]\n\n"
 	return desc.strip_edges()
 
+## 是否需要选择目标
+func needs_target() -> bool:
+	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ALLY_SINGLE, TargetType.ALLY_SINGLE_INC_SELF]
+
+## 敌人目标
+func is_enemy_target() -> bool:
+	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ENEMY_ALL]
+
+## 包含自身
+func is_including_self() -> bool:
+	return target_type in [TargetType.ALLY_SINGLE_INC_SELF, TargetType.ALLY_ALL_INC_SELF]
+
 ## 获取目标类型名称
 func _get_target_type_name() -> String:
 	match target_type:
@@ -68,12 +83,12 @@ func _get_target_type_name() -> String:
 		TargetType.ENEMY_ALL:
 			return "所有敌人"
 		TargetType.ALLY_SINGLE:
-			return "单个友方"
+			return "单个友方(不含自己)"
 		TargetType.ALLY_ALL:
-			return "所有友方"
+			return "所有友方(不含自己)"
 		TargetType.ALLY_SINGLE_INC_SELF:
-			return "除自身外的所有友方"
+			return "单个友方(含自己)"
 		TargetType.ALLY_ALL_INC_SELF:
-			return "所有角色"
+			return "所有友方(含自己)"
 		_:
 			return "未知目标"

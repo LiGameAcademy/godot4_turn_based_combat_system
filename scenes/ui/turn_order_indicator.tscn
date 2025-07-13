@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://b6c4tkqx2v05n"]
+[gd_scene load_steps=4 format=3 uid="uid://djf2k5bnmxgcr"]
 
-[ext_resource type="Script" uid="uid://b5phg7cb23itm" path="res://scenes/ui/turn_order_indicator.gd" id="1_dbnbv"]
+[ext_resource type="Script" path="res://scenes/ui/turn_order_indicator.gd" id="1_dbnbv"]
 [ext_resource type="PackedScene" uid="uid://bfptueu5uw87m" path="res://scenes/ui/character_icon.tscn" id="1_wbjtp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aqxpn"]
@@ -16,6 +16,7 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
 [node name="TurnOrderIndicator" type="MarginContainer"]
+z_index = -10
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -30,6 +31,7 @@ script = ExtResource("1_dbnbv")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 2
+mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxFlat_aqxpn")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
@@ -59,4 +61,5 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
+mouse_filter = 1
 color = Color(1, 0.843137, 0, 1)

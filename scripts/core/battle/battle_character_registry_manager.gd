@@ -5,18 +5,13 @@ class_name BattleCharacterRegistryManager
 ## 负责管理战斗中的角色注册和反注册
 ## 包括队伍管理和角色状态跟踪
 
-## 存储所有参与战斗的角色 (包括玩家和敌人)
-var _all_characters: Array[Character] = []
-## 按队伍存储角色
-var _player_team: Array[Character] = []
-var _enemy_team: Array[Character] = []
+var _all_characters: Array[Character] = []			## 存储所有参与战斗的角色 (包括玩家和敌人)
+var _player_team: Array[Character] = []				## 玩家队伍
+var _enemy_team: Array[Character] = []				## 敌人队伍
 
-## 角色注册信号
-signal character_registered(character: Character)	
-## 角色反注册信号
-signal character_unregistered(character: Character)
-## 队伍变化信号
-signal team_changed(team_characters: Array[Character], team_id: String) # team_id 可以是 "player" 或 "enemy"
+signal character_registered(character: Character)							## 角色注册信号
+signal character_unregistered(character: Character)							## 角色反注册信号
+signal team_changed(team_characters: Array[Character], team_id: String)		## 队伍变化信号
 
 ## 初始化
 func initialize() -> void:
@@ -181,6 +176,9 @@ func get_allied_team_for_character(character: Character, include_self: bool = tr
 ## [param character] 目标角色
 ## [return] 敌对队伍角色列表
 func get_opposing_team_for_character(character: Character) -> Array[Character]:
+	if not is_instance_valid(character):
+		push_error("cannot get opposing team for character, character is null!")
+		return []
 	if is_player_character(character):
 		# 玩家角色的敌人是敌人队伍
 		return get_enemy_team(true)

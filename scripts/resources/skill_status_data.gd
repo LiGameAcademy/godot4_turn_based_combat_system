@@ -35,7 +35,7 @@ enum StatusType {
 @export var icon: Texture2D                     								## UI图标
 
 @export var status_type: StatusType = StatusType.NEUTRAL						## 状态类型
-@export var base_duration: int = 3                   						## 默认持续回合数 (对TURNS类型有效)
+@export var duration: int = 3                   								## 默认持续回合数 (对TURNS类型有效)
 @export var duration_type: DurationType = DurationType.TURNS					## 持续时间类型
 @export var max_stacks: int = 1                 								## 最大叠加层数
 @export var stack_behavior: StackBehavior = StackBehavior.REFRESH_DURATION	## 叠加行为
@@ -47,8 +47,8 @@ enum StatusType {
 @export var end_effects: Array[SkillEffectData] = []							## 结束效果
 
 # 状态间交互
-@export var overrides_states: Array[StringName] = []						## 此状态应用时会移除的目标状态ID列表
-@export var resisted_by_states: Array[StringName] = []						## 如果目标拥有这些状态之一，则此状态无法应用
+@export var overrides_states: Array[StringName] = []							## 此状态应用时会移除的目标状态ID列表
+@export var resisted_by_states: Array[StringName] = []							## 如果目标拥有这些状态之一，则此状态无法应用
 
 # 触发条件
 @export_group("触发条件", "trigger_")
@@ -67,11 +67,12 @@ enum StatusType {
 ## 角色拥有此状态时，无法执行哪些类别的行动。
 ## 数组元素为StringName，对应 SkillData.action_categories 中的类别。
 ## 例如: [&"any_action"] (眩晕), [&"magic_skill"] (沉默)
-@export var restricted_action_categories: Array[StringName] = []
+@export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "attack", "defend", "item")
+var restricted_action_categories: Array[String] = []
 
 # --- 运行时变量 (在 duplicate(true) 后由 character.gd 设置和管理) ---
-var source_character: Character   												## 施加此状态的角色
-var target_character: Character   												## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
+var source_character: Character   													## 施加此状态的角色
+var target_character: Character   													## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
 var remaining_duration: int:       												## 剩余持续时间
 	set(value):
 		remaining_duration = value
@@ -80,25 +81,28 @@ var stacks: int = 1:          													## 当前叠加层数
 	set(value):
 		stacks = value
 		stacks_changed.emit(stacks)
-var is_permanent: bool: 
-	get: return duration_type == DurationType.INFINITE
-var current_turn_trigger_count: int = 0											## 本回合触发次数
-var current_total_trigger_count: int = 0										## 触发总数
+var is_permanent: bool :
+	get :
+		return duration_type == DurationType.INFINITE or duration_type == DurationType.COMBAT_LONG
+
+var current_turn_trigger_count: int = 0				## 本回合触发次数
+var current_total_trigger_count: int = 0			## 触发总数
 
 signal stacks_changed(new_stacks: int)
 signal duration_changed(new_duration: int)
 
 #region --- 方法 ---
-func _init(): 
+func _init() -> void:
 	source_character = null
 	target_character = null
-	remaining_duration = base_duration 
+	remaining_duration = duration 
 	stacks = 1
 
+## 获取状态的完整描述
 func get_full_description() -> String:
 	var desc = "%s: %s\n" % [status_name, description]
 	if duration_type == DurationType.TURNS:
-		desc += "基础持续 %d 回合. " % base_duration
+		desc += "基础持续 %d 回合. " % duration
 	elif duration_type == DurationType.INFINITE:
 		desc += "持续无限 (或直到被驱散). "
 	elif duration_type == DurationType.COMBAT_LONG:
@@ -112,14 +116,22 @@ func get_full_description() -> String:
 
 	return desc.strip_edges()
 
+## 检查此状态是否可以被抵抗
 func is_countered_by(other_status_id: StringName) -> bool:
 	return resisted_by_states.has(other_status_id)
 
+## 检查此状态是否可以覆盖其他状态
 func overrides_other_status(other_status_id: StringName) -> bool:
 	return overrides_states.has(other_status_id)
 
 ## 检查此状态是否可以被指定事件触发
 func can_trigger_on_event(event_type: StringName) -> bool:
+	if trigger_on_events.is_empty():
+		return false
+	if current_turn_trigger_count >= trigger_turns:
+		return false
+	if current_total_trigger_count >= trigger_count:
+		return false
 	return trigger_on_events.has(event_type)
 
 ## 获取触发效果

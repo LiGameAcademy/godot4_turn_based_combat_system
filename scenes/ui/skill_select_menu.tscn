@@ -53,7 +53,7 @@ layout_mode = 2
 
 [node name="SkillDescription" type="RichTextLabel" parent="PanelContainer/VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 bbcode_enabled = true
 text = "选择一个技能查看描述..."

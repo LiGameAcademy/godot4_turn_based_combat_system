@@ -57,6 +57,10 @@ func setup(
 	text_type = type
 	time_elapsed = 0.0
 	
+	# 应用位置随机
+	position.x += randf_range(-10, 10)
+	position.y += randf_range(-10, 10)
+
 	# 根据类型设置不同的动画参数
 	match type:
 		TextType.DAMAGE:
@@ -95,6 +99,8 @@ func setup(
 	if shake_effect:
 		_apply_shake()
 
+func show_number(amount: String, color : Color, type: TextType = TextType.DAMAGE) -> void:
+	setup(amount, color, type)
 
 ## 显示伤害数字
 ## [param amount] 伤害数值

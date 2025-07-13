@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://dy4bvsblbfrul"]
+
+[ext_resource type="Texture2D" uid="uid://cyki8q7q47hpu" path="res://assets/sprites/characters/enemies/mushroom/Idle.png" id="1_gf3kj"]
+
+[resource]
+atlas = ExtResource("1_gf3kj")
+region = Rect2(512, 64, 32, 32)

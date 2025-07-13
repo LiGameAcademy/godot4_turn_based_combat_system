@@ -1,15 +1,17 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=20 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://hcxd57tvokjr"]
 
-[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="1_0i5n8"]
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
-[ext_resource type="Script" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
+[ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_n1w7c"]
-[ext_resource type="Script" path="res://scripts/resources/skill_data.gd" id="2_fr6p1"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="1_tcc5r"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_fr6p1"]
 [ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="4_x2mhx"]
 [ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="5_443mk"]
-[ext_resource type="Resource" uid="uid://c6wf7gyb2fa16" path="res://resources/skills/defend.tres" id="6_jf55n"]
-[ext_resource type="Texture2D" uid="uid://dn0nu6aasaixu" path="res://assets/sprites/characters/enemies/goblin/Idle.png" id="8_ixuka"]
-[ext_resource type="Script" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="6_jf55n"]
+[ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="8_tcc5r"]
+[ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
+[ext_resource type="Resource" uid="uid://dl6veckqncbeh" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
+[ext_resource type="Resource" uid="uid://c0dt7jqwtnbr" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true
@@ -94,19 +96,16 @@ script = ExtResource("9_64uat")
 attributes_to_initialize = Array[ExtResource("1_hhnc7")]([SubResource("Resource_asr23"), SubResource("Resource_n1w7c"), ExtResource("4_x2mhx"), ExtResource("5_443mk"), SubResource("Resource_jf55n"), SubResource("Resource_0i5n8"), SubResource("Resource_ixuka"), SubResource("Resource_hhnc7"), SubResource("Resource_tcc5r")])
 metadata/_custom_type_script = "uid://ca045i7dpt4me"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_hhnc7"]
-atlas = ExtResource("8_ixuka")
-region = Rect2(64, 56, 32, 32)
-
 [resource]
 script = ExtResource("1_45vgr")
 character_name = "哥布林"
 description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
-element = 2
-skills = Array[ExtResource("2_fr6p1")]([])
+element = 3
+skills = Array[ExtResource("2_fr6p1")]([ExtResource("9_ixuka"), ExtResource("10_hhnc7")])
 attack_skill = ExtResource("1_n1w7c")
 defense_skill = ExtResource("6_jf55n")
-icon = SubResource("AtlasTexture_hhnc7")
-animation_library = ExtResource("1_0i5n8")
-sprite_offset = Vector2(0, 90)
+color = Color(0, 0, 1, 1)
+animation_library = ExtResource("1_tcc5r")
+sprite_offset = Vector2(0, 60)
+icon = ExtResource("8_tcc5r")

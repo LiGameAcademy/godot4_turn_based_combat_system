@@ -1,8 +1,7 @@
-# ElementTypes.gd
 extends RefCounted
 class_name ElementTypes
 
-## 属性克制系统
+## 元素克制系统
 
 enum {
 	NONE,     # 无属性

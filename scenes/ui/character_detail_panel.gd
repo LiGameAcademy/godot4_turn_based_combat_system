@@ -35,7 +35,7 @@ func _ready() -> void:
 	
 	# 连接关闭按钮信号
 	close_button.pressed.connect(_on_close_button_pressed)
-	
+
 	# 清除预设的技能和状态容器内容
 	_clear_skills_container()
 	_clear_status_container()
@@ -55,6 +55,11 @@ func show_character_details(character: Character) -> void:
 	# 显示面板
 	visible = true
 
+## 隐藏面板
+func hide_panel() -> void:
+	visible = false
+	closed.emit()
+
 ## 更新角色信息显示
 func _update_character_info() -> void:
 	if not _character:
@@ -65,15 +70,9 @@ func _update_character_info() -> void:
 	
 	# 显示角色图标
 	character_sprite.texture = _character.character_data.icon
-
 	var skill_component: CharacterSkillComponent = _character.skill_component
 	
-	# 设置生命值条 - 使用红色
-	health_bar.bar_color = Color(0.9, 0.2, 0.2, 1.0) # 红色
 	health_bar.setup(skill_component.get_attribute("CurrentHealth"), skill_component.get_attribute("MaxHealth"))
-	
-	# 设置魔法值条 - 使用蓝色
-	mana_bar.bar_color = Color(0.2, 0.4, 0.9, 1.0) # 蓝色
 	mana_bar.setup(skill_component.get_attribute("CurrentMana"), skill_component.get_attribute("MaxMana"))
 
 	# 更新其他属性标签
@@ -83,16 +82,6 @@ func _update_character_info() -> void:
 	# 更新技能和状态显示
 	_update_skills_display()
 	_update_status_display()
-	
-
-## 关闭按钮点击处理
-func _on_close_button_pressed() -> void:
-	hide_panel()
-
-## 隐藏面板
-func hide_panel() -> void:
-	visible = false
-	emit_signal("closed")
 
 ## 清除技能容器内容
 func _clear_skills_container() -> void:
@@ -144,8 +133,12 @@ func _update_skills_display() -> void:
 		_add_skill_button(skill)
 
 ## 添加技能按钮
-func _add_skill_button(_skill_data: SkillData) -> void:
-	pass
+func _add_skill_button(skill_data: SkillData) -> void:
+	var skill_button : Button = Button.new()
+	skill_button.text = skill_data.skill_name
+	skills_container.add_child(skill_button)
+	_skill_buttons[skill_data.skill_id] = skill_button
+	skill_button.tooltip_text = skill_data.get_full_description()
 
 ## 更新状态显示
 func _update_status_display() -> void:
@@ -156,7 +149,7 @@ func _update_status_display() -> void:
 	_clear_status_container()
 	
 	# 获取当前所有状态
-	var active_statuses = _character.skill_component.get_all_active_statuses()
+	var active_statuses = _character.skill_component.get_active_statuses()
 	if active_statuses.is_empty():
 		# 如果没有状态，添加一个提示标签
 		var label = Label.new()
@@ -193,3 +186,7 @@ func _add_status_icon(status_data: SkillStatusData) -> void:
 	
 	# 保存到字典中
 	_status_icons[status_data.status_id] = status_icon
+
+## 关闭按钮点击处理
+func _on_close_button_pressed() -> void:
+	hide_panel()

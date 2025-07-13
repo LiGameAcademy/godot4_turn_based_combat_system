@@ -1,10 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://ccq2oyavuskq4"]
+[gd_scene load_steps=4 format=3 uid="uid://x8u6jf7mpp37"]
 
 [ext_resource type="Script" uid="uid://b8slu6jggq1bu" path="res://scenes/ui/character_detail_panel.gd" id="1_0lqnx"]
 [ext_resource type="PackedScene" uid="uid://b26kadxoregwn" path="res://scenes/ui/attribute_status_bar.tscn" id="2_d8pxp"]
-[ext_resource type="PackedScene" uid="uid://1apx83ubxdnv" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
+[ext_resource type="PackedScene" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
 
 [node name="CharacterDetailPanel" type="Control"]
+z_index = 128
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,9 +32,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -300.0
-offset_top = -250.0
+offset_top = -181.0
 offset_right = 300.0
-offset_bottom = 250.0
+offset_bottom = 181.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -123,8 +124,10 @@ text = "魔法值"
 
 [node name="ManaBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer2/HBoxContainer" instance=ExtResource("2_d8pxp")]
 unique_name_in_owner = true
+self_modulate = Color(0, 0, 1, 1)
 layout_mode = 2
 size_flags_horizontal = 3
+attribute_color = Color(0, 0, 1, 1)
 
 [node name="OtherAttributesGrid" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel"]
 unique_name_in_owner = true

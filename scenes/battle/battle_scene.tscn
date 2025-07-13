@@ -1,51 +1,87 @@
-[gd_scene load_steps=9 format=3 uid="uid://bvnf2raqi3v41"]
+[gd_scene load_steps=13 format=3 uid="uid://bvnf2raqi3v41"]
 
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
-[ext_resource type="PackedScene" path="res://scenes/ui/battle_ui.tscn" id="2_lbt8a"]
+[ext_resource type="PackedScene" uid="uid://dqlpd6akofusk" path="res://scenes/ui/battle_ui.tscn" id="2_dddu7"]
 [ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="2_rl52j"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
-[ext_resource type="Script" uid="uid://boqbvmqrbyse" path="res://scripts/core/battle_manager.gd" id="5_o3k7m"]
-[ext_resource type="PackedScene" path="res://scenes/ui/battle_transition.tscn" id="7_cywj5"]
-
-[sub_resource type="Texture2DRD" id="Texture2DRD_lbt8a"]
+[ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://resources/characters_data/enemy_mushroom_data.tres" id="6_3511k"]
+[ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://scripts/core/battle/battle_manager.gd" id="8_2wmvw"]
+[ext_resource type="Script" uid="uid://di683i6hqfos5" path="res://scripts/core/battle/battle_state_manager.gd" id="9_puhd7"]
+[ext_resource type="Script" uid="uid://htsaaa4uwn2u" path="res://scripts/core/battle/battle_visual_effects.gd" id="10_mpswg"]
+[ext_resource type="Script" uid="uid://bs03e3t582ml2" path="res://scripts/core/battle/battle_character_registry_manager.gd" id="11_te27b"]
+[ext_resource type="Script" uid="uid://di1d00tvbpiq3" path="res://scripts/core/battle/turn_order_manager.gd" id="12_7i1my"]
+[ext_resource type="Script" uid="uid://brbk1v6j3gefy" path="res://scripts/core/battle/combat_rule_manager.gd" id="13_7s01p"]
 
 [node name="BattleScene" type="Node2D"]
 script = ExtResource("1_ugm31")
 
-[node name="Background" type="TextureRect" parent="."]
+[node name="BattleUI" parent="." instance=ExtResource("2_dddu7")]
+unique_name_in_owner = true
+
+[node name="Background" type="ColorRect" parent="."]
 offset_right = 1152.0
 offset_bottom = 648.0
-mouse_filter = 2
-texture = SubResource("Texture2DRD_lbt8a")
+mouse_filter = 1
+color = Color(0.12549, 0.12549, 0.12549, 1)
 
 [node name="BattleAreaRect" type="ColorRect" parent="."]
 offset_left = 50.0
 offset_top = 50.0
 offset_right = 1102.0
 offset_bottom = 450.0
-mouse_filter = 2
+mouse_filter = 1
 color = Color(0.14902, 0.137255, 0.188235, 1)
 
-[node name="BattleUI" parent="." instance=ExtResource("2_lbt8a")]
-
 [node name="PlayerArea" type="Node2D" parent="."]
-position = Vector2(250, 300)
+unique_name_in_owner = true
+position = Vector2(350, 450)
 
 [node name="PlayerCharacter" parent="PlayerArea" instance=ExtResource("1_qp2wj")]
 character_data = ExtResource("2_rl52j")
 
 [node name="EnemyArea" type="Node2D" parent="."]
-position = Vector2(850, 300)
+unique_name_in_owner = true
+position = Vector2(800, 450)
 
 [node name="EnemyCharacter" parent="EnemyArea" instance=ExtResource("1_qp2wj")]
 character_data = ExtResource("3_13vd6")
 is_player = false
 
+[node name="MushRoomEnemy" parent="EnemyArea" instance=ExtResource("1_qp2wj")]
+position = Vector2(200, 0)
+character_data = ExtResource("6_3511k")
+is_player = false
+
 [node name="BattleManager" type="Node" parent="."]
 unique_name_in_owner = true
-script = ExtResource("5_o3k7m")
-metadata/_custom_type_script = "uid://boqbvmqrbyse"
+script = ExtResource("8_2wmvw")
+metadata/_custom_type_script = "uid://dq50of22ae7fx"
 
-[node name="BattleTransition" parent="." instance=ExtResource("7_cywj5")]
-layer = 128
+[node name="BattleStateManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("9_puhd7")
+metadata/_custom_type_script = "uid://di683i6hqfos5"
+
+[node name="BattleVisualEffects" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("10_mpswg")
+metadata/_custom_type_script = "uid://htsaaa4uwn2u"
+
+[node name="BattleCharacterRegistryManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("11_te27b")
+metadata/_custom_type_script = "uid://bs03e3t582ml2"
+
+[node name="TurnOrderManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("12_7i1my")
+metadata/_custom_type_script = "uid://di1d00tvbpiq3"
+
+[node name="CombatRuleManager" type="Node" parent="BattleManager"]
+unique_name_in_owner = true
+script = ExtResource("13_7s01p")
+metadata/_custom_type_script = "uid://brbk1v6j3gefy"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+autoplay = true
