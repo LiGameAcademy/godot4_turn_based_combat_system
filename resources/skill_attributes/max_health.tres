@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SkillAttribute" load_steps=2 format=3 uid="uid://b1gbs024jdeds"]
 
-[ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hl4rm"]
+[ext_resource type="Script" path="res://scripts/resources/skill_attribute.gd" id="1_hl4rm"]
 
 [resource]
 resource_local_to_scene = true

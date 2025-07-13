@@ -6,17 +6,17 @@
 [ext_resource type="Resource" uid="uid://dblm23dkh168w" path="res://resources/skill_status/ignite.tres" id="2_wb8wf"]
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_v0rhv"]
 
-[sub_resource type="Resource" id="Resource_whgey"]
+[sub_resource type="Resource" id="Resource_dua1n"]
 script = ExtResource("2_dua1n")
 damage_amount = 10
 damage_power_scale = 1.0
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
-element = 1
+element = 0
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
-[sub_resource type="Resource" id="Resource_so6qb"]
+[sub_resource type="Resource" id="Resource_v0rhv"]
 script = ExtResource("3_v0rhv")
 status_to_apply = ExtResource("2_wb8wf")
 status_application_chance = 1.0
@@ -35,7 +35,7 @@ skill_name = "火球术"
 description = "向敌人投掷一个火球，造成火焰伤害。"
 mp_cost = 8
 target_type = 1
-effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_whgey"), SubResource("Resource_so6qb")])
+effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
 can_target_dead = false
