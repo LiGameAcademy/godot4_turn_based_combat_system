@@ -7,6 +7,8 @@ class_name SkillEffect
 @export_enum("none", "self_only", "all_allies", "all_enemies", "main_target_and_adjacent") var target_override: String = "none" 		## 目标覆盖类型
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE 
+## 效果强度
+@export var power : float = 1.0
 
 ## 获取效果描述
 func get_description() -> String:
@@ -18,6 +20,12 @@ func process_effect(source: Character, _target: Character, _context : SkillExecu
 	await source.get_tree().create_timer(0.1).timeout
 	push_error("EffectProcessor.process_effect() 必须被子类重写", self)
 	return {}
+
+func apply(_source: Character, _target: Character, _context: Dictionary) -> void:
+	push_error("EffectProcessor.apply() 必须被子类重写", self)
+
+func remove(_source: Character, _target: Character, _context: Dictionary) -> void:
+	push_error("EffectProcessor.remove() 必须被子类重写", self)
 
 ## 通用辅助方法
 ## [param effect_type] 视觉效果类型
