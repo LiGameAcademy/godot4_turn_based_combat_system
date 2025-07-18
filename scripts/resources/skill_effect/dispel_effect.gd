@@ -23,12 +23,12 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 		push_error("DispelEffectProcessor: " + results.error)
 		return results
 
-	var dispel_target_type: SkillStatusData.StatusType = SkillStatusData.StatusType.BUFF if dispel_is_positive else SkillStatusData.StatusType.DEBUFF
+	var dispel_target_type: SkillStatus.StatusType = SkillStatus.StatusType.BUFF if dispel_is_positive else SkillStatus.StatusType.DEBUFF
 	var count_to_dispel: int = dispel_count
 	var dispel_all: bool = dispel_is_all
 	
 	# 播放施法/效果触发前视觉
-	var cast_vfx_params = {"dispel_type": SkillStatusData.StatusType.keys()[dispel_target_type]}
+	var cast_vfx_params = {"dispel_type": SkillStatus.StatusType.keys()[dispel_target_type]}
 	_request_visual_effect(&"dispel_cast", source, cast_vfx_params)
 
 	if Engine.get_main_loop():
@@ -42,15 +42,15 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 		target_active_statuses_copy = target.get_all_active_status_instances_for_check().duplicate()
 
 	# 根据驱散类型筛选，并可能需要排序（例如，先驱散debuff中的控制类，或先驱散快结束的）
-	var eligible_statuses_to_dispel: Array[SkillStatusData] = []
-	for status_instance: SkillStatusData in target_active_statuses_copy: # 迭代的是运行时实例
+	var eligible_statuses_to_dispel: Array[SkillStatus] = []
+	for status_instance: SkillStatus in target_active_statuses_copy: # 迭代的是运行时实例
 		if is_instance_valid(status_instance) and status_instance.status_type == dispel_target_type:
 			# TODO: 此处可以添加更复杂的筛选逻辑，例如是否可被驱散的标记
 			eligible_statuses_to_dispel.append(status_instance)
 	
 	# TODO: 对 eligible_statuses_to_dispel 进行排序（如果需要特定驱散顺序）
 
-	for status_to_dispel_instance: SkillStatusData in eligible_statuses_to_dispel:
+	for status_to_dispel_instance: SkillStatus in eligible_statuses_to_dispel:
 		if dispel_all or results.dispelled_count < count_to_dispel:
 			# remove_status_effect 需要 BattleManager 引用来触发结束效果
 			var removed_successfully = await target.remove_skill_status(status_to_dispel_instance.status_id, true)
@@ -66,7 +66,7 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 		# 播放驱散成功视觉效果
 		_request_visual_effect(&"dispel_success", target, {
 			"count": results.dispelled_count, 
-			"type_dispelled_key": SkillStatusData.StatusType.keys()[dispel_target_type]
+			"type_dispelled_key": SkillStatus.StatusType.keys()[dispel_target_type]
 			})
 		if visual_effect != "": # 如果效果本身定义了特定视觉
 			_request_visual_effect(visual_effect, target, results)
@@ -75,7 +75,7 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 			source.character_name, 
 			target.character_name, 
 			results.dispelled_count, 
-			SkillStatusData.StatusType.keys()[dispel_target_type],
+			SkillStatus.StatusType.keys()[dispel_target_type],
 			", ".join(dispelled_this_action)
 		]
 		print_rich(message)
@@ -84,7 +84,7 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 		var message = "[color=gray]%s 尝试驱散 %s 身上的%s效果，但未找到可驱散的目标。[/color]" % [
 			source.character_name, 
 			target.character_name, 
-			SkillStatusData.StatusType.keys()[dispel_target_type]
+			SkillStatus.StatusType.keys()[dispel_target_type]
 		]
 		print_rich(message)
 		# 可以考虑为“无效果驱散”也播放一个视觉提示

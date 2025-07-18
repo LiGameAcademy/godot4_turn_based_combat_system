@@ -3,7 +3,7 @@ class_name ApplyStatusEffect
 
 ## 应用状态效果参数
 @export_group("应用效果参数", "status_")
-@export var status_to_apply: SkillStatusData = null	  							## 状态模版
+@export var status_to_apply: SkillStatus = null	  							## 状态模版
 @export var status_application_chance: float = 1.0  							## 触发几率 (0.0-1.0)
 @export var status_duration_override : int = -1									## 持续时间覆盖
 @export var status_stacks_to_apply : int = 1									## 堆叠层数
@@ -18,7 +18,7 @@ func get_description() -> String:
 func process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
 	var results := {"success": false, "applied_status_id": null, "reason": "unknown"}
 	
-	var status_template_to_apply: SkillStatusData = status_to_apply
+	var status_template_to_apply: SkillStatus = status_to_apply
 	if not is_instance_valid(status_template_to_apply):
 		results["error"] = "Invalid status_template in effect_data."
 		push_error("ApplyStatusEffectProcessor: " + results.error)
@@ -45,13 +45,13 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 	results["success"] = application_result.get("applied_successfully", false)
 	results["reason"] = application_result.get("reason", "char_apply_failed") # 从Character方法获取原因
 	
-	var applied_status_instance: SkillStatusData = application_result.get("status_instance")
+	var applied_status_instance: SkillStatus = application_result.get("status_instance")
 
 	if results.success and is_instance_valid(applied_status_instance):
 		results["reason"] = application_result.get("reason", "applied") # 更新为成功的reason
 
 		# 播放状态效果成功应用的动画
-		_request_visual_effect(&"status_applied_success", target, {"status_id": applied_status_instance.status_id, "status_name": applied_status_instance.status_name, "is_buff": applied_status_instance.status_type == SkillStatusData.StatusType.BUFF})
+		_request_visual_effect(&"status_applied_success", target, {"status_id": applied_status_instance.status_id, "status_name": applied_status_instance.status_name, "is_buff": applied_status_instance.status_type == SkillStatus.StatusType.BUFF})
 		if visual_effect != "": # 效果自定义的视觉
 			_request_visual_effect(visual_effect, target, {"status_name": applied_status_instance.status_name})
 

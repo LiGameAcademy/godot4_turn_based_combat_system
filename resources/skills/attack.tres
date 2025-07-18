@@ -8,6 +8,10 @@
 script = ExtResource("3_xyykp")
 damage_amount = 0
 damage_power_scale = 1.0
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]

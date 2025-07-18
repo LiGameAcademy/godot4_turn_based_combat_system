@@ -128,9 +128,9 @@ func _get_skill_tags(skill: SkillData) -> Array:
 			tags.append(SkillTag.HEALING)
 		elif effect is ApplyStatusEffect:
 			# 根据状态类型判断
-			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+			if effect.status_to_apply.status_type == SkillStatus.StatusType.BUFF:
 				tags.append(SkillTag.SUPPORT)
-			elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+			elif effect.status_to_apply.status_type == SkillStatus.StatusType.DEBUFF:
 				tags.append(SkillTag.DEBUFF)
 	# 去重
 	var unique_tags : Array[SkillTag] = []

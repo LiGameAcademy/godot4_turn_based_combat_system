@@ -3,7 +3,7 @@ class_name CharacterSkillComponent
 
 ## 运行时角色实际持有的AttributeSet实例 (通过模板duplicate而来)
 var _active_attribute_set: SkillAttributeSet = null		
-## 状态字典, Key: status_id (StringName), Value: SkillStatusData (运行时实例)
+## 状态字典, Key: status_id (StringName), Value: SkillStatus (运行时实例)
 var _active_statuses: Dictionary = {}
 ## 可用的技能
 var _skills: Array[SkillData] = []
@@ -11,9 +11,9 @@ var _skills: Array[SkillData] = []
 var _restricted_action_tags : Array[String] = []
 
 ## 信号
-signal status_applied(status_instance: SkillStatusData)																	## 当状态效果被应用到角色身上时发出
-signal status_removed(status_id: StringName, status_instance_data_before_removal: SkillStatusData)						## 当状态效果从角色身上移除时发出
-signal status_updated(status_instance: SkillStatusData, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
+signal status_applied(status_instance: SkillStatus)																	## 当状态效果被应用到角色身上时发出
+signal status_removed(status_id: StringName, status_instance_data_before_removal: SkillStatus)						## 当状态效果从角色身上移除时发出
+signal status_updated(status_instance: SkillStatus, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
 signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)				## 属性基础值改变
 signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)			## 属性当前值改变
 signal action_tags_changed(restricted_tags: Array[String])																## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
@@ -168,7 +168,7 @@ func get_active_statuses() -> Dictionary:
 ## [param p_source_char] 状态来源角色
 ## [param effect_data_from_skill] 是那个类型为STATUS的SkillEffect，用于获取duration_override等
 ## [return] 应用状态的结果
-func apply_status(status_template: SkillStatusData, p_source_char: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
+func apply_status(status_template: SkillStatus, p_source_char: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
 	var result = {"applied_successfully": false, "status_instance": null, "reason": "unknown"}
 	
 	if not status_template:
@@ -273,7 +273,7 @@ func update_status_durations() -> void:
 		remove_status(status_id)
 
 ## 获取状态实例
-func get_status(status_id: StringName) -> SkillStatusData:
+func get_status(status_id: StringName) -> SkillStatus:
 	return _active_statuses.get(status_id)
 
 ## 检查是否有指定状态
@@ -290,7 +290,7 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 	var status_ids_to_process = _active_statuses.keys().duplicate() 
 	for status_id in status_ids_to_process: 
 		if not _active_statuses.has(status_id): continue
-		var status_instance: SkillStatusData = _active_statuses[status_id]
+		var status_instance: SkillStatus = _active_statuses[status_id]
 		if not status_instance.ongoing_effects.is_empty():
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
 			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
@@ -298,7 +298,7 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 
 ## 私有方法：更新状态触发次数
 ## [param status] 要更新的状态
-func update_status_trigger_counts(status: SkillStatusData) -> void:
+func update_status_trigger_counts(status: SkillStatus) -> void:
 	status.current_turn_trigger_count += 1
 	status.current_total_trigger_count += 1
 	
@@ -323,7 +323,7 @@ func process_turn_start() -> void:
 	for status_id in _active_statuses.keys():
 		var status = _active_statuses[status_id]
 		
-		if status.duration_type == SkillStatusData.DurationType.TURNS:
+		if status.duration_type == SkillStatus.DurationType.TURNS:
 			status.remaining_duration -= 1
 			if status.remaining_duration <= 0:
 				expired_status_ids.append(status_id)
@@ -336,8 +336,8 @@ func process_turn_start() -> void:
 		remove_status(status_id)
 
 ## 获取触发状态
-func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
-	var triggerable_statuses: Array[SkillStatusData] = []
+func get_triggerable_status(event_type: StringName) -> Array[SkillStatus]:
+	var triggerable_statuses: Array[SkillStatus] = []
 	for status in _active_statuses.values():
 		if status.can_trigger_on_event(event_type):
 			triggerable_statuses.append(status)
@@ -372,7 +372,7 @@ func is_skill_available(skill: SkillData) -> bool:
 ## 私有方法：应用或移除属性修饰符
 ## [param runtime_status_inst] 运行时状态实例
 ## [param add] 是否添加修饰符
-func _apply_attribute_modifiers_for_status(runtime_status_inst: SkillStatusData, add: bool = true) -> void:
+func _apply_attribute_modifiers_for_status(runtime_status_inst: SkillStatus, add: bool = true) -> void:
 	if not _active_attribute_set or not is_instance_valid(runtime_status_inst): 
 		push_error("_apply_attribute_modifiers_for_status: _active_attribute_set or runtime_status_inst is invalid")
 		return
@@ -396,7 +396,7 @@ func _apply_attribute_modifiers_for_status(runtime_status_inst: SkillStatusData,
 			_active_attribute_set.remove_modifiers_by_source_id(runtime_status_inst.get_instance_id())
 
 ## 私有方法：检查状态抵抗
-func _check_status_resistance(_status_template: SkillStatusData, _result_info: Dictionary) -> bool:
+func _check_status_resistance(_status_template: SkillStatus, _result_info: Dictionary) -> bool:
 	# 遍历所有当前已有的状态，检查是否有状态会抵抗即将应用的状态
 	#for status_id in _active_statuses:
 		#var active_status = _active_statuses[status_id]
@@ -410,7 +410,7 @@ func _check_status_resistance(_status_template: SkillStatusData, _result_info: D
 	return false
 
 ## 私有方法：处理状态覆盖
-func _handle_status_override(status_template: SkillStatusData) -> void:
+func _handle_status_override(status_template: SkillStatus) -> void:
 	if not status_template.overrides_states.is_empty():
 		var ids_to_remove_due_to_override: Array[StringName] = []
 		
@@ -434,10 +434,10 @@ func _handle_status_override(status_template: SkillStatusData) -> void:
 ## [param result_info] 结果信息字典
 ## [return] 更新后的状态实例
 func _update_existing_status(
-		status_template: SkillStatusData, p_source_char: Character, 
-		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatusData:
+		status_template: SkillStatus, p_source_char: Character, 
+		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatus:
 	var status_id: StringName = status_template.status_id
-	var runtime_status_instance: SkillStatusData = _active_statuses[status_id]
+	var runtime_status_instance: SkillStatus = _active_statuses[status_id]
 	var old_stacks: int = runtime_status_instance.stacks
 	var old_duration: int = runtime_status_instance.remaining_duration
 	
@@ -447,20 +447,20 @@ func _update_existing_status(
 
 	# 根据不同的堆叠行为处理状态
 	match status_template.stack_behavior:
-		SkillStatusData.StackBehavior.NO_STACK:
+		SkillStatus.StackBehavior.NO_STACK:
 			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "no_stack_refreshed"
-		SkillStatusData.StackBehavior.REFRESH_DURATION:
+		SkillStatus.StackBehavior.REFRESH_DURATION:
 			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "duration_refreshed"
-		SkillStatusData.StackBehavior.ADD_DURATION:
+		SkillStatus.StackBehavior.ADD_DURATION:
 			runtime_status_instance.remaining_duration += new_duration_base
 			result_info.reason = "duration_added"
-		SkillStatusData.StackBehavior.ADD_STACKS_REFRESH_DURATION:
+		SkillStatus.StackBehavior.ADD_STACKS_REFRESH_DURATION:
 			new_stack_count = min(old_stacks + stacks_to_apply, status_template.max_stacks)
 			runtime_status_instance.remaining_duration = new_duration_base
 			result_info.reason = "stacked_duration_refreshed"
-		SkillStatusData.StackBehavior.ADD_STACKS_INDEPENDENT_DURATION:
+		SkillStatus.StackBehavior.ADD_STACKS_INDEPENDENT_DURATION:
 			new_stack_count = min(old_stacks + stacks_to_apply, status_template.max_stacks)
 			runtime_status_instance.remaining_duration = max(runtime_status_instance.remaining_duration, new_duration_base)
 			result_info.reason = "stacked_independent_simplified"
@@ -480,10 +480,10 @@ func _update_existing_status(
 	return runtime_status_instance
 
 ## 私有方法：应用新状态
-func _apply_new_status(status_template: SkillStatusData, p_source_char: Character, 
-		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatusData:
+func _apply_new_status(status_template: SkillStatus, p_source_char: Character, 
+		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatus:
 	# 创建运行时状态实例（克隆模板）
-	var runtime_status_instance: SkillStatusData = status_template.duplicate(true)
+	var runtime_status_instance: SkillStatus = status_template.duplicate(true)
 	
 	# 设置源角色引用
 	runtime_status_instance.source_character = p_source_char

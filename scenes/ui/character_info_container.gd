@@ -117,7 +117,7 @@ func _initialize_status_icons() -> void:
 		_add_status_icon(status)
 
 ## 添加状态图标
-func _add_status_icon(status_data: SkillStatusData) -> void:
+func _add_status_icon(status_data: SkillStatus) -> void:
 	if not status_data or not skill_status_icon_scene:
 		return
 	
@@ -184,15 +184,15 @@ func _on_attribute_current_value_changed(attribute: SkillAttribute, _old_value: 
 			mp_bar.setup(current_mp, max_mp)
 
 ## 状态应用回调
-func _on_status_applied(status_instance: SkillStatusData) -> void:
+func _on_status_applied(status_instance: SkillStatus) -> void:
 	_add_status_icon(status_instance)
 
 ## 状态移除回调
-func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
+func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatus) -> void:
 	_remove_status_icon(status_id)
 
 ## 状态更新回调
-func _on_status_updated(status_instance: SkillStatusData, _old_stacks: int, _old_duration: int) -> void:
+func _on_status_updated(status_instance: SkillStatus, _old_stacks: int, _old_duration: int) -> void:
 	# 更新状态图标
 	if _status_icons.has(status_instance.status_id):
 		_status_icons[status_instance.status_id].update_status(status_instance)

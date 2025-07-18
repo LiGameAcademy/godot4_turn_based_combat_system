@@ -169,7 +169,7 @@ func play_animation(animation_name: String) -> void:
 		push_warning("动画 %s 不存在" % animation_name)
 		
 ## 应用技能状态
-func apply_skill_status(status_instance: SkillStatusData, source_character: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
+func apply_skill_status(status_instance: SkillStatus, source_character: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
 	if skill_component:
 		return skill_component.apply_status(status_instance, source_character, effect_data_from_skill)
 	return {"applied_successfully": false, "reason": "invalid_status_template"}

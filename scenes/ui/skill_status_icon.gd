@@ -3,15 +3,15 @@ class_name SkillStatusIcon
 
 # 状态类型对应的颜色
 const TYPE_COLORS = {
-	SkillStatusData.StatusType.BUFF: Color(0.2, 0.8, 0.2),    # 绿色
-	SkillStatusData.StatusType.DEBUFF: Color(0.8, 0.2, 0.2),  # 红色
-	SkillStatusData.StatusType.NEUTRAL: Color(0.8, 0.8, 0.2)  # 黄色
+	SkillStatus.StatusType.BUFF: Color(0.2, 0.8, 0.2),    # 绿色
+	SkillStatus.StatusType.DEBUFF: Color(0.8, 0.2, 0.2),  # 红色
+	SkillStatus.StatusType.NEUTRAL: Color(0.8, 0.8, 0.2)  # 黄色
 }
 
 # 持续时间类型对应的显示文本
 const DURATION_TEXT = {
-	SkillStatusData.DurationType.INFINITE: "∞",     # 无限
-	SkillStatusData.DurationType.COMBAT_LONG: "战"  # 战斗
+	SkillStatus.DurationType.INFINITE: "∞",     # 无限
+	SkillStatus.DurationType.COMBAT_LONG: "战"  # 战斗
 }
 
 @onready var texture_rect: TextureRect = %TextureRect
@@ -21,10 +21,10 @@ const DURATION_TEXT = {
 @export var glow_material : ShaderMaterial = preload("res://resources/materials/glow_material.tres")
 @export var darken_material : ShaderMaterial = preload("res://resources/materials/darken_material.tres")
 
-var _status_data: SkillStatusData
+var _status_data: SkillStatus
 
 ## 设置状态数据并初始化显示
-func setup(status_data: SkillStatusData) -> void:
+func setup(status_data: SkillStatus) -> void:
 	# 如果已经有连接的状态数据，断开连接
 	if _status_data:
 		_disconnect_signals()
@@ -61,7 +61,7 @@ func _update_display() -> void:
 		texture_label.hide()
 	
 	# 显示持续时间
-	if _status_data.duration_type == SkillStatusData.DurationType.TURNS:
+	if _status_data.duration_type == SkillStatus.DurationType.TURNS:
 		info_label.text = str(_status_data.remaining_duration)
 	else:
 		info_label.text = DURATION_TEXT.get(_status_data.duration_type, "")
@@ -75,17 +75,17 @@ func _update_display() -> void:
 ## 应用视觉效果
 func _apply_visual_effects() -> void:
 	# 根据状态类型应用不同的视觉效果
-	if _status_data.status_type == SkillStatusData.StatusType.BUFF:
+	if _status_data.status_type == SkillStatus.StatusType.BUFF:
 		# 增益效果可以有轻微的发光效果
 		texture_rect.material =  glow_material
-	elif _status_data.status_type == SkillStatusData.StatusType.DEBUFF:
+	elif _status_data.status_type == SkillStatus.StatusType.DEBUFF:
 		# 减益效果可以有轻微的暗色效果
 		texture_rect.material = darken_material
 	else:
 		texture_rect.material = null
 
 ## 更新状态数据
-func update_status(status_data: SkillStatusData) -> void:
+func update_status(status_data: SkillStatus) -> void:
 	# 如果已经有连接的状态数据，断开连接
 	if _status_data:
 		_disconnect_signals()
@@ -112,7 +112,7 @@ func is_showing_status(status_id: StringName) -> bool:
 	return _status_data != null and _status_data.status_id == status_id
 
 ## 获取当前显示的状态数据
-func get_status_data() -> SkillStatusData:
+func get_status_data() -> SkillStatus:
 	return _status_data
 
 ## 连接状态数据的信号

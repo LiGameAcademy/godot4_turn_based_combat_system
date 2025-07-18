@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://bjxt3tjkqsm12"]
+[gd_resource type="Resource" script_class="SkillStatus" load_steps=6 format=3 uid="uid://bjxt3tjkqsm12"]
 
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_ungfc"]
 [ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect.gd" id="2_7cgdo"]
 [ext_resource type="Texture2D" uid="uid://bnblxk1mu06ix" path="res://assets/textures/icons/status/attack_up.svg" id="3_7cgdo"]
-[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_ywedj"]
+[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status.gd" id="4_7cgdo"]
 
 [sub_resource type="Resource" id="Resource_ungfc"]
 script = ExtResource("1_ungfc")
@@ -14,7 +14,7 @@ priority = 50
 metadata/_custom_type_script = "uid://dgwfcaub0ivab"
 
 [resource]
-script = ExtResource("3_ywedj")
+script = ExtResource("4_7cgdo")
 status_id = &"attack_up"
 status_name = "攻击提升"
 description = "攻击力得到强化。"

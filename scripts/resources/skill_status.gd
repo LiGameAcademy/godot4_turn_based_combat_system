@@ -1,5 +1,5 @@
 extends Resource
-class_name SkillStatusData
+class_name SkillStatus
 
 ## 状态数据资源，用于定义状态效果的模板配置和运行时实例。
 ## 通过 SkillStatusData，我们可以为不同的状态效果设置不同的属性和行为。

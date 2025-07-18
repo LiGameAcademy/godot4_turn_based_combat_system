@@ -162,7 +162,7 @@ func _update_status_display() -> void:
 		_add_status_icon(status)
 
 ## 添加状态图标
-func _add_status_icon(status_data: SkillStatusData) -> void:
+func _add_status_icon(status_data: SkillStatus) -> void:
 	if not status_data or not skill_status_icon_scene:
 		return
 	
