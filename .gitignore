@@ -3,3 +3,6 @@
 /android/
 _tutorials/
 .vscode/
+*.tmp
+*.zip
+*.depren

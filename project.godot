@@ -11,10 +11,19 @@ config_version=5
 [application]
 
 config/name="godot4_turn_based_combat_system"
-run/main_scene="res://scenes/battle/battle_scene.tscn"
+run/main_scene="uid://2jiq8eo0qvn"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+SkillSystem="*res://scripts/autoload/skill_system.gd"
+
+[display]
+
+window/stretch/mode="canvas_items"
+
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="mobile"

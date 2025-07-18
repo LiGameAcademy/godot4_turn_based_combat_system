@@ -7,22 +7,35 @@ enum ModifierOperation {
 	ADD_PERCENTAGE            ## 基于属性的基础值计算百分比 (例如: +20% 基础生命)
 }
 
+enum ModifierPriority {
+	VERY_LOW = 0,
+	LOW = 25,
+	NORMAL = 50,
+	HIGH = 75,
+	VERY_HIGH = 100
+}
+
 ## 修改的属性ID
 @export var attribute_id: StringName = &""
 ## 修改的幅度 (例如: 10, -5, 0.2, 1.5)
 @export var magnitude: float = 0.0
 ## 修改的操作类型
 @export var operation: ModifierOperation = ModifierOperation.ADD_ABSOLUTE
+## Modifier的优先级
+@export var priority: ModifierPriority = ModifierPriority.NORMAL
 ## (可选) 此Modifier的来源标识 (例如Buff的ID, 装备的UUID等)
 ## 用于调试或由外部系统决定是否移除特定来源的Modifier
-@export var source_id: String = "" 
+var source_id: int = 0 
 
 func _init(
 		p_attribute_id: StringName = &"", 
 		p_magnitude: float = 0.0, 
 		p_operation: ModifierOperation = ModifierOperation.ADD_ABSOLUTE, 
-		p_source_id: String = "") -> void:
+		p_source_id: int = 0) -> void:
 	attribute_id = p_attribute_id
 	magnitude = p_magnitude
 	operation = p_operation
+	source_id = p_source_id
+
+func set_source(p_source_id: int) -> void:
 	source_id = p_source_id

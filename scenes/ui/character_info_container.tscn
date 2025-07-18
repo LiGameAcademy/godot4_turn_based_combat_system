@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3 uid="uid://djpwdkkb8ufbt"]
+
+[ext_resource type="Script" uid="uid://b0pis5un60nqx" path="res://scenes/ui/character_info_container.gd" id="1_bcio5"]
+[ext_resource type="PackedScene" uid="uid://b26kadxoregwn" path="res://scenes/ui/attribute_status_bar.tscn" id="2_q86e0"]
+[ext_resource type="PackedScene" uid="uid://op0vy21pnru7" path="res://scenes/ui/skill_status_icon.tscn" id="3_81t2v"]
+
+[node name="CharacterInfoContainer" type="VBoxContainer"]
+offset_right = 151.0
+offset_bottom = 84.0
+size_flags_horizontal = 4
+size_flags_vertical = 10
+script = ExtResource("1_bcio5")
+
+[node name="NameLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "角色名称"
+horizontal_alignment = 1
+
+[node name="HPBar" parent="." instance=ExtResource("2_q86e0")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="MPBar" parent="." instance=ExtResource("2_q86e0")]
+unique_name_in_owner = true
+self_modulate = Color(0, 0, 1, 1)
+layout_mode = 2
+size_flags_vertical = 0
+attribute_name = "MP"
+attribute_color = Color(0, 0, 1, 1)
+
+[node name="SkillStatusContainer" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SkillStatusIcon" parent="SkillStatusContainer" instance=ExtResource("3_81t2v")]
+layout_mode = 2
+
+[node name="SkillStatusIcon2" parent="SkillStatusContainer" instance=ExtResource("3_81t2v")]
+layout_mode = 2
+
+[node name="SkillStatusIcon3" parent="SkillStatusContainer" instance=ExtResource("3_81t2v")]
+layout_mode = 2
+
+[node name="SkillStatusIcon4" parent="SkillStatusContainer" instance=ExtResource("3_81t2v")]
+layout_mode = 2

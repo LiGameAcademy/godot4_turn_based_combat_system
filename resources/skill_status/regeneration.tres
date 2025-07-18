@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://q8m3y4evh63n"]
+
+[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_0p17v"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_v1o1u"]
+[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_65pbh"]
+[ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://scripts/resources/skill_effect_data/heal_effect_data.gd" id="3_v1o1u"]
+
+[sub_resource type="Resource" id="Resource_65pbh"]
+script = ExtResource("3_v1o1u")
+heal_amount = 10
+heal_power_scale = 0.0
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://b8xbt0r5gucli"
+
+[resource]
+script = ExtResource("3_65pbh")
+status_id = &"regeneration"
+status_name = "再生"
+description = "生命力缓慢地恢复。"
+status_type = 2
+duration = 3
+duration_type = 0
+max_stacks = 1
+stack_behavior = 1
+attribute_modifiers = Array[ExtResource("1_0p17v")]([])
+initial_effects = Array[ExtResource("2_v1o1u")]([])
+ongoing_effects = Array[ExtResource("2_v1o1u")]([SubResource("Resource_65pbh")])
+end_effects = Array[ExtResource("2_v1o1u")]([])
+overrides_states = Array[StringName]([])
+resisted_by_states = Array[StringName]([])
+trigger_on_events = Array[StringName]([])
+trigger_effects = Array[ExtResource("2_v1o1u")]([])
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[String]([])
+metadata/_custom_type_script = "uid://do7l16ao2ut6t"

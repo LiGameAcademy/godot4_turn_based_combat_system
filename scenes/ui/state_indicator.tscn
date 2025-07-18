@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bj4w0ajv2jk2h"]
+
+[ext_resource type="Script" uid="uid://yo7a57xb4rt3" path="res://scenes/ui/state_indicator.gd" id="1_1oxh2"]
+
+[node name="StateIndicator" type="Node2D"]
+script = ExtResource("1_1oxh2")
+
+[node name="Label" type="Label" parent="."]
+custom_minimum_size = Vector2(48, 48)
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 27
+text = "💫"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://dfe4fy4w5iwym"]
+
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_ogysq"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_r7tk5"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_rffb6"]
+[ext_resource type="Resource" uid="uid://dl58jss6d40j8" path="res://resources/skill_status/defense_down.tres" id="3_stgi0"]
+
+[sub_resource type="Resource" id="Resource_7hgoh"]
+script = ExtResource("2_ogysq")
+status_to_apply = ExtResource("3_stgi0")
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_r7tk5")
+skill_id = &"spore_cloud"
+skill_name = "孢子迷雾"
+description = "向所有敌人喷射削弱孢子，降低他们的防御力"
+mp_cost = 12
+target_type = 2
+effects = Array[ExtResource("2_rffb6")]([SubResource("Resource_7hgoh")])
+action_categories = Array[String](["any_action", "magic_skill", "any_skill"])
+cast_animation = &"attack"
+can_target_dead = false
+metadata/_custom_type_script = "uid://do7l16ao2ut6t"

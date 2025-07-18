@@ -1,0 +1,111 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://bx46tbxv3xim0"]
+
+[ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="1_pg15q"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_msrch"]
+[ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="3_5bd2y"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="4_lachk"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="5_fewsb"]
+[ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="6_qam5p"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="7_bkft3"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="8_4nd0j"]
+[ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="8_msrch"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="9_fu4un"]
+[ext_resource type="Resource" uid="uid://cpet8u0hlnu40" path="res://resources/skills/nurturing_spores.tres" id="11_msrch"]
+[ext_resource type="Resource" uid="uid://dfe4fy4w5iwym" path="res://resources/skills/spore_cloud.tres" id="12_5bd2y"]
+
+[sub_resource type="Resource" id="Resource_asr23"]
+resource_local_to_scene = true
+script = ExtResource("3_5bd2y")
+attribute_name = &"MaxHealth"
+display_name = "最大生命值"
+description = ""
+base_value = 150.0
+min_value = 1.0
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_n1w7c"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"MaxMana"
+display_name = "最大魔法值"
+description = ""
+base_value = 50.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_jf55n"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"AttackPower"
+display_name = "攻击力"
+description = ""
+base_value = 5.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_0i5n8"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"DefensePower"
+display_name = "防御力"
+description = ""
+base_value = 12.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_ixuka"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"MagicAttack"
+display_name = "魔法攻击"
+description = ""
+base_value = 5.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_hhnc7"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"MagicDefense"
+display_name = "魔法防御"
+description = ""
+base_value = 2.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_tcc5r"]
+script = ExtResource("3_5bd2y")
+attribute_name = &"Speed"
+display_name = "速度"
+description = ""
+base_value = 4.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_cjb8a"]
+script = ExtResource("6_qam5p")
+attributes_to_initialize = Array[ExtResource("3_5bd2y")]([SubResource("Resource_asr23"), SubResource("Resource_n1w7c"), ExtResource("4_lachk"), ExtResource("5_fewsb"), SubResource("Resource_jf55n"), SubResource("Resource_0i5n8"), SubResource("Resource_ixuka"), SubResource("Resource_hhnc7"), SubResource("Resource_tcc5r")])
+metadata/_custom_type_script = "uid://ca045i7dpt4me"
+
+[resource]
+script = ExtResource("8_4nd0j")
+character_name = "蘑菇怪"
+description = "一片古老菌毯的延伸体，会散播各种影响战局的孢子。单独存在时很脆弱，但成群出现时则非常麻烦。"
+attribute_set_resource = SubResource("Resource_cjb8a")
+element = 3
+skills = Array[ExtResource("9_fu4un")]([ExtResource("11_msrch"), ExtResource("12_5bd2y")])
+attack_skill = ExtResource("2_msrch")
+defense_skill = ExtResource("7_bkft3")
+color = Color(0, 0, 1, 1)
+animation_library = ExtResource("1_pg15q")
+sprite_offset = Vector2(0, 60)
+icon = ExtResource("8_msrch")

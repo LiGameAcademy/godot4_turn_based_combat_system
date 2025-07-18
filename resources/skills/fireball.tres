@@ -1,27 +1,41 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://dqs6jg56th6oa"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=8 format=3 uid="uid://bra85c6w585gr"]
 
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_8rkma"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
-[ext_resource type="Resource" uid="uid://bglfmsusvr2f5" path="res://resources/skill_effects/fireball_damage.tres" id="2_sjdv7"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="2_dua1n"]
+[ext_resource type="Resource" uid="uid://dblm23dkh168w" path="res://resources/skill_status/ignite.tres" id="2_wb8wf"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_v0rhv"]
+
+[sub_resource type="Resource" id="Resource_dua1n"]
+script = ExtResource("2_dua1n")
+damage_amount = 10
+damage_power_scale = 1.0
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_v0rhv"]
+script = ExtResource("3_v0rhv")
+status_to_apply = ExtResource("2_wb8wf")
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
-script = ExtResource("1_8rkma")
+script = ExtResource("1_prr5c")
 skill_id = &"fireball"
 skill_name = "火球术"
-description = "发射一个火球，造成火焰伤害并有几率使目标点燃"
-archetype = 0
-mp_cost = 10
+description = "向敌人投掷一个火球，造成火焰伤害。"
+mp_cost = 8
 target_type = 1
-element = 1
-direct_effects = Array[ExtResource("1_wb8wf")]([ExtResource("2_sjdv7")])
-trigger_event = &""
-trigger_chance = 1.0
-triggered_effects = Array[ExtResource("1_wb8wf")]([])
-passive_cooldown = 0.0
-upkeep_cost_mp_per_turn = 0
-effects_on_activate = Array[ExtResource("1_wb8wf")]([])
-effects_on_deactivate = Array[ExtResource("1_wb8wf")]([])
-is_active_by_default = false
-cast_animation = "cast_fireball"
-hit_animation = "hit_fireball"
-action_categories = Array[String](["any_action"])
+effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
+action_categories = Array[String](["any_action", "magic_skill"])
+cast_animation = &""
+can_target_dead = false

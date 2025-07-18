@@ -1,0 +1,14 @@
+[remap]
+
+importer="aseprite_wizard.plugin.noop"
+type="PackedDataContainer"
+uid="uid://c0wucdfn18n66"
+path="res://.godot/imported/arbalest.aseprite-d7010c2596ce58303581d9483961a232.res"
+
+[deps]
+
+source_file="res://assets/sprites/characters/arbalest.aseprite"
+dest_files=["res://.godot/imported/arbalest.aseprite-d7010c2596ce58303581d9483961a232.res"]
+
+[params]
+

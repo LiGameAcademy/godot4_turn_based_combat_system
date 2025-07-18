@@ -1,18 +1,18 @@
 extends Control
 class_name TargetSelectionMenu
 
-## 信号定义
-signal target_selected(target: Character)
-signal target_selection_cancelled
-
 ## 节点引用
 @onready var target_list: ItemList = %TargetList
 @onready var select_button: Button = %SelectButton
 @onready var cancel_button: Button = %CancelButton
 
 ## 数据存储
-var available_targets: Array = []
+var available_targets: Array[Character] = []
 var selected_target_index: int = -1
+
+## 信号定义
+signal target_selected(target: Character)
+signal target_selection_cancelled
 
 func _ready() -> void:
 	# 连接信号
@@ -33,7 +33,7 @@ func _ready() -> void:
 	select_button.disabled = true
 
 ## 显示可选目标
-func show_targets(targets: Array) -> void:
+func show_targets(targets: Array[Character]) -> void:
 	self.available_targets = targets
 	target_list.clear()
 	selected_target_index = -1

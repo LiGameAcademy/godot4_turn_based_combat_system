@@ -1,10 +1,6 @@
 extends Control
 class_name SkillSelectMenu
 
-## 信号定义
-signal skill_selected(skill_data: SkillData)
-signal skill_selection_cancelled
-
 ## 节点引用
 @onready var skill_list: ItemList = %SkillList
 @onready var skill_description: RichTextLabel = %SkillDescription
@@ -14,6 +10,10 @@ signal skill_selection_cancelled
 ## 数据存储
 var current_character_skills: Array[SkillData] = []
 var selected_skill_index: int = -1
+
+## 信号定义
+signal skill_selected(skill_data: SkillData)
+signal skill_selection_cancelled
 
 func _ready() -> void:
 	# 连接信号
@@ -34,8 +34,8 @@ func _ready() -> void:
 	use_button.disabled = true
 
 ## 显示技能菜单
-func show_menu(character_skills: Array[SkillData], character: Character) -> void:
-	current_character_skills = character_skills
+func show_menu(character_skills: Array[SkillData], caster_mp: float) -> void:
+	self.current_character_skills = character_skills
 	skill_list.clear()
 	skill_description.text = "选择一个技能查看描述..."
 	selected_skill_index = -1
@@ -48,7 +48,7 @@ func show_menu(character_skills: Array[SkillData], character: Character) -> void
 			skill_list.add_item(item_text)
 			
 			# 根据MP是否足够，设置项目是否可用
-			if not skill.can_cast(character):
+			if caster_mp < skill.mp_cost:
 				skill_list.set_item_disabled(i, true)
 				skill_list.set_item_custom_fg_color(i, Color(0.5, 0.5, 0.5)) # 灰色表示不可用
 	
