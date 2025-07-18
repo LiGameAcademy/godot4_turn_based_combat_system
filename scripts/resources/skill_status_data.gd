@@ -40,11 +40,11 @@ enum StatusType {
 @export var max_stacks: int = 1                 								## 最大叠加层数
 @export var stack_behavior: StackBehavior = StackBehavior.REFRESH_DURATION	## 叠加行为
 
-# 核心影响机制 (数组内为 SkillEffectData 或 SkillAttributeModifier 模板资源)
+# 核心影响机制 (数组内为 SkillEffect 或 SkillAttributeModifier 模板资源)
 @export var attribute_modifiers : Array[SkillAttributeModifier] = []			## 属性修改器
-@export var initial_effects: Array[SkillEffectData] = []						## 初始效果
-@export var ongoing_effects: Array[SkillEffectData] = []						## 持续效果
-@export var end_effects: Array[SkillEffectData] = []							## 结束效果
+@export var initial_effects: Array[SkillEffect] = []						## 初始效果
+@export var ongoing_effects: Array[SkillEffect] = []						## 持续效果
+@export var end_effects: Array[SkillEffect] = []							## 结束效果
 
 # 状态间交互
 @export var overrides_states: Array[StringName] = []							## 此状态应用时会移除的目标状态ID列表
@@ -56,7 +56,7 @@ enum StatusType {
 ## 例如: [&"on_damage_taken", &"on_turn_start", &"on_attack"]
 @export var trigger_on_events: Array[StringName] = []
 ## 触发时执行的效果
-@export var trigger_effects: Array[SkillEffectData] = []
+@export var trigger_effects: Array[SkillEffect] = []
 ## 回合触发次数
 @export var trigger_turns: int = 1
 ## 触发总数
@@ -135,6 +135,6 @@ func can_trigger_on_event(event_type: StringName) -> bool:
 	return trigger_on_events.has(event_type)
 
 ## 获取触发效果
-func get_trigger_effects() -> Array[SkillEffectData]:
+func get_trigger_effects() -> Array[SkillEffect]:
 	return trigger_effects
 #endregion

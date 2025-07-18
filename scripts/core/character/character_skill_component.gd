@@ -166,9 +166,9 @@ func get_active_statuses() -> Dictionary:
 ## 添加状态效果到角色身上
 ## [param status_template] 状态模板
 ## [param p_source_char] 状态来源角色
-## [param effect_data_from_skill] 是那个类型为STATUS的SkillEffectData，用于获取duration_override等
+## [param effect_data_from_skill] 是那个类型为STATUS的SkillEffect，用于获取duration_override等
 ## [return] 应用状态的结果
-func apply_status(status_template: SkillStatusData, p_source_char: Character, effect_data_from_skill: SkillEffectData) -> Dictionary:
+func apply_status(status_template: SkillStatusData, p_source_char: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
 	var result = {"applied_successfully": false, "status_instance": null, "reason": "unknown"}
 	
 	if not status_template:

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://dl6veckqncbeh"]
 
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_o74iy"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_lh7af"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect.gd" id="1_lh7af"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect/apply_status_effect.gd" id="2_lh7af"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_q505j"]
 [ext_resource type="Resource" uid="uid://607u2kvxyogs" path="res://resources/skill_status/dodge.tres" id="3_1msnw"]
 
@@ -11,10 +11,6 @@ status_to_apply = ExtResource("3_1msnw")
 status_application_chance = 1.0
 status_duration_override = -1
 status_stacks_to_apply = 1
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
@@ -24,7 +20,7 @@ skill_name = "狡猾闪躲"
 description = "进入高度警觉状态，大幅提升速度，持续2回合。"
 mp_cost = 4
 target_type = 5
-effects = Array[ExtResource("1_o74iy")]([SubResource("Resource_k3dyo")])
+effects = Array[ExtResource("1_lh7af")]([SubResource("Resource_k3dyo")])
 action_categories = Array[String](["magic_skill"])
 cast_animation = &"attack"
 can_target_dead = false

@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name SpecialEffectData
+extends SkillEffect
+class_name SpecialEffect
 
 ## 特殊效果参数
 @export_group("特殊效果参数", "special_")

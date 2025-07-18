@@ -122,11 +122,11 @@ func _get_skill_tags(skill: SkillData) -> Array:
 	
 	# 根据技能效果判断类型
 	for effect in skill.effects:
-		if effect is DamageEffectData or effect is ModifyDamageEffectData:
+		if effect is DamageEffect or effect is ModifyDamageEffect:
 			tags.append(SkillTag.OFFENSIVE)
-		elif effect is HealEffectData:
+		elif effect is HealEffect:
 			tags.append(SkillTag.HEALING)
-		elif effect is ApplyStatusEffectData:
+		elif effect is ApplyStatusEffect:
 			# 根据状态类型判断
 			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
 				tags.append(SkillTag.SUPPORT)

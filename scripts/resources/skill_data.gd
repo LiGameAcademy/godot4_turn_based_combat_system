@@ -25,7 +25,7 @@ enum TargetType {
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE	## 目标类型
 
 @export_group("效果")
-@export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
+@export var effects : Array[SkillEffect] = []				## 主动技能施放时的直接效果
 @export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
 var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
 
@@ -52,7 +52,7 @@ func get_full_description() -> String:
 	desc += "目标: " + _get_target_type_name() + "\n"
 
 	desc += "\n效果:\n"
-	var effects_to_describe: Array[SkillEffectData] = effects
+	var effects_to_describe: Array[SkillEffect] = effects
 	for effect in effects_to_describe: # 处理 ACTIVE 和 PASSIVE 的主要效果
 		if is_instance_valid(effect): # 确保 effect 实例有效
 			desc += "- " + effect.get_description() + "\n"

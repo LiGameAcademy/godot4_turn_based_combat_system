@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://dl58jss6d40j8"]
 
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_tsm7t"]
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_ea1hn"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect.gd" id="2_tsm7t"]
 [ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_leain"]
 
 [sub_resource type="Resource" id="Resource_tsm7t"]
@@ -23,13 +23,13 @@ duration_type = 0
 max_stacks = 1
 stack_behavior = 1
 attribute_modifiers = Array[ExtResource("1_tsm7t")]([SubResource("Resource_tsm7t")])
-initial_effects = Array[ExtResource("2_ea1hn")]([])
-ongoing_effects = Array[ExtResource("2_ea1hn")]([])
-end_effects = Array[ExtResource("2_ea1hn")]([])
+initial_effects = Array[ExtResource("2_tsm7t")]([])
+ongoing_effects = Array[ExtResource("2_tsm7t")]([])
+end_effects = Array[ExtResource("2_tsm7t")]([])
 overrides_states = Array[StringName]([])
 resisted_by_states = Array[StringName]([])
 trigger_on_events = Array[StringName]([])
-trigger_effects = Array[ExtResource("2_ea1hn")]([])
+trigger_effects = Array[ExtResource("2_tsm7t")]([])
 trigger_turns = 1
 trigger_count = 1
 restricted_action_categories = Array[String]([])

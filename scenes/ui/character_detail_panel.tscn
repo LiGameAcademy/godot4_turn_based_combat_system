@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b8slu6jggq1bu" path="res://scenes/ui/character_detail_panel.gd" id="1_0lqnx"]
 [ext_resource type="PackedScene" uid="uid://b26kadxoregwn" path="res://scenes/ui/attribute_status_bar.tscn" id="2_d8pxp"]
-[ext_resource type="PackedScene" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
+[ext_resource type="PackedScene" uid="uid://1apx83ubxdnv" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
 
 [node name="CharacterDetailPanel" type="Control"]
 z_index = 128

@@ -1,5 +1,5 @@
 extends Resource
-class_name SkillEffectData
+class_name SkillEffect
 
 # 基本属性
 @export var visual_effect: String = ""  		## 视觉效果标识符

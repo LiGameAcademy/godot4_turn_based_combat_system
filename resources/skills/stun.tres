@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://cifl76nnd4nf"]
 
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_1ukjm"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_klxtd"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect.gd" id="1_klxtd"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect/apply_status_effect.gd" id="2_klxtd"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_pxl3n"]
 [ext_resource type="Resource" uid="uid://nb7w4k0528xl" path="res://resources/skill_status/stun.tres" id="3_nwvc0"]
 
@@ -11,10 +11,6 @@ status_to_apply = ExtResource("3_nwvc0")
 status_application_chance = 1.0
 status_duration_override = -1
 status_stacks_to_apply = 1
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
@@ -24,7 +20,7 @@ skill_name = "眩晕"
 description = ""
 mp_cost = 5
 target_type = 1
-effects = Array[ExtResource("1_1ukjm")]([SubResource("Resource_ogvkw")])
+effects = Array[ExtResource("1_klxtd")]([SubResource("Resource_ogvkw")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
 can_target_dead = false

@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name ApplyStatusEffectData
+extends SkillEffect
+class_name ApplyStatusEffect
 
 ## 应用状态效果参数
 @export_group("应用效果参数", "status_")
@@ -29,7 +29,7 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 	if Engine.get_main_loop():
 		await Engine.get_main_loop().process_frame
 	
-	var chance = status_application_chance # 从 SkillEffectData 获取几率
+	var chance = status_application_chance # 从 SkillEffect 获取几率
 	var applied_by_chance = _check_if_can_apply_status_by_chance(chance)
 	
 	if not applied_by_chance:

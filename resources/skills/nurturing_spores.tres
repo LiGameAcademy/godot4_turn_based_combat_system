@@ -1,19 +1,15 @@
 [gd_resource type="Resource" script_class="SkillData" load_steps=8 format=3 uid="uid://cpet8u0hlnu40"]
 
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_86y80"]
-[ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://scripts/resources/skill_effect_data/heal_effect_data.gd" id="2_e856f"]
+[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect.gd" id="1_ibhp6"]
+[ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://scripts/resources/skill_effect/heal_effect.gd" id="2_e856f"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_jlppw"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_ibhp6"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect/apply_status_effect.gd" id="3_ibhp6"]
 [ext_resource type="Resource" uid="uid://q8m3y4evh63n" path="res://resources/skill_status/regeneration.tres" id="4_fs47j"]
 
 [sub_resource type="Resource" id="Resource_ibhp6"]
 script = ExtResource("2_e856f")
 heal_amount = 25
 heal_power_scale = 0.0
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
 [sub_resource type="Resource" id="Resource_gatfd"]
@@ -22,10 +18,6 @@ status_to_apply = ExtResource("4_fs47j")
 status_application_chance = 1.0
 status_duration_override = -1
 status_stacks_to_apply = 1
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
@@ -35,7 +27,7 @@ skill_name = "滋养孢子"
 description = "为一名友方单位注入生命孢子，立即恢复其生命，并在后续几回合持续恢复。"
 mp_cost = 15
 target_type = 6
-effects = Array[ExtResource("1_86y80")]([SubResource("Resource_ibhp6"), SubResource("Resource_gatfd")])
+effects = Array[ExtResource("1_ibhp6")]([SubResource("Resource_ibhp6"), SubResource("Resource_gatfd")])
 action_categories = Array[String](["any_action", "magic_skill", "any_skill"])
 cast_animation = &"attack"
 can_target_dead = false

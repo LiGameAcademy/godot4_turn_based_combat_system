@@ -279,15 +279,15 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 		
 		# 根据技能效果评分
 		for effect in skill.effects:
-			if effect is DamageEffectData:
+			if effect is DamageEffect:
 				# 攻击性技能优先选择低血量目标
 				var health_percent = target.current_hp / float(target.max_hp)
 				score += behavior_resource.weights["target_low_health"] * (1.0 - health_percent)
-			elif effect is HealEffectData:
+			elif effect is HealEffect:
 				# 治疗技能优先选择低血量友方
 				var health_percent = target.current_hp / float(target.max_hp)
 				score += behavior_resource.weights["heal_low_health"] * (1.0 - health_percent)
-			elif effect is ApplyStatusEffectData:
+			elif effect is ApplyStatusEffect:
 				# 状态技能根据状态类型评分
 				if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
 					# 增益状态优先给予友方

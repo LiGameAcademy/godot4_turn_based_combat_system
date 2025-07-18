@@ -10,7 +10,7 @@ var battle_manager : BattleManager = null
 signal skill_execution_started(caster: Character, skill: SkillData, targets: Array[Character])							## 技能执行开始信号	
 signal skill_execution_completed(caster: Character, skill: SkillData, targets: Array[Character], results: Dictionary) 	## 技能执行完成信号 results 可以包含伤害、治疗、状态等信息
 signal skill_failed(caster: Character, skill: SkillData, reason: String) 												## 技能失败信号 例如 MP不足, 目标无效等
-signal effect_applied(effect: SkillEffectData, source: Character, target: Character, result: Dictionary)				## 效果应用信号
+signal effect_applied(effect: SkillEffect, source: Character, target: Character, result: Dictionary)				## 效果应用信号
 
 func _ready() -> void:
 	print("SkillSystem initialized as autoload singleton.")
@@ -51,7 +51,7 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	return result
 
 ## 尝试处理状态效果
-func attempt_process_status_effects(effects : Array[SkillEffectData], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
+func attempt_process_status_effects(effects : Array[SkillEffect], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
 	var result = {"success": true, "reason": ""}
 	for effect in effects:
 		if not await _apply_single_effect(caster, target, effect, context):
@@ -226,7 +226,7 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 ## [param targets] 目标列表
 ## [param context] 技能执行上下文
 ## [return] 效果应用结果
-func _process_effects_async(effects: Array[SkillEffectData], caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
+func _process_effects_async(effects: Array[SkillEffect], caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
 	# 对每个目标应用所有效果
 	var overall_results = {}
 	for target in targets:
@@ -262,7 +262,7 @@ func _process_effects_async(effects: Array[SkillEffectData], caster: Character, 
 ## [param effect] 效果数据
 ## [param context] 技能执行上下文
 ## [return] 效果应用结果
-func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, context: SkillExecutionContext) -> Dictionary:
+func _apply_single_effect(caster: Character, target: Character, effect: SkillEffect, context: SkillExecutionContext) -> Dictionary:
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -317,7 +317,7 @@ func _determine_execution_targets(caster: Character, skill: SkillData, selected_
 ## [param effect] 效果数据
 ## [param initial_targets] 初始目标
 ## [return] 效果的实际目标
-func _determine_targets_for_effect(caster: Character, effect: SkillEffectData, initial_targets: Array[Character], context : SkillExecutionContext) -> Array[Character]:
+func _determine_targets_for_effect(caster: Character, effect: SkillEffect, initial_targets: Array[Character], context : SkillExecutionContext) -> Array[Character]:
 	# 默认使用技能的目标
 	var effect_targets: Array[Character] = initial_targets.duplicate()
 	

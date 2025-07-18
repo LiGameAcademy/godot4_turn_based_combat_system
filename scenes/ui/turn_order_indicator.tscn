@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://djf2k5bnmxgcr"]
 
-[ext_resource type="Script" path="res://scenes/ui/turn_order_indicator.gd" id="1_dbnbv"]
+[ext_resource type="Script" uid="uid://b5phg7cb23itm" path="res://scenes/ui/turn_order_indicator.gd" id="1_dbnbv"]
 [ext_resource type="PackedScene" uid="uid://bfptueu5uw87m" path="res://scenes/ui/character_icon.tscn" id="1_wbjtp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_aqxpn"]

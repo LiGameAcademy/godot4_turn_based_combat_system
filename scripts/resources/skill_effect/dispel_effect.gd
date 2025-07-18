@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name DispelEffectData
+extends SkillEffect
+class_name DispelEffect
 
 # 驱散效果参数
 @export_group("驱散效果参数", "dispel_")

@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name DamageEffectData
+extends SkillEffect
+class_name DamageEffect
 
 # 伤害效果参数
 @export_group("伤害效果参数", "damage_")
