@@ -9,7 +9,7 @@ class_name ApplyStatusEffectData
 @export var status_stacks_to_apply : int = 1									## 堆叠层数
 
 ## 获取状态效果描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var duration = status_to_apply.duration
 	if status_application_chance < 1.0:
 		return "%s目标 %d 回合 (%.1f%%几率)" % [status_to_apply.status_name, duration, status_application_chance * 100]

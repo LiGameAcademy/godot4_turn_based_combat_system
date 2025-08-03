@@ -7,7 +7,7 @@ class_name HealEffectData
 @export var heal_power_scale: float = 0.5  		## 魔法攻击力加成系数
 
 ## 获取效果描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var amount = heal_amount
 	return "恢复 %d 点生命值" % [amount]
 

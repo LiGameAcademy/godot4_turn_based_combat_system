@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=5 format=3 uid="uid://kacsn8v7n6by"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://kacsn8v7n6by"]
 
 [ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="1_03g3p"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://scripts/resources/skill_confitions/skill_condition.gd" id="2_m30bx"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_xskkb"]
 [ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="3_xyykp"]
 
@@ -8,10 +9,12 @@
 script = ExtResource("3_xyykp")
 damage_amount = 0
 damage_power_scale = 1.0
+disable = false
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+conditions = Array[ExtResource("2_m30bx")]([])
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]

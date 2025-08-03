@@ -1,10 +1,11 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://tlc7ibafdnkx"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=8 format=3 uid="uid://tlc7ibafdnkx"]
 
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_jrcne"]
 [ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_o56po"]
 [ext_resource type="Texture2D" uid="uid://cpjc8vbq2ygfs" path="res://assets/textures/icons/status/defend.svg" id="3_8nqbr"]
 [ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_fim4e"]
 [ext_resource type="Script" uid="uid://47pmrvmk5e7c" path="res://scripts/resources/skill_effect_data/modifiy_damage_effect_data.gd" id="4_o56po"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://scripts/resources/skill_confitions/skill_condition.gd" id="5_8nqbr"]
 
 [sub_resource type="Resource" id="Resource_fim4e"]
 script = ExtResource("4_o56po")
@@ -12,10 +13,12 @@ damage_mod_percent = 0.5
 damage_mod_flat = 0.0
 damage_mod_min = 1.0
 damage_mod_max = 9999.0
+disable = false
 visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+conditions = Array[ExtResource("5_8nqbr")]([])
 metadata/_custom_type_script = "uid://47pmrvmk5e7c"
 
 [resource]

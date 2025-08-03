@@ -7,7 +7,7 @@ class_name SpecialEffectData
 @export var special_params: Dictionary = {}   	## 特殊效果参数
 
 ## 获取特殊效果描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var special_type_value = special_type
 	
 	match special_type_value:

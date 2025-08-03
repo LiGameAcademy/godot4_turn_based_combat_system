@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=23 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="1_cjb8a"]
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="1_hhnc7"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_n1w7c"]
 [ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="1_tcc5r"]
@@ -12,6 +13,19 @@
 [ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
 [ext_resource type="Resource" uid="uid://cqfso07632xs3" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
 [ext_resource type="Resource" uid="uid://bwlhrbh6lg8rb" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
+
+[sub_resource type="Resource" id="Resource_x2mhx"]
+script = ExtResource("1_cjb8a")
+behavior_type = "aggressive"
+attack_weight = 1.0
+skill_offensive_weight = 1.0
+skill_support_weight = 0.5
+skill_healing_weight = 0.5
+target_low_health_weight = 1.5
+target_high_threat_weight = 1.0
+heal_low_health_weight = 2.0
+self_preservation_weight = 0.0
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true
@@ -102,6 +116,7 @@ character_name = "哥布林"
 description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
 element = 3
+ai_behavior = SubResource("Resource_x2mhx")
 skills = Array[ExtResource("2_fr6p1")]([ExtResource("9_ixuka"), ExtResource("10_hhnc7")])
 attack_skill = ExtResource("1_n1w7c")
 defense_skill = ExtResource("6_jf55n")

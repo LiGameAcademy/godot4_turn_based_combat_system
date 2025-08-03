@@ -263,6 +263,8 @@ func _process_effects_async(effects: Array[SkillEffectData], caster: Character, 
 ## [param context] 技能执行上下文
 ## [return] 效果应用结果
 func _apply_single_effect(caster: Character, target: Character, effect: SkillEffectData, context: SkillExecutionContext) -> Dictionary:
+	if effect.disable : return {}
+
 	# 检查参数有效性
 	if !is_instance_valid(caster) or !is_instance_valid(target):
 		push_error("SkillSystem: 无效的角色引用")
@@ -271,7 +273,16 @@ func _apply_single_effect(caster: Character, target: Character, effect: SkillEff
 	if not effect:
 		push_error("SkillSystem: 无效的效果引用")
 		return {}
-	
+
+	# 1. 准备用于条件检查的上下文
+	var condition_context = {"source": caster, "target": target}
+
+	# 2. 检查所有条件是否满足
+	for condition in effect.conditions:
+		if not condition.is_met(condition_context):
+			print_rich("[color=gray]效果 %s 因条件 %s 未满足而被跳过。[/color]" % [effect.resource_name, condition.resource_name])
+			return {}# 任何一个条件不满足，则直接跳过此效果	
+
 	# 处理效果
 	var result = await effect.process_effect(caster, target, context)
 		

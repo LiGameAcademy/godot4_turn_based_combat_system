@@ -1,5 +1,6 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://befjmw7cu2ruw"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=23 format=3 uid="uid://befjmw7cu2ruw"]
 
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="1_5bd2y"]
 [ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="1_pg15q"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_msrch"]
 [ext_resource type="Script" uid="uid://coaxj4vbwkvcr" path="res://scripts/resources/skill_attribute.gd" id="3_5bd2y"]
@@ -12,6 +13,19 @@
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="9_fu4un"]
 [ext_resource type="Resource" uid="uid://cl4gb5k8bxedw" path="res://resources/skills/nurturing_spores.tres" id="11_msrch"]
 [ext_resource type="Resource" uid="uid://cvu31ahxxf1s7" path="res://resources/skills/spore_cloud.tres" id="12_5bd2y"]
+
+[sub_resource type="Resource" id="Resource_lachk"]
+script = ExtResource("1_5bd2y")
+behavior_type = null
+attack_weight = null
+skill_offensive_weight = null
+skill_support_weight = null
+skill_healing_weight = null
+target_low_health_weight = null
+target_high_threat_weight = null
+heal_low_health_weight = null
+self_preservation_weight = null
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true
@@ -102,6 +116,7 @@ character_name = "蘑菇怪"
 description = "一片古老菌毯的延伸体，会散播各种影响战局的孢子。单独存在时很脆弱，但成群出现时则非常麻烦。"
 attribute_set_resource = SubResource("Resource_cjb8a")
 element = 3
+ai_behavior = SubResource("Resource_lachk")
 skills = Array[ExtResource("9_fu4un")]([ExtResource("11_msrch"), ExtResource("12_5bd2y")])
 attack_skill = ExtResource("2_msrch")
 defense_skill = ExtResource("7_bkft3")

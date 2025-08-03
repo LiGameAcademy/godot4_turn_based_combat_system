@@ -251,7 +251,7 @@ func _should_use_defense(character: Character) -> bool:
 	var health_percent = character.current_hp / float(character.max_hp)
 	
 	# 生命值低于30%时考虑防御
-	if health_percent < 0.8:
+	if health_percent < 0.3:
 		# 根据防御倾向和随机因素决定
 		var defense_chance = behavior_resource.weights["self_preservation"] * (1.0 - health_percent) * 0.5
 		

@@ -203,7 +203,7 @@ func _init_components(battle_manager: BattleManager) -> void:
 func _initialize_from_data(data: CharacterData) -> void:
 	# 保存数据引用
 	character_data = data
-	
+	ai_component.behavior_resource = data.ai_behavior
 	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
 	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 

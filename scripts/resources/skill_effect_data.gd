@@ -2,14 +2,32 @@ extends Resource
 class_name SkillEffectData
 
 # 基本属性
+@export var disable : bool = false			## 是否禁用
 @export var visual_effect: String = ""  		## 视觉效果标识符
 @export var sound_effect: String = ""   		## 音效标识符
 @export_enum("none", "self_only", "all_allies", "all_enemies", "main_target_and_adjacent") var target_override: String = "none" 		## 目标覆盖类型
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE 
 
-## 获取效果描述
+@export_group("执行条件")
+@export var conditions: Array[SkillCondition] = []
+
+## 供外部调用的、完整的描述方法
 func get_description() -> String:
+	var base_desc = _get_base_description() # 获取效果自身的基础描述
+	if conditions.is_empty():
+		return base_desc
+
+	var condition_descs: Array[String] = []
+	for condition in conditions:
+		if is_instance_valid(condition):
+			condition_descs.append(condition.get_description())
+			
+	# 将效果描述和条件描述组合起来
+	return "%s [%s]" % [base_desc, ", ".join(condition_descs)]
+
+## 内部方法，供子类重写，只负责描述效果本身
+func _get_base_description() -> String:
 	return "未知效果"
 
 ## 处理效果 - 主要接口方法

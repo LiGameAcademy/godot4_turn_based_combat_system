@@ -8,6 +8,8 @@ class_name CharacterData
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE
 
+@export var ai_behavior: AIBehavior = AIBehavior.new()
+
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
 @export var attack_skill : SkillData = null
