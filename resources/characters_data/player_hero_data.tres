@@ -19,8 +19,8 @@
 [ext_resource type="Resource" uid="uid://bkfxmw6ak8p55" path="res://resources/skill_attributes/magic_defense.tres" id="10_ikb8i"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="13_ikb8i"]
 [ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="15_noqhi"]
-[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="18_yl7in"]
-[ext_resource type="Resource" uid="uid://cifl76nnd4nf" path="res://resources/skills/stun.tres" id="19_p7u1d"]
+[ext_resource type="Resource" uid="uid://bmdrqbxll26p" path="res://resources/skills/silence.tres" id="18_yl7in"]
+[ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://resources/skills/stun.tres" id="19_p7u1d"]
 
 [sub_resource type="Resource" id="Resource_ph3fh"]
 script = ExtResource("1_m1y3i")

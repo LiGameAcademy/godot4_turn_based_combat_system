@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://c6f5g4h3i2j1k"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://b1b5163oy6kh6"]
 
 [ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_1t35x"]
 [ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="1_vy3m8"]

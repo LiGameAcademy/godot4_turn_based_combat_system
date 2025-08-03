@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://bx46tbxv3xim0"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://befjmw7cu2ruw"]
 
 [ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="1_pg15q"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_msrch"]
@@ -10,8 +10,8 @@
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="8_4nd0j"]
 [ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="8_msrch"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="9_fu4un"]
-[ext_resource type="Resource" uid="uid://cpet8u0hlnu40" path="res://resources/skills/nurturing_spores.tres" id="11_msrch"]
-[ext_resource type="Resource" uid="uid://dfe4fy4w5iwym" path="res://resources/skills/spore_cloud.tres" id="12_5bd2y"]
+[ext_resource type="Resource" uid="uid://cl4gb5k8bxedw" path="res://resources/skills/nurturing_spores.tres" id="11_msrch"]
+[ext_resource type="Resource" uid="uid://cvu31ahxxf1s7" path="res://resources/skills/spore_cloud.tres" id="12_5bd2y"]
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true

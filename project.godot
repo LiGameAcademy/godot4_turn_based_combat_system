@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="godot4_turn_based_combat_system"
-run/main_scene="uid://2jiq8eo0qvn"
+run/main_scene="uid://b0m5f3ojdxh8c"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 SkillSystem="*res://scripts/autoload/skill_system.gd"
+AudioManager="*res://scripts/managers/audio_manager.gd"
 
 [display]
 

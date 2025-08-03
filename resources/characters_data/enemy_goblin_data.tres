@@ -10,8 +10,8 @@
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="6_jf55n"]
 [ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="8_tcc5r"]
 [ext_resource type="Script" uid="uid://ca045i7dpt4me" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
-[ext_resource type="Resource" uid="uid://dl6veckqncbeh" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
-[ext_resource type="Resource" uid="uid://c0dt7jqwtnbr" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
+[ext_resource type="Resource" uid="uid://cqfso07632xs3" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
+[ext_resource type="Resource" uid="uid://bwlhrbh6lg8rb" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
 
 [sub_resource type="Resource" id="Resource_asr23"]
 resource_local_to_scene = true
