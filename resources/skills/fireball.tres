@@ -8,18 +8,6 @@
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_v0rhv"]
 [ext_resource type="Script" uid="uid://ddmnjlfpjmolp" path="res://scripts/resources/skill_confitions/target_health_condition.gd" id="4_so6qb"]
 
-[sub_resource type="Resource" id="Resource_dua1n"]
-script = ExtResource("2_dua1n")
-damage_amount = 10
-damage_power_scale = 0.0
-disable = false
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
-conditions = Array[ExtResource("2_whgey")]([])
-metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
-
 [sub_resource type="Resource" id="Resource_m1ujm"]
 script = ExtResource("4_so6qb")
 below_percent = 0.5
@@ -36,6 +24,18 @@ sound_effect = ""
 target_override = "none"
 element = 0
 conditions = Array[ExtResource("2_whgey")]([SubResource("Resource_m1ujm")])
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_dua1n"]
+script = ExtResource("2_dua1n")
+damage_amount = 10
+damage_power_scale = 0.0
+disable = false
+visual_effect = ""
+sound_effect = ""
+target_override = "none"
+element = 0
+conditions = Array[ExtResource("2_whgey")]([])
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [sub_resource type="Resource" id="Resource_v0rhv"]
@@ -59,7 +59,7 @@ skill_name = "火球术"
 description = "向敌人投掷一个火球，造成火焰伤害。"
 mp_cost = 8
 target_type = 1
-effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_hlfli"), SubResource("Resource_v0rhv")])
+effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_hlfli"), SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
 can_target_dead = false

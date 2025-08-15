@@ -14,6 +14,7 @@ class_name SkillEffectData
 
 ## 供外部调用的、完整的描述方法
 func get_description() -> String:
+	#if disable : return ""
 	var base_desc = _get_base_description() # 获取效果自身的基础描述
 	if conditions.is_empty():
 		return base_desc
