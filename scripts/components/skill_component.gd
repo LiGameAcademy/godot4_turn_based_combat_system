@@ -70,13 +70,13 @@ func _apply_modifiers_from_status_instance(status_instance: SkillStatusData, add
 		# 重要: Modifier也需要基于模板复制，如果它们有内部状态或需要唯一性
 		# 为简单起见，如果你的SkillAttributeModifier是纯数据，可以直接用。
 		# 但如果它们可能被改变或需要唯一ID，则也应duplicate()
-		var modifier_to_apply = mod_res_template # .duplicate(true) if SkillAttributeModifier can have runtime state
-
+		var modifier_to_apply : SkillAttributeModifier = mod_res_template.duplicate(true) # .duplicate(true) if SkillAttributeModifier can have runtime state
+		modifier_to_apply.set_source(status_id_source)
 		if add:
-			attribute_set_instance.apply_modifier(modifier_to_apply, status_id_source)
+			attribute_set_instance.apply_modifier(modifier_to_apply)
 		else:
 			# AttributeSet.remove_modifier 需要能通过模板资源和来源ID移除
-			attribute_set_instance.remove_modifier(modifier_to_apply, status_id_source)
+			attribute_set_instance.remove_modifiers_by_source_id(status_id_source)
 #endregion
 
 #region Status Management

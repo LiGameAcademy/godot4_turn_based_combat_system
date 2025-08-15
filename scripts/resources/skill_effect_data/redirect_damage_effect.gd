@@ -25,11 +25,11 @@ func process_effect(source: Character, target: Character, context : SkillExecuti
 	# 请求视觉表现
 	_request_visual_effect("guard_action", guardian, {"original_target": original_target})
 
-    return  {
-        "success": true,
-        "original_damage": damage_info.final_damage,
-        "modified_damage": damage_info.final_damage
-    }
+	return  {
+		"success": true,
+		"original_damage": damage_info.final_damage,
+		"modified_damage": damage_info.final_damage
+	}
 
 ## 获取效果描述
 func get_description() -> String:

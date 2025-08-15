@@ -27,17 +27,13 @@ func initialize(status_effect) -> void:
     duration_label.text = str(effect.remaining_duration)
     
     # 根据效果类型设置颜色
-    match effect.data.effect_type:
-        SkillStatusData.EffectType.BUFF:
+    match effect.data.status_type:
+        SkillStatusData.StatusType.BUFF:
             self_modulate = Color(0.2, 0.8, 0.2)  # 绿色
-        SkillStatusData.EffectType.DEBUFF:
+        SkillStatusData.StatusType.DEBUFF:
             self_modulate = Color(0.8, 0.2, 0.2)  # 红色
-        SkillStatusData.EffectType.DOT:
+        SkillStatusData.StatusType.NEUTRAL:
             self_modulate = Color(0.8, 0.5, 0.2)  # 橙色
-        SkillStatusData.EffectType.HOT:
-            self_modulate = Color(0.2, 0.8, 0.8)  # 青色
-        SkillStatusData.EffectType.CONTROL:
-            self_modulate = Color(0.8, 0.2, 0.8)  # 紫色
     
     # 播放添加动画
     animation_player.play("add")
