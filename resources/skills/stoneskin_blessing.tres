@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=6 format=3 uid="uid://df2dj86tvvbqx"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_rrjs1"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_5s8cf"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="2_wd2ol"]
+[ext_resource type="Resource" uid="uid://wq7jwx25q7lw" path="res://resources/skill_status/defense_up.tres" id="3_28621"]
+
+[sub_resource type="Resource" id="Resource_evjyc"]
+script = ExtResource("2_wd2ol")
+status_to_apply = ExtResource("3_28621")
+status_application_chance = 1.0
+status_duration_override = -1
+status_stacks_to_apply = 1
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_5s8cf")
+skill_id = &"stoneskin_blessing"
+skill_name = "石肤祝福"
+description = "向大地祈祷，使我方全体获得岩石般的坚韧，防御力提升，持续3回合。"
+mp_cost = 5
+target_type = 7
+effects = Array[ExtResource("1_rrjs1")]([SubResource("Resource_evjyc")])
+action_categories = Array[String](["any_action", "any_skill"])
+cast_animation = &""
+can_target_dead = false
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

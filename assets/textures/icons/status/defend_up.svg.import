@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://gs8mgxoeck0h"
-path="res://.godot/imported/attack_1 - 副本.png-6ae38987b775288730094d0b381dc235.ctex"
+uid="uid://dawol1l8bqgsf"
+path="res://.godot/imported/defend_up.svg-59104891f2a934eaa030248721ce7831.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/characters/heros/crystal_mauler/attack_1 - 副本.png"
-dest_files=["res://.godot/imported/attack_1 - 副本.png-6ae38987b775288730094d0b381dc235.ctex"]
+source_file="res://assets/textures/icons/status/defend_up.svg"
+dest_files=["res://.godot/imported/defend_up.svg-59104891f2a934eaa030248721ce7831.ctex"]
 
 [params]
 
@@ -32,3 +32,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

@@ -1,11 +1,12 @@
-[gd_resource type="Resource" script_class="BattleData" load_steps=7 format=3 uid="uid://lo4jdtvp6jwn"]
+[gd_resource type="Resource" script_class="BattleData" load_steps=8 format=3 uid="uid://lo4jdtvp6jwn"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_5h02x"]
 [ext_resource type="AudioStream" uid="uid://dklai7qxh03wa" path="res://assets/audio/music/kill and life.wav" id="1_h415n"]
 [ext_resource type="Script" uid="uid://4pqhugr3avtn" path="res://scripts/resources/battle_data.gd" id="2_65br3"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="2_h415n"]
-[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="3_k3b2t"]
 [ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://resources/characters_data/enemy_mushroom_data.tres" id="4_gl04b"]
+[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_assassin.tres" id="5_gl04b"]
+[ext_resource type="Resource" uid="uid://331idop6atas" path="res://resources/characters_data/player_crystal_mauler.tres" id="6_jtilb"]
 
 [resource]
 script = ExtResource("2_65br3")
@@ -16,7 +17,8 @@ ExtResource("2_h415n"): Vector2(0, 0),
 ExtResource("4_gl04b"): Vector2(200, 0)
 })
 player_data_list = Dictionary[ExtResource("1_5h02x"), Vector2]({
-ExtResource("3_k3b2t"): Vector2(0, 0)
+ExtResource("5_gl04b"): Vector2(0, 0),
+ExtResource("6_jtilb"): Vector2(200, 0)
 })
 max_turn_count = 99
 defeat_scene = ""

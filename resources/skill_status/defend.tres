@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://tlc7ibafdnkx"]
 
-[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_jrcne"]
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_o56po"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_jrcne"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="2_o56po"]
 [ext_resource type="Texture2D" uid="uid://cpjc8vbq2ygfs" path="res://assets/textures/icons/status/defend.svg" id="3_8nqbr"]
-[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="3_fim4e"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_fim4e"]
 [ext_resource type="Script" uid="uid://47pmrvmk5e7c" path="res://scripts/resources/skill_effect_data/modifiy_damage_effect_data.gd" id="4_o56po"]
 
 [sub_resource type="Resource" id="Resource_fim4e"]

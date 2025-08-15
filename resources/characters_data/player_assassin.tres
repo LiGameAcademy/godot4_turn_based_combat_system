@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://x3ps14kdto0r"]
+
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_ok2rd"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_hfq38"]
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="3_8bkja"]
+[ext_resource type="Resource" uid="uid://b1gbs024jdeds" path="res://resources/skill_attributes/max_health.tres" id="4_4yoi0"]
+[ext_resource type="Resource" uid="uid://drdip2i404d88" path="res://resources/skill_attributes/max_mana.tres" id="5_u35bi"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="6_s15c7"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="7_lb3an"]
+[ext_resource type="Resource" uid="uid://dy8vbokoah6gb" path="res://resources/skill_attributes/attack_power.tres" id="8_adyb3"]
+[ext_resource type="Resource" uid="uid://c1rhn2rpt7d7j" path="res://resources/skill_attributes/defense_power.tres" id="9_soci6"]
+[ext_resource type="Resource" uid="uid://bmaomvfqxyfd8" path="res://resources/skill_attributes/speed.tres" id="12_a86bg"]
+[ext_resource type="Script" uid="uid://8esdurm415rx" path="res://scripts/resources/skill_attribute_set.gd" id="13_7khhc"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="14_xanm6"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="15_tw80f"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="16_f5c4c"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="17_af7so"]
+[ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://resources/skills/fireball.tres" id="18_833s5"]
+[ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://resources/skills/minor_heal.tres" id="19_rc2b5"]
+[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="20_pvs8j"]
+[ext_resource type="Resource" uid="uid://cifl76nnd4nf" path="res://resources/skills/stun.tres" id="21_3pkgj"]
+
+[sub_resource type="Resource" id="Resource_ph3fh"]
+script = ExtResource("13_7khhc")
+attributes_to_initialize = Array[ExtResource("3_8bkja")]([ExtResource("4_4yoi0"), ExtResource("5_u35bi"), ExtResource("6_s15c7"), ExtResource("7_lb3an"), ExtResource("8_adyb3"), ExtResource("9_soci6"), ExtResource("12_a86bg")])
+metadata/_custom_type_script = "uid://ca045i7dpt4me"
+
+[resource]
+script = ExtResource("16_f5c4c")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+attribute_set_resource = SubResource("Resource_ph3fh")
+element = 2
+skills = Array[ExtResource("17_af7so")]([ExtResource("18_833s5"), ExtResource("19_rc2b5"), ExtResource("20_pvs8j"), ExtResource("21_3pkgj")])
+attack_skill = ExtResource("2_hfq38")
+defense_skill = ExtResource("14_xanm6")
+color = Color(0, 0, 1, 1)
+animation_library = ExtResource("1_ok2rd")
+sprite_offset = Vector2(0, 0)
+icon = ExtResource("15_tw80f")

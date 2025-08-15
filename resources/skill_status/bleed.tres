@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="SkillStatusData" load_steps=7 format=3 uid="uid://c6f5g4h3i2j1k"]
 
-[ext_resource type="Script" uid="uid://dgwfcaub0ivab" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_1t35x"]
-[ext_resource type="Script" uid="uid://do7l16ao2ut6t" path="res://scripts/resources/skill_status_data.gd" id="1_vy3m8"]
-[ext_resource type="Script" uid="uid://dxb4kwdmaswyl" path="res://scripts/resources/skill_effect_data.gd" id="2_abcde"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_1t35x"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="1_vy3m8"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="2_abcde"]
 [ext_resource type="Texture2D" uid="uid://c8hkms5m7m0mw" path="res://assets/textures/icons/status/bleeding.svg" id="3_iej62"]
 [ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="3_j6d07"]
 
@@ -10,6 +10,9 @@
 script = ExtResource("3_j6d07")
 damage_amount = 5
 damage_power_scale = 1.0
+defense_power_scale = 0.0
+apply_damage_random = true
+damage_random_range = 0.1
 visual_effect = ""
 sound_effect = ""
 target_override = "none"

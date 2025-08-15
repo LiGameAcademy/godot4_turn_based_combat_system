@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=8 format=3 uid="uid://dbk0upttih0yp"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_82skn"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="2_a45p0"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_hh34x"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_vdfmw"]
+[ext_resource type="Resource" uid="uid://nb7w4k0528xl" path="res://resources/skill_status/stun.tres" id="4_0tovd"]
+
+[sub_resource type="Resource" id="Resource_g5af4"]
+script = ExtResource("2_a45p0")
+damage_amount = 0
+damage_power_scale = 0.5
+defense_power_scale = 1.2
+apply_damage_random = true
+damage_random_range = 0.1
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_e832r"]
+script = ExtResource("3_vdfmw")
+status_to_apply = ExtResource("4_0tovd")
+status_application_chance = 0.5
+status_duration_override = -1
+status_stacks_to_apply = 1
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_hh34x")
+skill_id = &"shattering_maul"
+skill_name = "粉碎战锤"
+description = "用灌注了大地之力的战锤猛击敌人，造成基于攻击与防御的伤害，并有50%几率使其眩晕一回合。"
+mp_cost = 5
+target_type = 1
+effects = Array[ExtResource("1_82skn")]([SubResource("Resource_g5af4"), SubResource("Resource_e832r")])
+action_categories = Array[String](["any_action", "any_skill"])
+cast_animation = &""
+can_target_dead = false
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

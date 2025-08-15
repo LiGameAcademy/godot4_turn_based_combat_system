@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=6 format=3 uid="uid://wq7jwx25q7lw"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_bxgqh"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="2_trvmp"]
+[ext_resource type="Texture2D" uid="uid://dawol1l8bqgsf" path="res://assets/textures/icons/status/defend_up.svg" id="3_trvmp"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_xc7yw"]
+
+[sub_resource type="Resource" id="Resource_xc7yw"]
+script = ExtResource("1_bxgqh")
+attribute_id = &"DefensePower"
+magnitude = 0.2
+operation = 2
+priority = 50
+metadata/_custom_type_script = "uid://bh2l13xqoik56"
+
+[resource]
+script = ExtResource("3_xc7yw")
+status_id = &"defense_up"
+status_name = "防御提升"
+description = "大地的力量增强了你的防御。"
+icon = ExtResource("3_trvmp")
+status_type = 0
+duration = 3
+duration_type = 0
+max_stacks = 1
+stack_behavior = 1
+attribute_modifiers = Array[ExtResource("1_bxgqh")]([SubResource("Resource_xc7yw")])
+initial_effects = Array[ExtResource("2_trvmp")]([])
+ongoing_effects = Array[ExtResource("2_trvmp")]([])
+end_effects = Array[ExtResource("2_trvmp")]([])
+overrides_states = Array[StringName]([])
+resisted_by_states = Array[StringName]([])
+trigger_on_events = Array[StringName]([])
+trigger_effects = Array[ExtResource("2_trvmp")]([])
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[String]([])
+metadata/_custom_type_script = "uid://2eyouurk7vcw"

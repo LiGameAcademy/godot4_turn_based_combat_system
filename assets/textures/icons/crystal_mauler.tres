@@ -1,0 +1,7 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://cdnxl7jbpxxru"]
+
+[ext_resource type="Texture2D" uid="uid://cqcg1s3a5cmh7" path="res://assets/sprites/characters/heros/crystal_mauler/attack_1.png" id="1_0evxx"]
+
+[resource]
+atlas = ExtResource("1_0evxx")
+region = Rect2(1280, 88, 32, 32)

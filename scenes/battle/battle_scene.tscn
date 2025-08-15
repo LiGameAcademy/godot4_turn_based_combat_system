@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://scenes/characters/character.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle/battle_scene.gd" id="1_ugm31"]
 [ext_resource type="PackedScene" uid="uid://dqlpd6akofusk" path="res://scenes/ui/battle_ui.tscn" id="2_dddu7"]
-[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_hero_data.tres" id="2_rl52j"]
+[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://resources/characters_data/player_assassin.tres" id="2_rl52j"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://resources/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
 [ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://resources/characters_data/enemy_mushroom_data.tres" id="6_3511k"]
 [ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://scripts/core/battle/battle_manager.gd" id="8_2wmvw"]
@@ -56,7 +56,6 @@ is_player = false
 [node name="BattleManager" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("8_2wmvw")
-metadata/_custom_type_script = "uid://dq50of22ae7fx"
 
 [node name="BattleStateManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true

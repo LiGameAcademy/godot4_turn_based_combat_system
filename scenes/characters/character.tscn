@@ -7,8 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://scenes/ui/state_indicator.tscn" id="4_ma1fs"]
 [ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://scripts/core/character/character_ai_component.gd" id="5_ma1fs"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="5_yscb1"]
-[ext_resource type="Texture2D" uid="uid://dfl4443uqmgkr" path="res://assets/sprites/characters/enemies/goblin/Attack.png" id="8_03c51"]
-[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="9_8gmw8"]
+[ext_resource type="Texture2D" uid="uid://cqcg1s3a5cmh7" path="res://assets/sprites/characters/heros/crystal_mauler/attack_1.png" id="8_03c51"]
+[ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="9_8gmw8"]
 
 [sub_resource type="Resource" id="Resource_ysl2u"]
 script = ExtResource("5_yscb1")
@@ -69,8 +69,7 @@ unique_name_in_owner = true
 position = Vector2(0, -125)
 scale = Vector2(2, 2)
 texture = ExtResource("8_03c51")
-hframes = 8
-frame = 7
+hframes = 6
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 unique_name_in_owner = true

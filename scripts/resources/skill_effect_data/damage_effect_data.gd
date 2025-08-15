@@ -1,10 +1,20 @@
 extends SkillEffectData
 class_name DamageEffectData
 
+## 最低伤害比例
+const MIN_DAMAGE_PERCENT = 0.1
+
 # 伤害效果参数
 @export_group("伤害效果参数", "damage_")
 @export var damage_amount: int = 10     		## 基础伤害值
 @export var damage_power_scale: float = 1.0  	## 攻击力加成系数
+
+@export_group("防御力加成")
+@export var defense_power_scale: float = 0.0  	## 防御力加成系数
+
+@export_group("随机伤害")
+@export var apply_damage_random: bool = true 	## 是否应用伤害随机
+@export var damage_random_range: float = 0.1 	## 伤害随机范围
 
 ## 获取伤害效果描述
 func get_description() -> String:
@@ -78,17 +88,19 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 	var power = damage_amount
 	
 	# 基础伤害计算
-	var base_damage = power + (caster.magic_attack * 0.8)
+	var base_damage = power + (caster.attack_power * damage_power_scale) + (caster.defense_power * defense_power_scale)
 	
 	# 考虑目标防御
-	var damage_after_defense = base_damage - (target.magic_defense * 0.5)
+	var damage_after_defense = max(base_damage * MIN_DAMAGE_PERCENT, base_damage - target.defense_power)
 	
 	# 元素相克系统
 	var element_result = _calculate_element_modifier(element, target)
 	var element_modifier = element_result["multiplier"]
 	
-	# 加入随机浮动因素 (±10%)
-	var random_factor = randf_range(0.9, 1.1)
+	# 加入随机浮动因素
+	var random_factor = 1.0
+	if apply_damage_random:
+		random_factor = randf_range(1.0 - damage_random_range, 1.0 + damage_random_range)
 	
 	# 计算最终伤害
 	var final_damage = damage_after_defense * element_modifier * random_factor

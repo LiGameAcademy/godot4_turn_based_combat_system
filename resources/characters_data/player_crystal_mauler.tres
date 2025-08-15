@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=17 format=3 uid="uid://331idop6atas"]
+
+[ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="1_egqq8"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_p4oqj"]
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="1_pnbt8"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_e3ilk"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_s514i"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="3_ekqg2"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="5_70flt"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="7_pnbt8"]
+[ext_resource type="Texture2D" uid="uid://cdnxl7jbpxxru" path="res://assets/textures/icons/crystal_mauler.tres" id="8_s514i"]
+[ext_resource type="Script" uid="uid://8esdurm415rx" path="res://scripts/resources/skill_attribute_set.gd" id="9_u8qrb"]
+
+[sub_resource type="Resource" id="Resource_qraum"]
+resource_local_to_scene = true
+script = ExtResource("1_pnbt8")
+attribute_name = &"MaxHealth"
+display_name = "最大生命值"
+description = ""
+base_value = 220.0
+min_value = 1.0
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_eybqv"]
+script = ExtResource("1_pnbt8")
+attribute_name = &"MaxMana"
+display_name = "最大魔法值"
+description = ""
+base_value = 90.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_lcfiv"]
+script = ExtResource("1_pnbt8")
+attribute_name = &"AttackPower"
+display_name = "攻击力"
+description = ""
+base_value = 18.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_egqq8"]
+script = ExtResource("1_pnbt8")
+attribute_name = &"DefensePower"
+display_name = "防御力"
+description = ""
+base_value = 30.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_s514i"]
+script = ExtResource("1_pnbt8")
+attribute_name = &"Speed"
+display_name = "速度"
+description = ""
+base_value = 6.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_adj71"]
+script = ExtResource("9_u8qrb")
+attributes_to_initialize = Array[ExtResource("1_pnbt8")]([SubResource("Resource_qraum"), ExtResource("3_ekqg2"), SubResource("Resource_eybqv"), ExtResource("5_70flt"), SubResource("Resource_lcfiv"), SubResource("Resource_egqq8"), SubResource("Resource_s514i")])
+metadata/_custom_type_script = "uid://8esdurm415rx"
+
+[resource]
+script = ExtResource("1_p4oqj")
+character_name = "格罗姆尼尔"
+description = "来自地底深城的坚毅矮人，他的战锤能粉碎岩石，他的意志如水晶般坚不可摧。作为团队的先锋，他总是站在最前线，为同伴筑起一道可靠的屏障。"
+attribute_set_resource = SubResource("Resource_adj71")
+element = 3
+skills = Array[ExtResource("2_e3ilk")]([])
+attack_skill = ExtResource("2_s514i")
+defense_skill = ExtResource("7_pnbt8")
+color = Color(0, 0, 1, 1)
+animation_library = ExtResource("1_egqq8")
+sprite_offset = Vector2(0, 0)
+icon = ExtResource("8_s514i")
+metadata/_custom_type_script = "uid://bdekeym7nn8i2"
