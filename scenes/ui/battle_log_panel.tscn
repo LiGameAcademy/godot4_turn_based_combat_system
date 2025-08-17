@@ -106,7 +106,7 @@ size = Vector2i(200, 250)
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 196.0
-offset_bottom = 246.0
+offset_bottom = 350.0
 
 [node name="Label" type="Label" parent="FilterPopup/FilterVBox"]
 layout_mode = 2

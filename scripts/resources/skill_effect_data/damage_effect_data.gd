@@ -17,9 +17,31 @@ const MIN_DAMAGE_PERCENT = 0.1
 @export var damage_random_range: float = 0.1 	## 伤害随机范围
 
 ## 获取伤害效果描述
+## 获取伤害效果的基础描述 (重构后)
 func _get_base_description() -> String:
-	var amount = damage_amount
-	return "造成 %d 点伤害" % [amount]
+	var description_parts: Array[String] = []
+
+	# 1. 处理基础伤害部分
+	if damage_amount > 0:
+		description_parts.append("%d点" % damage_amount)
+
+	# 2. 处理攻击力加成部分
+	if damage_power_scale > 0:
+		# 将小数（如1.0）转换为百分比（100%）
+		description_parts.append("%d%%攻击力" % (damage_power_scale * 100))
+
+	# 3. 处理防御力加成部分
+	if defense_power_scale > 0:
+		description_parts.append("%d%%防御力" % (defense_power_scale * 100))
+
+	# 4. 如果没有任何伤害组件，返回一个明确的无伤害描述
+	if description_parts.is_empty():
+		return "不造成直接伤害"
+
+	# 5. 将所有伤害组件用“+”连接，并组合成一句通顺的话
+	var final_description = "造成 %s 的物理伤害" % " + ".join(description_parts)
+
+	return final_description
 
 ## 处理伤害效果
 func process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
