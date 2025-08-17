@@ -17,7 +17,7 @@ const MIN_DAMAGE_PERCENT = 0.1
 @export var damage_random_range: float = 0.1 	## 伤害随机范围
 
 ## 获取伤害效果描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var amount = damage_amount
 	return "造成 %d 点伤害" % [amount]
 
@@ -84,11 +84,8 @@ func _get_damage_info(target: Character, damage: int, is_effective: bool, is_ine
 
 ## 计算伤害
 func _calculate_damage(caster: Character, target: Character) -> Dictionary:
-	# 获取基础伤害
-	var power = damage_amount
-	
 	# 基础伤害计算
-	var base_damage = power + (caster.attack_power * damage_power_scale) + (caster.defense_power * defense_power_scale)
+	var base_damage = damage_amount + (caster.attack_power * damage_power_scale) + (caster.defense_power * defense_power_scale)
 	
 	# 考虑目标防御
 	var damage_after_defense = max(base_damage * MIN_DAMAGE_PERCENT, base_damage - target.defense_power)
@@ -103,7 +100,7 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 		random_factor = randf_range(1.0 - damage_random_range, 1.0 + damage_random_range)
 	
 	# 计算最终伤害
-	var final_damage = damage_after_defense * element_modifier * random_factor
+	var final_damage = base_damage * element_modifier * random_factor
 	
 	# 确保伤害至少为1
 	final_damage = max(1, round(final_damage))
@@ -111,7 +108,7 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 	# 返回详细的伤害结果信息
 	return {
 		"damage": int(final_damage),
-		"base_damage": damage_after_defense,
+		"base_damage": base_damage,
 		"is_effective": element_result["is_effective"],
 		"is_ineffective": element_result["is_ineffective"],
 		"element_multiplier": element_modifier,

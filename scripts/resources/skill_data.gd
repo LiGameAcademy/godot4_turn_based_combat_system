@@ -54,6 +54,8 @@ func get_full_description() -> String:
 	desc += "\n效果:\n"
 	var effects_to_describe: Array[SkillEffectData] = effects
 	for effect in effects_to_describe: # 处理 ACTIVE 和 PASSIVE 的主要效果
+		if effect.disable:
+			continue
 		if is_instance_valid(effect): # 确保 effect 实例有效
 			desc += "- " + effect.get_description() + "\n"
 		else:

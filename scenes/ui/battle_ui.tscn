@@ -21,6 +21,13 @@ offset_top = 65.392
 grow_horizontal = 0
 grow_vertical = 0
 
+[node name="BattleLogPanel" parent="." instance=ExtResource("6_2kidt")]
+offset_top = -182.0
+offset_right = 427.0
+
+[node name="TurnOrderIndicator" parent="." instance=ExtResource("7_qt65o")]
+offset_bottom = 131.0
+
 [node name="SkillSelectMenu" parent="." instance=ExtResource("2_uoy4w")]
 visible = false
 
@@ -28,11 +35,5 @@ visible = false
 visible = false
 
 [node name="CharacterDetailPanel" parent="." instance=ExtResource("5_7sxqq")]
-
-[node name="BattleLogPanel" parent="." instance=ExtResource("6_2kidt")]
-offset_top = -217.0
-offset_right = 427.0
-
-[node name="TurnOrderIndicator" parent="." instance=ExtResource("7_qt65o")]
 
 [connection signal="closed" from="CharacterDetailPanel" to="." method="_on_character_detail_panel_closed"]

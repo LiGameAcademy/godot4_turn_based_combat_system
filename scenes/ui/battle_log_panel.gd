@@ -130,7 +130,7 @@ func _update_log_display() -> void:
 		
 		# 添加到富文本
 		battle_info.append_text(formatted_log)
-		battle_info.add_text("\n\n") # 添加空行分隔
+		battle_info.add_text("\n") # 添加换行分隔
 	
 	# 滚动到底部
 	# 使用 call_deferred 确保在内容完全更新后再滚动

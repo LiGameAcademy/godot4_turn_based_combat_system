@@ -7,14 +7,16 @@
 [sub_resource type="Resource" id="Resource_xskkb"]
 script = ExtResource("3_xyykp")
 damage_amount = 0
-damage_power_scale = 1.0
+damage_power_scale = null
 defense_power_scale = 0.0
 apply_damage_random = true
 damage_random_range = 0.1
-visual_effect = ""
-sound_effect = ""
-target_override = "none"
-element = 0
+disable = null
+visual_effect = null
+sound_effect = null
+target_override = null
+element = null
+conditions = null
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]

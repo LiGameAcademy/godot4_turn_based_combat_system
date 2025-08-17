@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://x8u6jf7mpp37"]
+[gd_scene load_steps=5 format=3 uid="uid://x8u6jf7mpp37"]
 
 [ext_resource type="Script" uid="uid://b8slu6jggq1bu" path="res://scenes/ui/character_detail_panel.gd" id="1_0lqnx"]
 [ext_resource type="PackedScene" uid="uid://b26kadxoregwn" path="res://scenes/ui/attribute_status_bar.tscn" id="2_d8pxp"]
-[ext_resource type="PackedScene" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
+[ext_resource type="PackedScene" uid="uid://1apx83ubxdnv" path="res://scenes/ui/attribute_label.tscn" id="2_xk3ex"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_d8pxp"]
+bg_color = Color(0, 0, 0, 1)
 
 [node name="CharacterDetailPanel" type="Control"]
 z_index = 128
@@ -37,6 +40,7 @@ offset_right = 300.0
 offset_bottom = 181.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_d8pxp")
 
 [node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
 layout_mode = 2

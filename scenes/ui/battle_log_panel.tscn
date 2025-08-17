@@ -54,16 +54,19 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
 text = "战斗日志"
 
 [node name="FilterButton" type="Button" parent="PanelContainer/MainVBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 15
 text = "过滤"
 
 [node name="ClearButton" type="Button" parent="PanelContainer/MainVBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 15
 text = "清除"
 
 [node name="HSeparator" type="HSeparator" parent="PanelContainer/MainVBoxContainer"]
@@ -83,6 +86,11 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/bold_italics_font_size = 12
+theme_override_font_sizes/italics_font_size = 12
+theme_override_font_sizes/mono_font_size = 12
+theme_override_font_sizes/normal_font_size = 12
+theme_override_font_sizes/bold_font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_yp4v6")
 bbcode_enabled = true
 text = "战斗信息显示栏"
@@ -98,7 +106,7 @@ size = Vector2i(200, 250)
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 196.0
-offset_bottom = 350.0
+offset_bottom = 246.0
 
 [node name="Label" type="Label" parent="FilterPopup/FilterVBox"]
 layout_mode = 2

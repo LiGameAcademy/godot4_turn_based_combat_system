@@ -2,7 +2,8 @@ extends Resource
 class_name AIBehavior
 
 ## 行为类型
-@export var behavior_type: String = "balanced"
+@export_enum("aggressive", "defensive", "support", "random")
+var behavior_type: String = "balanced"
 
 ## 行为权重配置
 @export_group("Weights")

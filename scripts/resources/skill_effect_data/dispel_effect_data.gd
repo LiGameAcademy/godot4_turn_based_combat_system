@@ -9,7 +9,7 @@ class_name DispelEffectData
 @export var dispel_is_all: bool = false        	## 是否全部驱散
 
 ## 获取驱散效果描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var count = dispel_count
 	var is_positive = dispel_is_positive
 	var type_name = "增益" if is_positive else "减益"

@@ -9,7 +9,7 @@ class_name ModifyDamageEffectData
 @export var damage_mod_max: float = 9999.0   		## 修改后的最大伤害值
 
 ## 获取修改伤害描述
-func get_description() -> String:
+func _get_base_description() -> String:
 	var percent = damage_mod_percent
 	var flat = damage_mod_flat
 	var _min = damage_mod_min
