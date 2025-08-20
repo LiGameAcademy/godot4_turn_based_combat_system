@@ -30,9 +30,6 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 	if not _skills.is_empty() and not _skills:
 		push_error("无法初始化技能列表，技能数据无效！")
 		return
-
-	# 初始化AttributeSet，这将创建并配置所有属性实例
-	_active_attribute_set.initialize_set()
 	
 	_active_attribute_set.current_value_changed.connect(
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
@@ -42,6 +39,15 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
 			attribute_base_value_changed.emit(attribute_instance, old_value, new_value)
 	)
+
+	# 初始化AttributeSet，这将创建并配置所有属性实例
+	_active_attribute_set.initialize_set()
+
+	# 遍历所有已学会的技能，自动应用其中的被动效果
+	for skill in _skills:
+		if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
+			# 被动技能所施加的状态，通常是永久且隐藏的
+			apply_status(skill.status_to_apply_when_learned, get_parent(), null)
 
 #region --- 属性管理 ---
 ## 获取属性基础值

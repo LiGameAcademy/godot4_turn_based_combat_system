@@ -19,6 +19,7 @@ status_id = &"defense_up"
 status_name = "防御提升"
 description = "大地的力量增强了你的防御。"
 icon = ExtResource("3_trvmp")
+is_hidden_from_ui = false
 status_type = 0
 duration = 3
 duration_type = 0

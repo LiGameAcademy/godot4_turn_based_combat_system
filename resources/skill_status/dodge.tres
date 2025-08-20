@@ -19,6 +19,7 @@ status_id = &"dodge"
 status_name = "狡猾闪躲"
 description = "变得极其警觉和敏捷，速度大幅提升。"
 icon = ExtResource("3_4ih74")
+is_hidden_from_ui = false
 status_type = 0
 duration = 2
 duration_type = 0

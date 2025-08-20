@@ -19,6 +19,7 @@ status_id = &"attack_up"
 status_name = "攻击提升"
 description = "攻击力得到强化。"
 icon = ExtResource("3_7cgdo")
+is_hidden_from_ui = false
 status_type = 0
 duration = 3
 duration_type = 0

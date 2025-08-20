@@ -159,11 +159,11 @@ func _update_status_display() -> void:
 	
 	# 添加每个状态的图标
 	for status in active_statuses:
-		_add_status_icon(status)
+		_add_status_icon(active_statuses[status])
 
 ## 添加状态图标
 func _add_status_icon(status_data: SkillStatusData) -> void:
-	if not status_data or not skill_status_icon_scene:
+	if not status_data or not skill_status_icon_scene or status_data.is_hidden_from_ui:
 		return
 	
 	# 检查是否已存在该状态的图标

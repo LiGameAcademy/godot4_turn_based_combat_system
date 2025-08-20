@@ -1,4 +1,4 @@
-extends ContextBase # 让它继承自基类
+extends ContextBase
 class_name SkillExecutionContext 
 
 var battle_manager: BattleManager

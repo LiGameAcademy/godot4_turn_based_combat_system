@@ -7,11 +7,13 @@
 script = ExtResource("2_d5caf")
 skill_id = &"runic_ward"
 skill_name = "符文守护"
+skill_type = 0
 description = "为一名队友刻下守护符文，在接下来2回合内，为其承受大部分受到的伤害。"
+is_melee = true
 mp_cost = 5
 target_type = 3
 effects = Array[ExtResource("1_ggxak")]([])
 action_categories = Array[String](["any_action", "any_skill"])
-cast_animation = &""
+cast_animation = &"defend"
 can_target_dead = false
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

@@ -18,6 +18,8 @@ visual_effect = null
 sound_effect = null
 target_override = null
 element = null
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 conditions = null
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
@@ -27,6 +29,7 @@ status_id = &"bleed"
 status_name = "流血"
 description = ""
 icon = ExtResource("3_iej62")
+is_hidden_from_ui = false
 status_type = 1
 duration = 3
 duration_type = 0

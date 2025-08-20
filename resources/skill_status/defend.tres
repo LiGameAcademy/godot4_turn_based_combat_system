@@ -18,6 +18,8 @@ visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 conditions = Array[ExtResource("5_8nqbr")]([])
 metadata/_custom_type_script = "uid://47pmrvmk5e7c"
 
@@ -27,6 +29,7 @@ status_id = &"defend"
 status_name = "防御"
 description = ""
 icon = ExtResource("3_8nqbr")
+is_hidden_from_ui = false
 status_type = 2
 duration = 3
 duration_type = 0

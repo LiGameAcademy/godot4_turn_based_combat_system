@@ -17,7 +17,7 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number
 @export var character_data: CharacterData
 @export var is_player : bool = true
 ## 目标偏移量
-@export var target_move_offset : Vector2 = Vector2(20, 0)
+@export var target_move_offset : Vector2 = Vector2(80, 0)
 var _original_position : Vector2 = Vector2.ZERO		## 原始位置
 
 #region --- 常用属性的便捷Getter ---
@@ -42,12 +42,6 @@ var defense_power: float:
 var speed: float:
 	get: return skill_component.get_attribute_current_value(&"Speed") if skill_component else 0.0
 	set(value): assert(false, "cannot set speed")
-var magic_attack : float:
-	get: return skill_component.get_attribute_current_value(&"MagicAttack") if skill_component else 0.0
-	set(value): assert(false, "cannot set magic_attack")
-var magic_defense : float:
-	get: return skill_component.get_attribute_current_value(&"MagicDefense") if skill_component else 0.0
-	set(value): assert(false, "cannot set magic_defense")
 var character_name : StringName:
 	get: return character_data.character_name if character_data else "" 
 	set(value): assert(false, "cannot set character_name")
@@ -114,10 +108,10 @@ func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> 
 	damage_number.show_damage(amount, false, color, prefix)
 
 ## 伤害处理方法
-func take_damage(base_damage: float) -> float:
+func take_damage(base_damage: float, source: Character) -> float:
 	if not combat_component:
 		return 0.0
-	var result = combat_component.take_damage(base_damage)
+	var result = await combat_component.take_damage(base_damage, source)
 	spawn_damage_number(result, Color.RED)
 	return result
 

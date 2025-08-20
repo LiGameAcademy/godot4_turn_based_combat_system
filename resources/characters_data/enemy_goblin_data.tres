@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=23 format=3 uid="uid://hcxd57tvokjr"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=24 format=3 uid="uid://hcxd57tvokjr"]
 
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="1_cjb8a"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://8esdurm415rx" path="res://scripts/resources/skill_attribute_set.gd" id="9_64uat"]
 [ext_resource type="Resource" uid="uid://dl6veckqncbeh" path="res://resources/skills/cowardly_dodge.tres" id="9_ixuka"]
 [ext_resource type="Resource" uid="uid://c0dt7jqwtnbr" path="res://resources/skills/vicious_strike.tres" id="10_hhnc7"]
+[ext_resource type="Resource" uid="uid://i1aj8k56wevm" path="res://resources/skills/counter_attack.tres" id="14_x2mhx"]
 
 [sub_resource type="Resource" id="Resource_x2mhx"]
 script = ExtResource("1_cjb8a")
@@ -117,7 +118,7 @@ description = "常见的低级怪物，弱小但行动迅速。"
 attribute_set_resource = SubResource("Resource_cjb8a")
 element = 3
 ai_behavior = SubResource("Resource_x2mhx")
-skills = Array[ExtResource("2_fr6p1")]([ExtResource("9_ixuka"), ExtResource("10_hhnc7")])
+skills = Array[ExtResource("2_fr6p1")]([ExtResource("9_ixuka"), ExtResource("10_hhnc7"), ExtResource("14_x2mhx")])
 attack_skill = ExtResource("1_n1w7c")
 defense_skill = ExtResource("6_jf55n")
 color = Color(0, 0, 1, 1)

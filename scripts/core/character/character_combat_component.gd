@@ -81,7 +81,9 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 			return result
 
 	var skill_context : SkillExecutionContext = params.get("skill_context", null)
-	var targets : Array[Character] = params.get("targets", [] as Array[Character])
+	var targets : Array[Character]
+	for t in params.get("targets", []):
+		targets.append(t)
 	match action_type:
 		ActionType.ATTACK:
 			result = await _execute_attack(target, skill_context)
@@ -101,7 +103,6 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 	
 	# 发出动作执行信号
 	action_executed.emit(action_type, target, result)
-	
 	return result
 
 ## 伤害处理方法
@@ -111,11 +112,11 @@ func take_damage(base_damage: float, source : Character = null, p_element : int 
 	var final_damage: float = base_damage
 	
 	# 创建伤害信息对象
-	var damage_info: DamageInfo = DamageInfo.new(base_damage,source, get_parent(), p_element)
+	var damage_info: DamageInfo = DamageInfo.new(base_damage, source, get_parent(), p_element)
 	
 	# 触发伤害修改事件，允许状态效果修改伤害值
 	var damage_event_context : DamageEventContext = DamageEventContext.new(source, get_parent(), damage_info)
-	SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken", damage_event_context)
+	await SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken", damage_event_context)
 	
 	# 获取可能被修改后的伤害值
 	final_damage = damage_info.final_damage
@@ -124,13 +125,13 @@ func take_damage(base_damage: float, source : Character = null, p_element : int 
 		return 0
 	
 	# 播放受击动画
-	get_parent().play_animation("hit") # 不等待动画完成，允许并行处理
+	await get_parent().play_animation("hit") # 不等待动画完成，允许并行处理
 	
 	# 消耗生命值
 	_skill_component.consume_hp(final_damage)
 	
 	# 触发伤害完成事件
-	SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken_completed", damage_event_context)
+	await SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken_completed", damage_event_context)
 	return final_damage
 
 ## 治疗处理方法

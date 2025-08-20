@@ -3,6 +3,11 @@ class_name SkillData
 
 ## --- 核心要素枚举 ---
 
+enum SkillType { 
+	ACTIVE,  # 主动技能，由玩家/AI选择施放
+	PASSIVE  # 被动技能，在满足条件时自动生效
+}
+
 ## 目标类型
 enum TargetType {
 	NONE,                   ## 无需目标 (例如自身buff)
@@ -18,6 +23,7 @@ enum TargetType {
 #region --- 导出的属性 ---
 @export var skill_id: StringName = &"new_skill" 				## 内部ID，用StringName效率略高
 @export var skill_name: String = "新技能"       				## UI显示名称
+@export var skill_type: SkillType = SkillType.ACTIVE			## 技能类型
 @export_multiline var description: String = "技能描述..." 		## UI显示描述
 @export var is_melee: bool = true							## 是否是近战
 
@@ -29,6 +35,10 @@ enum TargetType {
 @export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
 @export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
 var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
+
+# 【核心】仅在 skill_type 为 PASSIVE 时有意义
+@export_group("被动效果", "passive_")
+@export var status_to_apply_when_learned: SkillStatusData = null
 
 @export_group("视觉与音效 (可选)")
 @export var icon: Texture2D = null # 技能图标

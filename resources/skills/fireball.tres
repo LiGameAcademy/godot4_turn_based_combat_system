@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=9 format=3 uid="uid://bra85c6w585gr"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=10 format=3 uid="uid://bra85c6w585gr"]
 
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="1_prr5c"]
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="1_wb8wf"]
@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://dblm23dkh168w" path="res://resources/skill_status/ignite.tres" id="2_wb8wf"]
 [ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://scripts/resources/skill_confitions/skill_condition.gd" id="2_whgey"]
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect_data.gd" id="3_v0rhv"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="6_whgey"]
 
 [sub_resource type="Resource" id="Resource_dua1n"]
 script = ExtResource("2_dua1n")
@@ -44,11 +45,13 @@ metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 script = ExtResource("1_prr5c")
 skill_id = &"fireball"
 skill_name = "火球术"
+skill_type = 0
 description = "向敌人投掷一个火球，造成火焰伤害。"
 is_melee = false
 mp_cost = 8
 target_type = 1
 effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
 action_categories = Array[String](["any_action", "magic_skill"])
-cast_animation = &""
+icon = ExtResource("6_whgey")
+cast_animation = &"projectile_cast"
 can_target_dead = false

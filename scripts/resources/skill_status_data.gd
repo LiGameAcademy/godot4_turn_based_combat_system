@@ -33,6 +33,7 @@ enum StatusType {
 @export var status_name: String = "状态效果"    								## 显示名称
 @export_multiline var description: String = ""  								## 详细描述
 @export var icon: Texture2D                     								## UI图标
+@export var is_hidden_from_ui: bool = false										## 是否隐藏状态效果
 
 @export var status_type: StatusType = StatusType.NEUTRAL						## 状态类型
 @export var duration: int = 3                   								## 默认持续回合数 (对TURNS类型有效)
@@ -52,15 +53,10 @@ enum StatusType {
 
 # 触发条件
 @export_group("触发条件", "trigger_")
-## 此状态可以响应的游戏事件类型
-## 例如: [&"on_damage_taken", &"on_turn_start", &"on_attack"]
-@export var trigger_on_events: Array[StringName] = []
-## 触发时执行的效果
-@export var trigger_effects: Array[SkillEffectData] = []
-## 回合触发次数
-@export var trigger_turns: int = 1
-## 触发总数
-@export var trigger_count: int = 1
+@export var trigger_on_events: Array[StringName] = []							## 触发事件 例如: [&"on_damage_taken", &"on_turn_start", &"on_attack"]
+@export var trigger_effects: Array[SkillEffectData] = []						## 触发时执行的效果
+@export var trigger_turns: int = -1												## 回合触发次数
+@export var trigger_count: int = -1												## 触发总数
 
 # 行动限制
 @export_group("行动限制")
@@ -128,9 +124,9 @@ func overrides_other_status(other_status_id: StringName) -> bool:
 func can_trigger_on_event(event_type: StringName) -> bool:
 	if trigger_on_events.is_empty():
 		return false
-	if current_turn_trigger_count >= trigger_turns:
+	if trigger_turns != -1 and current_turn_trigger_count >= trigger_turns:
 		return false
-	if current_total_trigger_count >= trigger_count:
+	if trigger_count != -1 and current_total_trigger_count >= trigger_count:
 		return false
 	return trigger_on_events.has(event_type)
 

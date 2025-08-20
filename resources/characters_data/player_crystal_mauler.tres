@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=22 format=3 uid="uid://ckhtw5x3kqlbm"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=23 format=3 uid="uid://ckhtw5x3kqlbm"]
 
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://scripts/core/ai/ai_behavior.gd" id="1_3euqu"]
 [ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="1_egqq8"]
@@ -14,6 +14,7 @@
 [ext_resource type="Resource" uid="uid://c8jqv6rcatce" path="res://resources/skills/runic_ward.tres" id="12_70flt"]
 [ext_resource type="Resource" uid="uid://dbk0upttih0yp" path="res://resources/skills/shattering_maul.tres" id="13_26x2q"]
 [ext_resource type="Resource" uid="uid://df2dj86tvvbqx" path="res://resources/skills/stoneskin_blessing.tres" id="14_c0md6"]
+[ext_resource type="Resource" uid="uid://i1aj8k56wevm" path="res://resources/skills/counter_attack.tres" id="15_70flt"]
 
 [sub_resource type="Resource" id="Resource_ltof3"]
 script = ExtResource("1_3euqu")
@@ -96,7 +97,7 @@ description = "来自地底深城的坚毅矮人，他的战锤能粉碎岩石�
 attribute_set_resource = SubResource("Resource_adj71")
 element = 3
 ai_behavior = SubResource("Resource_ltof3")
-skills = Array[ExtResource("2_e3ilk")]([ExtResource("12_70flt"), ExtResource("13_26x2q"), ExtResource("14_c0md6")])
+skills = Array[ExtResource("2_e3ilk")]([ExtResource("12_70flt"), ExtResource("13_26x2q"), ExtResource("14_c0md6"), ExtResource("15_70flt")])
 attack_skill = ExtResource("2_s514i")
 defense_skill = ExtResource("7_pnbt8")
 color = Color(0, 0, 1, 1)

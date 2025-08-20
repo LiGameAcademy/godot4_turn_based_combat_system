@@ -15,6 +15,8 @@ visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 conditions = Array[ExtResource("3_jdvcp")]([])
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
@@ -23,6 +25,7 @@ script = ExtResource("3_65pbh")
 status_id = &"regeneration"
 status_name = "再生"
 description = "生命力缓慢地恢复。"
+is_hidden_from_ui = false
 status_type = 2
 duration = 3
 duration_type = 0

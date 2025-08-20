@@ -16,6 +16,8 @@ visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 conditions = Array[ExtResource("2_8ky21")]([])
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
@@ -30,6 +32,8 @@ visual_effect = ""
 sound_effect = ""
 target_override = "none"
 element = 0
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 conditions = Array[ExtResource("2_8ky21")]([])
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
@@ -37,7 +41,9 @@ metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 script = ExtResource("1_45vgr")
 skill_id = &"minor_heal"
 skill_name = "初级治疗"
+skill_type = 0
 description = "少量回复目标生命值"
+is_melee = true
 mp_cost = 5
 target_type = 6
 effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_v2s03"), SubResource("Resource_rigxk")])
