@@ -4,7 +4,7 @@ class_name RedirectDamageEffect
 @export var redirect_damage_percent: float = 0.8    ## 为队友承受多少比例的伤害
 @export var self_damage_multiplier: float = 0.5     ## 承受的伤害会乘以这个系数
 
-func process_effect(source: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
+func _process_effect(source: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
 	var guardian: Character = source    ## 守护者
 	var original_target: Character = target    ## 被攻击的队友
 	var damage_info : DamageInfo = context.damage_info    ## 从事件上下文中获取伤害信息

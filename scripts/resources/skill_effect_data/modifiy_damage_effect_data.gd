@@ -18,7 +18,7 @@ func _get_base_description() -> String:
 
 ## 处理修改伤害效果
 ## 这个处理器不直接应用伤害，而是修改传入的伤害信息对象
-func process_effect(_source: Character, _target: Character, context : SkillExecutionContext) -> Dictionary:
+func _process_effect(_source: Character, _target: Character, context : SkillExecutionContext) -> Dictionary:
 	var results = {}
 	
 	# 检查伤害信息

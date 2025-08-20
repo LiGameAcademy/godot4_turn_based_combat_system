@@ -291,7 +291,7 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 				# 状态技能根据状态类型评分
 				if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
 					# 增益状态优先给予友方
-					if not target in enemy_targets:
+					if not target in ally_targets:
 						score += behavior_resource.weights["skill_support"]
 				elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
 					# 减益状态优先给予敌方

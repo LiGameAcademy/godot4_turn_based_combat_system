@@ -44,12 +44,12 @@ func _get_base_description() -> String:
 	return final_description
 
 ## 处理伤害效果
-func process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
+func _process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
 	var results = {}
 	
-	# 等待短暂时间
-	if Engine.get_main_loop():
-		await Engine.get_main_loop().process_frame
+	# # 等待短暂时间
+	# if Engine.get_main_loop():
+	# 	await Engine.get_main_loop().process_frame
 	
 	# 检查目标是否存活
 	if target.current_hp <= 0:
@@ -79,19 +79,19 @@ func process_effect(source: Character, target: Character, _context : SkillExecut
 	return results
 
 ## 根据元素克制关系请求不同的视觉效果
-func _request_element_effect(damage_result: Dictionary, target: Character, hit_params: Dictionary) -> void:
+func _request_element_effect(damage_result: Dictionary, target: Character, _hit_params: Dictionary) -> void:
 	if damage_result.get("is_effective", false):
 		# 克制效果
-		_request_visual_effect(&"effective_hit", target, hit_params)
+		#_request_visual_effect(&"effective_hit", target, hit_params)
 		# 使用自定义颜色
 		_request_visual_effect(&"damage_number", target, {"damage": damage_result["damage"], "color": Color(1.0, 0.7, 0.0), "prefix": "克制! "})
 	elif damage_result.get("is_ineffective", false):
 		# 抵抗效果
-		_request_visual_effect(&"ineffective_hit", target, hit_params)
+		#_request_visual_effect(&"ineffective_hit", target, hit_params)
 		_request_visual_effect(&"damage_number", target, {"damage": damage_result["damage"], "color": Color(0.5, 0.5, 0.5), "prefix": "抵抗 "})
-	else:
-		# 普通效果
-		_request_visual_effect(&"damage", target, hit_params)
+	#else:
+		## 普通效果
+		#_request_visual_effect(&"damage", target, hit_params)
 
 ## 获取伤害信息
 func _get_damage_info(target: Character, damage: int, is_effective: bool, is_ineffective: bool) -> String:
@@ -122,7 +122,7 @@ func _calculate_damage(caster: Character, target: Character) -> Dictionary:
 		random_factor = randf_range(1.0 - damage_random_range, 1.0 + damage_random_range)
 	
 	# 计算最终伤害
-	var final_damage = base_damage * element_modifier * random_factor
+	var final_damage = damage_after_defense * element_modifier * random_factor
 	
 	# 确保伤害至少为1
 	final_damage = max(1, round(final_damage))

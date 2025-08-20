@@ -6,3 +6,4 @@ _tutorials/
 *.tmp
 *.zip
 *.depren
+/.idea

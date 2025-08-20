@@ -19,5 +19,5 @@ func setup(attribute_set: SkillAttributeSet) -> void:
 func _update_display() -> void:
 	attribute_value_label.text = str(_attribute.get_current_value())
 
-func _on_attribute_current_value_changed(_value: float) -> void:
+func _on_attribute_current_value_changed(_old_value: float, _value: float) -> void:
 	_update_display()

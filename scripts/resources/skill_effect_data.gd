@@ -9,6 +9,9 @@ class_name SkillEffectData
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE 
 
+@export var pre_cast_delay: float = 0.2			## 释放前延迟
+@export var post_cast_delay: float = 0.0			## 释放后延迟
+
 @export_group("执行条件")
 @export var conditions: Array[SkillCondition] = []
 
@@ -34,7 +37,13 @@ func _get_base_description() -> String:
 ## 处理效果 - 主要接口方法
 ## [return] 处理结果的字典
 func process_effect(source: Character, _target: Character, _context : SkillExecutionContext) -> Dictionary:
-	await source.get_tree().create_timer(0.1).timeout
+	await source.get_tree().create_timer(pre_cast_delay).timeout
+	var result = await _process_effect(source, _target, _context)
+	await source.get_tree().create_timer(post_cast_delay).timeout
+	return result
+
+func _process_effect(source: Character, _target: Character, _context: SkillExecutionContext) -> Dictionary:
+	await source.get_tree().create_timer(pre_cast_delay).timeout
 	push_error("EffectProcessor.process_effect() 必须被子类重写", self)
 	return {}
 

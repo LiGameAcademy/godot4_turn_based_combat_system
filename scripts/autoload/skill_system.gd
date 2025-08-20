@@ -42,7 +42,7 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	_consume_skill_resources(caster, skill_data)
 
 	if not skill_data.cast_animation.is_empty():
-		await caster.play_animation(skill_data.cast_animation)
+		caster.play_animation(skill_data.cast_animation)
 
 	# 3. 异步执行技能效果处理
 	# call_deferred("_process_skill_effects_async", skill_data, caster, selected_targets, context)
@@ -207,7 +207,7 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 
 	# 播放施法动画/效果
 	if context.battle_manager and context.battle_manager.has_method("play_casting_animation"):
-		await context.battle_manager.play_casting_animation(caster, skill_data)
+		context.battle_manager.play_casting_animation(caster, skill_data)
 	else:
 		# 如果没有视觉效果处理器，添加一个短暂延迟以模拟施法时间
 		await get_tree().create_timer(0.5).timeout

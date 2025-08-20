@@ -11,6 +11,9 @@ class_name BattleManager
 @onready var turn_order_manager: TurnOrderManager = %TurnOrderManager
 @onready var combat_rule_manager: CombatRuleManager = %CombatRuleManager
 
+## 施法位置引用
+@export var cast_marker : Marker2D
+
 # 回合顺序管理
 var turn_queue: Array = []:								## 回合队列
 	get:
@@ -54,7 +57,6 @@ func _ready() -> void:
 
 	turn_order_manager.initialize(battle_character_registry_manager)
 	turn_order_manager.turn_changed.connect(_on_turn_changed)
-	turn_order_manager.round_ended.connect(_on_round_ended)
 
 	state_manager.state_changed.connect(_on_state_changed)
 	SkillSystem.battle_manager = self
@@ -90,7 +92,7 @@ func player_select_action(
 	_log_battle_info("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
 	params.merge({"skill_context": SkillExecutionContext.new(self)}, true)
-	current_turn_character.execute_action(action_type, target, params)
+	await current_turn_character.execute_action(action_type, target, params)
 
 	# 检查战斗是否结束
 	if _check_battle_end_condition():
@@ -116,7 +118,7 @@ func execute_enemy_ai() -> void:
 				break
 		if target:
 			_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
-			current_turn_character.execute_action(
+			await current_turn_character.execute_action(
 				CharacterCombatComponent.ActionType.ATTACK, 
 				target, 
 				{
@@ -171,6 +173,10 @@ func get_valid_ally_targets(include_self: bool = false, caster : Character = nul
 		return battle_character_registry_manager.get_allied_team_for_character(caster, include_self)
 	return battle_character_registry_manager.get_allied_team_for_character(current_turn_character, include_self)
 
+## 判断是否是敌人
+## [param character1] 角色1
+## [param character2] 角色2
+## [return] 是否是敌人
 func is_enemy(character1: Character, character2: Character) -> bool:
 	return battle_character_registry_manager.is_enemy_of(character1, character2)
 
@@ -278,13 +284,14 @@ func _on_state_changed(
 				
 		BattleStateManager.BattleState.TURN_START:
 			# 小回合开始，确定当前行动角色
-			current_turn_character = turn_order_manager.get_next_character()
+			#current_turn_character = turn_order_manager.get_next_character()
+			turn_order_manager.get_next_character()
 		BattleStateManager.BattleState.PLAYER_TURN:
 			pass
 						
 		BattleStateManager.BattleState.ENEMY_TURN:
 			await get_tree().create_timer(1.0).timeout
-			execute_enemy_ai()
+			await execute_enemy_ai()
 			
 		BattleStateManager.BattleState.TURN_END:
 			# 小回合结束，检查战斗状态
@@ -292,9 +299,11 @@ func _on_state_changed(
 				# 战斗已结束，状态已在_check_battle_end_condition中切换
 				return
 			current_turn_character.on_turn_end(self)
-			# 进入下一个角色的回合
-			state_manager.change_state(BattleStateManager.BattleState.TURN_START)
-			
+			if turn_order_manager.has_next_character():
+				# 进入下一个角色的回合
+				state_manager.change_state(BattleStateManager.BattleState.TURN_START)
+			else:
+				state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
 		BattleStateManager.BattleState.ROUND_END:
 			# 大回合结束，进入新的回合
 			_log_battle_info("[color=yellow][战斗系统][/color] 回合结束")
@@ -308,13 +317,13 @@ func _on_state_changed(
 
 func _on_character_registered(character: Character) -> void:
 	_log_battle_info("[color=green][b]{0}[/b][/color] 已注册到战斗中".format([character.character_name]))
-	character.initialize(self)
+	character.initialize(self, cast_marker)
 
 func _on_character_unregistered(character: Character) -> void:
 	_log_battle_info("[color=red][b]{0}[/b][/color] 已从战斗中移除".format([character.character_name]))
 
 func _on_team_changed(team_characters: Array[Character], team_id: String) -> void:
-	print_rich("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters, team_id]))
+	_log_battle_info("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters[0].character_name, team_id]))
 
 func _on_player_victory() -> void:
 	_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
@@ -339,9 +348,5 @@ func _on_turn_changed(character: Character) -> void:
 	var next_state = BattleStateManager.BattleState.PLAYER_TURN if is_player else BattleStateManager.BattleState.ENEMY_TURN
 	state_manager.change_state(next_state)
 	turn_changed.emit(character) # 通知UI
-
-func _on_round_ended() -> void:
-	_log_battle_info("[color=yellow][战斗系统][/color] 回合结束")
-	state_manager.change_state(BattleStateManager.BattleState.ROUND_END)
 
 #endregion

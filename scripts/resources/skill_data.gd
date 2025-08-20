@@ -19,6 +19,7 @@ enum TargetType {
 @export var skill_id: StringName = &"new_skill" 				## 内部ID，用StringName效率略高
 @export var skill_name: String = "新技能"       				## UI显示名称
 @export_multiline var description: String = "技能描述..." 		## UI显示描述
+@export var is_melee: bool = true							## 是否是近战
 
 @export_group("消耗与目标")
 @export var mp_cost: int = 5									## 魔法消耗

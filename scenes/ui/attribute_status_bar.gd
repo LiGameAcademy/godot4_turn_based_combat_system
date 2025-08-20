@@ -24,8 +24,10 @@ func _ready() -> void:
 func setup(attribute: SkillAttribute, max_attribute: SkillAttribute) -> void:
 	_current_attribute = attribute
 	_max_attribute = max_attribute
-	_current_attribute.current_value_changed.connect(_on_current_attribute_current_value_changed)
-	_max_attribute.current_value_changed.connect(_on_max_attribute_current_value_changed)
+	if not _current_attribute.current_value_changed.is_connected(_on_current_attribute_current_value_changed):
+		_current_attribute.current_value_changed.connect(_on_current_attribute_current_value_changed)
+	if not _max_attribute.current_value_changed.is_connected(_on_max_attribute_current_value_changed):
+		_max_attribute.current_value_changed.connect(_on_max_attribute_current_value_changed)
 	
 	# 初始化动画值
 	_target_value = attribute.get_current_value()
@@ -95,11 +97,11 @@ func _update_animated_values(current_values: Vector2) -> void:
 	# 更新文本标签
 	_set_attribute_text(_current_displayed_value, _current_displayed_max_value)
 
-func _set_attribute_text(current_value: float, max_value: float) -> void:
-	attribute_status_label.text = attribute_name + ": %d / %d" % [roundi(current_value), roundi(max_value)]
+func _set_attribute_text(current_value: float, max_atr_value: float) -> void:
+	attribute_status_label.text = attribute_name + ": %d / %d" % [roundi(current_value), roundi(max_atr_value)]
 
-func _on_current_attribute_current_value_changed(_current_value: float) -> void:
+func _on_current_attribute_current_value_changed(_old_value: float, _current_value: float) -> void:
 	_update_display()
 	
-func _on_max_attribute_current_value_changed(_current_value: float) -> void:
+func _on_max_attribute_current_value_changed(_old_value: float, _current_value: float) -> void:
 	_update_display()

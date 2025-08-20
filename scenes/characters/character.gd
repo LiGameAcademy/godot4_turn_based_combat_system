@@ -4,7 +4,6 @@ class_name Character
 const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
 
 # 引用场景中的节点
-@onready var character_rect := $Container/CharacterRect
 @onready var state_indicator : StateIndicator = $StateIndicator
 # 组件引用
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
@@ -17,6 +16,9 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number
 
 @export var character_data: CharacterData
 @export var is_player : bool = true
+## 目标偏移量
+@export var target_move_offset : Vector2 = Vector2(20, 0)
+var _original_position : Vector2 = Vector2.ZERO		## 原始位置
 
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
@@ -63,6 +65,8 @@ var can_action: bool = true:
 			return false
 		return combat_component.can_action
 
+var cast_marker : Marker2D
+
 # 信号 - 这些信号将转发组件的信号
 signal character_defeated																														## 当角色死亡时触发
 signal character_clicked(character)
@@ -78,7 +82,7 @@ func _ready() -> void:
 	_setup_character_click_area()
 
 ## 初始化角色
-func initialize(battle_manager: BattleManager) -> void:
+func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 	if character_data:
 		_initialize_from_data(character_data)
 	else:
@@ -90,13 +94,17 @@ func initialize(battle_manager: BattleManager) -> void:
 	character_info_container.initialize(self)
 	_setup_animations()
 
+	cast_marker = p_cast_marker
+
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
 
 ## 玩家选择行动
 func execute_action(action_type: CharacterCombatComponent.ActionType, target: Character = null, params: Dictionary = {}) -> void:
 	if not combat_component:
 		return
-	combat_component.execute_action(action_type, target, params)
+	z_index = 128
+	await combat_component.execute_action(action_type, target, params)
+	z_index = 0
 
 ## 生成伤害数字
 func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> void:
@@ -181,6 +189,26 @@ func get_skill_component() -> CharacterSkillComponent:
 ## 获取AI组件
 func get_ai_component() -> CharacterAIComponent:
 	return ai_component
+
+## 移动到目标
+func move_to_target(target: Character) -> void:
+	var move_offset = target_move_offset * (1 if target.is_player else -1)
+	await move_to(target.global_position + move_offset)
+
+## 移动到施法位置
+func move_to_cast_marker() -> void:
+	await move_to(cast_marker.global_position)
+
+## 返回
+func move_back() -> void:
+	await move_to(_original_position)
+
+## 移动到
+func move_to(target_position: Vector2) -> void:
+	_original_position = global_position
+	var tween : Tween = create_tween()
+	tween.tween_property(self, "global_position", target_position, 0.2)
+	await tween.finished
 
 ## 初始化组件
 func _init_components(battle_manager: BattleManager) -> void:

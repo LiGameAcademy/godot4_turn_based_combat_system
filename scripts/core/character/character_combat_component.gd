@@ -236,7 +236,12 @@ func _execute_skill(
 		return {"success": false, "error": "无效的施法者或技能"}
 	
 	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill.skill_name])
-	
+
+	if skill.is_melee:
+		await get_parent().move_to_target(targets[0])
+	else:
+		await get_parent().move_to_cast_marker()
+
 	# 检查MP消耗
 	if not _skill_component.has_enough_mp_for_skill(skill):
 		return {"success": false, "error": "魔法值不足"}
@@ -247,6 +252,7 @@ func _execute_skill(
 	# 发出技能执行信号
 	skill_executed.emit(caster, skill, targets, result)
 	
+	await get_parent().move_back()
 	return result
 
 ## 执行使用道具
@@ -254,6 +260,7 @@ func _execute_skill(
 ## [param targets] 目标列表
 ## [return] 道具使用结果
 func _execute_item(item, targets: Array) -> Dictionary:
+	await get_parent().move_to_cast_marker()
 	var user = get_parent()
 	if not is_instance_valid(user) or not item:
 		return {"success": false, "error": "无效的使用者或道具"}
@@ -271,7 +278,7 @@ func _execute_item(item, targets: Array) -> Dictionary:
 	
 	# 发出道具使用信号
 	item_used.emit(user, item, targets, result)
-	
+	await get_parent().move_back()
 	return result
 #endregion
 

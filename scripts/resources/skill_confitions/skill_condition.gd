@@ -3,7 +3,7 @@ class_name SkillCondition
 
 ## 检查条件是否满足，必须被子类重写。
 ## context: 一个包含source、target等信息的上下文字典
-func is_met(context: Dictionary) -> bool:
+func is_met(_context: Dictionary) -> bool:
 	push_error("SkillCondition.is_met() 方法必须被子类重写！")
 	return true
 

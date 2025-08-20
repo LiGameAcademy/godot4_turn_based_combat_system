@@ -24,6 +24,7 @@ script = ExtResource("2_xskkb")
 skill_id = &"attack"
 skill_name = "普通攻击"
 description = ""
+is_melee = false
 mp_cost = 0
 target_type = 1
 effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_xskkb")])

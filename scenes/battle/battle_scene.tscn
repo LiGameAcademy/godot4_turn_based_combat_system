@@ -18,6 +18,7 @@ script = ExtResource("1_ugm31")
 
 [node name="BattleUI" parent="." instance=ExtResource("2_dddu7")]
 unique_name_in_owner = true
+visible = false
 
 [node name="Background" type="ColorRect" parent="."]
 offset_right = 1152.0
@@ -53,9 +54,13 @@ position = Vector2(200, 0)
 character_data = ExtResource("6_3511k")
 is_player = false
 
-[node name="BattleManager" type="Node" parent="."]
+[node name="CastMarker2D" type="Marker2D" parent="."]
+position = Vector2(620, 450)
+
+[node name="BattleManager" type="Node" parent="." node_paths=PackedStringArray("cast_marker")]
 unique_name_in_owner = true
 script = ExtResource("8_2wmvw")
+cast_marker = NodePath("../CastMarker2D")
 
 [node name="BattleStateManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true

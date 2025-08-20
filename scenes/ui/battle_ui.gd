@@ -45,6 +45,7 @@ func _ready() -> void:
 		
 	# 初始化时重置UI状态
 	reset()
+	show()
 
 ## 重置UI状态
 func reset() -> void:

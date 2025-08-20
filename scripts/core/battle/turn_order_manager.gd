@@ -14,7 +14,6 @@ var current_turn_index: int = -1
 var _character_registry: BattleCharacterRegistryManager
 
 signal turn_changed(character)				## 当回合角色改变时发出
-signal round_ended							## 当回合结束时发出
 
 ## 初始化
 ## [param character_registry] BattleCharacterRegistryManager 实例
@@ -45,12 +44,15 @@ func build_queue() -> void:
 	
 	print("回合顺序已生成: %d 个角色" % turn_queue.size())
 
+## 队列中是否还存在下一个角色
+func has_next_character() -> bool:
+	return not turn_queue.is_empty()
+
 ## 获取下一个角色
 ## [return] 下一个角色
 func get_next_character() -> Character:
 	if turn_queue.is_empty():
 		push_error("回合队列为空！无法获取下一个角色！")
-		round_ended.emit()
 		return null
 		
 	current_character = turn_queue.pop_front()
