@@ -10,7 +10,7 @@
 
 [sub_resource type="Resource" id="Resource_fxv3j"]
 script = ExtResource("5_api04")
-chance = 1.0
+chance = 0.5
 metadata/_custom_type_script = "uid://bujuuja36wteo"
 
 [sub_resource type="Resource" id="Resource_a3xbg"]
@@ -45,7 +45,7 @@ overrides_states = Array[StringName]([])
 resisted_by_states = Array[StringName]([])
 trigger_on_events = Array[StringName]([&"on_damage_taken_completed"])
 trigger_effects = Array[ExtResource("2_jvt7c")]([SubResource("Resource_a3xbg")])
-trigger_turns = 5
+trigger_turns = 3
 trigger_count = -1
 restricted_action_categories = Array[String]([])
 metadata/_custom_type_script = "uid://2eyouurk7vcw"

@@ -63,7 +63,7 @@ func _process_effect(source: Character, target: Character, _context : SkillExecu
 	_request_element_effect(damage_result, target, {"amount": damage, "element": element})
 	
 	# 应用伤害
-	var actual_damage = await target.take_damage(damage, source)
+	var actual_damage = await target.take_damage(damage, source, element)
 	
 	# 记录结果
 	results["damage"] = actual_damage

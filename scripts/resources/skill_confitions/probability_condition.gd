@@ -7,8 +7,8 @@ class_name ProbabilityCondition
 ## 检查条件是否满足
 ## 每次调用时，都会进行一次随机判定
 func is_met(_context: Dictionary) -> bool:
-    return randf() < chance
+	return randf() < chance
 
 ## 获取条件的文本描述
 func get_description() -> String:
-    return "%d%%几率" % [int(chance * 100)]
+	return "%d%%几率" % [int(chance * 100)]

@@ -108,7 +108,7 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
 ## [return] 实际造成的伤害值
-func take_damage(base_damage: float, source : Character = null, p_element : int = 0) -> float:
+func take_damage(base_damage: float, source : Character, p_element : int) -> float:
 	var final_damage: float = base_damage
 	
 	# 创建伤害信息对象
