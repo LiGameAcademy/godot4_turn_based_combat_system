@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name DamageEffectData
+extends SkillEffect
+class_name DamageEffect
 
 ## 最低伤害比例
 const MIN_DAMAGE_PERCENT = 0.1

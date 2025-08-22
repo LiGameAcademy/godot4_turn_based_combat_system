@@ -1,5 +1,5 @@
 extends Resource
-class_name SkillEffectData
+class_name SkillEffect
 
 # 基本属性
 @export var disable : bool = false				## 是否禁用
@@ -10,10 +10,10 @@ class_name SkillEffectData
 ## 元素属性
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE 
 
-@export var pre_cast_delay: float = 0.2			## 释放前延迟
+@export var pre_cast_delay: float = 0.2		## 释放前延迟
 @export var post_cast_delay: float = 0.0		## 释放后延迟
 ## 子效果
-@export var sub_effects: Array[SkillEffectData] = []
+@export var sub_effects: Array[SkillEffect] = []
 
 @export_group("执行条件")
 @export var conditions: Array[SkillCondition] = []

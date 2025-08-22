@@ -1,4 +1,4 @@
-extends SkillEffectData
+extends SkillEffect
 class_name CounterAttackEffect
 
 @export var counter_attack_skill: SkillData # 用于反击的技能（通常是普攻）

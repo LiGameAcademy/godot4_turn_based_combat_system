@@ -58,7 +58,7 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	return final_result
 
 ## 尝试处理状态效果
-func attempt_process_status_effects(effects : Array[SkillEffectData], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
+func attempt_process_status_effects(effects : Array[SkillEffect], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
 	var result = {"success": true, "reason": ""}
 	for effect in effects:
 		if not await effect.process_effect(caster, target, context):
@@ -101,7 +101,7 @@ func trigger_game_event(event_source: Character, event_type: StringName, context
 ## [param targets] 目标列表
 ## [param context] 技能执行上下文
 ## [return] 处理结果的字典
-func _process_skill_effects_async(effects: Array[SkillEffectData], caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
+func _process_skill_effects_async(effects: Array[SkillEffect], caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
 	# 确保在操作前，所有参与者仍然有效
 	if not is_instance_valid(caster):
 		push_error("SkillSystem: Invalid caster or skill_data in _process_skill_effects_async.")
@@ -133,13 +133,16 @@ func _process_melee_skill(skill_data: SkillData, caster: Character, targets: Arr
 			continue
 		
 		await caster.move_to_target(target)
-		
 		if skill_data.cast_animation.is_empty():
 			push_warning("SkillSystem: No cast animation for melee skill '%s'" % skill_data.skill_name)
 		else:
 			caster.play_animation(skill_data.cast_animation)
-			
+		if skill_data.pre_cast_delay > 0:
+			await get_tree().create_timer(skill_data.pre_cast_delay).timeout
 		overall_results[target] = await _process_skill_effects_async(skill_data.effects, caster, [target], context)
+		if skill_data.post_cast_delay > 0:
+			await get_tree().create_timer(skill_data.post_cast_delay).timeout
+			
 	return overall_results
 
 ## 执行远程技能
@@ -157,8 +160,12 @@ func _process_ranged_skill(skill_data: SkillData, caster: Character, targets: Ar
 		push_warning("SkillSystem: No cast animation for melee skill '%s'" % skill_data.skill_name)
 	else:
 		caster.play_animation(skill_data.cast_animation)
-	
+
+	if skill_data.pre_cast_delay > 0:
+		await get_tree().create_timer(skill_data.pre_cast_delay).timeout
 	overall_results = await _process_skill_effects_async(skill_data.effects, caster, targets, context)
+	if skill_data.post_cast_delay > 0:
+		await get_tree().create_timer(skill_data.post_cast_delay).timeout
 	return overall_results
 
 ## 私有方法：验证技能可用性

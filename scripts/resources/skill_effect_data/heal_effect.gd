@@ -1,5 +1,5 @@
-extends SkillEffectData
-class_name HealEffectData
+extends SkillEffect
+class_name HealEffect
 
 # 治疗效果参数
 @export_group("治疗效果参数", "heal_")

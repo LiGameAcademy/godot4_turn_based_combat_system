@@ -33,22 +33,23 @@ enum TargetType {
 @export_group("消耗与目标")
 @export var mp_cost: int = 5									## 魔法消耗
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE	## 目标类型
-@export_range(0, 10) var target_count: int = 1 					## 目标数量，仅对多目标类型有效
+@export_range(0, 10) var target_count: int = 1 				## 目标数量，仅对多目标类型有效
+@export var can_target_dead : bool = false 					## 是否可以对死亡目标施放
 
 @export_group("效果")
-@export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
+@export var effects : Array[SkillEffect] = []					## 主动技能施放时的直接效果
 @export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
-var action_categories: Array[String] = ["any_action"] 			## 所属行动类别
+var action_categories: Array[String] = ["any_action"] 		## 所属行动类别
 
 # 【核心】仅在 skill_type 为 PASSIVE 时有意义
 @export_group("被动效果", "passive_")
 @export var status_to_apply_when_learned: SkillStatusData = null
 
 @export_group("视觉与音效 (可选)")
-@export var icon: Texture2D = null # 技能图标
-@export var cast_animation: StringName = "" # 施法动画名 (如果角色动画器中有)
-
-@export var can_target_dead : bool = false # 是否可以对死亡目标施放
+@export var icon: Texture2D = null 							## 技能图标
+@export var cast_animation: StringName = "" 					## 施法动画名 (如果角色动画器中有)
+@export var pre_cast_delay: float = 0.2						## 释放前延迟
+@export var post_cast_delay: float = 0.0						## 释放后延迟
 
 # 未来可扩展其他视觉和音效选项
 # @export var vfx_scene: PackedScene # 技能特效场景
@@ -67,7 +68,7 @@ func get_full_description() -> String:
 	desc += "目标: " + _get_target_type_name() + "\n"
 
 	desc += "\n效果:\n"
-	var effects_to_describe: Array[SkillEffectData] = effects
+	var effects_to_describe: Array[SkillEffect] = effects
 	for effect in effects_to_describe: # 处理 ACTIVE 和 PASSIVE 的主要效果
 		if effect.disable:
 			continue
