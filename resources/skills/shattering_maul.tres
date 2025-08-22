@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" load_steps=9 format=3 uid="uid://dbk0upttih0yp"]
+[gd_resource type="Resource" script_class="SkillData" load_steps=12 format=3 uid="uid://dbk0upttih0yp"]
 
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect.gd" id="1_82skn"]
 [ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect.gd" id="2_a45p0"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://scripts/resources/skill_confitions/skill_condition.gd" id="2_vdfmw"]
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://scripts/resources/skill_effect_data/apply_status_effect.gd" id="3_vdfmw"]
 [ext_resource type="Resource" uid="uid://nb7w4k0528xl" path="res://resources/skill_status/stun.tres" id="4_0tovd"]
+[ext_resource type="Script" uid="uid://ciuisa4jrnmyp" path="res://scripts/resources/skill_effect_data/multi_strike_effect.gd" id="6_0tovd"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="6_g5af4"]
 
 [sub_resource type="Resource" id="Resource_g5af4"]
 script = ExtResource("2_a45p0")
@@ -17,10 +19,12 @@ damage_random_range = 0.1
 disable = false
 visual_effect = ""
 sound_effect = ""
+description_format = ""
 target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_82skn")]([])
 conditions = Array[ExtResource("2_vdfmw")]([])
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
@@ -33,12 +37,32 @@ status_stacks_to_apply = 1
 disable = false
 visual_effect = ""
 sound_effect = ""
+description_format = ""
 target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_82skn")]([])
 conditions = Array[ExtResource("2_vdfmw")]([])
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[sub_resource type="Resource" id="Resource_tj8x2"]
+script = ExtResource("6_0tovd")
+strike_count = 2
+strike_multipliers = Array[float]([1.2, 1.0])
+base_attack_skill = ExtResource("6_g5af4")
+delay_between_strikes = 0.2
+disable = false
+visual_effect = ""
+sound_effect = ""
+description_format = "对【{count}】名随机敌人造成多段伤害，分别造成【{multipliers}】的伤害。"
+target_override = "none"
+element = 0
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_82skn")]([])
+conditions = Array[ExtResource("2_vdfmw")]([])
+metadata/_custom_type_script = "uid://ciuisa4jrnmyp"
 
 [resource]
 script = ExtResource("2_hh34x")
@@ -50,8 +74,10 @@ is_melee = true
 mp_cost = 5
 target_type = 1
 target_count = 1
-effects = Array[ExtResource("1_82skn")]([SubResource("Resource_g5af4"), SubResource("Resource_e832r")])
+can_target_dead = false
+effects = Array[ExtResource("1_82skn")]([SubResource("Resource_g5af4"), SubResource("Resource_e832r"), SubResource("Resource_tj8x2")])
 action_categories = Array[String](["any_action", "any_skill"])
 cast_animation = &"attack_3"
-can_target_dead = false
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

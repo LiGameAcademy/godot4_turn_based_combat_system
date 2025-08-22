@@ -5,6 +5,7 @@ class_name SkillEffect
 @export var disable : bool = false				## 是否禁用
 @export var visual_effect: String = ""  		## 视觉效果标识符
 @export var sound_effect: String = ""   		## 音效标识符
+@export_multiline var description_format: String = ""
 ## 目标覆盖类型
 @export_enum("none", "self_only", "all_allies", "all_enemies") var target_override: String = "none" 		
 ## 元素属性
@@ -17,6 +18,7 @@ class_name SkillEffect
 
 @export_group("执行条件")
 @export var conditions: Array[SkillCondition] = []
+
 
 signal effect_processed(source: Character, target: Character, result: Dictionary)
 
