@@ -22,6 +22,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_wb8wf")]([])
 conditions = Array[ExtResource("2_whgey")]([])
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
@@ -38,6 +39,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_wb8wf")]([])
 conditions = Array[ExtResource("2_whgey")]([])
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
@@ -51,8 +53,10 @@ is_melee = false
 mp_cost = 8
 target_type = 1
 target_count = 1
+can_target_dead = false
 effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
 action_categories = Array[String](["any_action", "magic_skill"])
 icon = ExtResource("6_whgey")
 cast_animation = &"projectile_cast"
-can_target_dead = false
+pre_cast_delay = 0.2
+post_cast_delay = 0.0

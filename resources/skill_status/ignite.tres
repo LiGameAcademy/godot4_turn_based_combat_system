@@ -20,6 +20,7 @@ target_override = null
 element = null
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("2_xyykp")]([])
 conditions = null
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 

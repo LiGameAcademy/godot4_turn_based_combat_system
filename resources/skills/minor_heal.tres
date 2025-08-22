@@ -18,6 +18,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_6jcy7")]([])
 conditions = Array[ExtResource("2_8ky21")]([])
 metadata/_custom_type_script = "uid://b8xbt0r5gucli"
 
@@ -34,6 +35,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("1_6jcy7")]([])
 conditions = Array[ExtResource("2_8ky21")]([])
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
@@ -47,7 +49,9 @@ is_melee = true
 mp_cost = 5
 target_type = 6
 target_count = 1
+can_target_dead = false
 effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_v2s03"), SubResource("Resource_rigxk")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""
-can_target_dead = false
+pre_cast_delay = 0.2
+post_cast_delay = 0.0

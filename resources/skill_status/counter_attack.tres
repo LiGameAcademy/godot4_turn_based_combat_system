@@ -23,6 +23,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.0
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("2_jvt7c")]([])
 conditions = Array[ExtResource("4_8ri2a")]([SubResource("Resource_fxv3j")])
 metadata/_custom_type_script = "uid://dp7wxdkilwqv3"
 

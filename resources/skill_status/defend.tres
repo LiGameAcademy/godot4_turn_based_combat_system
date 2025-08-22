@@ -20,6 +20,7 @@ target_override = "none"
 element = 0
 pre_cast_delay = 0.2
 post_cast_delay = 0.0
+sub_effects = Array[ExtResource("2_o56po")]([])
 conditions = Array[ExtResource("5_8nqbr")]([])
 metadata/_custom_type_script = "uid://47pmrvmk5e7c"
 
