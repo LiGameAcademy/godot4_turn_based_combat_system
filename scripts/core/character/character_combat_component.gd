@@ -108,11 +108,11 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
 ## [return] 实际造成的伤害值
-func take_damage(base_damage: float, source : Character, p_element : int) -> float:
+func take_damage(base_damage: float, source : Character, p_element : int, is_melee: bool = false) -> float:
 	var final_damage: float = base_damage
 	
 	# 创建伤害信息对象
-	var damage_info: DamageInfo = DamageInfo.new(base_damage, source, get_parent(), p_element)
+	var damage_info: DamageInfo = DamageInfo.new(base_damage, source, get_parent(), p_element, is_melee)
 	
 	# 触发伤害修改事件，允许状态效果修改伤害值
 	var damage_event_context : DamageEventContext = DamageEventContext.new(source, get_parent(), damage_info)

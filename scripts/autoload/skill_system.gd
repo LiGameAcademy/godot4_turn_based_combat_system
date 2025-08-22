@@ -40,6 +40,8 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	print_rich("[color=lightblue]%s attempts to use skill: %s on %s[/color]" % [caster.character_name, skill_data.skill_name, selected_targets])
 	skill_execution_started.emit(caster, skill_data, selected_targets)
 
+	context.skill_data = skill_data
+
 	# 2. 消耗资源 (MP, 物品等)
 	_consume_skill_resources(caster, skill_data)
 

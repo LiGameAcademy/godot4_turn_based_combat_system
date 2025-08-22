@@ -17,7 +17,8 @@ func _process_effect(source: Character, target: Character, context : SkillExecut
 
 	# 让守护者承受伤害
 	var damage_to_guardian : float = redirected_damage * self_damage_multiplier
-	guardian.combat_component.take_damage(damage_to_guardian) # 这里可以简化，直接扣血
+	var is_melee : bool = context.skill_data.is_melee if context.skill_data else false
+	guardian.combat_component.take_damage(damage_to_guardian, source, damage_info.element, is_melee) # 这里可以简化，直接扣血
 
 	# 减免原目标的伤害
 	damage_info.final_damage *= (1.0 - redirect_damage_percent)

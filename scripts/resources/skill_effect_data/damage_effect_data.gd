@@ -44,7 +44,7 @@ func _get_base_description() -> String:
 	return final_description
 
 ## 处理伤害效果
-func _process_effect(source: Character, target: Character, _context : SkillExecutionContext) -> Dictionary:
+func _process_effect(source: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
 	var results = {}
 	
 	# # 等待短暂时间
@@ -63,7 +63,8 @@ func _process_effect(source: Character, target: Character, _context : SkillExecu
 	_request_element_effect(damage_result, target, {"amount": damage, "element": element})
 	
 	# 应用伤害
-	var actual_damage = await target.take_damage(damage, source, element)
+	var is_melee : bool = context.skill_data.is_melee if context.skill_data else false
+	var actual_damage = await target.take_damage(damage, source, element, is_melee)
 	
 	# 记录结果
 	results["damage"] = actual_damage

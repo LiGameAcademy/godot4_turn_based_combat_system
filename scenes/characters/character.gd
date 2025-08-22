@@ -110,10 +110,10 @@ func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> 
 	damage_number.show_damage(amount, false, color, prefix)
 
 ## 伤害处理方法
-func take_damage(base_damage: float, source: Character, p_element: int) -> float:
+func take_damage(base_damage: float, source: Character, p_element: int, is_melee: bool) -> float:
 	if not combat_component:
 		return 0.0
-	var result = await combat_component.take_damage(base_damage, source, p_element)
+	var result = await combat_component.take_damage(base_damage, source, p_element, is_melee)
 	spawn_damage_number(result, Color.RED)
 	return result
 

@@ -16,6 +16,13 @@ func _process_effect(source: Character, _target: Character, context : SkillExecu
 			"success": false,
 			"reason": "original_attacker_invalid"
 		}
+
+	var is_melee: bool = context.damage_info.is_melee
+	if not is_melee:
+		return {
+			"success": false,
+			"reason": "counter_attack_failed, only melee skills can counter attack!"
+		}
 		
 	print_rich("[color=yellow]%s 发动了反击！[/color]" % counter_attacker.character_name)
 
