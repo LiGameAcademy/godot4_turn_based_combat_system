@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=21 format=3 uid="uid://x3ps14kdto0r"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=24 format=3 uid="uid://x3ps14kdto0r"]
 
 [ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_ok2rd"]
-[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="2_hfq38"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect_data.gd" id="2_5ekuj"]
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://scripts/resources/skill_attribute.gd" id="3_8bkja"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://scripts/resources/skill_effect_data/damage_effect_data.gd" id="3_ok2rd"]
 [ext_resource type="Resource" uid="uid://b1gbs024jdeds" path="res://resources/skill_attributes/max_health.tres" id="4_4yoi0"]
 [ext_resource type="Resource" uid="uid://drdip2i404d88" path="res://resources/skill_attributes/max_mana.tres" id="5_u35bi"]
 [ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="6_s15c7"]
@@ -20,6 +21,39 @@
 [ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="20_pvs8j"]
 [ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://resources/skills/stun.tres" id="21_3pkgj"]
 
+[sub_resource type="Resource" id="Resource_xskkb"]
+script = ExtResource("3_ok2rd")
+damage_amount = 0
+damage_power_scale = 1.0
+defense_power_scale = 0.0
+apply_damage_random = true
+damage_random_range = 0.1
+disable = null
+visual_effect = null
+sound_effect = null
+target_override = null
+element = null
+pre_cast_delay = 0.2
+post_cast_delay = 0.3
+conditions = null
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_hfq38"]
+script = ExtResource("17_af7so")
+skill_id = &"attack"
+skill_name = "普通攻击"
+skill_type = 0
+description = ""
+is_melee = true
+mp_cost = 0
+target_type = 8
+target_count = 1
+effects = Array[ExtResource("2_5ekuj")]([SubResource("Resource_xskkb")])
+action_categories = Array[String](["any_action"])
+cast_animation = &"attack"
+can_target_dead = false
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"
+
 [sub_resource type="Resource" id="Resource_ph3fh"]
 script = ExtResource("13_7khhc")
 attributes_to_initialize = Array[ExtResource("3_8bkja")]([ExtResource("4_4yoi0"), ExtResource("5_u35bi"), ExtResource("6_s15c7"), ExtResource("7_lb3an"), ExtResource("8_adyb3"), ExtResource("9_soci6"), ExtResource("12_a86bg")])
@@ -32,7 +66,7 @@ description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
 attribute_set_resource = SubResource("Resource_ph3fh")
 element = 2
 skills = Array[ExtResource("17_af7so")]([ExtResource("18_833s5"), ExtResource("19_rc2b5"), ExtResource("20_pvs8j"), ExtResource("21_3pkgj")])
-attack_skill = ExtResource("2_hfq38")
+attack_skill = SubResource("Resource_hfq38")
 defense_skill = ExtResource("14_xanm6")
 color = Color(0, 0, 1, 1)
 animation_library = ExtResource("1_ok2rd")

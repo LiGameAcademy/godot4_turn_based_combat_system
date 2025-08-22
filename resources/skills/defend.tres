@@ -31,6 +31,7 @@ description = ""
 is_melee = false
 mp_cost = 0
 target_type = 5
+target_count = 1
 effects = Array[ExtResource("1_ggsii")]([SubResource("Resource_3uyfq")])
 action_categories = Array[String](["any_action"])
 cast_animation = &"defend"

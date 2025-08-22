@@ -125,7 +125,12 @@ func _on_action_attack_pressed() -> void:
 	if not battle_manager.is_player_turn:
 		return
 	current_action = CharacterCombatComponent.ActionType.ATTACK
-	battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets())
+	var character = battle_manager.current_turn_character
+	var attack_skill = character.combat_component.attack_skill
+	if attack_skill.needs_target():
+		battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets())
+	else:
+		battle_manager.player_select_action(current_action, null, {"skill": attack_skill, "targets": []})
 
 ## 当玩家选择防御时调用
 func _on_action_defend_pressed() -> void:
@@ -133,7 +138,7 @@ func _on_action_defend_pressed() -> void:
 		current_action = CharacterCombatComponent.ActionType.DEFEND
 		battle_manager.player_select_action(current_action)
 
-## 当玩家选择技能时调用
+## 当玩家选择技能按钮时调用
 func _on_action_skill_pressed() -> void:
 	if battle_manager.is_player_turn:
 		current_action = CharacterCombatComponent.ActionType.SKILL

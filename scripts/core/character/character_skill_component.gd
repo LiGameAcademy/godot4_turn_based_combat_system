@@ -23,7 +23,8 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 	# 这是因为AttributeSet本身是一个Resource, 直接使用会导致所有实例共享数据
 	_active_attribute_set = attribute_set_resource.duplicate(true)
 	# 初始化技能列表
-	_skills = skills
+	for skill in skills:
+		add_skill(skill)
 	if not _active_attribute_set:
 		push_error("无法初始化AttributeSet，资源无效！")
 		return
@@ -42,12 +43,6 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 
 	# 初始化AttributeSet，这将创建并配置所有属性实例
 	_active_attribute_set.initialize_set()
-
-	# 遍历所有已学会的技能，自动应用其中的被动效果
-	for skill in _skills:
-		if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
-			# 被动技能所施加的状态，通常是永久且隐藏的
-			apply_status(skill.status_to_apply_when_learned, get_parent(), null)
 
 #region --- 属性管理 ---
 ## 获取属性基础值
@@ -129,10 +124,16 @@ func get_skills() -> Array[SkillData]:
 ## 添加技能
 func add_skill(skill: SkillData) -> void:
 	_skills.append(skill)
+	if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
+		# 被动技能所施加的状态，通常是永久且隐藏的
+		apply_status(skill.status_to_apply_when_learned, get_parent(), null)
 
 ## 移除技能
 func remove_skill(skill: SkillData) -> void:
 	_skills.erase(skill)
+	if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
+		# 被动技能所施加的状态，通常是永久且隐藏的
+		remove_status(skill.status_to_apply_when_learned.status_id, true)
 
 ## 获取技能
 ## [param skill_id] 技能ID

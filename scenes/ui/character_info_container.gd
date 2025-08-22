@@ -113,8 +113,10 @@ func _initialize_status_icons() -> void:
 	
 	# 获取当前所有状态
 	var active_statuses = _character.skill_component.get_active_statuses()
-	for status in active_statuses:
-		_add_status_icon(active_statuses[status])
+	for status_id in active_statuses:
+		var status : SkillStatusData = active_statuses[status_id]
+		if not status.is_hidden_from_ui:
+			_add_status_icon(status)
 
 ## 添加状态图标
 func _add_status_icon(status_data: SkillStatusData) -> void:

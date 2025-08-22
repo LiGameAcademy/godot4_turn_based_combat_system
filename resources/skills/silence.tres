@@ -31,6 +31,7 @@ description = ""
 is_melee = true
 mp_cost = 5
 target_type = 1
+target_count = 1
 effects = Array[ExtResource("1_abr40")]([SubResource("Resource_oh27s")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""

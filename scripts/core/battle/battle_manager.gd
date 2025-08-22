@@ -140,12 +140,6 @@ func execute_enemy_ai() -> void:
 	await get_tree().create_timer(1.0).timeout
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
-## 检查战斗结束条件
-## [return] 战斗是否结束
-func _check_battle_end_condition() -> bool:
-	# 检查玩家是否全部阵亡
-	return combat_rule_manager.check_battle_end_conditions()
-
 ## 添加角色
 func add_character(character: Character, is_player: bool = true) -> void:
 	battle_character_registry_manager.register_character(character, is_player)
@@ -190,6 +184,12 @@ func _build_turn_queue() -> void:
 func _log_battle_info(text: String) -> void:
 	print_rich(text)
 	battle_info_logged.emit(text)
+
+## 检查战斗结束条件
+## [return] 战斗是否结束
+func _check_battle_end_condition() -> bool:
+	# 检查玩家是否全部阵亡
+	return combat_rule_manager.check_battle_end_conditions()
 
 #region 视觉反馈
 ## 状态效果应用视觉反馈

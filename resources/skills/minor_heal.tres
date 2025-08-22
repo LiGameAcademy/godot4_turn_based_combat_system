@@ -46,6 +46,7 @@ description = "少量回复目标生命值"
 is_melee = true
 mp_cost = 5
 target_type = 6
+target_count = 1
 effects = Array[ExtResource("1_6jcy7")]([SubResource("Resource_v2s03"), SubResource("Resource_rigxk")])
 action_categories = Array[String](["any_action", "magic_skill"])
 cast_animation = &""

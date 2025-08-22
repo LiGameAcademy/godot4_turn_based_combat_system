@@ -38,17 +38,24 @@ func attempt_execute_skill(skill_data: SkillData, caster: Character, selected_ta
 	print_rich("[color=lightblue]%s attempts to use skill: %s on %s[/color]" % [caster.character_name, skill_data.skill_name, selected_targets])
 	skill_execution_started.emit(caster, skill_data, selected_targets)
 
+	### 获取最终目标列表
+	#var all_allies = battle_manager.get_valid_ally_targets(true, caster)
+	#var all_enemies = battle_manager.get_valid_enemy_targets(caster)
+#
+	#var primary_target = selected_targets[0] if not selected_targets.is_empty() else null
+	#var final_targets = _acquire_final_targets(skill_data, caster, primary_target, all_allies, all_enemies)
+#
+	#if final_targets.is_empty():
+		#skill_failed.emit(caster, skill_data, "no_valid_targets")
+		#return {"error": "no_valid_targets"}
+
 	# 2. 消耗资源 (MP, 物品等)
 	_consume_skill_resources(caster, skill_data)
 
-	if not skill_data.cast_animation.is_empty():
-		caster.play_animation(skill_data.cast_animation)
-
+	## 遍历最终目标列表，依次处理每个目标
 	# 3. 异步执行技能效果处理
-	# call_deferred("_process_skill_effects_async", skill_data, caster, selected_targets, context)
-	var result = await _process_skill_effects_async(skill_data, caster, selected_targets, context)
-	
-	return result
+	var final_result = await _process_skill_effects_async(skill_data, caster, selected_targets, context)
+	return final_result
 
 ## 尝试处理状态效果
 func attempt_process_status_effects(effects : Array[SkillEffectData], caster: Character, target: Character, context : SkillExecutionContext) -> Dictionary:
@@ -87,6 +94,56 @@ func trigger_game_event(event_source: Character, event_type: StringName, context
 			skill_context.damage_info = context.damage_info
 		var _effect_result := await _process_effects_async(trigger_effects, status.source_character, [event_source], skill_context)
 		skill_component.update_status_trigger_counts(status)
+
+## 根据技能配置，获取最终的执行目标列表
+func _acquire_final_targets(
+		skill_data: SkillData, caster: Character, primary_target: Character, 
+		all_allies: Array[Character], all_enemies: Array[Character]) -> Array[Character]:
+	var final_targets: Array[Character] = []
+	
+	match skill_data.target_type:
+		 # --- 单体目标 ---
+		SkillData.TargetType.SELF:
+			final_targets.append(caster)
+			
+		SkillData.TargetType.ENEMY_SINGLE, SkillData.TargetType.ALLY_SINGLE, SkillData.TargetType.ALLY_ALL_INC_SELF:
+			if is_instance_valid(primary_target):
+				final_targets.append(primary_target)
+
+		# --- 全体目标 ---
+		SkillData.TargetType.ENEMY_ALL:
+			final_targets = all_enemies.duplicate(false) # 浅拷贝数组
+
+		SkillData.TargetType.ALLY_ALL:
+			final_targets = all_allies.filter(func(ally): return ally != caster)
+
+		SkillData.TargetType.ALLY_ALL_INC_SELF:
+			final_targets = all_allies.duplicate(false)
+
+		# --- 随机多目标 ---
+		SkillData.TargetType.ENEMY_RANDOM:
+			var potential_targets = all_enemies.duplicate(false)
+			potential_targets.shuffle() # 随机排序
+			var count = min(skill_data.target_count, potential_targets.size())
+			final_targets = potential_targets.slice(0, count)
+
+		SkillData.TargetType.ALLY_RANDOM:
+			var potential_targets = all_allies.filter(func(ally): return ally != caster)
+			potential_targets.shuffle()
+			var count = min(skill_data.target_count, potential_targets.size())
+			final_targets = potential_targets.slice(0, count)
+			
+		SkillData.TargetType.ALLY_RANDOM_INC_SELF:
+			var potential_targets = all_allies.duplicate(false)
+			potential_targets.shuffle()
+			var count = min(skill_data.target_count, potential_targets.size())
+			final_targets = potential_targets.slice(0, count)
+			
+		# --- 无目标 ---
+		SkillData.TargetType.NONE:
+			pass # final_targets 保持为空
+
+	return final_targets
 
 ## 私有方法：验证技能可用性
 func _validate_skill_usability(skill: SkillData, caster: Character, targets: Array[Character], context: SkillExecutionContext) -> Dictionary:
@@ -205,15 +262,24 @@ func _process_skill_effects_async(skill_data: SkillData, caster: Character, init
 		skill_failed.emit(caster, skill_data, "no_valid_targets_at_execution")
 		return {}
 
-	# 播放施法动画/效果
-	if context.battle_manager and context.battle_manager.has_method("play_casting_animation"):
-		context.battle_manager.play_casting_animation(caster, skill_data)
-	else:
-		# 如果没有视觉效果处理器，添加一个短暂延迟以模拟施法时间
-		await get_tree().create_timer(0.5).timeout
+	var overall_results := {}
+	if skill_data.is_melee:
+		for target in actual_execution_targets:
+			await caster.move_to_target(target)
+			
+			if skill_data.cast_animation.is_empty():
+				await get_tree().create_timer(0.5).timeout
+			else:
+				caster.play_animation(skill_data.cast_animation)
 
-	# 处理每个效果
-	var overall_results = await _process_effects_async(skill_data.effects, caster, actual_execution_targets, context)
+			# 处理每个效果
+			overall_results[target] = await _process_effects_async(skill_data.effects, caster, [target], context)
+	else:
+		if skill_data.cast_animation.is_empty():
+			await get_tree().create_timer(0.5).timeout
+		else:
+			caster.play_animation(skill_data.cast_animation)
+		overall_results = await _process_effects_async(skill_data.effects, caster, actual_execution_targets, context)
 
 	# 发出技能执行完成信号
 	skill_execution_completed.emit(caster, skill_data, actual_execution_targets, overall_results)
@@ -253,7 +319,6 @@ func _process_effects_async(effects: Array[SkillEffectData], caster: Character, 
 				
 				# 添加短暂延迟，使效果看起来更自然
 				await get_tree().create_timer(0.1).timeout
-	
 	return overall_results
 
 ## 应用单个效果

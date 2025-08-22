@@ -192,12 +192,14 @@ func _die(death_source: Variant = null):
 ## [return] 攻击结果
 func _execute_attack(target: Character, skill_context: SkillExecutionContext) -> Dictionary:
 	var attacker = get_parent()
-	if not is_instance_valid(target):
-		return {"success": false, "error": "无效的角色引用"}
+	#if not is_instance_valid(target):
+		#return {"success": false, "error": "无效的角色引用"}
 	
-	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name])
+	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name if target else ""])
 	
-	var targets : Array[Character] = [target]
+	var targets : Array[Character]
+	if target:
+		targets.append(target)
 	var result : Dictionary = await _execute_skill(attack_skill, targets, skill_context)
 	
 	# 发出攻击执行信号
@@ -238,11 +240,10 @@ func _execute_skill(
 	
 	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill.skill_name])
 
-	if skill.is_melee:
+	if skill.is_melee and not targets.is_empty():
 		await get_parent().move_to_target(targets[0])
 	else:
 		await get_parent().move_to_cast_marker()
-
 	# 检查MP消耗
 	if not _skill_component.has_enough_mp_for_skill(skill):
 		return {"success": false, "error": "魔法值不足"}

@@ -13,6 +13,7 @@ description = ""
 is_melee = true
 mp_cost = 0
 target_type = 1
+target_count = 1
 effects = Array[ExtResource("1_o3w6a")]([])
 action_categories = Array[String](["any_action"])
 status_to_apply_when_learned = ExtResource("3_exo0t")

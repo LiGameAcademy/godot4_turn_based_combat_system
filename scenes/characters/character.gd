@@ -71,7 +71,9 @@ func _ready() -> void:
 	sprite_2d.position += character_data.sprite_offset
 	if not is_player:
 		sprite_2d.flip_h = true
-	
+
+	_original_position = global_position
+
 	# 设置鼠标交互
 	_setup_character_click_area()
 
@@ -108,10 +110,10 @@ func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> 
 	damage_number.show_damage(amount, false, color, prefix)
 
 ## 伤害处理方法
-func take_damage(base_damage: float, source: Character, element: int) -> float:
+func take_damage(base_damage: float, source: Character, p_element: int) -> float:
 	if not combat_component:
 		return 0.0
-	var result = await combat_component.take_damage(base_damage, source, element)
+	var result = await combat_component.take_damage(base_damage, source, p_element)
 	spawn_damage_number(result, Color.RED)
 	return result
 
@@ -199,7 +201,6 @@ func move_back() -> void:
 
 ## 移动到
 func move_to(target_position: Vector2) -> void:
-	_original_position = global_position
 	var tween : Tween = create_tween()
 	tween.tween_property(self, "global_position", target_position, 0.2)
 	await tween.finished

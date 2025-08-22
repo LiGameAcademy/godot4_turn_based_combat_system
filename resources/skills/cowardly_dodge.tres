@@ -31,6 +31,7 @@ description = "进入高度警觉状态，大幅提升速度，持续2回合。"
 is_melee = false
 mp_cost = 4
 target_type = 5
+target_count = 1
 effects = Array[ExtResource("1_o74iy")]([SubResource("Resource_k3dyo")])
 action_categories = Array[String](["magic_skill"])
 cast_animation = &"attack"

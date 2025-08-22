@@ -50,6 +50,7 @@ description = "向敌人投掷一个火球，造成火焰伤害。"
 is_melee = false
 mp_cost = 8
 target_type = 1
+target_count = 1
 effects = Array[ExtResource("1_wb8wf")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
 action_categories = Array[String](["any_action", "magic_skill"])
 icon = ExtResource("6_whgey")

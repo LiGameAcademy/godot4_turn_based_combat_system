@@ -31,6 +31,7 @@ description = "向所有敌人喷射削弱孢子，降低他们的防御力"
 is_melee = false
 mp_cost = 12
 target_type = 2
+target_count = 1
 effects = Array[ExtResource("2_rffb6")]([SubResource("Resource_7hgoh")])
 action_categories = Array[String](["any_action", "magic_skill", "any_skill"])
 cast_animation = &"attack"

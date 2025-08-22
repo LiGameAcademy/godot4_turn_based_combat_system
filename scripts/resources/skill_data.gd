@@ -17,7 +17,10 @@ enum TargetType {
 	ALLY_ALL,               ## 我方全体 (不含自己)
 	SELF,                   ## 施法者自己
 	ALLY_SINGLE_INC_SELF,   ## 我方单体 (含自己)
-	ALLY_ALL_INC_SELF       ## 我方全体 (含自己)
+	ALLY_ALL_INC_SELF,      ## 我方全体 (含自己)
+	ENEMY_RANDOM,           ## 敌方随机
+	ALLY_RANDOM,            ## 我方随机 (不含自己)
+	ALLY_RANDOM_INC_SELF    ## 我方随机 (含自己)
 }
 
 #region --- 导出的属性 ---
@@ -30,6 +33,7 @@ enum TargetType {
 @export_group("消耗与目标")
 @export var mp_cost: int = 5									## 魔法消耗
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE	## 目标类型
+@export_range(0, 10) var target_count: int = 1 					## 目标数量，仅对多目标类型有效
 
 @export_group("效果")
 @export var effects : Array[SkillEffectData] = []				## 主动技能施放时的直接效果
