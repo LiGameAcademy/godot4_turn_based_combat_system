@@ -49,7 +49,7 @@ func _process_effect(source: Character, target: Character, _context : SkillExecu
 ## 计算治疗量
 func _calculate_healing(caster: Character, _target: Character) -> int:
 	# 基于魔法攻击力计算治疗量
-	var base_healing = heal_amount + (caster.magic_attack * heal_power_scale)
+	var base_healing = heal_amount + (caster.attack_power * heal_power_scale)
 	
 	# 加入随机浮动因素 (±15%)
 	var random_factor = randf_range(0.85, 1.15)

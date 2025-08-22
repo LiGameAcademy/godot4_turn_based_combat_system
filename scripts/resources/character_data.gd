@@ -16,10 +16,9 @@ class_name CharacterData
 @export var defense_skill : SkillData = null
 
 @export_group("视觉表现")
-@export var color: Color = Color.BLUE  # 为原型阶段设置的角色颜色
-@export var animation_library : AnimationLibrary
+@export var animation_library : AnimationLibrary			## 角色动画库
 @export var sprite_offset : Vector2 = Vector2.ZERO		## 角色偏移
-@export var icon : Texture2D
+@export var icon : Texture2D								## 角色图标
 
 # 辅助函数
 func get_skill_by_id(id: StringName) -> SkillData:
