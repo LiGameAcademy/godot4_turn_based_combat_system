@@ -5,13 +5,13 @@ class_name BattleCharacterRegistryManager
 ## 负责管理战斗中的角色注册和反注册
 ## 包括队伍管理和角色状态跟踪
 
-var _all_characters: Array[Character] = []			## 存储所有参与战斗的角色 (包括玩家和敌人)
-var _player_team: Array[Character] = []				## 玩家队伍
-var _enemy_team: Array[Character] = []				## 敌人队伍
+var _all_characters: Array[Node] = []			## 存储所有参与战斗的角色 (包括玩家和敌人)
+var _player_team: Array[Node] = []				## 玩家队伍
+var _enemy_team: Array[Node] = []				## 敌人队伍
 
-signal character_registered(character: Character)							## 角色注册信号
-signal character_unregistered(character: Character)							## 角色反注册信号
-signal team_changed(team_characters: Array[Character], team_id: String)		## 队伍变化信号
+signal character_registered(character: Node)							## 角色注册信号
+signal character_unregistered(character: Node)							## 角色反注册信号
+signal team_changed(team_characters: Array[Node], team_id: String)		## 队伍变化信号
 
 ## 初始化
 func initialize() -> void:
@@ -21,16 +21,17 @@ func initialize() -> void:
 	print("CharacterRegistryManager initialized.")
 
 ## 注册一个角色到战斗中
-## [param character] 要注册的角色
+## [param character] 要注册的角色（Node类型，需要实现约定的方法和属性）
 ## [param is_player_team] 是否是玩家队伍
 ## [return] 是否注册成功
-func register_character(character: Character, is_player_team: bool) -> bool:
+func register_character(character: Node, is_player_team: bool) -> bool:
 	if not is_instance_valid(character):
 		push_error("Attempted to register an invalid character instance.")
 		return false
-	
+
 	if character in _all_characters:
-		push_warning("Character %s is already registered." % character.character_name)
+		var char_name = character.get("character_name") if character.has_method("get") else "Unknown"
+		push_warning("Character %s is already registered." % char_name)
 		return false
 
 	_all_characters.append(character)
@@ -42,17 +43,18 @@ func register_character(character: Character, is_player_team: bool) -> bool:
 		team_changed.emit(_enemy_team, "enemy")
 		
 	# 连接角色死亡信号，以便自动反注册
-	if not character.character_defeated.is_connected(_on_character_defeated):
+	if character.has_signal("character_defeated") and not character.character_defeated.is_connected(_on_character_defeated):
 		character.character_defeated.connect(_on_character_defeated.bind(character))
 		
 	character_registered.emit(character)
-	print("Character registered: %s (Player Team: %s)" % [character.character_name, is_player_team])
+	var char_name = _get_character_name(character)
+	print("Character registered: %s (Player Team: %s)" % [char_name, is_player_team])
 	return true
 
 ## 从战斗中反注册一个角色
 ## [param character] 要反注册的角色
 ## [return] 是否反注册成功
-func unregister_character(character: Character) -> bool:
+func unregister_character(character: Node) -> bool:
 	if not is_instance_valid(character) or not character in _all_characters:
 		push_warning("Attempted to unregister a character (%s) not found in the registry." % character)
 		return false
@@ -66,7 +68,7 @@ func unregister_character(character: Character) -> bool:
 		_enemy_team.erase(character)
 		team_id_changed = "enemy"
 	
-	if character.character_defeated.is_connected(_on_character_defeated):
+	if character.has_signal("character_defeated") and character.character_defeated.is_connected(_on_character_defeated):
 		character.character_defeated.disconnect(_on_character_defeated)
 
 	character_unregistered.emit(character)
@@ -80,26 +82,26 @@ func unregister_character(character: Character) -> bool:
 
 ## 获取所有已注册的角色
 ## [return] 所有已注册的角色
-func get_all_characters() -> Array[Character]:
+func get_all_characters() -> Array[Node]:
 	return _all_characters
 
 ## 获取所有存活的角色
 ## [return] 所有存活的角色
-func get_all_living_characters() -> Array[Character]:
-	var living_chars: Array[Character] = []
+func get_all_living_characters() -> Array[Node]:
+	var living_chars: Array[Node] = []
 	for character in _all_characters:
-		if is_instance_valid(character) and character.is_alive:
+		if is_instance_valid(character) and _is_character_alive(character):
 			living_chars.append(character)
 	return living_chars
 
 ## 获取玩家队伍的角色
 ## [param is_only_alive] 是否只返回存活的角色
 ## [return] 玩家队伍的角色
-func get_player_team(is_only_alive: bool = false) -> Array[Character]:
+func get_player_team(is_only_alive: bool = false) -> Array[Node]:
 	if is_only_alive:
-		var living_players: Array[Character] = []
+		var living_players: Array[Node] = []
 		for character in _player_team:
-			if is_instance_valid(character) and character.is_alive:
+			if is_instance_valid(character) and _is_character_alive(character):
 				living_players.append(character)
 		return living_players
 	return _player_team
@@ -107,11 +109,11 @@ func get_player_team(is_only_alive: bool = false) -> Array[Character]:
 ## 获取敌人队伍的角色
 ## [param is_only_alive] 是否只返回存活的角色
 ## [return] 敌人队伍的角色
-func get_enemy_team(is_only_alive: bool = false) -> Array[Character]:
+func get_enemy_team(is_only_alive: bool = false) -> Array[Node]:
 	if is_only_alive:
-		var living_enemies: Array[Character] = []
+		var living_enemies: Array[Node] = []
 		for character in _enemy_team:
-			if is_instance_valid(character) and character.is_alive:
+			if is_instance_valid(character) and _is_character_alive(character):
 				living_enemies.append(character)
 		return living_enemies
 	return _enemy_team
@@ -120,7 +122,7 @@ func get_enemy_team(is_only_alive: bool = false) -> Array[Character]:
 func clear_registry() -> void:
 	# 在移除前断开所有连接，避免悬空引用问题
 	for character in _all_characters:
-		if is_instance_valid(character) and character.character_defeated.is_connected(_on_character_defeated):
+		if is_instance_valid(character) and character.has_signal("character_defeated") and character.character_defeated.is_connected(_on_character_defeated):
 			character.character_defeated.disconnect(_on_character_defeated)
 			
 	_all_characters.clear()
@@ -139,22 +141,22 @@ func is_team_defeated(is_player_team_check: bool) -> bool:
 		return true # 或者 false，取决于你的游戏规则
 		
 	for character in team_to_check:
-		if is_instance_valid(character) and character.is_alive:
+		if is_instance_valid(character) and _is_character_alive(character):
 			return false # 只要有一个存活，队伍就未被击败
 	return true # 所有角色都已死亡
 
 ## 检查角色是否在玩家队伍
 ## [param character] 要检查的角色
 ## [return] 是否在玩家队伍
-func is_player_character(character: Character) -> bool:
+func is_player_character(character: Node) -> bool:
 	return character in _player_team
 
 ## 获取角色的友方队伍
 ## [param character] 目标角色
 ## [param include_self] 是否包含自己
 ## [return] 友方队伍角色列表
-func get_allied_team_for_character(character: Character, include_self: bool = true) -> Array[Character]:
-	var team: Array[Character] = []
+func get_allied_team_for_character(character: Node, include_self: bool = true) -> Array[Node]:
+	var team: Array[Node] = []
 	if is_player_character(character):
 		# 玩家角色的盟友是玩家队伍
 		team = get_player_team(true)
@@ -164,7 +166,7 @@ func get_allied_team_for_character(character: Character, include_self: bool = tr
 	
 	# 如果不包含自己，则移除
 	if not include_self and character in team:
-		var filtered_team: Array[Character] = []
+		var filtered_team: Array[Node] = []
 		for ally in team:
 			if ally != character:
 				filtered_team.append(ally)
@@ -175,7 +177,7 @@ func get_allied_team_for_character(character: Character, include_self: bool = tr
 ## 获取角色的敌对队伍
 ## [param character] 目标角色
 ## [return] 敌对队伍角色列表
-func get_opposing_team_for_character(character: Character) -> Array[Character]:
+func get_opposing_team_for_character(character: Node) -> Array[Node]:
 	if not is_instance_valid(character):
 		push_error("cannot get opposing team for character, character is null!")
 		return []
@@ -187,14 +189,33 @@ func get_opposing_team_for_character(character: Character) -> Array[Character]:
 		return get_player_team(true)
 
 ## 判断是否为敌人
-func is_enemy_of(character: Character, target: Character) -> bool:
+func is_enemy_of(character: Node, target: Node) -> bool:
 	return target in get_opposing_team_for_character(character)
+
+#region --- 辅助方法（鸭子类型支持） ---
+## 获取角色名称（鸭子类型）
+func _get_character_name(character: Node) -> String:
+	if character.has_method("get_character_name"):
+		return character.get_character_name()
+	elif "character_name" in character:
+		return character.character_name
+	return "Unknown"
+
+## 检查角色是否存活（鸭子类型）
+func _is_character_alive(character: Node) -> bool:
+	if character.has_method("get_is_alive"):
+		return character.get_is_alive()
+	elif "is_alive" in character:
+		return character.is_alive
+	return false
+#endregion
 
 #region --- 信号处理 ---
 ## 当角色被击败时自动反注册
 ## [param defeated_character] 被击败的角色
-func _on_character_defeated(defeated_character: Character) -> void:
-	print("Character %s defeated, attempting to unregister." % defeated_character.character_name)
+func _on_character_defeated(defeated_character: Node) -> void:
+	var char_name = _get_character_name(defeated_character)
+	print("Character %s defeated, attempting to unregister." % char_name)
 	unregister_character(defeated_character)
 	# BattleManager 可能还需要处理其他逻辑，比如检查战斗是否结束
 #endregion

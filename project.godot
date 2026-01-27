@@ -12,17 +12,26 @@ config_version=5
 
 config/name="godot4_turn_based_combat_system"
 run/main_scene="uid://b0m5f3ojdxh8c"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-SkillSystem="*res://scripts/autoload/skill_system.gd"
 AudioManager="*res://scripts/managers/audio_manager.gd"
+GameplayAbilitySystem="*res://addons/godot_ability_system/scripts/singletons/gameplay_ability_system.gd"
+DamageCalculator="*res://addons/godot_ability_system/scripts/singletons/damage_calculator.gd"
+TagManager="*res://addons/godot_ability_system/scripts/singletons/gameplay_tag_manager.gd"
+AbilityEventBus="*res://addons/godot_ability_system/scripts/singletons/ability_event_bus.gd"
+GameplayCueManager="*res://addons/godot_ability_system/scripts/singletons/gameplay_cue_manager.gd"
+SkillSystem="*res://addons/turn_based_combat_system/skill_system/skill_system.gd"
 
 [display]
 
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot_ability_system/plugin.cfg", "res://addons/turn_based_combat_system/plugin.cfg")
 
 [rendering]
 

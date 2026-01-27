@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="SkillData" load_steps=4 format=3 uid="uid://i1aj8k56wevm"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect.gd" id="1_o3w6a"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://scripts/resources/skill_data.gd" id="2_exo0t"]
-[ext_resource type="Resource" uid="uid://ctv63r3mlnnnm" path="res://resources/skill_status/counter_attack.tres" id="3_exo0t"]
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="1_o3w6a"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="2_exo0t"]
+[ext_resource type="Resource" path="res://resources/skill_status/counter_attack.tres" id="3_exo0t"]
 
 [resource]
 script = ExtResource("2_exo0t")

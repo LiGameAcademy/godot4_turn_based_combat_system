@@ -49,12 +49,45 @@ func _ready():
 
 ### 添加角色到战斗
 
+#### 方式一：使用 BaseCombatCharacter（推荐快速启动）
+
 ```gdscript
 # 创建角色并添加到战斗
-var character = preload("res://scenes/characters/character.tscn").instantiate()
+var character = preload("res://scenes/characters/base_combat_character.tscn").instantiate()
 character.character_data = load("res://character_data.tres")
 battle_manager.add_character(character, true)  # true表示玩家队伍
 ```
+
+#### 方式二：实现自己的角色类（完全自定义）
+
+```gdscript
+# 你的角色类只需要实现接口约定（鸭子类型）
+var character = preload("res://scenes/characters/my_character.tscn").instantiate()
+battle_manager.add_character(character, true)
+```
+
+详细说明请参考 [角色使用指南](docs/CHARACTER_USAGE.md)
+
+## 接口约定
+
+插件使用**鸭子类型（Duck Typing）**设计，不依赖具体的类定义：
+
+1. **战斗角色接口**：任何 Node 类型的对象只要实现了约定的属性和方法，就可以作为战斗角色使用
+   - 详细约定请参考：[docs/CHARACTER_INTERFACE.md](docs/CHARACTER_INTERFACE.md)
+
+2. **技能系统接口**：`CharacterCombatComponent` 不依赖具体的技能系统实现，可以通过任何实现了技能系统接口的组件工作
+   - 详细约定请参考：[docs/SKILL_SYSTEM_INTERFACE.md](docs/SKILL_SYSTEM_INTERFACE.md)
+
+### 快速开始
+
+你的角色类需要实现以下核心方法：
+- `execute_action()` - 执行行动
+- `take_damage()` - 受到伤害
+- `heal()` - 治疗
+- `on_turn_start()` - 回合开始
+- `on_turn_end()` - 回合结束
+
+以及必要的属性：`character_name`, `is_alive`, `speed`, `current_hp`, `current_mp`, `element`, `can_action`
 
 ## 注意事项
 
@@ -64,7 +97,7 @@ battle_manager.add_character(character, true)  # true表示玩家队伍
 - 动画和特效资源
 - 音效和背景音乐
 
-插件通过信号系统和接口与项目代码交互，保持核心逻辑的独立性。
+插件通过信号系统和鸭子类型与项目代码交互，保持核心逻辑的独立性，对业务层完全非侵入。
 
 ## 版本
 

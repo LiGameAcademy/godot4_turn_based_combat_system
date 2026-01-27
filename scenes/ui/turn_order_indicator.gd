@@ -59,7 +59,7 @@ func update_turn_order(characters: Array, current_character_index: int) -> void:
 	_update_current_turn_marker()
 
 ## 创建角色图标
-func _create_character_icon(character: Character) -> CharacterIcon:
+func _create_character_icon(character: BaseCombatCharacter) -> CharacterIcon:
 	var icon = CHARACTER_ICON.instantiate()
 	icon.setup(character)
 	return icon

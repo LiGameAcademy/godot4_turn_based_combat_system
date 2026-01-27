@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SkillEffectData" load_steps=2 format=3 uid="uid://bglfmsusvr2f5"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect.gd" id="1_1f2vj"]
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="1_1f2vj"]
 
 [resource]
 script = ExtResource("1_1f2vj")

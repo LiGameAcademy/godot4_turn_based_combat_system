@@ -50,7 +50,7 @@ func set_behavior_type(type: String) -> void:
 ## [param skill] 技能数据
 ## [param targets] 目标列表
 ## [return] 评分
-func evaluate_skill(character: Character, skill: SkillData, targets: Array) -> float:
+func evaluate_skill(character: Node, skill: SkillData, targets: Array) -> float:
 	var score = 0.0
 	
 	# 根据技能类型给予基础分数
@@ -93,7 +93,7 @@ func evaluate_skill(character: Character, skill: SkillData, targets: Array) -> f
 ## [param _character] 角色
 ## [param target] 目标
 ## [return] 评分
-func evaluate_attack_target(_character: Character, target: Character) -> float:
+func evaluate_attack_target(_character: Node, target: Node) -> float:
 	var score = 0.0
 	
 	# 基础攻击倾向
@@ -145,7 +145,7 @@ func _get_skill_tags(skill: SkillData) -> Array:
 ## [param character1] 角色1
 ## [param character2] 角色2
 ## [return] 是否敌对
-func _is_enemy(character1: Character, character2: Character) -> bool:
+func _is_enemy(character1: Node, character2: Node) -> bool:
 	# 使用角色组件中的character_registry来判断敌对关系
 	if character1.ai_component:
 		return character1.ai_component.is_enemy(character2)

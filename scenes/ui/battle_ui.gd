@@ -16,7 +16,7 @@ signal action_skill_pressed
 signal action_item_pressed
 signal skill_selected(skill: SkillData)
 signal skill_selection_cancelled
-signal target_selected(target: Character)
+signal target_selected(target: BaseCombatCharacter)
 signal target_selection_cancelled
 
 func _ready() -> void:
@@ -90,7 +90,7 @@ func show_action_menu(current_character) -> void:
 	action_menu.setup_default_focus()
 
 ## 显示技能选择菜单
-func show_skill_menu(character: Character) -> bool:
+func show_skill_menu(character: BaseCombatCharacter) -> bool:
 	hide_all_menus()
 	
 	if skill_select_menu and character:
@@ -103,7 +103,7 @@ func show_skill_menu(character: Character) -> bool:
 	return false
 
 ## 显示目标选择菜单
-func show_target_selection(targets: Array[Character]) -> bool:
+func show_target_selection(targets: Array[BaseCombatCharacter]) -> bool:
 	if target_selection_menu and not targets.is_empty():
 		target_selection_menu.show_targets(targets)
 		return true
@@ -159,7 +159,7 @@ func log_heal(target_name: String, amount: int, source: String = "") -> void:
 		battle_log_panel.log_heal(target_name, amount, source)
 
 # 角色详情面板相关方法
-func show_character_details(character: Character) -> void:
+func show_character_details(character: BaseCombatCharacter) -> void:
 	if not _character_detail_panel:
 		_character_detail_panel = $CharacterDetailPanel
 	# 显示角色详情
@@ -187,7 +187,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 func _on_skill_selection_cancelled() -> void:
 	skill_selection_cancelled.emit()
 
-func _on_target_selected(target: Character) -> void:
+func _on_target_selected(target: BaseCombatCharacter) -> void:
 	target_selected.emit(target)
 
 func _on_target_selection_cancelled() -> void:

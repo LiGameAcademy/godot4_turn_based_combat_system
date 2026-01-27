@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://2g1wi6dxek6"]
+
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_ikb8i"]
+[ext_resource type="Script" uid="uid://cq4h2ylwvjcku" path="res://addons/turn_based_combat_system/resources/character_data.gd" id="1_prr5c"]
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_yl7in"]
+[ext_resource type="Script" uid="uid://gw3cp6tiet1m" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_attribute.gd" id="3_ph3fh"]
+[ext_resource type="Resource" uid="uid://dy8vbokoah6gb" path="res://resources/skill_attributes/attack_power.tres" id="4_j3npa"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://resources/skill_attributes/current_health.tres" id="5_ikb8i"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://resources/skill_attributes/current_mana.tres" id="6_6v4jd"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="6_bdupk"]
+[ext_resource type="Resource" uid="uid://c1rhn2rpt7d7j" path="res://resources/skill_attributes/defense_power.tres" id="7_yl7in"]
+[ext_resource type="Resource" uid="uid://b1gbs024jdeds" path="res://resources/skill_attributes/max_health.tres" id="8_p7u1d"]
+[ext_resource type="Resource" uid="uid://drdip2i404d88" path="res://resources/skill_attributes/max_mana.tres" id="9_noqhi"]
+[ext_resource type="Resource" uid="uid://bmaomvfqxyfd8" path="res://resources/skill_attributes/speed.tres" id="10_hnr8w"]
+[ext_resource type="Script" uid="uid://cilvl8cnotpcc" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_attribute_set.gd" id="11_p7nye"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="13_6v4jd"]
+[ext_resource type="Texture2D" uid="uid://cfn0bibj2tsu8" path="res://assets/sprites/characters/heros/assassin/idle.png" id="15_p7u1d"]
+
+[sub_resource type="Resource" id="Resource_eodr5"]
+script = ExtResource("11_p7nye")
+attributes_to_initialize = Array[ExtResource("3_ph3fh")]([ExtResource("4_j3npa"), ExtResource("5_ikb8i"), ExtResource("6_6v4jd"), ExtResource("7_yl7in"), ExtResource("8_p7u1d"), ExtResource("9_noqhi"), ExtResource("10_hnr8w")])
+metadata/_custom_type_script = "uid://cilvl8cnotpcc"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_noqhi"]
+atlas = ExtResource("15_p7u1d")
+region = Rect2(1280, 80, 32, 32)
+
+[resource]
+script = ExtResource("1_prr5c")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+attribute_set_resource = SubResource("Resource_eodr5")
+attack_skill = ExtResource("1_ikb8i")
+defense_skill = ExtResource("13_6v4jd")
+animation_library = ExtResource("1_yl7in")
+icon = SubResource("AtlasTexture_noqhi")

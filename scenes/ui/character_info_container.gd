@@ -7,7 +7,7 @@ class_name CharacterInfoContainer
 @onready var skill_status_container: HBoxContainer = %SkillStatusContainer
 
 # 当前绑定的角色
-var _character: Character = null
+var _character: BaseCombatCharacter = null
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
@@ -23,7 +23,7 @@ func _ready() -> void:
 
 ## 初始化角色信息容器
 ## [param character] 要绑定的角色
-func initialize(character: Character) -> void:
+func initialize(character: BaseCombatCharacter) -> void:
 	if not character:
 		push_error("CharacterInfoContainer: 无法初始化，角色为空")
 		return

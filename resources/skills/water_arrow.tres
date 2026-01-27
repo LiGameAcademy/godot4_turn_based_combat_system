@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillData" load_steps=7 format=3 uid="uid://2hgpv7ntaf0m"]
+
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="1_cey6f"]
+[ext_resource type="Script" uid="uid://rk1sdjr2rrdl" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="1_rpyuj"]
+[ext_resource type="Script" uid="uid://co8l4ht41spj7" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_a21mc"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="3_a21mc"]
+
+[sub_resource type="Resource" id="Resource_s313m"]
+script = ExtResource("1_rpyuj")
+element = 1
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+
+[sub_resource type="Resource" id="Resource_cey6f"]
+script = ExtResource("1_rpyuj")
+metadata/_custom_type_script = "uid://dxb4kwdmaswyl"
+
+[resource]
+script = ExtResource("3_a21mc")
+skill_id = &"water_arrow"
+skill_name = "水箭术"
+description = "向敌人投掷一个水箭，造成水属性伤害。"
+mp_cost = 8
+effects = Array[ExtResource("1_cey6f")]([SubResource("Resource_s313m"), SubResource("Resource_cey6f")])

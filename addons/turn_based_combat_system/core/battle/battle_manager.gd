@@ -21,7 +21,7 @@ var turn_queue: Array = []:								## 回合队列
 	set(_value):
 		push_error("cannot set turn_queue becouse its readonly!")
 
-var current_turn_character: Character = null:			## 当前行动者
+var current_turn_character: Node = null:			## 当前行动者
 	get:
 		return turn_order_manager.current_character
 	set(_value):
@@ -31,7 +31,7 @@ var is_player_turn : bool = false :						## 是否是玩家回合
 		return state_manager.current_state == BattleStateManager.BattleState.PLAYER_TURN
 	set(_value):
 		push_error("cannot set is_player_turn becouse its readonly!")
-var characters : Array[Character]:
+var characters : Array[Node]:
 	get:
 		return battle_character_registry_manager.get_all_characters()
 var current_turn_index: int :
@@ -39,11 +39,11 @@ var current_turn_index: int :
 		return turn_order_manager.current_turn_index
 
 ## 信号
-signal turn_changed(character: Character)						## 当前行动者改变时触发
+signal turn_changed(character: Node)						## 当前行动者改变时触发
 signal battle_ended(is_victory: bool)							## 战斗结束时触发
 signal battle_info_logged(text: String)							## 战斗日志记录时触发
 ## 敌人行动执行时触发
-signal enemy_action_executed(source: Character, target: Character, damage: float)	
+signal enemy_action_executed(source: Node, target: Node, damage: float)	
 
 func _ready() -> void:
 	battle_character_registry_manager.initialize()
@@ -82,7 +82,7 @@ func start_battle() -> void:
 ## [param params] 行动参数
 func player_select_action(
 		action_type: CharacterCombatComponent.ActionType, 
-		target: Character = null, 
+		target: Node = null, 
 		params: Dictionary = {}
 		) -> void:
 	if not state_manager.is_in_state(BattleStateManager.BattleState.PLAYER_TURN):
@@ -92,7 +92,10 @@ func player_select_action(
 	_log_battle_info("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
 	params.merge({"skill_context": SkillExecutionContext.new(self)}, true)
-	await current_turn_character.execute_action(action_type, target, params)
+	if current_turn_character.has_method("execute_action"):
+		await current_turn_character.execute_action(action_type, target, params)
+	else:
+		push_error("Character does not implement execute_action method")
 
 	# 检查战斗是否结束
 	if _check_battle_end_condition():
@@ -101,29 +104,36 @@ func player_select_action(
 
 ## 执行敌人AI
 func execute_enemy_ai() -> void:
-	var character : Character = current_turn_character
+	var character : Node = current_turn_character
 	if not is_instance_valid(character):
 		push_error("当前行动者不存在！")
 		return
 
-	# 检查角色是否有AI组件
-	var ai_component = character.get_ai_component()
+	# 检查角色是否有AI组件（使用鸭子类型）
+	var ai_component = null
+	if character.has_method("get_ai_component"):
+		ai_component = character.get_ai_component()
+	
 	if not ai_component:
 		push_error("敌人没有AI组件！")
 		# 简单的AI逻辑：总是攻击第一个存活的玩家角色
 		var target = null
 		for player in battle_character_registry_manager.get_player_team(true):
-			if player.current_hp > 0:
+			var hp = _get_character_hp(player)
+			if hp > 0:
 				target = player
 				break
 		if target:
-			_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([current_turn_character.character_name, target.character_name]))
-			await current_turn_character.execute_action(
-				CharacterCombatComponent.ActionType.ATTACK, 
-				target, 
-				{
-					"skill_context": SkillExecutionContext.new(self)
-				})
+			var char_name = _get_character_name(current_turn_character)
+			var target_name = _get_character_name(target)
+			_log_battle_info("[color=orange][b]{0}[/b][/color] 选择攻击 [color=blue][b]{1}[/b][/color]".format([char_name, target_name]))
+			if current_turn_character.has_method("execute_action"):
+				await current_turn_character.execute_action(
+					CharacterCombatComponent.ActionType.ATTACK, 
+					target, 
+					{
+						"skill_context": SkillExecutionContext.new(self)
+					})
 		else:
 			_log_battle_info("[color=red][错误][/color] 敌人找不到可攻击的目标")
 	else:
@@ -141,19 +151,19 @@ func execute_enemy_ai() -> void:
 	state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 
 ## 添加角色
-func add_character(character: Character, is_player: bool = true) -> void:
+func add_character(character: Node, is_player: bool = true) -> void:
 	battle_character_registry_manager.register_character(character, is_player)
 	
 ## 移除角色
 ## [param character] 角色
-func remove_character(character: Character) -> void:
+func remove_character(character: Node) -> void:
 	battle_character_registry_manager.unregister_character(character)		
 	_check_battle_end_condition()
 
 ## 获取有效的敌方目标列表（过滤掉已倒下的角色）
 ## [param caster] 施法者
 ## [return] 有效的敌方目标列表
-func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
+func get_valid_enemy_targets(caster : Node = null) -> Array[Node]:
 	if is_instance_valid(caster):
 		return battle_character_registry_manager.get_opposing_team_for_character(caster)
 	return battle_character_registry_manager.get_opposing_team_for_character(current_turn_character)
@@ -162,7 +172,7 @@ func get_valid_enemy_targets(caster : Character = null) -> Array[Character]:
 ## [param include_self] 是否包括施法者自己
 ## [param caster] 施法者
 ## [return] 有效的友方目标列表
-func get_valid_ally_targets(include_self: bool = false, caster : Character = null) -> Array[Character]:
+func get_valid_ally_targets(include_self: bool = false, caster : Node = null) -> Array[Node]:
 	if is_instance_valid(caster):
 		return battle_character_registry_manager.get_allied_team_for_character(caster, include_self)
 	return battle_character_registry_manager.get_allied_team_for_character(current_turn_character, include_self)
@@ -171,7 +181,7 @@ func get_valid_ally_targets(include_self: bool = false, caster : Character = nul
 ## [param character1] 角色1
 ## [param character2] 角色2
 ## [return] 是否是敌人
-func is_enemy(character1: Character, character2: Character) -> bool:
+func is_enemy(character1: Node, character2: Node) -> bool:
 	return battle_character_registry_manager.is_enemy_of(character1, character2)
 
 ## 构建回合队列
@@ -195,48 +205,49 @@ func _check_battle_end_condition() -> bool:
 ## 状态效果应用视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_status_effect(target: Character, params: Dictionary = {}) -> void:
+func _play_status_effect(target: Node, params: Dictionary = {}) -> void:
 	battle_visual_effects.play_status_effect(target, params)
 	
 ## 播放施法效果
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
+func _play_cast_effect(_target: Node, _params: Dictionary = {}) -> void:
 	battle_visual_effects.play_cast_effect(_target, _params)
 
 ## 播放治疗施法效果
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_heal_cast_effect(_target: Character, _params: Dictionary = {}) -> void:
+func _play_heal_cast_effect(_target: Node, _params: Dictionary = {}) -> void:
 	if battle_visual_effects.has_method("play_heal_cast_effect"):
 		battle_visual_effects.play_heal_cast_effect(_target, _params)
 
 ## 治疗效果视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_heal_effect(target: Character, _params : Dictionary = {}) -> void:
+func _play_heal_effect(target: Node, _params : Dictionary = {}) -> void:
 	battle_visual_effects.play_heal_effect(target, _params)
 	
 ## 受击效果视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_hit_effect(_target: Character, _params: Dictionary = {}) -> void:
+func _play_hit_effect(_target: Node, _params: Dictionary = {}) -> void:
 	pass
 
 ## 状态效果应用成功视觉反馈
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_status_applied_success_effect(_target: Character, _params: Dictionary = {}) -> void:
+func _play_status_applied_success_effect(_target: Node, _params: Dictionary = {}) -> void:
 	pass
 
 ## 受击数字效果
 ## [param target] 目标角色
 ## [param params] 参数
-func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) -> void:
+func _play_damage_number_effect(_target: Node, _params: Dictionary = {}) -> void:
 	var damage : float = _params.get("damage", 0)
 	var color : Color = _params.get("color", Color.RED)
 	var prefix : String = _params.get("prefix", "")
-	_target.spawn_damage_number(damage, color, prefix)
+	if _target.has_method("spawn_damage_number"):
+		_target.spawn_damage_number(damage, color, prefix)
 
 #endregion
 
@@ -244,8 +255,9 @@ func _play_damage_number_effect(_target: Character, _params: Dictionary = {}) ->
 
 ## 角色死亡信号处理函数
 ## [param character] 角色
-func _on_character_died(character: Character) -> void:
-	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
+func _on_character_died(character: Node) -> void:
+	var char_name = _get_character_name(character)
+	print_rich("[color=purple]" + char_name + " 已被击败![/color]")
 
 	# 从回合队列中移除
 	if turn_queue.has(character):
@@ -253,7 +265,7 @@ func _on_character_died(character: Character) -> void:
 	
 	# 如果当前行动者死亡，需要特殊处理
 	if current_turn_character == character:
-		print("当前行动者 " + character.character_name + " 已阵亡。")
+		print("当前行动者 " + char_name + " 已阵亡。")
 	
 	# 检查战斗是否结束
 	_check_battle_end_condition()	
@@ -298,7 +310,8 @@ func _on_state_changed(
 			if _check_battle_end_condition():
 				# 战斗已结束，状态已在_check_battle_end_condition中切换
 				return
-			current_turn_character.on_turn_end(self)
+			if current_turn_character.has_method("on_turn_end"):
+				current_turn_character.on_turn_end(self)
 			if turn_order_manager.has_next_character():
 				# 进入下一个角色的回合
 				state_manager.change_state(BattleStateManager.BattleState.TURN_START)
@@ -315,15 +328,22 @@ func _on_state_changed(
 			_log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
 			battle_ended.emit(false)
 
-func _on_character_registered(character: Character) -> void:
-	_log_battle_info("[color=green][b]{0}[/b][/color] 已注册到战斗中".format([character.character_name]))
-	character.initialize(self, cast_marker)
+func _on_character_registered(character: Node) -> void:
+	var char_name = _get_character_name(character)
+	_log_battle_info("[color=green][b]{0}[/b][/color] 已注册到战斗中".format([char_name]))
+	if character.has_method("initialize_battle"):
+		character.initialize_battle(self, cast_marker)
+	elif character.has_method("initialize"):
+		character.initialize(self, cast_marker)
 
-func _on_character_unregistered(character: Character) -> void:
-	_log_battle_info("[color=red][b]{0}[/b][/color] 已从战斗中移除".format([character.character_name]))
+func _on_character_unregistered(character: Node) -> void:
+	var char_name = _get_character_name(character)
+	_log_battle_info("[color=red][b]{0}[/b][/color] 已从战斗中移除".format([char_name]))
 
-func _on_team_changed(team_characters: Array[Character], team_id: String) -> void:
-	_log_battle_info("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([team_characters[0].character_name, team_id]))
+func _on_team_changed(team_characters: Array[Node], team_id: String) -> void:
+		if not team_characters.is_empty():
+			var char_name = _get_character_name(team_characters[0])
+			_log_battle_info("[color=yellow][b]{0}[/b][/color] 队伍 [color=green][b]{1}[/b][/color] 已改变".format([char_name, team_id]))
 
 func _on_player_victory() -> void:
 	_log_battle_info("[color=green][b]===== 战斗胜利! =====[/b][/color]")
@@ -333,12 +353,15 @@ func _on_player_defeat() -> void:
 	_log_battle_info("[color=red][b]===== 战斗失败... =====[/b][/color]")
 	state_manager.change_state(BattleStateManager.BattleState.DEFEAT)
 
-func _on_turn_changed(character: Character) -> void:
-	_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([character.character_name]))
-	character.on_turn_start(self)
+func _on_turn_changed(character: Node) -> void:
+	var char_name = _get_character_name(character)
+	_log_battle_info("[color=cyan][回合][/color] [color=orange][b]{0}[/b][/color] 的回合开始".format([char_name]))
+	if character.has_method("on_turn_start"):
+		character.on_turn_start(self)
 
-	# 检查角色能否行动
-	if not character.can_action:
+	# 检查角色能否行动（使用鸭子类型）
+	var can_act = _get_character_can_action(character)
+	if not can_act:
 		_log_battle_info("[color=red][错误][/color] 角色无法行动, 跳过回合")
 		state_manager.change_state(BattleStateManager.BattleState.TURN_END)
 		return
@@ -348,5 +371,31 @@ func _on_turn_changed(character: Character) -> void:
 	var next_state = BattleStateManager.BattleState.PLAYER_TURN if is_player else BattleStateManager.BattleState.ENEMY_TURN
 	state_manager.change_state(next_state)
 	turn_changed.emit(character) # 通知UI
+
+#region --- 辅助方法（鸭子类型支持） ---
+## 获取角色名称（鸭子类型）
+func _get_character_name(character: Node) -> String:
+	if character.has_method("get_character_name"):
+		return character.get_character_name()
+	elif "character_name" in character:
+		return character.character_name
+	return "Unknown"
+
+## 获取角色生命值（鸭子类型）
+func _get_character_hp(character: Node) -> float:
+	if character.has_method("get_current_hp"):
+		return character.get_current_hp()
+	elif "current_hp" in character:
+		return character.current_hp
+	return 0.0
+
+## 获取角色能否行动（鸭子类型）
+func _get_character_can_action(character: Node) -> bool:
+	if character.has_method("get_can_action"):
+		return character.get_can_action()
+	elif "can_action" in character:
+		return character.can_action
+	return false
+#endregion
 
 #endregion

@@ -21,7 +21,7 @@ func initialize(damage_number_scene: PackedScene = null) -> void:
 ## [param prefix] 伤害数字前缀
 ## [param offset] 位置偏移
 func show_damage_number(
-		target_character: Character, 
+		target_character: Node, 
 		damage_amount: float, 
 		is_critical: bool = false,
 		color: Color = Color.RED,
@@ -33,7 +33,7 @@ func show_damage_number(
 
 ## 显示治疗数字
 func show_heal_number(
-		target_character: Character, 
+		target_character: Node, 
 		heal_amount: float,
 		offset: Vector2 = Vector2(0, 50)
 		) -> void:
@@ -44,7 +44,7 @@ func show_heal_number(
 ## [param target_character] 受到状态的角色
 ## [param text] 状态文本
 ## [param is_positive] 是否为正面状态
-func show_status_text(target_character: Character, text: String, is_positive: bool = true) -> void:
+func show_status_text(target_character: Node, text: String, is_positive: bool = true) -> void:
 	var status_text_instance : DamageNumber = _create_damage_number(target_character, Vector2(0, 70))
 	status_text_instance.show_status(text, is_positive)
 	print("Showed status text: '%s' on %s" % [text, target_character.character_name])
@@ -53,7 +53,7 @@ func show_status_text(target_character: Character, text: String, is_positive: bo
 ## [param skill_data] 使用的技能数据
 ## [param caster] 施法者
 ## [param targets] 技能目标
-func play_skill_visual_effects(skill_data: SkillData, caster: Character, targets: Array[Character]) -> Signal:
+func play_skill_visual_effects(skill_data: SkillData, caster: Node, targets: Array[Node]) -> Signal:
 	if not skill_data:
 		return Signal() # 返回一个立即完成的信号
 
@@ -79,7 +79,7 @@ func play_skill_visual_effects(skill_data: SkillData, caster: Character, targets
 	return tween.finished
 
 # 治疗效果视觉反馈
-func play_heal_effect(target: Character, params: Dictionary = {}) -> void:
+func play_heal_effect(target: Node, params: Dictionary = {}) -> void:
 	var tween = create_tween()
 	
 	# 目标变绿效果（表示恢复）
@@ -98,7 +98,7 @@ func play_heal_effect(target: Character, params: Dictionary = {}) -> void:
 		target.play_animation(params["animation"])
 
 # 状态效果应用视觉反馈
-func play_status_effect(target: Character, params: Dictionary = {}) -> void:
+func play_status_effect(target: Node, params: Dictionary = {}) -> void:
 	#var status_type = params.get("status_type", "buff")
 	var is_positive = params.get("is_positive", true)
 	
@@ -121,7 +121,7 @@ func play_status_effect(target: Character, params: Dictionary = {}) -> void:
 		target.play_animation(params["animation"])
 
 # 防御姿态效果
-func play_defend_effect(character: Character) -> void:
+func play_defend_effect(character: Node) -> void:
 	var tween = create_tween()
 	
 	# 角色微光效果
@@ -133,7 +133,7 @@ func play_defend_effect(character: Character) -> void:
 
 # --- 元素克制相关的视觉效果方法 ---
 ## 显示元素克制效果（伤害加成）
-func show_effective_hit(target: Character, params: Dictionary = {}) -> void:
+func show_effective_hit(target: Node, params: Dictionary = {}) -> void:
 	# 显示伤害数字
 	var damage_amount = params.get("amount", 0)
 	var damage_num_instance : DamageNumber = _create_damage_number(target, Vector2(0, 50))
@@ -146,7 +146,7 @@ func show_effective_hit(target: Character, params: Dictionary = {}) -> void:
 	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
 
 ## 显示元素被克制效果（伤害减免）
-func show_ineffective_hit(target: Character, params: Dictionary = {}) -> void:
+func show_ineffective_hit(target: Node, params: Dictionary = {}) -> void:
 	# 显示伤害数字
 	var damage_amount = params.get("amount", 0)
 	var damage_num_instance : DamageNumber = _create_damage_number(target, Vector2(0, 50))
@@ -160,7 +160,7 @@ func show_ineffective_hit(target: Character, params: Dictionary = {}) -> void:
 	
 
 ## 显示普通伤害效果
-func show_normal_damage(target: Character, params: Dictionary = {}) -> void:
+func show_normal_damage(target: Node, params: Dictionary = {}) -> void:
 	# 显示伤害数字
 	var damage_amount = params.get("amount", 0)
 	var damage_num_instance : DamageNumber = _create_damage_number(target, Vector2(0, 50))
@@ -172,16 +172,16 @@ func show_normal_damage(target: Character, params: Dictionary = {}) -> void:
 	tween.tween_property(target, "modulate", Color(1, 1, 1), 0.2)
 
 # --- 其他可能的视觉效果方法 ---
-# func show_buff_applied_effect(target: Character, buff_name: String)
-# func show_debuff_applied_effect(target: Character, debuff_name: String)
-# func highlight_active_character(character: Character)
-# func dim_inactive_characters(characters_to_dim: Array[Character])
+# func show_buff_applied_effect(target: Node, buff_name: String)
+# func show_debuff_applied_effect(target: Node, debuff_name: String)
+# func highlight_active_character(character: Node)
+# func dim_inactive_characters(characters_to_dim: Array[Node])
 
 ## 创建伤害数字
 ## [param target_character] 受到伤害的角色
 ## [param offset] 相对于目标角色的位置偏移
 ## [return] 创建的伤害数字实例
-func _create_damage_number(target_character: Character, offset: Vector2) -> DamageNumber:
+func _create_damage_number(target_character: Node, offset: Vector2) -> DamageNumber:
 	if not is_instance_valid(target_character):
 		push_error("Invalid target character.")
 		return

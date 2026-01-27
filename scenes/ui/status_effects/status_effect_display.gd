@@ -1,12 +1,12 @@
 class_name StatusEffectDisplay
 extends HBoxContainer
 
-var character: Character = null
+var character: BaseCombatCharacter = null
 var effect_icons = {}  # 效果ID -> 图标节点
 
 @export var status_icon_scene: PackedScene
 
-func initialize(target_character: Character) -> void:
+func initialize(target_character: BaseCombatCharacter) -> void:
     character = target_character
     
     # 连接信号
