@@ -65,27 +65,22 @@ cast_marker = NodePath("../CastMarker2D")
 [node name="BattleStateManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true
 script = ExtResource("9_puhd7")
-metadata/_custom_type_script = "uid://di683i6hqfos5"
 
 [node name="BattleVisualEffects" type="Node" parent="BattleManager"]
 unique_name_in_owner = true
 script = ExtResource("10_mpswg")
-metadata/_custom_type_script = "uid://htsaaa4uwn2u"
 
 [node name="BattleCharacterRegistryManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true
 script = ExtResource("11_te27b")
-metadata/_custom_type_script = "uid://bs03e3t582ml2"
 
 [node name="TurnOrderManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true
 script = ExtResource("12_7i1my")
-metadata/_custom_type_script = "uid://di1d00tvbpiq3"
 
 [node name="CombatRuleManager" type="Node" parent="BattleManager"]
 unique_name_in_owner = true
 script = ExtResource("13_7s01p")
-metadata/_custom_type_script = "uid://brbk1v6j3gefy"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 autoplay = true

@@ -24,13 +24,13 @@ signal action_tags_changed(restricted_tags: Array[String])
 
 func _ready() -> void:
 	# 自动查找组件（如果未手动指定）
-	if not ability_component:
+	if not is_instance_valid(ability_component):
 		ability_component = _find_component("GameplayAbilityComponent")
-	if not vital_component:
+	if not is_instance_valid(vital_component):
 		vital_component = _find_component("GameplayVitalAttributeComponent")
-	if not attribute_component:
+	if not is_instance_valid(attribute_component):
 		attribute_component = _find_component("GameplayAttributeComponent")
-	if not status_component:
+	if not is_instance_valid(status_component):
 		status_component = _find_component("GameplayStatusComponent")
 	
 	# 连接信号
@@ -280,31 +280,37 @@ func update_status_durations() -> void:
 	# godot_ability_system 的状态系统会自动更新，这里不需要额外操作
 	pass
 
+func get_skill_name(skill: Resource) -> String:
+	if skill is GameplayAbilityDefinition:
+		return skill.ability_name
+	return ""
+
+func is_skill_melee(skill: Resource) -> bool:
+	if skill is GameplayAbilityDefinition:
+		return skill.tags.has(&"melee")
+	return false
+
 #endregion
 
 #region ========== 辅助方法 ==========
-
 ## 获取技能消耗
 func _get_skill_cost(skill: Resource) -> float:
 	if skill is GameplayAbilityDefinition:
-		# 从技能特性中查找Cost特性
-		for feature in skill.features:
-			if feature is CostFeature:
-				# CostFeature包含costs数组
-				if feature.has("costs"):
-					var costs = feature.get("costs")
-					if costs is Array:
-						for cost in costs:
-							if cost is VitalCost:
-								# 检查是否是Mana/MP消耗
-								var vital_id = cost.vital_id
-								if vital_id == &"Mana" or vital_id == &"MP" or vital_id == &"mana" or vital_id == &"mp":
-									return cost.amount
-	
-	# 如果是旧的SkillData
-	if skill.has_method("get") and skill.get("mp_cost"):
-		return skill.get("mp_cost")
-	
+		if not is_instance_valid(skill):
+			return 0.0
+		var ability_instance = ability_component.get_ability_instance(skill.ability_id)
+		if not is_instance_valid(ability_instance):
+			push_error("AbilitySystemAdapter: Ability instance not found for skill %s" % skill.ability_id)
+			return 0.0
+		if not ability_instance.has_feature("CostFeature"):
+			return 0.0
+		var cost_feature = ability_instance.get_feature("CostFeature") as CostFeature
+		if not is_instance_valid(cost_feature):
+			return 0.0
+		for cost in cost_feature.costs:
+			if cost is VitalCost:
+				return cost.amount
+		return 0.0
 	return 0.0
 
 ## 属性值变化处理
@@ -334,7 +340,7 @@ func _on_status_removed(status_id: StringName) -> void:
 
 ## 更新动作限制（根据状态标签）
 func _update_action_restrictions() -> void:
-	if not status_component:
+	if not is_instance_valid(status_component):
 		return
 	
 	var new_restrictions: Array[String] = []
@@ -359,4 +365,3 @@ func _update_action_restrictions() -> void:
 		action_tags_changed.emit(_restricted_action_tags)
 
 #endregion
-

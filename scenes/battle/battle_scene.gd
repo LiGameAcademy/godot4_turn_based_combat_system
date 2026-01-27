@@ -1,7 +1,7 @@
 extends Node2D
 class_name BattleScene
 
-const CHARACTER : PackedScene = preload("res://addons/turn_based_combat_system/prefabs/characters/base_combat_character.tscn")
+@export var CHARACTER_SCENE : PackedScene = preload("res://addons/turn_based_combat_system/prefabs/characters/base_combat_character.tscn")
 
 ## 战斗场景，负责战斗的UI显示和交互
 @onready var player_area: Node2D = %PlayerArea
@@ -75,7 +75,7 @@ func _connect_character_click_signals() -> void:
 		character.character_clicked.connect(_on_character_clicked)
 
 func _spawn_character(character_data: CharacterData, position_offset: Vector2) -> BaseCombatCharacter:
-	var character: BaseCombatCharacter = CHARACTER.instantiate()
+	var character: BaseCombatCharacter = CHARACTER_SCENE.instantiate()
 	character.character_data = character_data
 	character.position = position_offset
 	return character

@@ -16,8 +16,8 @@ enum ActionType {
 var _skill_system: Node = null
 
 @export_enum("none", "fire", "water", "earth", "light")var element: int = 0 			## 元素属性 ElementTypes.Element.NONE
-var attack_skill : SkillData															## 攻击技能
-var defense_skill : SkillData															## 防御技能
+var attack_skill : Resource = null														## 攻击技能（使用 Resource 类型，不依赖具体实现）
+var defense_skill : Resource = null														## 防御技能（使用 Resource 类型，不依赖具体实现）
 ## 能否行动
 var can_action : bool = true:
 	get:
@@ -40,7 +40,7 @@ signal skill_executed(caster, skill, targets, results)								## 技能执行信
 signal item_used(user, item, targets, results)										## 道具使用信号
 
 ## 初始化组件
-func initialize(p_element : int = 0, p_attack_skill : SkillData = null, p_defense_skill : SkillData = null) -> void:
+func initialize(p_element : int = 0, p_attack_skill : Resource = null, p_defense_skill : Resource = null) -> void:
 	element = p_element
 	
 	# 尝试获取技能系统（通过鸭子类型）
@@ -80,7 +80,7 @@ func execute_action(action_type: ActionType, target : Node = null, params : Dict
 
 	# 如果是技能动作，检查技能是否可以使用（通过鸭子类型）
 	if action_type == ActionType.SKILL:
-		var skill : SkillData = params.get("skill", null)
+		var skill : Resource = params.get("skill", null)
 		if not skill:
 			result["error"] = "技能数据为空"
 			return result
@@ -104,7 +104,7 @@ func execute_action(action_type: ActionType, target : Node = null, params : Dict
 		ActionType.DEFEND:
 			result = await _execute_defend(skill_context)
 		ActionType.SKILL:
-			var skill : SkillData = params.get("skill", null)
+			var skill : Resource = params.get("skill", null)
 			targets.append(target)
 			result = await _execute_skill(skill, targets, skill_context)
 		ActionType.ITEM:
@@ -262,23 +262,27 @@ func _execute_defend(skill_context: SkillExecutionContext) -> Dictionary:
 	return result
 
 ## 执行技能
-## [param skill] 技能数据
+## [param skill] 技能数据（使用 Resource 类型，不依赖具体实现）
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
 func _execute_skill(
-		skill: SkillData, 
+		skill: Resource, 
 		targets: Array[Node], 
 		skill_context: SkillExecutionContext) -> Dictionary:
 	var caster = get_parent()
 	if not is_instance_valid(caster) or not skill:
 		return {"success": false, "error": "无效的施法者或技能"}
 	
+	# 通过鸭子类型获取技能名称
+	var skill_name = _get_skill_name(skill)
 	var caster_name = _get_character_name(caster)
-	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster_name, skill.skill_name])
+	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster_name, skill_name])
 
 	# 移动逻辑（如果父节点有该方法）
-	if skill.is_melee and not targets.is_empty():
+	# 通过鸭子类型检查是否是近战技能
+	var is_melee = _is_skill_melee(skill)
+	if is_melee and not targets.is_empty():
 		if caster.has_method("move_to_target"):
 			await caster.move_to_target(targets[0])
 	else:
@@ -383,6 +387,34 @@ func _get_character_name(character: Node) -> String:
 	elif "character_name" in character:
 		return character.character_name
 	return "Unknown"
+
+## 获取技能名称（鸭子类型）
+func _get_skill_name(skill: Resource) -> String:
+	if not is_instance_valid(skill):
+		return "Unknown Skill"
+	# 尝试多种方式获取技能名称
+	if is_instance_valid(_skill_system) and _skill_system.has_method("get_skill_name"):
+		return _skill_system.get_skill_name(skill)
+	elif "skill_name" in skill:
+		return skill.skill_name
+	elif skill.has_method("get") and skill.get("skill_name"):
+		return skill.get("skill_name")
+	elif "name" in skill:
+		return skill.name
+	return "Unknown Skill"
+
+## 检查技能是否是近战（鸭子类型）
+func _is_skill_melee(skill: Resource) -> bool:
+	if not is_instance_valid(skill):
+		return false
+	# 尝试多种方式获取 is_melee 属性
+	if is_instance_valid(_skill_system) and _skill_system.has_method("is_skill_melee"):
+		return _skill_system.is_skill_melee(skill)
+	if "is_melee" in skill:
+		return skill.is_melee
+	elif skill.has_method("get") and skill.get("is_melee") != null:
+		return skill.get("is_melee")
+	return false
 #endregion
 
 #region --- 信号处理 ---
