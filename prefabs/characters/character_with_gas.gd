@@ -443,16 +443,23 @@ func _on_character_input_event(_viewport: Node, event: InputEvent, _shape_idx: i
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		character_clicked.emit(self)
 
-## 手动更新UI（如果 CharacterInfoContainer 不支持当前类型）
+## 手动更新UI
 func _update_ui_manually() -> void:
 	if not character_info_container:
 		return
 	
-	# 更新名称
-	if character_info_container.has_method("_update_name_display"):
-		character_info_container._update_name_display()
+	# 名称直接由角色提供
+	character_info_container.set_name_text(String(character_name))
 	
-	# 更新属性条
-	if character_info_container.has_method("_update_attribute_bars"):
-		character_info_container._update_attribute_bars()
+	# 对于 GAS，使用 Vital 数值更新血条 / 蓝条
+	if vital_component:
+		var hp_current := vital_component.get_vital_value(&"health")
+		var hp_percent := vital_component.get_vital_percent(&"health")
+		var hp_max := hp_current / hp_percent if hp_percent > 0.0 else hp_current
+		character_info_container.set_hp_values(hp_current, hp_max)
+		
+		var mp_current := vital_component.get_vital_value(&"mana")
+		var mp_percent := vital_component.get_vital_percent(&"mana")
+		var mp_max := mp_current / mp_percent if mp_percent > 0.0 else mp_current
+		character_info_container.set_mp_values(mp_current, mp_max)
 #endregion

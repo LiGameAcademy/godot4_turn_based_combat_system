@@ -6,8 +6,7 @@ class_name CharacterInfoContainer
 @onready var mp_bar: AttributeStatusBar = %MPBar
 @onready var skill_status_container: HBoxContainer = %SkillStatusContainer
 
-# 当前绑定的角色
-var _character: BaseCombatCharacter = null
+var _display_name: String = ""
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
@@ -21,102 +20,31 @@ func _ready() -> void:
 	for child in skill_status_container.get_children():
 		child.queue_free()
 
-## 初始化角色信息容器
-## [param character] 要绑定的角色
-func initialize(character: BaseCombatCharacter) -> void:
-	if not character:
-		push_error("CharacterInfoContainer: 无法初始化，角色为空")
-		return
-	
-	# 清除之前的绑定
-	if _character:
-		_disconnect_signals()
-		clear_status_icons()
-	
-	# 设置新角色
-	_character = character
-	
-	# 连接信号
-	_connect_signals()
-	
-	# 初始化显示
+## 一次性初始化显示（由外部角色调用）
+func initialize(display_name: String, hp_current: float, hp_max: float, mp_current: float, mp_max: float) -> void:
+	clear_status_icons()
+	set_name_text(display_name)
+	set_hp_values(hp_current, hp_max)
+	set_mp_values(mp_current, mp_max)
+
+## 简单名称设置（适用于任意角色实现）
+func set_name_text(display_name: String) -> void:
+	_display_name = display_name
 	_update_name_display()
-	_update_attribute_bars()
-	_initialize_status_icons()
 
-## 连接信号
-func _connect_signals() -> void:
-	if not _character or not _character.skill_component:
-		return
-	
-	# 连接属性变化信号
-	_character.skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
-	
-	# 连接状态变化信号
-	_character.skill_component.status_applied.connect(_on_status_applied)
-	_character.skill_component.status_removed.connect(_on_status_removed)
-	_character.skill_component.status_updated.connect(_on_status_updated)
+## 直接用数值设置 HP（适用于非 SkillAttribute 系统，例如 GAS Vital）
+func set_hp_values(current_hp: float, max_hp: float) -> void:
+	if hp_bar:
+		hp_bar.set_values(current_hp, max_hp)
 
-## 断开信号连接
-func _disconnect_signals() -> void:
-	if not _character or not _character.skill_component:
-		return
-	
-	# 断开属性变化信号
-	if _character.skill_component.attribute_current_value_changed.is_connected(_on_attribute_current_value_changed):
-		_character.skill_component.attribute_current_value_changed.disconnect(_on_attribute_current_value_changed)
-	
-	# 断开状态变化信号
-	if _character.skill_component.status_applied.is_connected(_on_status_applied):
-		_character.skill_component.status_applied.disconnect(_on_status_applied)
-	if _character.skill_component.status_removed.is_connected(_on_status_removed):
-		_character.skill_component.status_removed.disconnect(_on_status_removed)
-	if _character.skill_component.status_updated.is_connected(_on_status_updated):
-		_character.skill_component.status_updated.disconnect(_on_status_updated)
+## 直接用数值设置 MP（适用于非 SkillAttribute 系统，例如 GAS Vital）
+func set_mp_values(current_mp: float, max_mp: float) -> void:
+	if mp_bar:
+		mp_bar.set_values(current_mp, max_mp)
 
 ## 更新名称显示
 func _update_name_display() -> void:
-	if not _character:
-		return
-	
-	name_label.text = _character.character_name
-
-## 更新属性条显示
-func _update_attribute_bars() -> void:
-	if not _character:
-		return
-	
-	# 获取角色的属性组件
-	var skill_comp : CharacterSkillComponent = _character.skill_component
-	if not skill_comp:
-		return
-	
-	# 获取HP属性
-	var current_hp = skill_comp.get_attribute(&"CurrentHealth")
-	var max_hp = skill_comp.get_attribute(&"MaxHealth")
-	if current_hp and max_hp:
-		hp_bar.setup(current_hp, max_hp)
-	
-	# 获取MP属性
-	var current_mp = skill_comp.get_attribute(&"CurrentMana")
-	var max_mp = skill_comp.get_attribute(&"MaxMana")
-	if current_mp and max_mp:
-		mp_bar.setup(current_mp, max_mp)
-
-## 初始化状态图标
-func _initialize_status_icons() -> void:
-	if not _character or not _character.skill_component:
-		return
-	
-	# 清除现有的状态图标
-	clear_status_icons()
-	
-	# 获取当前所有状态
-	var active_statuses = _character.skill_component.get_active_statuses()
-	for status_id in active_statuses:
-		var status : SkillStatusData = active_statuses[status_id]
-		if not status.is_hidden_from_ui:
-			_add_status_icon(status)
+	name_label.text = _display_name
 
 ## 添加状态图标
 func _add_status_icon(status_data: SkillStatusData) -> void:
@@ -168,33 +96,16 @@ func clear_status_icons() -> void:
 	# 清空字典
 	_status_icons.clear()
 
-## 属性当前值变化回调
-func _on_attribute_current_value_changed(attribute: SkillAttribute, _old_value: float, _new_value: float) -> void:
-	# 检查是否是HP或MP属性
-	if attribute.attribute_name == &"CurrentHealth" or attribute.attribute_name == &"MaxHealth":
-		# 更新HP条
-		var current_hp = _character.skill_component.get_attribute(&"CurrentHealth")
-		var max_hp = _character.skill_component.get_attribute(&"MaxHealth")
-		if current_hp and max_hp:
-			hp_bar.setup(current_hp, max_hp)
-	
-	elif attribute.attribute_name == &"CurrentMana" or attribute.attribute_name == &"MaxMana":
-		# 更新MP条
-		var current_mp = _character.skill_component.get_attribute(&"CurrentMana")
-		var max_mp = _character.skill_component.get_attribute(&"MaxMana")
-		if current_mp and max_mp:
-			mp_bar.setup(current_mp, max_mp)
-
-## 状态应用回调
-func _on_status_applied(status_instance: SkillStatusData) -> void:
+## 状态应用（由外部角色/组件调用）
+func on_status_applied(status_instance: SkillStatusData) -> void:
 	_add_status_icon(status_instance)
 
-## 状态移除回调
-func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
+## 状态移除（由外部角色/组件调用）
+func on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
 	_remove_status_icon(status_id)
 
-## 状态更新回调
-func _on_status_updated(status_instance: SkillStatusData, _old_stacks: int, _old_duration: int) -> void:
+## 状态更新（由外部角色/组件调用）
+func on_status_updated(status_instance: SkillStatusData, _old_stacks: int, _old_duration: int) -> void:
 	# 更新状态图标
 	if _status_icons.has(status_instance.status_id):
 		_status_icons[status_instance.status_id].update_status(status_instance)

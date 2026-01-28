@@ -86,8 +86,15 @@ func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 	# 初始化组件
 	_init_components(battle_manager)
 
-	# 初始化UI显示
-	character_info_container.initialize(self)
+	# 初始化UI显示（通过显式 API 反转控制）
+	if character_info_container:
+		character_info_container.initialize(
+			String(character_name),
+			current_hp,
+			max_hp,
+			current_mp,
+			max_mp
+		)
 	_setup_animations()
 
 	cast_marker = p_cast_marker
