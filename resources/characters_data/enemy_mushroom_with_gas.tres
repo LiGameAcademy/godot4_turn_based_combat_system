@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="4_attack"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="5_defend"]
 [ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="6_icon"]
-[ext_resource type="Resource" uid="uid://bm4ps7j062syt" path="res://resources/attribute_sets/enemy_mushroom_attribute_set.tres" id="7_attr_set"]
+[ext_resource type="Resource" uid="uid://bm4ps7j062syt" path="res://data/attribute_sets/enemy_mushroom_attribute_set.tres" id="7_attr_set"]
 [ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="8_rh5s6"]
 
 [sub_resource type="Resource" id="Resource_ai"]

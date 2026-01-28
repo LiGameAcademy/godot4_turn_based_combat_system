@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="4_attack"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="5_defend"]
 [ext_resource type="Texture2D" uid="uid://cdnxl7jbpxxru" path="res://assets/textures/icons/crystal_mauler.tres" id="6_icon"]
-[ext_resource type="Resource" uid="uid://c02etxc77iu1k" path="res://resources/attribute_sets/player_crystal_mauler_attribute_set.tres" id="7_attr_set"]
+[ext_resource type="Resource" uid="uid://c02etxc77iu1k" path="res://data/attribute_sets/player_crystal_mauler_attribute_set.tres" id="7_attr_set"]
 [ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="8_vlg2w"]
 
 [sub_resource type="Resource" id="Resource_ai"]

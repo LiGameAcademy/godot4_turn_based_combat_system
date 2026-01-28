@@ -10,7 +10,7 @@
 [ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://resources/skills/minor_heal.tres" id="7_heal"]
 [ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="8_silence"]
 [ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://resources/skills/stun.tres" id="9_stun"]
-[ext_resource type="Resource" uid="uid://djjd7q81t6p65" path="res://resources/attribute_sets/player_assassin_attribute_set.tres" id="10_attr_set"]
+[ext_resource type="Resource" uid="uid://djjd7q81t6p65" path="res://data/attribute_sets/player_assassin_attribute_set.tres" id="10_attr_set"]
 
 [sub_resource type="Resource" id="Resource_attack"]
 script = ExtResource("5_skill_data")
