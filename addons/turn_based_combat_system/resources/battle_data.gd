@@ -10,11 +10,11 @@ class_name BattleData
 ## 战斗音乐
 @export var battle_music: AudioStream
 
-## 敌人数据列表
-@export var enemy_data_list: Dictionary[CharacterData, Vector2] = {}
+## 敌人数据列表（使用 CharacterDataWithGAS）
+@export var enemy_data_list: Dictionary[CharacterDataWithGAS, Vector2] = {}
 
-## 玩家角色数据列表 (可选，如果为空则使用全局玩家队伍)
-@export var player_data_list: Dictionary[CharacterData, Vector2] = {}
+## 玩家角色数据列表（使用 CharacterDataWithGAS；如果为空则使用全局玩家队伍）
+@export var player_data_list: Dictionary[CharacterDataWithGAS, Vector2] = {}
 
 ## 战斗最大回合数 (超过此回合数自动失败，0表示无限制)
 @export var max_turn_count: int = 99

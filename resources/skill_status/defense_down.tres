@@ -1,15 +1,14 @@
 [gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://bgahn3mwsoujr"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_tsm7t"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://scripts/resources/skill_effect.gd" id="2_ea1hn"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://scripts/resources/skill_status_data.gd" id="3_leain"]
+[ext_resource type="Script" uid="uid://lx4kvja66j3g" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_attribute_modifier.gd" id="1_tsm7t"]
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="2_ea1hn"]
+[ext_resource type="Script" uid="uid://ba8gbmqhr6ixo" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_status_data.gd" id="3_leain"]
 
 [sub_resource type="Resource" id="Resource_tsm7t"]
 script = ExtResource("1_tsm7t")
 attribute_id = &"DefensePower"
 magnitude = -0.2
 operation = 2
-priority = 50
 metadata/_custom_type_script = "uid://dgwfcaub0ivab"
 
 [resource]
@@ -17,21 +16,7 @@ script = ExtResource("3_leain")
 status_id = &"defense_down"
 status_name = "防御下降"
 description = "孢子侵蚀了护甲，防御力大幅降低。"
-is_hidden_from_ui = false
 status_type = 1
-duration = 3
-duration_type = 0
-max_stacks = 1
-stack_behavior = 1
 attribute_modifiers = Array[ExtResource("1_tsm7t")]([SubResource("Resource_tsm7t")])
-initial_effects = Array[ExtResource("2_ea1hn")]([])
-ongoing_effects = Array[ExtResource("2_ea1hn")]([])
-end_effects = Array[ExtResource("2_ea1hn")]([])
-overrides_states = Array[StringName]([])
-resisted_by_states = Array[StringName]([])
-trigger_on_events = Array[StringName]([])
-trigger_effects = Array[ExtResource("2_ea1hn")]([])
 trigger_turns = 1
 trigger_count = 1
-restricted_action_categories = Array[String]([])
-metadata/_custom_type_script = "uid://do7l16ao2ut6t"

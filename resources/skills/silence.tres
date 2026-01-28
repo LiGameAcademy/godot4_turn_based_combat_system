@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://co8l4ht41spj7" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_a5a8d"]
 [ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="2_ali5r"]
 [ext_resource type="Script" uid="uid://defmkhaaqhee7" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="2_ufxuo"]
-[ext_resource type="Resource" path="res://resources/skill_status/silence.tres" id="3_a5a8d"]
+[ext_resource type="Resource" uid="uid://dce1fg2h3i4j5" path="res://resources/skill_status/silence.tres" id="3_a5a8d"]
 
 [sub_resource type="Resource" id="Resource_oh27s"]
 script = ExtResource("2_ufxuo")

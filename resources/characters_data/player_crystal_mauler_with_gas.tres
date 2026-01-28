@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CharacterDataWithGAS" load_steps=10 format=3 uid="uid://dgkqsh6lklg6k"]
+
+[ext_resource type="Script" uid="uid://dhdckuos68j5u" path="res://scripts/definitions/character_data_with_gas.gd" id="1_char_data"]
+[ext_resource type="Script" uid="uid://dver6lyif7d41" path="res://addons/turn_based_combat_system/core/ai/ai_behavior.gd" id="2_ai"]
+[ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="3_anim"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="4_attack"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="5_defend"]
+[ext_resource type="Texture2D" uid="uid://cdnxl7jbpxxru" path="res://assets/textures/icons/crystal_mauler.tres" id="6_icon"]
+[ext_resource type="Resource" uid="uid://c02etxc77iu1k" path="res://resources/attribute_sets/player_crystal_mauler_attribute_set.tres" id="7_attr_set"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="8_vlg2w"]
+
+[sub_resource type="Resource" id="Resource_ai"]
+script = ExtResource("2_ai")
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[resource]
+script = ExtResource("1_char_data")
+character_name = "格罗姆尼尔"
+description = "来自地底深城的坚毅矮人，他的战锤能粉碎岩石，他的意志如水晶般坚不可摧。作为团队的先锋，他总是站在最前线，为同伴筑起一道可靠的屏障。"
+attribute_set_resource = ExtResource("7_attr_set")
+element = 3
+ai_behavior = SubResource("Resource_ai")
+attack_skill = ExtResource("4_attack")
+defense_skill = ExtResource("5_defend")
+animation_library = ExtResource("3_anim")
+icon = ExtResource("6_icon")

@@ -1,0 +1,90 @@
+[gd_scene load_steps=15 format=3 uid="uid://bcr8uktgxaw07"]
+
+[ext_resource type="Script" uid="uid://dqvp8wej6hgrm" path="res://prefabs/characters/character_with_gas.gd" id="1_8cyom"]
+[ext_resource type="PackedScene" uid="uid://djpwdkkb8ufbt" path="res://scenes/ui/character_info_container.tscn" id="2_ui"]
+[ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://scenes/ui/state_indicator.tscn" id="3_ui"]
+[ext_resource type="Texture2D" uid="uid://cqcg1s3a5cmh7" path="res://assets/sprites/characters/heros/crystal_mauler/attack_1.png" id="4_sprite"]
+[ext_resource type="Script" uid="uid://dver6lyif7d41" path="res://addons/turn_based_combat_system/core/ai/ai_behavior.gd" id="5_ai_behavior"]
+[ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="5_anim"]
+[ext_resource type="Script" uid="uid://c8exy8a1uj7k7" path="res://addons/turn_based_combat_system/core/character/character_combat_component.gd" id="6_combat"]
+[ext_resource type="Script" uid="uid://badorwd4tcdwx" path="res://addons/turn_based_combat_system/core/character/character_ai_component.gd" id="7_ai"]
+[ext_resource type="Script" uid="uid://cqit2cgymsv72" path="res://addons/turn_based_combat_system/adapters/ability_system_adapter.gd" id="8_adapter"]
+[ext_resource type="Script" uid="uid://n8p5beakef7b" path="res://addons/godot_ability_system/scripts/components/gameplay_ability_component.gd" id="9_ability"]
+[ext_resource type="Script" uid="uid://bhopvoj74pcwj" path="res://addons/godot_ability_system/scripts/components/gameplay_vital_attribute_component.gd" id="10_vital"]
+[ext_resource type="Script" uid="uid://b6hkniyhlhrsf" path="res://addons/godot_ability_system/scripts/components/gameplay_status_component.gd" id="12_status"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_click"]
+size = Vector2(120, 120)
+
+[sub_resource type="Resource" id="Resource_ai"]
+script = ExtResource("5_ai_behavior")
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[node name="Character" type="Node2D"]
+script = ExtResource("1_8cyom")
+
+[node name="StateIndicator" parent="." instance=ExtResource("3_ui")]
+visible = false
+
+[node name="CharacterInfoContainer" parent="." instance=ExtResource("2_ui")]
+unique_name_in_owner = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -70.0
+offset_top = -220.0
+offset_right = 70.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(0, -125)
+scale = Vector2(2, 2)
+texture = ExtResource("4_sprite")
+hframes = 6
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+unique_name_in_owner = true
+libraries = {
+&"": ExtResource("5_anim")
+}
+
+[node name="CharacterClickArea" type="Area2D" parent="."]
+unique_name_in_owner = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterClickArea"]
+position = Vector2(0, -60)
+shape = SubResource("RectangleShape2D_click")
+
+[node name="GameplayAbilityComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("9_ability")
+
+[node name="GameplayVitalAttributeComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("10_vital")
+
+[node name="GameplayStatusComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("12_status")
+
+[node name="CharacterCombatComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("6_combat")
+
+[node name="CharacterAIComponent" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("7_ai")
+ai_enabled = true
+behavior_resource = SubResource("Resource_ai")
+
+[node name="AbilitySystemAdapter" type="Node" parent="." node_paths=PackedStringArray("ability_component", "vital_component", "status_component")]
+unique_name_in_owner = true
+script = ExtResource("8_adapter")
+ability_component = NodePath("../GameplayAbilityComponent")
+vital_component = NodePath("../GameplayVitalAttributeComponent")
+status_component = NodePath("../GameplayStatusComponent")

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CharacterDataWithGAS" load_steps=10 format=3 uid="uid://bfmqsuom8v0c3"]
+
+[ext_resource type="Script" uid="uid://dhdckuos68j5u" path="res://scripts/definitions/character_data_with_gas.gd" id="1_char_data"]
+[ext_resource type="Script" uid="uid://dver6lyif7d41" path="res://addons/turn_based_combat_system/core/ai/ai_behavior.gd" id="2_ai"]
+[ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="3_anim"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="4_attack"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="5_defend"]
+[ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="6_icon"]
+[ext_resource type="Resource" uid="uid://bm4ps7j062syt" path="res://resources/attribute_sets/enemy_mushroom_attribute_set.tres" id="7_attr_set"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="8_rh5s6"]
+
+[sub_resource type="Resource" id="Resource_ai"]
+script = ExtResource("2_ai")
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[resource]
+script = ExtResource("1_char_data")
+character_name = "蘑菇怪"
+description = "一片古老菌毯的延伸体，会散播各种影响战局的孢子。单独存在时很脆弱，但成群出现时则非常麻烦。"
+attribute_set_resource = ExtResource("7_attr_set")
+element = 3
+ai_behavior = SubResource("Resource_ai")
+attack_skill = ExtResource("4_attack")
+defense_skill = ExtResource("5_defend")
+animation_library = ExtResource("3_anim")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("6_icon")

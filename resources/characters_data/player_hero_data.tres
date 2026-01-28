@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://2g1wi6dxek6"]
+[gd_resource type="Resource" script_class="CharacterData" load_steps=18 format=3 uid="uid://bxqkntmr8wrh0"]
 
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="1_ikb8i"]
 [ext_resource type="Script" uid="uid://cq4h2ylwvjcku" path="res://addons/turn_based_combat_system/resources/character_data.gd" id="1_prr5c"]

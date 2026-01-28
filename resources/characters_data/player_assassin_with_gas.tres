@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="CharacterDataWithGAS" load_steps=13 format=3 uid="uid://c2mu04s1tpdfw"]
+
+[ext_resource type="Script" uid="uid://dhdckuos68j5u" path="res://scripts/definitions/character_data_with_gas.gd" id="1_char_data"]
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="2_anim"]
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="2_yn1sh"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="3_defend"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="4_icon"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="5_skill_data"]
+[ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://resources/skills/fireball.tres" id="6_fireball"]
+[ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://resources/skills/minor_heal.tres" id="7_heal"]
+[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://resources/skills/silence.tres" id="8_silence"]
+[ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://resources/skills/stun.tres" id="9_stun"]
+[ext_resource type="Resource" uid="uid://djjd7q81t6p65" path="res://resources/attribute_sets/player_assassin_attribute_set.tres" id="10_attr_set"]
+
+[sub_resource type="Resource" id="Resource_attack"]
+script = ExtResource("5_skill_data")
+skill_id = &"attack"
+skill_name = "普通攻击"
+description = ""
+mp_cost = 0
+target_type = 8
+cast_animation = &"attack"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"
+
+[resource]
+script = ExtResource("1_char_data")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+attribute_set_resource = ExtResource("10_attr_set")
+element = 2
+skills = Array[ExtResource("5_skill_data")]([ExtResource("6_fireball"), ExtResource("7_heal"), ExtResource("8_silence"), ExtResource("9_stun")])
+attack_skill = SubResource("Resource_attack")
+defense_skill = ExtResource("3_defend")
+animation_library = ExtResource("2_anim")
+icon = ExtResource("4_icon")

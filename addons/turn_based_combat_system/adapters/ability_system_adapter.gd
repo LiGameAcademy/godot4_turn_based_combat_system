@@ -7,8 +7,8 @@ class_name AbilitySystemAdapter
 
 ## 引用的 godot_ability_system 组件
 @export var ability_component: GameplayAbilityComponent
+## Vital组件（继承自GameplayAttributeComponent，包含属性功能）
 @export var vital_component: GameplayVitalAttributeComponent
-@export var attribute_component: GameplayAttributeComponent
 @export var status_component: GameplayStatusComponent
 
 ## 动作限制标签（用于控制角色能否行动）
@@ -28,8 +28,6 @@ func _ready() -> void:
 		ability_component = _find_component("GameplayAbilityComponent")
 	if not is_instance_valid(vital_component):
 		vital_component = _find_component("GameplayVitalAttributeComponent")
-	if not is_instance_valid(attribute_component):
-		attribute_component = _find_component("GameplayAttributeComponent")
 	if not is_instance_valid(status_component):
 		status_component = _find_component("GameplayStatusComponent")
 	
@@ -51,10 +49,10 @@ func _find_component(class_name_str: String) -> Node:
 
 ## 连接信号
 func _connect_signals() -> void:
-	# 连接属性变化信号
-	if attribute_component and attribute_component.has_signal("attribute_value_changed"):
-		if not attribute_component.attribute_value_changed.is_connected(_on_attribute_value_changed):
-			attribute_component.attribute_value_changed.connect(_on_attribute_value_changed)
+	# 连接属性变化信号（通过vital_component，因为它继承自GameplayAttributeComponent）
+	if vital_component and vital_component.has_signal("attribute_value_changed"):
+		if not vital_component.attribute_value_changed.is_connected(_on_attribute_value_changed):
+			vital_component.attribute_value_changed.connect(_on_attribute_value_changed)
 	
 	# 连接Vital变化信号
 	if vital_component and vital_component.has_signal("vital_value_changed"):
@@ -315,8 +313,10 @@ func _get_skill_cost(skill: Resource) -> float:
 
 ## 属性值变化处理
 func _on_attribute_value_changed(id: StringName, new_val: float) -> void:
-	# 创建伪属性实例用于信号
-	var attr_instance = attribute_component.get_attribute(id)
+	# 通过vital_component获取属性实例（因为它继承自GameplayAttributeComponent）
+	if not vital_component:
+		return
+	var attr_instance = vital_component.get_attribute(id)
 	if attr_instance:
 		var old_val = attr_instance.get_value() - (new_val - attr_instance.get_value())
 		attribute_current_value_changed.emit(attr_instance, old_val, new_val)

@@ -37,13 +37,13 @@ func initialize_battle(battle_data: BattleData) -> void:
 
 	for player_data in battle_data.player_data_list:
 		var pos : Vector2 = battle_data.player_data_list[player_data]
-		var player: BaseCombatCharacter = _spawn_character(player_data, pos)
+		var player: Node = _spawn_character(player_data, pos)
 		player_area.add_child(player)
 		battle_manager.add_character(player, true)
 
 	for enemy_data in battle_data.enemy_data_list:
 		var pos : Vector2 = battle_data.enemy_data_list[enemy_data]
-		var enemy: BaseCombatCharacter = _spawn_character(enemy_data, pos)
+		var enemy: Node = _spawn_character(enemy_data, pos)
 		enemy.is_player = false
 		enemy_area.add_child(enemy)
 		battle_manager.add_character(enemy, false)
@@ -74,8 +74,8 @@ func _connect_character_click_signals() -> void:
 	for character in all_characters:
 		character.character_clicked.connect(_on_character_clicked)
 
-func _spawn_character(character_data: CharacterData, position_offset: Vector2) -> BaseCombatCharacter:
-	var character: BaseCombatCharacter = CHARACTER_SCENE.instantiate()
+func _spawn_character(character_data: Resource, position_offset: Vector2) -> Node:
+	var character = CHARACTER_SCENE.instantiate()
 	character.character_data = character_data
 	character.position = position_offset
 	return character

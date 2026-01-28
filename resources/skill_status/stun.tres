@@ -1,17 +1,8 @@
-[gd_resource type="Resource" script_class="SkillStatusData" load_steps=5 format=3 uid="uid://nb7w4k0528xl"]
+[gd_resource type="Resource" script_class="SkillStatusData" load_steps=4 format=3 uid="uid://nb7w4k0528xl"]
 
-[ext_resource type="Script" path="res://scripts/resources/skill_attribute_modifier.gd" id="1_wspci"]
-[ext_resource type="Script" path="res://scripts/resources/skill_effect.gd" id="2_usa3q"]
-[ext_resource type="Texture2D" uid="uid://bb7j0sewffv1t" path="res://assets/textures/icons/status/stun.svg" id="3_usa3q"]
-[ext_resource type="Script" path="res://scripts/resources/skill_status_data.gd" id="3_vy3m8"]
+[ext_resource type="Script" uid="uid://lx4kvja66j3g" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_attribute_modifier.gd" id="1_wspci"]
+[ext_resource type="Script" uid="uid://ogcovqdi0op" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_effect.gd" id="2_usa3q"]
+[ext_resource type="Script" uid="uid://ba8gbmqhr6ixo" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_status_data.gd" id="3_vy3m8"]
 
 [resource]
 script = ExtResource("3_vy3m8")
-status_id = &"stun"
-status_name = "眩晕"
-icon = ExtResource("3_usa3q")
-status_type = 1
-trigger_turns = 1
-trigger_count = 1
-restricted_action_categories = Array[String](["any_action"])
-metadata/_custom_type_script = "uid://do7l16ao2ut6t"

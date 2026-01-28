@@ -2,7 +2,7 @@ extends MarginContainer
 class_name TurnOrderIndicator
 
 ## 角色图标场景
-const CHARACTER_ICON = preload("res://scenes/ui/character_icon.tscn")
+@export var CHARACTER_ICON : PackedScene = preload("uid://bfptueu5uw87m")
 
 ## 预览的角色数量
 const MAX_PREVIEW_CHARACTERS = 5

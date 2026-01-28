@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="GameplayAttribute" load_steps=2 format=3 uid="uid://cpa80oxt1y1xl"]
+
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_defense"]
+
+[resource]
+script = ExtResource("1_defense")
+attribute_id = &"defense_power"
+attribute_display_name = "防御力"
+attribute_description = "角色的物理防御力，减少受到的物理伤害"

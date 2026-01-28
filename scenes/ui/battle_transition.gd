@@ -1,4 +1,3 @@
-# scenes/ui/battle_transition.gd
 extends CanvasLayer
 class_name BattleTransition
 

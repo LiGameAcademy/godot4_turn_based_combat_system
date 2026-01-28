@@ -1,5 +1,4 @@
-# scripts/ui/action_menu.gd
-extends Panel
+extends MarginContainer
 class_name ActionMenu
 
 # 引用UI元素

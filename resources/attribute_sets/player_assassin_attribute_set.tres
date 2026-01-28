@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="GameplayAttributeSet" load_steps=9 format=3 uid="uid://djjd7q81t6p65"]
+
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="1_attr_set"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_w43ou"]
+[ext_resource type="Resource" uid="uid://l6qyhuyt4b7h" path="res://resources/attributes/attack_power.tres" id="2_attack"]
+[ext_resource type="Resource" uid="uid://cpa80oxt1y1xl" path="res://resources/attributes/defense_power.tres" id="3_defense"]
+[ext_resource type="Resource" uid="uid://c3mhpby32xuvi" path="res://resources/attributes/speed.tres" id="4_speed"]
+[ext_resource type="Resource" uid="uid://c7o2ys6ud5t0r" path="res://resources/attributes/max_health.tres" id="5_max_health"]
+[ext_resource type="Resource" uid="uid://c7pdvgl83h4i3" path="res://resources/attributes/max_mana.tres" id="6_max_mana"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="7_yba8u"]
+
+[resource]
+script = ExtResource("1_attr_set")
+attributes = Dictionary[ExtResource("1_w43ou"), float]({
+ExtResource("2_attack"): 12.0,
+ExtResource("3_defense"): 8.0,
+ExtResource("4_speed"): 12.0,
+ExtResource("5_max_health"): 120.0,
+ExtResource("6_max_mana"): 60.0
+})

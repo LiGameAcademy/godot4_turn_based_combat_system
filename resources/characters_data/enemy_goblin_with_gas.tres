@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CharacterDataWithGAS" load_steps=10 format=3 uid="uid://cgk203y08xxy"]
+
+[ext_resource type="Script" uid="uid://dhdckuos68j5u" path="res://scripts/definitions/character_data_with_gas.gd" id="1_char_data"]
+[ext_resource type="Script" uid="uid://dver6lyif7d41" path="res://addons/turn_based_combat_system/core/ai/ai_behavior.gd" id="2_ai"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://resources/skills/attack.tres" id="3_attack"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="4_anim"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://resources/skills/defend.tres" id="5_defend"]
+[ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="6_icon"]
+[ext_resource type="Resource" uid="uid://c6ulatklkgtyd" path="res://resources/attribute_sets/enemy_goblin_attribute_set.tres" id="7_attr_set"]
+[ext_resource type="Script" uid="uid://d1066pfrvlxw8" path="res://addons/turn_based_combat_system/skill_system/definitions/skill_data.gd" id="8_10svd"]
+
+[sub_resource type="Resource" id="Resource_ai"]
+script = ExtResource("2_ai")
+behavior_type = "aggressive"
+self_preservation_weight = 0.0
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[resource]
+script = ExtResource("1_char_data")
+character_name = "哥布林"
+description = "常见的低级怪物，弱小但行动迅速。"
+attribute_set_resource = ExtResource("7_attr_set")
+element = 3
+ai_behavior = SubResource("Resource_ai")
+attack_skill = ExtResource("3_attack")
+defense_skill = ExtResource("5_defend")
+animation_library = ExtResource("4_anim")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("6_icon")
