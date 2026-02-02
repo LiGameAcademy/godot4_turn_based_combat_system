@@ -12,16 +12,16 @@ enum ActionType {
 }
 
 ## 依赖skill_component组件
-@export var _skill_component : CharacterSkillComponent
+@export var _skill_component : SkillComponentInterface
 @export_enum("none", "fire", "water", "earth", "light")var element: int = 0 			## 元素属性 ElementTypes.Element.NONE
-var attack_skill : SkillData															## 攻击技能
-var defense_skill : SkillData															## 防御技能
+var attack_skill_id : StringName															## 攻击技能
+var defense_skill_id : StringName															## 防御技能
 ## 能否行动
 var can_action : bool = true:
 	get:
 		if not is_instance_valid(get_parent()):
 			return false
-		if not _skill_component:
+		if not is_instance_valid(_skill_component):
 			return false
 		var restricted_tags := _skill_component.get_restricted_action_tags()
 		return not restricted_tags.has(&"any_action")
@@ -29,30 +29,25 @@ var can_action : bool = true:
 # 信号
 signal character_defeated()															## 死亡时发出信号
 signal action_executed(action_type, target, result)									## 动作执行信号
-signal attack_executed(attacker, target, damage)									## 攻击执行信号
-signal defend_executed(character)													## 防御执行信号
-signal skill_executed(caster, skill, targets, results)								## 技能执行信号
 signal item_used(user, item, targets, results)										## 道具使用信号
 
 ## 初始化组件
-func initialize(p_element : int = 0, p_attack_skill : SkillData = null, p_defense_skill : SkillData = null) -> void:
+func initialize(p_element : int = 0, p_attack_skill_id : StringName = "", p_defense_skill_id : StringName = "") -> void:
 	# 这里可以进行任何战斗组件特定的初始化
-	if not _skill_component:
+	if not is_instance_valid(_skill_component):
 		_skill_component = get_parent().skill_component
-	if not _skill_component:
-		push_error("无法找到技能组件！")
+	if not is_instance_valid(_skill_component):
+		push_error("CharacterCombatComponent: 无法找到技能组件！")
 		return
 	
 	_skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
 	_skill_component.action_tags_changed.connect(_on_action_tags_changed)
 	element = p_element
 
-	if p_attack_skill:
-		attack_skill = p_attack_skill
-		_skill_component.add_skill(p_attack_skill)
-	if p_defense_skill:
-		defense_skill = p_defense_skill
-		_skill_component.add_skill(p_defense_skill)
+	if not p_attack_skill_id.is_empty():
+		attack_skill_id = p_attack_skill_id
+	if not p_defense_skill_id.is_empty():
+		defense_skill_id = p_defense_skill_id
 
 ## 执行动作
 ## [param action_type] 动作类型
@@ -67,20 +62,7 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 		result["error"] = "无法执行该动作类型"
 		return result
 
-	# 如果是技能动作，检查技能是否可以使用
-	if action_type == ActionType.SKILL:
-		var skill : SkillData = params.get("skill", null)
-		if not skill:
-			result["error"] = "技能数据为空"
-			return result
-		if not _skill_component.is_skill_available(params.skill):
-			result["error"] = "技能不可用"
-			return result
-		if not _skill_component.has_enough_mp_for_skill(skill):
-			result["error"] = "魔法值不足"
-			return result
-
-	var skill_context : SkillExecutionContext = params.get("skill_context", null)
+	var skill_context : Dictionary = params.get("skill_context", {})
 	var targets : Array[Character]
 	for t in params.get("targets", []):
 		targets.append(t)
@@ -90,9 +72,9 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 		ActionType.DEFEND:
 			result = await _execute_defend(skill_context)
 		ActionType.SKILL:
-			var skill : SkillData = params.get("skill", null)
+			var skill_id : StringName = params.get("skill_id", null)
 			targets.append(target)
-			result = await _execute_skill(skill, targets, skill_context)
+			result = await _execute_skill(skill_id, targets, skill_context)
 		ActionType.ITEM:
 			var item = params.get("item", null)
 			targets.append(target)
@@ -147,8 +129,8 @@ func heal(amount: float) -> float:
 ## 在回合开始时调用
 func on_turn_start(battle_manager : BattleManager) -> void:
 	# 可以在这里添加回合开始时的逻辑
-	if not _skill_component:
-		push_error("无法找到技能组件！")
+	if not is_instance_valid(_skill_component):
+		push_error("CharacterCombatComponent: 无法找到技能组件！")
 		return
 	_skill_component.process_active_statuses(battle_manager)
 	_skill_component.update_status_durations()
@@ -159,7 +141,8 @@ func on_turn_end(_battle_manager : BattleManager) -> void:
 
 ## 检查是否可以执行该动作类型
 func can_perform_action(action_type: ActionType) -> bool:
-	if not _skill_component:
+	if not is_instance_valid(_skill_component):
+		push_error("CharacterCombatComponent: 无法找到技能组件！")
 		return false
 	match action_type:
 		ActionType.ATTACK:
@@ -175,10 +158,10 @@ func can_perform_action(action_type: ActionType) -> bool:
 
 ## 获取可用技能列表
 ## [return] 可用技能列表
-func get_available_skills() -> Array:
-	var available_skills : Array = _skill_component.get_available_skills().duplicate(true)
-	available_skills.erase(attack_skill)
-	available_skills.erase(defense_skill)
+func get_available_skills() -> Array[StringName]:
+	var available_skills : Array[StringName] = _skill_component.get_available_skills().duplicate(true)
+	available_skills.erase(attack_skill_id)
+	available_skills.erase(defense_skill_id)
 	return available_skills
 
 #region --- 私有方法 ---
@@ -190,26 +173,23 @@ func _die(death_source: Variant = null):
 ## 执行攻击
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(target: Character, skill_context: SkillExecutionContext) -> Dictionary:
+func _execute_attack(target: Character, skill_context: Dictionary) -> Dictionary:
 	var attacker = get_parent()
-	#if not is_instance_valid(target):
-		#return {"success": false, "error": "无效的角色引用"}
+	if not is_instance_valid(target):
+		return {"success": false, "error": "无效的角色引用"}
 	
 	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name if target else ""])
 	
 	var targets : Array[Character]
-	if target:
+	if is_instance_valid(target):
 		targets.append(target)
-	var result : Dictionary = await _execute_skill(attack_skill, targets, skill_context)
-	
-	# 发出攻击执行信号
-	attack_executed.emit(target, result)
+	var result : Dictionary = await _execute_skill(attack_skill_id, targets, skill_context)
 	
 	return result
 
 ## 执行防御
 ## [return] 防御结果
-func _execute_defend(skill_context: SkillExecutionContext) -> Dictionary:
+func _execute_defend(skill_context: Dictionary) -> Dictionary:
 	var character = get_parent()
 	if not is_instance_valid(character):
 		return {"success": false, "error": "无效的角色引用"}
@@ -218,11 +198,8 @@ func _execute_defend(skill_context: SkillExecutionContext) -> Dictionary:
 	
 	# 使用防御技能
 	var targets: Array[Character] = [character] # 目标是自己
-	var result: Dictionary = await _execute_skill(defense_skill, targets, skill_context)
+	var result: Dictionary = await _execute_skill(defense_skill_id, targets, skill_context)
 
-	# 发出防御执行信号
-	defend_executed.emit(character)
-	
 	return result
 
 ## 执行技能
@@ -230,29 +207,27 @@ func _execute_defend(skill_context: SkillExecutionContext) -> Dictionary:
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
-func _execute_skill(
-		skill: SkillData, 
-		targets: Array[Character], 
-		skill_context: SkillExecutionContext) -> Dictionary:
+func _execute_skill(skill_id: StringName, targets: Array[Character], skill_context: Dictionary) -> Dictionary:
 	var caster = get_parent()
-	if not is_instance_valid(caster) or not skill:
+	if not is_instance_valid(caster) or skill_id.is_empty():
 		return {"success": false, "error": "无效的施法者或技能"}
-	
-	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill.skill_name])
+	if skill_id.is_empty():
+		return {"success": false, "error": "技能数据为空"}
+	if not _skill_component.is_skill_available(skill_id):
+		return {"success": false, "error": "技能不可用"}
+	if not _skill_component.has_enough_mp_for_skill(skill_id):
+		return {"success": false, "error": "魔法值不足"}
 
-	if skill.is_melee and not targets.is_empty():
+	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill_id])
+
+	if _skill_component.is_skill_melee(skill_id) and not targets.is_empty():
 		await get_parent().move_to_target(targets[0])
 	else:
 		await get_parent().move_to_cast_marker()
-	# 检查MP消耗
-	if not _skill_component.has_enough_mp_for_skill(skill):
-		return {"success": false, "error": "魔法值不足"}
-	
+
 	# 尝试执行技能
-	var result = await SkillSystem.attempt_execute_skill(skill, caster, targets, skill_context)
-	
-	# 发出技能执行信号
-	skill_executed.emit(caster, skill, targets, result)
+	# var result = await SkillSystem.attempt_execute_skill(skill, caster, targets, skill_context)
+	var result = await _skill_component.execute_skill(skill_id, targets, skill_context)
 	
 	await get_parent().move_back()
 	return result
@@ -287,12 +262,13 @@ func _execute_item(item, targets: Array) -> Dictionary:
 #region --- 信号处理 ---
 ## 属性当前值变化的处理
 func _on_attribute_current_value_changed(
-		attribute_instance: SkillAttribute, _old_value: float, new_value: float
+		attribute_id: StringName, _old_value: float, new_value: float
 	) -> void:
 	# 检查是否是生命值变化
-	if attribute_instance.attribute_name == &"CurrentHealth" and new_value <= 0:
+	if attribute_id == &"CurrentHealth" and new_value <= 0:
 		_die()
 
+## 动作标签改变的处理
 func _on_action_tags_changed(restricted_tags: Array[String]) -> void:
 	# 可以在这里添加额外的处理逻辑，例如更新UI
 	print_rich("[color=yellow]%s 的动作限制更新: %s[/color]" % [owner.character_name, restricted_tags])

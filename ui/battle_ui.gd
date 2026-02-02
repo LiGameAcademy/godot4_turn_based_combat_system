@@ -81,7 +81,7 @@ func show_action_menu(current_character) -> void:
 		return
 	
 	if is_instance_valid(current_character):
-		var can_use_any_special_skill: bool = current_character.has_enough_mp_for_any_skill()
+		var can_use_any_special_skill: bool = current_character.has_enough_mp_for_skill()
 		action_menu.set_skill_button_enabled(can_use_any_special_skill)
 	else:
 		action_menu.set_skill_button_enabled(false)

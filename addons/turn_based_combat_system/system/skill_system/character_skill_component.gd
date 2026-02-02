@@ -6,7 +6,7 @@ var _active_attribute_set: SkillAttributeSet = null
 ## 状态字典, Key: status_id (StringName), Value: SkillStatusData (运行时实例)
 var _active_statuses: Dictionary = {}
 ## 可用的技能
-var _skills: Array[SkillData] = []
+var _skills: Dictionary[StringName, SkillData] = {}
 ## 角色标签系统，用于控制角色可执行的动作类型
 var _restricted_action_tags : Array[String] = []
 
@@ -102,38 +102,41 @@ func restore_hp(amount: float) -> float:
 #endregion
 
 #region --- 技能管理 ---
-
-## 是否有足够的MP释放技能
-func has_enough_mp_for_any_skill() -> bool:
-	var current_mp = _active_attribute_set.get_current_value(&"CurrentMana")
-	for skill in _skills:
-		if current_mp >= skill.mp_cost:
-			return true
-	return false
-
-## 检查是否有足够的MP使用指定技能
-func has_enough_mp_for_skill(skill: SkillData) -> bool:
-	var current_mp = _active_attribute_set.get_current_value(&"CurrentMana")
-	return current_mp >= skill.mp_cost
-
-## 获取所有技能
-## [return] 技能数据数组
-func get_skills() -> Array[SkillData]:
-	return _skills
-
 ## 添加技能
-func add_skill(skill: SkillData) -> void:
-	_skills.append(skill)
+func add_skill(skill_id: StringName, skill: SkillData) -> void:
+	_skills[skill_id] = skill.duplicate(true)
 	if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
 		# 被动技能所施加的状态，通常是永久且隐藏的
 		apply_status(skill.status_to_apply_when_learned, get_parent(), null)
 
 ## 移除技能
-func remove_skill(skill: SkillData) -> void:
-	_skills.erase(skill)
+func remove_skill(skill_id: StringName) -> void:
+	if not _skills.has(skill_id):
+		push_error("CharacterSkillComponent: 技能 %s 不存在！" % skill_id)
+		return
+	var skill = _skills[skill_id]
 	if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
 		# 被动技能所施加的状态，通常是永久且隐藏的
 		remove_status(skill.status_to_apply_when_learned.status_id, true)
+	_skills.erase(skill_id)
+
+## 检查是否有足够的MP使用指定技能
+func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
+	var current_mp = _active_attribute_set.get_current_value(&"CurrentMana")
+	if skill_id.is_empty():
+		for skill in _skills:
+			if current_mp >= skill.mp_cost:
+				return true
+		return false
+	var skill = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return current_mp >= skill.mp_cost
+
+## 获取所有技能
+## [return] 技能数据数组
+func get_skills() -> Dictionary[StringName, SkillData]:
+	return _skills
 
 ## 获取技能
 ## [param skill_id] 技能ID
@@ -163,6 +166,8 @@ func get_available_skills() -> Array:
 		if has_enough_mp_for_skill(skill):
 			available_skills.append(skill)
 	return available_skills
+
+
 #endregion
 
 #region --- 状态管理 ---
@@ -301,7 +306,6 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 		if not status_instance.ongoing_effects.is_empty():
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
 			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
-#endregion
 
 ## 私有方法：更新状态触发次数
 ## [param status] 要更新的状态
@@ -315,33 +319,6 @@ func update_status_trigger_counts(status: SkillStatusData) -> void:
 		# 使用延迟调用移除状态，避免在遍历过程中修改集合
 		call_deferred("remove_status", status.status_id)
 
-## 重置状态触发计数
-func reset_status_trigger_counts() -> void:
-	# 重置所有状态的回合触发计数
-	for status_id in _active_statuses.keys():
-		var status = _active_statuses[status_id]
-		status.current_turn_trigger_count = 0
-
-## 处理回合开始时的状态更新
-func process_turn_start() -> void:
-	# 更新所有状态的持续时间
-	var expired_status_ids: Array[StringName] = []
-	
-	for status_id in _active_statuses.keys():
-		var status = _active_statuses[status_id]
-		
-		if status.duration_type == SkillStatusData.DurationType.TURNS:
-			status.remaining_duration -= 1
-			if status.remaining_duration <= 0:
-				expired_status_ids.append(status_id)
-			else:
-				# 触发回合开始事件
-				SkillSystem.trigger_game_event(get_parent(), &"on_turn_start", EventContext.new(get_parent()))
-	
-	# 移除过期状态
-	for status_id in expired_status_ids:
-		remove_status(status_id)
-
 ## 获取触发状态
 func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
 	var triggerable_statuses: Array[SkillStatusData] = []
@@ -350,6 +327,8 @@ func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
 			triggerable_statuses.append(status)
 
 	return triggerable_statuses
+
+#endregion
 
 #region --- 标签管理 ---
 
@@ -362,7 +341,14 @@ func can_perform_action_category(category: StringName) -> bool:
 	return not _restricted_action_tags.has(category) and not _restricted_action_tags.has(&"any_action")
 
 ## 检查技能是否可用（基于动作限制）
-func is_skill_available(skill: SkillData) -> bool:
+func is_skill_available(skill_id: StringName) -> bool:
+	if skill_id.is_empty():
+		push_error("CharacterSkillComponent: 技能ID不能为空！")
+		return false
+	var skill = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		push_error("CharacterSkillComponent: 技能 %s 不存在！" % skill_id)
+		return false
 	# 检查是否有任何动作限制标签与技能的动作类别冲突
 	for category in skill.action_categories:
 		if _restricted_action_tags.has(StringName(category)):

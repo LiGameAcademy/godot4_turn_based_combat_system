@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://prefabs/characters/character.gd" id="1_f5tgq"]
 [ext_resource type="PackedScene" uid="uid://djpwdkkb8ufbt" path="res://ui/character_info_container.tscn" id="2_ysl2u"]
 [ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://addons/turn_based_combat_system/component/character_combat_component.gd" id="3_e22cc"]
-[ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://addons/turn_based_combat_system/component/character_skill_component.gd" id="4_2qjml"]
+[ext_resource type="Script" path="res://addons/turn_based_combat_system/component/character_skill_component.gd" id="4_2qjml"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://ui/state_indicator.tscn" id="4_ma1fs"]
 [ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://addons/turn_based_combat_system/component/character_ai_component.gd" id="5_ma1fs"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/ai/ai_behavior.gd" id="5_yscb1"]

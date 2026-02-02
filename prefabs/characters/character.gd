@@ -7,7 +7,7 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://ui/damage_number.tscn")
 @onready var state_indicator : StateIndicator = $StateIndicator
 # 组件引用
 @onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
-@onready var skill_component: CharacterSkillComponent = %CharacterSkillComponent
+@onready var skill_component: SkillComponentInterface = %CharacterSkillComponent
 @onready var ai_component: CharacterAIComponent = %CharacterAIComponent
 @onready var character_info_container : CharacterInfoContainer = %CharacterInfoContainer
 @onready var sprite_2d : Sprite2D = %Sprite2D
@@ -137,26 +137,30 @@ func on_turn_end(battle_manager : BattleManager) -> void:
 
 ## 是否足够释放技能MP
 func has_enough_mp_for_any_skill() -> bool:
-	if skill_component:
-		return skill_component.has_enough_mp_for_any_skill()
+	if is_instance_valid(skill_component):
+		return skill_component.has_enough_mp_for_skill()
+	push_error("Character: 技能组件未初始化！")
 	return false
 
 ## 检查是否有足够的MP使用指定技能
 func has_enough_mp_for_skill(skill: SkillData) -> bool:
-	if skill_component:
-		return skill_component.has_enough_mp_for_skill(skill)
+	if is_instance_valid(skill_component):
+		return skill_component.has_enough_mp_for_skill(skill.skill_id)
+	push_error("Character: 技能组件未初始化！")
 	return false
 
 ## 使用MP
 func use_mp(amount: float) -> bool:
-	if skill_component:
-		return skill_component.use_mp(amount)
+	if is_instance_valid(skill_component):
+		return skill_component.consume_mp(amount)
+	push_error("Character: 技能组件未初始化！")
 	return false
 
 ## 恢复MP
 func restore_mp(amount: float) -> float:
-	if skill_component:
+	if is_instance_valid(skill_component):
 		return skill_component.restore_mp(amount)
+	push_error("Character: 技能组件未初始化！")
 	return 0.0
 
 ## 播放动画
@@ -179,7 +183,7 @@ func apply_skill_status(status_instance: SkillStatusData, source_character: Char
 	return {"applied_successfully": false, "reason": "invalid_status_template"}
 
 ## 获取技能组件
-func get_skill_component() -> CharacterSkillComponent:
+func get_skill_component() -> SkillComponentInterface:
 	return skill_component
 
 ## 获取AI组件
@@ -214,7 +218,7 @@ func _init_components(battle_manager: BattleManager) -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize(character_data.element, character_data.attack_skill, character_data.defense_skill)
+	combat_component.initialize(character_data.element, character_data.attack_skill_id, character_data.defense_skill_id)
 
 	# 连接组件信号
 	if not combat_component.character_defeated.is_connected(_on_character_defeated):
