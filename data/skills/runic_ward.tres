@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://c8jqv6rcatce"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_ggxak"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_d5caf"]
+
+[resource]
+script = ExtResource("2_d5caf")
+skill_id = &"runic_ward"
+skill_name = "符文守护"
+skill_type = 0
+description = "为一名队友刻下守护符文，在接下来2回合内，为其承受大部分受到的伤害。"
+is_melee = true
+mp_cost = 5
+target_type = 3
+target_count = 1
+can_target_dead = false
+effects = Array[ExtResource("1_ggxak")]([])
+action_categories = Array[String](["any_action", "any_skill"])
+cast_animation = &"defend"
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

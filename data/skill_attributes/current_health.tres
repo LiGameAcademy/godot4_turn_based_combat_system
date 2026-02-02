@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SkillAttribute" format=3 uid="uid://bv0i1mb44oi5n"]
+
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute.gd" id="1_fjw81"]
+
+[resource]
+script = ExtResource("1_fjw81")
+attribute_name = &"CurrentHealth"
+display_name = "当前生命值"
+description = ""
+base_value = 0.0
+min_value = inf_neg
+max_value = inf
+can_be_negative = false
+metadata/_custom_type_script = "uid://1svsj8jgldy7"

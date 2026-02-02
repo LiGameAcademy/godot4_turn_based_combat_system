@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dqlpd6akofusk"]
+
+[ext_resource type="PackedScene" uid="uid://bsxm37g35mr4n" path="res://ui/action_menu.tscn" id="1_ebl3e"]
+[ext_resource type="Script" uid="uid://l2076p6rykh7" path="res://ui/battle_ui.gd" id="1_uoy4w"]
+[ext_resource type="PackedScene" uid="uid://dytp20hph55tl" path="res://ui/skill_select_menu.tscn" id="2_uoy4w"]
+[ext_resource type="PackedScene" uid="uid://b3kx6r5a7lfil" path="res://ui/target_selection_menu.tscn" id="3_7sxqq"]
+[ext_resource type="PackedScene" uid="uid://x8u6jf7mpp37" path="res://ui/character_detail_panel.tscn" id="5_7sxqq"]
+[ext_resource type="PackedScene" uid="uid://ts5rp7wqs47y" path="res://addons/turn_based_combat_system/ui/battle_log_panel.tscn" id="6_2kidt"]
+[ext_resource type="PackedScene" uid="uid://djf2k5bnmxgcr" path="res://addons/turn_based_combat_system/ui/turn_order_indicator.tscn" id="7_qt65o"]
+
+[node name="BattleUI" type="CanvasLayer" unique_id=681889812]
+layer = 128
+script = ExtResource("1_uoy4w")
+
+[node name="ActionMenu" parent="." unique_id=1460122967 instance=ExtResource("1_ebl3e")]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -223.44006
+offset_top = -31.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="BattleLogPanel" parent="." unique_id=408654043 instance=ExtResource("6_2kidt")]
+offset_top = -182.0
+offset_right = 427.0
+
+[node name="TurnOrderIndicator" parent="." unique_id=1696147210 instance=ExtResource("7_qt65o")]
+offset_bottom = 131.0
+
+[node name="SkillSelectMenu" parent="." unique_id=1356103782 instance=ExtResource("2_uoy4w")]
+visible = false
+
+[node name="TargetSelectionMenu" parent="." unique_id=1275176039 instance=ExtResource("3_7sxqq")]
+visible = false
+
+[node name="CharacterDetailPanel" parent="." unique_id=1500990856 instance=ExtResource("5_7sxqq")]
+
+[connection signal="closed" from="CharacterDetailPanel" to="." method="_on_character_detail_panel_closed"]

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillEffectData" format=3 uid="uid://bglfmsusvr2f5"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_1f2vj"]
+
+[resource]
+script = ExtResource("1_1f2vj")
+effect_type = 0
+visual_effect = "fire_impact"
+sound_effect = "fire_explosion"
+damage_amount = 25
+damage_element = 1
+damage_power_scale = 1.2
+heal_amount = 10
+heal_power_scale = 0.5
+attr = ""
+status_chance = 1.0
+dispel_types = Array[String]([])
+dispel_count = 1
+dispel_is_positive = false
+is_dispel_all = false
+special_type = "none"
+special_params = {}

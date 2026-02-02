@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://i1aj8k56wevm"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_o3w6a"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_exo0t"]
+[ext_resource type="Resource" uid="uid://ctv63r3mlnnnm" path="res://data/skill_status/counter_attack.tres" id="3_exo0t"]
+
+[resource]
+script = ExtResource("2_exo0t")
+skill_id = &"counter_attack"
+skill_name = "反击"
+skill_type = 1
+description = ""
+is_melee = true
+mp_cost = 0
+target_type = 1
+target_count = 1
+can_target_dead = false
+effects = Array[ExtResource("1_o3w6a")]([])
+action_categories = Array[String](["any_action"])
+status_to_apply_when_learned = ExtResource("3_exo0t")
+cast_animation = &""
+pre_cast_delay = 0.2
+post_cast_delay = 0.0
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

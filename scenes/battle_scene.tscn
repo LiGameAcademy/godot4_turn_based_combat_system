@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://bvnf2raqi3v41"]
+
+[ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://prefabs/characters/character.tscn" id="1_qp2wj"]
+[ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle_scene.gd" id="1_ugm31"]
+[ext_resource type="PackedScene" uid="uid://dqlpd6akofusk" path="res://ui/battle_ui.tscn" id="2_dddu7"]
+[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://data/characters_data/player_assassin.tres" id="2_rl52j"]
+[ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://data/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
+[ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://data/characters_data/enemy_mushroom_data.tres" id="6_3511k"]
+[ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://addons/turn_based_combat_system/core/battle_manager.gd" id="8_2wmvw"]
+[ext_resource type="Script" uid="uid://di683i6hqfos5" path="res://addons/turn_based_combat_system/core/battle_state_manager.gd" id="9_puhd7"]
+[ext_resource type="Script" uid="uid://htsaaa4uwn2u" path="res://addons/turn_based_combat_system/core/battle_visual_effects.gd" id="10_mpswg"]
+[ext_resource type="Script" uid="uid://bs03e3t582ml2" path="res://addons/turn_based_combat_system/core/battle_character_registry_manager.gd" id="11_te27b"]
+[ext_resource type="Script" uid="uid://di1d00tvbpiq3" path="res://addons/turn_based_combat_system/core/turn_order_manager.gd" id="12_7i1my"]
+[ext_resource type="Script" uid="uid://brbk1v6j3gefy" path="res://addons/turn_based_combat_system/core/combat_rule_manager.gd" id="13_7s01p"]
+
+[node name="BattleScene" type="Node2D" unique_id=1466379268]
+script = ExtResource("1_ugm31")
+
+[node name="BattleUI" parent="." unique_id=1620188863 instance=ExtResource("2_dddu7")]
+unique_name_in_owner = true
+visible = false
+
+[node name="Background" type="ColorRect" parent="." unique_id=1333570638]
+offset_right = 1152.0
+offset_bottom = 648.0
+mouse_filter = 1
+color = Color(0.12549, 0.12549, 0.12549, 1)
+
+[node name="BattleAreaRect" type="ColorRect" parent="." unique_id=1419911317]
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 1102.0
+offset_bottom = 450.0
+mouse_filter = 1
+color = Color(0.14902, 0.137255, 0.188235, 1)
+
+[node name="PlayerArea" type="Node2D" parent="." unique_id=1818993897]
+unique_name_in_owner = true
+position = Vector2(350, 450)
+
+[node name="PlayerCharacter" parent="PlayerArea" unique_id=119273659 instance=ExtResource("1_qp2wj")]
+character_data = ExtResource("2_rl52j")
+
+[node name="EnemyArea" type="Node2D" parent="." unique_id=1007072195]
+unique_name_in_owner = true
+position = Vector2(800, 450)
+
+[node name="EnemyCharacter" parent="EnemyArea" unique_id=154400660 instance=ExtResource("1_qp2wj")]
+character_data = ExtResource("3_13vd6")
+is_player = false
+
+[node name="MushRoomEnemy" parent="EnemyArea" unique_id=1216114492 instance=ExtResource("1_qp2wj")]
+position = Vector2(200, 0)
+character_data = ExtResource("6_3511k")
+is_player = false
+
+[node name="CastMarker2D" type="Marker2D" parent="." unique_id=36771625]
+position = Vector2(620, 450)
+
+[node name="BattleManager" type="Node" parent="." unique_id=379822369 node_paths=PackedStringArray("cast_marker")]
+unique_name_in_owner = true
+script = ExtResource("8_2wmvw")
+cast_marker = NodePath("../CastMarker2D")
+
+[node name="BattleStateManager" type="Node" parent="BattleManager" unique_id=1789454414]
+unique_name_in_owner = true
+script = ExtResource("9_puhd7")
+metadata/_custom_type_script = "uid://di683i6hqfos5"
+
+[node name="BattleVisualEffects" type="Node" parent="BattleManager" unique_id=829738565]
+unique_name_in_owner = true
+script = ExtResource("10_mpswg")
+metadata/_custom_type_script = "uid://htsaaa4uwn2u"
+
+[node name="BattleCharacterRegistryManager" type="Node" parent="BattleManager" unique_id=388412852]
+unique_name_in_owner = true
+script = ExtResource("11_te27b")
+metadata/_custom_type_script = "uid://bs03e3t582ml2"
+
+[node name="TurnOrderManager" type="Node" parent="BattleManager" unique_id=799208712]
+unique_name_in_owner = true
+script = ExtResource("12_7i1my")
+metadata/_custom_type_script = "uid://di1d00tvbpiq3"
+
+[node name="CombatRuleManager" type="Node" parent="BattleManager" unique_id=1289004757]
+unique_name_in_owner = true
+script = ExtResource("13_7s01p")
+metadata/_custom_type_script = "uid://brbk1v6j3gefy"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=2079220487]
+autoplay = true
