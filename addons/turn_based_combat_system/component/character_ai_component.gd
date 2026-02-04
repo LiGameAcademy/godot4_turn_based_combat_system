@@ -54,6 +54,10 @@ func execute_action() -> AIActionResult:
 	if not is_instance_valid(owner_character) or not owner_character.combat_component:
 		return AIActionResult.new(false)
 	
+	var skill_component : CharacterSkillComponent = owner_character.get_skill_component() if owner_character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		return AIActionResult.new(false)
+	
 	# 决定行动
 	var action_decision : Dictionary = decide_action()
 	
@@ -78,8 +82,8 @@ func execute_action() -> AIActionResult:
 	action_result.target = action_decision.target
 	action_result.damage = result.get("damage", 0)
 	action_result.action_type = action_decision.action_type
-	if action_decision.params.has("skill"):
-		action_result.skill = action_decision.params.skill
+	if action_decision.params.has("skill_id"):
+		action_result.skill = skill_component.get_skill(action_decision.params.skill_id)
 	
 	return action_result
 
@@ -96,8 +100,12 @@ func decide_action() -> Dictionary:
 	if not is_instance_valid(owner_character) or not owner_character.combat_component:
 		return {"action_type": null, "target": null, "params": {}}
 	
+	var skill_component : CharacterSkillComponent = owner_character.skill_component
+	if not is_instance_valid(skill_component):
+		return {"action_type": null, "target": null, "params": {}}
+
 	# 获取可用技能列表
-	var available_skills : Array = _get_available_skills()
+	var available_skills : Array[StringName] = _get_available_skills()
 	
 	# 获取可能的目标
 	var potential_targets = get_potential_targets()
@@ -111,7 +119,10 @@ func decide_action() -> Dictionary:
 		var best_skill_score = -1.0
 		var best_skill_targets : Array[Character] = []
 		
-		for skill in available_skills:
+		for skill_id in available_skills:
+			var skill : SkillData = skill_component.get_skill(skill_id)
+			if not is_instance_valid(skill):
+				continue
 			var skill_targets := get_targets_for_skill(skill, potential_targets)
 			if not skill_targets.is_empty():
 				var skill_score = behavior_resource.evaluate_skill(owner_character, skill, skill_targets)
@@ -126,7 +137,7 @@ func decide_action() -> Dictionary:
 				"action_type": CharacterCombatComponent.ActionType.SKILL,
 				"target": best_skill_targets[0],  # 主要目标
 				"params": {
-					"skill": best_skill,
+					"skill_id": best_skill.skill_id,
 					"targets": best_skill_targets  # 可能的多目标
 				}
 			}
@@ -139,7 +150,7 @@ func decide_action() -> Dictionary:
 			"action_type": CharacterCombatComponent.ActionType.DEFEND,
 			"target": owner_character,
 			"params": {
-				"skill": owner_character.combat_component.defense_skill
+				"skill_id": owner_character.combat_component.defense_skill_id
 			}
 		}
 	
@@ -313,13 +324,13 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 
 ## 获取角色可用的技能列表
 ## [return] 可用技能列表
-func _get_available_skills() -> Array:
+func _get_available_skills() -> Array[StringName]:
 	var owner_character : Character = get_parent() as Character
 	if not owner_character.skill_component or not owner_character.combat_component:
 		print_rich("[color=red]技能组件或战斗组件未初始化[/color]")
 		return []
 	
-	var skills : Array = owner_character.combat_component.get_available_skills()
+	var skills : Array[StringName] = owner_character.combat_component.get_available_skills()
 	return skills
 
 ## 检查技能是否可用(状态、冷却、MP等)
@@ -335,7 +346,7 @@ func _can_use_skill(skill: SkillData) -> bool:
 		return false
 	
 	# 检查MP消耗
-	if not owner_character.skill_component.has_enough_mp_for_skill(skill):
+	if not owner_character.skill_component.has_enough_mp_for_skill(skill.skill_id):
 		return false
 	
 	return true

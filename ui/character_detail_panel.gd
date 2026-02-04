@@ -70,7 +70,10 @@ func _update_character_info() -> void:
 	
 	# 显示角色图标
 	character_sprite.texture = _character.character_data.icon
-	var skill_component: CharacterSkillComponent = _character.skill_component
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
 	
 	health_bar.setup(skill_component.get_attribute("CurrentHealth"), skill_component.get_attribute("MaxHealth"))
 	mana_bar.setup(skill_component.get_attribute("CurrentMana"), skill_component.get_attribute("MaxMana"))

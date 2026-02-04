@@ -1,22 +1,14 @@
-extends Node
+extends SkillComponentInterface
 class_name CharacterSkillComponent
 
 ## 运行时角色实际持有的AttributeSet实例 (通过模板duplicate而来)
 var _active_attribute_set: SkillAttributeSet = null		
 ## 状态字典, Key: status_id (StringName), Value: SkillStatusData (运行时实例)
-var _active_statuses: Dictionary = {}
+var _active_statuses: Dictionary[StringName, SkillStatusData] = {}
 ## 可用的技能
 var _skills: Dictionary[StringName, SkillData] = {}
 ## 角色标签系统，用于控制角色可执行的动作类型
 var _restricted_action_tags : Array[String] = []
-
-## 信号
-signal status_applied(status_instance: SkillStatusData)																	## 当状态效果被应用到角色身上时发出
-signal status_removed(status_id: StringName, status_instance_data_before_removal: SkillStatusData)						## 当状态效果从角色身上移除时发出
-signal status_updated(status_instance: SkillStatusData, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
-signal attribute_base_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)				## 属性基础值改变
-signal attribute_current_value_changed(attribute_instance: SkillAttribute, old_value: float, new_value: float)			## 属性当前值改变
-signal action_tags_changed(restricted_tags: Array[String])																## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
 
 ## 初始化组件
 func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
@@ -24,7 +16,7 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 	_active_attribute_set = attribute_set_resource.duplicate(true)
 	# 初始化技能列表
 	for skill in skills:
-		add_skill(skill)
+		add_skill(skill.skill_id, skill)
 	if not _active_attribute_set:
 		push_error("无法初始化AttributeSet，资源无效！")
 		return
@@ -34,11 +26,16 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 	
 	_active_attribute_set.current_value_changed.connect(
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
-			attribute_current_value_changed.emit(attribute_instance, old_value, new_value)
+			attribute_current_value_changed.emit(attribute_instance.attribute_name, old_value, new_value)
 	)
 	_active_attribute_set.base_value_changed.connect(
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
-			attribute_base_value_changed.emit(attribute_instance, old_value, new_value)
+			attribute_base_value_changed.emit(attribute_instance.attribute_name, old_value, new_value)
+	)
+
+	TBCombatSystem.game_event_triggered.connect(
+		func(event_type: StringName, event_source: Node, context: EventContext) -> void:
+			_trigger_game_event(event_type, event_source, context)
 	)
 
 	# 初始化AttributeSet，这将创建并配置所有属性实例
@@ -77,8 +74,8 @@ func get_attribute(attribute_name: StringName) -> SkillAttribute:
 func get_attribute_set() -> SkillAttributeSet:
 	return _active_attribute_set
 
-## 使用MP
-func use_mp(amount: float) -> bool:
+## 消耗MP
+func consume_mp(amount: float) -> bool:
 	var current_mp = _active_attribute_set.get_current_value(&"CurrentMana")
 	if current_mp < amount:
 		return false
@@ -103,7 +100,10 @@ func restore_hp(amount: float) -> float:
 
 #region --- 技能管理 ---
 ## 添加技能
-func add_skill(skill_id: StringName, skill: SkillData) -> void:
+func add_skill(skill_id: StringName, skill: Resource) -> void:
+	if not skill is SkillData:
+		push_error("SkillComponent: skill is not SkillData!")
+		return
 	_skills[skill_id] = skill.duplicate(true)
 	if skill.skill_type == SkillData.SkillType.PASSIVE and is_instance_valid(skill.status_to_apply_when_learned):
 		# 被动技能所施加的状态，通常是永久且隐藏的
@@ -124,7 +124,7 @@ func remove_skill(skill_id: StringName) -> void:
 func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
 	var current_mp = _active_attribute_set.get_current_value(&"CurrentMana")
 	if skill_id.is_empty():
-		for skill in _skills:
+		for skill : SkillData in _skills.values():
 			if current_mp >= skill.mp_cost:
 				return true
 		return false
@@ -135,17 +135,18 @@ func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
 
 ## 获取所有技能
 ## [return] 技能数据数组
-func get_skills() -> Dictionary[StringName, SkillData]:
-	return _skills
+func get_skills() -> Dictionary[StringName, Resource]:
+	var final_skills : Dictionary[StringName, Resource]
+	for skill_id in _skills:
+		var skill_data : SkillData = _skills[skill_id]
+		final_skills[skill_id] = skill_data
+	return final_skills
 
 ## 获取技能
 ## [param skill_id] 技能ID
 ## [return] 技能数据
 func get_skill(skill_id: StringName) -> SkillData:
-	for skill in _skills:
-		if skill.skill_id == skill_id:
-			return skill
-	return null
+	return _skills.get(skill_id, null)
 
 ## 检查是否有指定技能
 ## [param skill_id] 技能ID
@@ -160,14 +161,68 @@ func get_skill_count() -> int:
 
 ## 获取可用技能列表
 ## [return] 可用技能列表
-func get_available_skills() -> Array:
-	var available_skills : Array = []
+func get_available_skills() -> Array[StringName]:
+	var available_skills : Array[StringName] = []
 	for skill in _skills:
 		if has_enough_mp_for_skill(skill):
 			available_skills.append(skill)
 	return available_skills
 
+## 获取技能MP消耗
+func get_skill_mp_cost(skill_id: StringName) -> int:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return 0
+	return skill.mp_cost
 
+## 检查技能是否为近战技能
+func is_skill_melee(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return skill.is_melee
+
+## 检查技能是否为远程技能
+func is_skill_ranged(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return skill.is_ranged
+## 执行技能
+func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
+	# 0. 验证技能前置条件
+	var caster = get_parent()
+	if not is_instance_valid(caster):
+		return {"error": "施法者不存在"}
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return {"error": "技能不存在"}
+
+	var skill_execution_context : SkillExecutionContext = SkillExecutionContext.from_dictionary(skill_context)
+
+	# 1. 获取技能的实际目标
+	var actual_targets = _determine_execution_targets(caster, skill, targets, skill_execution_context)
+
+	# 2. 验证技能施法条件（MP、冷却、目标）
+	var validation_result : Dictionary = _validate_skill_usability(skill, caster, actual_targets, skill_execution_context)
+	if not validation_result.is_usable:
+		print_rich("[color=orange]Skill '%s' failed validation: %s[/color]" % [skill.skill_name, validation_result.reason])
+		skill_execution_failed.emit(skill, actual_targets, validation_result)
+		if is_instance_valid(skill_execution_context.battle_manager):
+			skill_execution_context.battle_manager.show_status_text(caster, validation_result.reason, true)
+		else:
+			push_error("CharacterSkillComponent: 无法显示状态文本，battle_manager 无效！")
+		return {"error": validation_result.reason}
+
+	# 3. 消耗资源
+	_consume_skill_resources(skill, caster, actual_targets, skill_execution_context)
+
+	# 4. 异步执行技能效果处理
+	var skill_execution_result : Dictionary = await _execute_skill_effects(skill, caster, actual_targets, skill_execution_context)
+
+	# 5. 发出技能执行完成信号
+	skill_execution_completed.emit(skill, actual_targets, skill_execution_result)
+	return skill_execution_result
 #endregion
 
 #region --- 状态管理 ---
@@ -180,11 +235,14 @@ func get_active_statuses() -> Dictionary:
 ## [param p_source_char] 状态来源角色
 ## [param effect_data_from_skill] 是那个类型为STATUS的SkillEffect，用于获取duration_override等
 ## [return] 应用状态的结果
-func apply_status(status_template: SkillStatusData, p_source_char: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
+func apply_status(status_template: Resource, p_source_char: Node, effect_data_from_skill: Resource) -> Dictionary:
 	var result = {"applied_successfully": false, "status_instance": null, "reason": "unknown"}
-	
-	if not status_template:
+	if not is_instance_valid(status_template) or not status_template is SkillStatusData:
 		result.reason = "invalid_status_template"
+		return result
+	
+	if not is_instance_valid(effect_data_from_skill) or not effect_data_from_skill is SkillEffect:
+		result.reason = "invalid_effect_data_from_skill"
 		return result
 	
 	var status_id = status_template.status_id
@@ -228,11 +286,11 @@ func apply_status(status_template: SkillStatusData, p_source_char: Character, ef
 	return result
 
 ## 移除状态效果
-func remove_status(status_id: StringName, trigger_end_effects: bool = true) -> bool:
+func remove_status(status_id: StringName, trigger_removal: bool = true) -> bool:
 	if not _active_statuses.has(status_id):
 		return false
 	
-	var runtime_status_instance = _active_statuses[status_id]
+	var runtime_status_instance : SkillStatusData = _active_statuses[status_id]
 	
 	# 移除属性修饰符
 	_apply_attribute_modifiers_for_status(runtime_status_instance, false)
@@ -242,12 +300,11 @@ func remove_status(status_id: StringName, trigger_end_effects: bool = true) -> b
 		_remove_action_restrictions(runtime_status_instance.restricted_action_categories)
 	
 	# 如果需要触发结束效果
-	if trigger_end_effects and not runtime_status_instance.end_effects.is_empty():
+	if trigger_removal and not runtime_status_instance.end_effects.is_empty():
 		print_rich("[color=purple]触发 %s 的状态 %s 的结束效果[/color]" % [owner.character_name, runtime_status_instance.status_name])
-		var result = await SkillSystem.process_status_end_effects(runtime_status_instance, owner)
+		var result = await _process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
 		if not result.success:
 			push_warning("Failed to process end effects for status %s: %s" % [runtime_status_instance.status_name, result.get("error", "unknown error")])
-	
 	# 移除状态
 	_active_statuses.erase(status_id)
 	
@@ -298,6 +355,7 @@ func get_status_stacks(status_id: StringName) -> int:
 		return 0
 	return _active_statuses[status_id].stacks
 
+## 处理所有活跃状态
 func process_active_statuses(battle_manager : BattleManager) -> void: 
 	var status_ids_to_process = _active_statuses.keys().duplicate() 
 	for status_id in status_ids_to_process: 
@@ -305,11 +363,14 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 		var status_instance: SkillStatusData = _active_statuses[status_id]
 		if not status_instance.ongoing_effects.is_empty():
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
-			await SkillSystem.attempt_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
+			_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
 
 ## 私有方法：更新状态触发次数
 ## [param status] 要更新的状态
-func update_status_trigger_counts(status: SkillStatusData) -> void:
+func update_status_trigger_counts(status: Resource) -> void:
+	if not is_instance_valid(status) or not status is SkillStatusData:
+		push_error("SkillComponent: status is not SkillStatusData!")
+		return
 	status.current_turn_trigger_count += 1
 	status.current_total_trigger_count += 1
 	
@@ -320,9 +381,11 @@ func update_status_trigger_counts(status: SkillStatusData) -> void:
 		call_deferred("remove_status", status.status_id)
 
 ## 获取触发状态
-func get_triggerable_status(event_type: StringName) -> Array[SkillStatusData]:
-	var triggerable_statuses: Array[SkillStatusData] = []
+func get_triggerable_status(event_type: StringName) -> Array[Resource]:
+	var triggerable_statuses: Array[Resource] = []
 	for status in _active_statuses.values():
+		if not is_instance_valid(status) or not status is SkillStatusData:
+			continue
 		if status.can_trigger_on_event(event_type):
 			triggerable_statuses.append(status)
 
@@ -337,8 +400,8 @@ func get_restricted_action_tags() -> Array[String]:
 	return _restricted_action_tags
 
 ## 检查是否可以执行特定类别的动作
-func can_perform_action_category(category: StringName) -> bool:
-	return not _restricted_action_tags.has(category) and not _restricted_action_tags.has(&"any_action")
+func can_perform_action_category(action_category: StringName) -> bool:
+	return not _restricted_action_tags.has(action_category) and not _restricted_action_tags.has(&"any_action")
 
 ## 检查技能是否可用（基于动作限制）
 func is_skill_available(skill_id: StringName) -> bool:
@@ -427,7 +490,7 @@ func _handle_status_override(status_template: SkillStatusData) -> void:
 ## [param result_info] 结果信息字典
 ## [return] 更新后的状态实例
 func _update_existing_status(
-		status_template: SkillStatusData, p_source_char: Character, 
+		status_template: SkillStatusData, p_source_char: Node, 
 		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatusData:
 	var status_id: StringName = status_template.status_id
 	var runtime_status_instance: SkillStatusData = _active_statuses[status_id]
@@ -473,7 +536,7 @@ func _update_existing_status(
 	return runtime_status_instance
 
 ## 私有方法：应用新状态
-func _apply_new_status(status_template: SkillStatusData, p_source_char: Character, 
+func _apply_new_status(status_template: SkillStatusData, p_source_char: Node, 
 		duration_override: int, stacks_to_apply: int, result_info: Dictionary) -> SkillStatusData:
 	# 创建运行时状态实例（克隆模板）
 	var runtime_status_instance: SkillStatusData = status_template.duplicate(true)
@@ -501,7 +564,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Characte
 
 	# 触发初始效果
 	if not runtime_status_instance.initial_effects.is_empty():
-		SkillSystem.attempt_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
+		_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
 
 	result_info["applied_successfully"] = true
 	result_info["reason"] = "new_status_applied"
@@ -545,4 +608,156 @@ func _remove_action_restrictions(categories: Array[String]) -> void:
 	if changed:
 		print_rich("[color=green]%s 移除动作限制标签: %s[/color]" % [get_parent().character_name, categories])
 		action_tags_changed.emit(_restricted_action_tags)
+
+## 执行技能效果
+func _execute_skill_effects(skill: SkillData, caster: Node, actual_targets: Array[Node], skill_execution_context: SkillExecutionContext) -> Dictionary:
+	var result : Dictionary = {"success": true, "reason": ""}
+	for target in actual_targets:
+		if not is_instance_valid(target):
+			continue
+		for effect in skill.effects:
+			var effect_result = await _process_effect(effect, caster, target, skill_execution_context)
+			if not effect_result.success:
+				result.success = false
+				result.reason = "Failed to process effect: %s" % effect
+				return result
+	return result
+
+## 处理状态效果
+func _process_status_effects(status_effects: Array[SkillEffect], caster: Node, target: Node, skill_execution_context: SkillExecutionContext) -> Dictionary:
+	var result : Dictionary = {"success": true, "reason": ""}
+	for status_effect in status_effects:
+		var status_effect_result = await _process_effect(status_effect, caster, target, skill_execution_context)
+		if not status_effect_result.success:
+			result.success = false
+			result.reason = "Failed to process status effect: %s" % status_effect
+			return result
+	return result
+
+## 处理效果
+func _process_effect(effect: SkillEffect, caster: Node, target: Node, skill_execution_context: SkillExecutionContext) -> Dictionary:
+	return await effect.process_effect(caster, target, skill_execution_context)
+
+## 验证技能可用性
+func _validate_skill_usability(skill: SkillData, caster: Node, actual_targets: Array[Node], skill_execution_context: SkillExecutionContext) -> Dictionary:
+	var result : Dictionary = {"is_usable": true, "reason": ""}
+
+	# 检查MP消耗
+	if caster.current_mp < skill.mp_cost:
+		result.is_usable = false
+		result.reason = "Not enough MP"
+		return result
+	
+	# 检查技能目标
+	if not _validate_skill_targets(skill, actual_targets):
+		result.is_usable = false
+		result.reason = "Invalid target(s) for skill scope"
+		return result
+
+	return result
+
+## 验证技能目标
+func _validate_skill_targets(skill: SkillData, actual_targets: Array[Node]) -> bool:
+	if skill.target_type == SkillData.TargetType.NONE:
+		return true
+
+	if actual_targets.is_empty() and skill.target_type != SkillData.TargetType.NONE:
+		push_warning("Skill '%s' requires targets, but none were resolved or provided." % skill.skill_name)
+		return false
+
+	for target in actual_targets:
+		if not is_instance_valid(target):
+			push_warning("Skill '%s' has an invalid target instance." % skill.skill_name)
+			return false
+		
+		if not target.is_alive and not skill.can_target_dead:
+			push_warning("Skill '%s' cannot target dead characters, but '%s' is dead." % [skill.skill_name, target.character_name])
+			return false
+
+		# TODO: Add more validation: range, line of sight, specific immunities to this skill type etc.
+	return true
+
+## 消耗技能资源
+func _consume_skill_resources(skill: SkillData, caster: Node, actual_targets: Array[Node], skill_execution_context: SkillExecutionContext) -> void:
+	if skill.mp_cost > 0:
+		consume_mp(skill.mp_cost)
+	
+	# 处理其他资源消耗，例如物品、怒气等
+	# if skill.consumes_item:
+	#    caster.inventory.remove_item(skill.item_consumed_id, 1)
+	#
+	# if skill.rage_cost > 0:
+	#    caster.use_rage(skill.rage_cost)
+
+## 确定实际目标
+## [param caster] 施法者
+## [param skill] 要使用的技能数据
+## [param selected_targets] 玩家或AI选择的目标
+## [return] 实际目标数组
+func _determine_execution_targets(caster: Node, skill: SkillData, selected_targets: Array[Node], context : SkillExecutionContext) -> Array[Node]:
+	var final_targets: Array[Node] = []
+	if skill.needs_target():
+		final_targets = selected_targets
+	else:
+		var all_allies = context.battle_manager.get_valid_ally_targets(false, caster)
+		var all_allies_inc_self = context.battle_manager.get_valid_ally_targets(true, caster)
+		var all_enemies = context.battle_manager.get_valid_enemy_targets(caster)
+		match skill.target_type:
+			SkillData.TargetType.SELF:
+				if is_instance_valid(caster) and (caster.is_alive or skill.can_target_dead):
+					final_targets.append(caster)
+			SkillData.TargetType.ALLY_ALL:
+				final_targets = all_allies
+			SkillData.TargetType.ALLY_ALL_INC_SELF:
+				final_targets = all_allies_inc_self
+			SkillData.TargetType.ENEMY_ALL:
+				final_targets = all_enemies
+			SkillData.TargetType.ALLY_RANDOM:
+				final_targets = _get_random_targets(all_allies, min(skill.target_count, all_allies.size()))
+			SkillData.TargetType.ALLY_RANDOM_INC_SELF:
+				final_targets = _get_random_targets(all_allies_inc_self, min(skill.target_count, all_allies_inc_self.size()))
+			SkillData.TargetType.ENEMY_RANDOM:
+				final_targets = _get_random_targets(all_enemies, min(skill.target_count, all_enemies.size()))
+			_:
+				push_warning("SkillComponent: Unhandled skill.target_type in _determine_execution_targets: %s" % skill.target_type)
+				# Could implement a fallback here
+
+	# 过滤掉无效目标
+	var valid_targets: Array[Node] = []
+	for target in final_targets:
+		if is_instance_valid(target) and (target.is_alive or skill.can_target_dead):
+			valid_targets.append(target)
+
+	return valid_targets
+
+## 获取随机目标
+func _get_random_targets(targets: Array[Node], count: int) -> Array[Node]:
+	var random_targets: Array[Node] = targets.duplicate(false)
+	random_targets.shuffle()
+	return random_targets.slice(0, count)
+
+## 触发游戏事件
+## [param event_source] 事件的触发者
+## [param event_type] 事件类型，如 "on_damage_taken", "on_turn_start", "on_attack" 等
+## [param context] 事件上下文，包含事件相关的所有信息
+func _trigger_game_event(event_type: StringName, event_source: Node, context: EventContext) -> void:
+	# 打印事件日志（调试用）
+	print_rich("[color=purple]游戏事件触发: %s[/color]" % event_type)
+	
+	if event_source != get_parent():
+		return
+
+	var triggerable_statuses = get_triggerable_status(event_type)
+	if triggerable_statuses.is_empty():
+		return
+	
+	for status in triggerable_statuses:
+		var trigger_effects = status.get_trigger_effects()
+		if trigger_effects.is_empty():
+			continue
+		var skill_context : SkillExecutionContext = SkillExecutionContext.new()
+		if context is DamageEventContext:
+			skill_context.damage_info = context.damage_info
+		_process_status_effects(trigger_effects, status.source_character, event_source, skill_context)
+		update_status_trigger_counts(status)
 #endregion

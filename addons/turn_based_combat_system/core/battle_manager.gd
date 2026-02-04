@@ -59,7 +59,6 @@ func _ready() -> void:
 	turn_order_manager.turn_changed.connect(_on_turn_changed)
 
 	state_manager.state_changed.connect(_on_state_changed)
-	SkillSystem.battle_manager = self
 	state_manager.initialize(BattleStateManager.BattleState.IDLE)
 
 ## 开始战斗
@@ -91,7 +90,7 @@ func player_select_action(
 		
 	_log_battle_info("[color=cyan]玩家选择行动: %s[/color]" % action_type)
 	
-	params.merge({"skill_context": SkillExecutionContext.new(self)}, true)
+	params.merge({"battle_manager": self}, true)
 	await current_turn_character.execute_action(action_type, target, params)
 
 	# 检查战斗是否结束

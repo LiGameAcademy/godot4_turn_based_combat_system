@@ -5,4 +5,4 @@ class_name EventContext
 var source: Character
 
 func _init(p_source: Character) -> void:
-    source = p_source
+	source = p_source

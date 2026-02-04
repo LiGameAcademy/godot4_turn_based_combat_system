@@ -1,6 +1,8 @@
 extends SkillEffect
 class_name CounterAttackEffect
 
+## 反击效果
+
 @export var counter_attack_skill: SkillData # 用于反击的技能（通常是普攻）
 
 func _get_base_description() -> String:
@@ -26,7 +28,8 @@ func _process_effect(source: Character, _target: Character, context : SkillExecu
 		
 	print_rich("[color=yellow]%s 发动了反击！[/color]" % counter_attacker.character_name)
 
-	var result = await SkillSystem.attempt_execute_skill(counter_attack_skill, counter_attacker, [original_attacker], context)
+	#TODO 这里需要优化，不能直接使用source.execute_skill，因为source可能是CharacterSkillComponent，需要使用CharacterSkillComponent.execute_skill
+	var result = await source.execute_skill(counter_attack_skill, counter_attacker, [original_attacker], context)
 	if not result.get("success"):
 		return {
 			"success": false,

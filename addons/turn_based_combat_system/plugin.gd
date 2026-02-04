@@ -2,12 +2,10 @@
 extends EditorPlugin
 
 func _enable_plugin() -> void:
-	# Add autoloads here.
-	pass
+	add_autoload_singleton("TBCombatSystem", "./system/turn_based_combat_system.gd")
 
 func _disable_plugin() -> void:
-	# Remove autoloads here.
-	pass
+	remove_autoload_singleton("TBCombatSystem")
 
 func _enter_tree() -> void:
 	# Initialization of the plugin goes here.

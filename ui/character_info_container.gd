@@ -87,8 +87,13 @@ func _update_attribute_bars() -> void:
 		return
 	
 	# 获取角色的属性组件
-	var skill_comp : CharacterSkillComponent = _character.skill_component
-	if not skill_comp:
+	var skill_comp : SkillComponentInterface = null
+	if _character.has_method("get_skill_component"):
+		skill_comp = _character.get_skill_component()
+	else:
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+	
+	if not is_instance_valid(skill_comp):
 		return
 	
 	# 获取HP属性
@@ -169,16 +174,16 @@ func clear_status_icons() -> void:
 	_status_icons.clear()
 
 ## 属性当前值变化回调
-func _on_attribute_current_value_changed(attribute: SkillAttribute, _old_value: float, _new_value: float) -> void:
+func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
 	# 检查是否是HP或MP属性
-	if attribute.attribute_name == &"CurrentHealth" or attribute.attribute_name == &"MaxHealth":
+	if attribute_id == &"CurrentHealth" or attribute_id == &"MaxHealth":
 		# 更新HP条
 		var current_hp = _character.skill_component.get_attribute(&"CurrentHealth")
 		var max_hp = _character.skill_component.get_attribute(&"MaxHealth")
 		if current_hp and max_hp:
 			hp_bar.setup(current_hp, max_hp)
 	
-	elif attribute.attribute_name == &"CurrentMana" or attribute.attribute_name == &"MaxMana":
+	elif attribute_id == &"CurrentMana" or attribute_id == &"MaxMana":
 		# 更新MP条
 		var current_mp = _character.skill_component.get_attribute(&"CurrentMana")
 		var max_mp = _character.skill_component.get_attribute(&"MaxMana")

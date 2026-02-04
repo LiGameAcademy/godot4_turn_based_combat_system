@@ -19,7 +19,6 @@ class_name SkillEffect
 @export_group("执行条件")
 @export var conditions: Array[SkillCondition] = []
 
-
 signal effect_processed(source: Character, target: Character, result: Dictionary)
 
 ## 供外部调用的、完整的描述方法
@@ -51,14 +50,14 @@ func process_effect(source: Character, target: Character, context : SkillExecuti
 
 	# 检查参数有效性
 	if !is_instance_valid(source):
-		push_error("SkillSystem: 无效的角色引用")
+		push_error("SkillEffect: 无效的角色引用")
 		return {
 			"success": false,
 			"reason": "Invalid character reference" + source.character_name
 		}
 
 	elif not is_instance_valid(self):
-		push_error("SkillSystem: 无效的效果引用")
+		push_error("SkillEffect: 无效的效果引用")
 		return {
 			"success": false,
 			"reason": "Invalid effect reference"
@@ -66,13 +65,13 @@ func process_effect(source: Character, target: Character, context : SkillExecuti
 
 	var effect_targets = _get_determine_targets(source, [target], context)
 	if effect_targets.is_empty():
-		push_warning("SkillSystem: No valid targets for effect '%s'" % resource_name)
+		push_warning("SkillEffect: No valid targets for effect '%s'" % resource_name)
 		return {
 			"success": false,
 			"reason": "No valid targets"
 		}
 
-	var results: Dictionary = {}
+	var results: Dictionary = {"success": true, "reason": ""}
 	for effect_target in effect_targets:
 		# 1. 准备用于条件检查的上下文
 		var condition_context = {"source": source, "targets": target}
@@ -94,7 +93,7 @@ func process_effect(source: Character, target: Character, context : SkillExecuti
 
 	for sub_effect in sub_effects:
 		if not is_instance_valid(sub_effect):
-			push_warning("SkillSystem: 无效的子效果引用")
+			push_warning("SkillEffect: 无效的子效果引用")
 			continue
 		results[sub_effect] =  await sub_effect.process_effect(source, target, context)
 
@@ -137,12 +136,13 @@ func _process_effect(source: Character, _target: Character, _context: SkillExecu
 ## [param params] 视觉效果参数
 ## 发送视觉效果请求
 func _request_visual_effect(effect_type: StringName, target: Character, params: Dictionary = {}) -> void:
-	if not SkillSystem or not is_instance_valid(target):
-		return
-		
-	# 分发到适当的视觉效果方法
-	var method_name : String = "_play_" + effect_type + "_effect"
-	if SkillSystem.battle_manager.has_method(method_name):
-		SkillSystem.battle_manager.call(method_name, target, params)
-	else:
-		push_warning("未找到视觉效果方法 " + method_name)
+	# if not SkillSystem or not is_instance_valid(target):
+	# 	return
+	
+	# # 分发到适当的视觉效果方法
+	# var method_name : String = "_play_" + effect_type + "_effect"
+	# if SkillSystem.battle_manager.has_method(method_name):
+	# 	SkillSystem.battle_manager.call(method_name, target, params)
+	# else:
+	# 	push_warning("未找到视觉效果方法 " + method_name)
+	pass

@@ -5,11 +5,14 @@ class_name SkillComponentInterface
 ## 技能组件接口
 
 signal status_applied(status_instance: Resource)																	## 当状态效果被应用到角色身上时发出
-signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						    ## 当状态效果从角色身上移除时发出
+signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						## 当状态效果从角色身上移除时发出
 signal status_updated(status_instance: Resource, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
 signal attribute_base_value_changed(attribute_id: StringName, old_value: float, new_value: float)				    ## 属性基础值改变
 signal attribute_current_value_changed(attribute_id: StringName, old_value: float, new_value: float)			    ## 属性当前值改变
-signal action_tags_changed(restricted_tags: Array[String])														    ## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
+signal action_tags_changed(restricted_tags: Array[String])														## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
+signal skill_execution_started(skill_data: Resource, targets: Array[Node], skill_context: Dictionary)				## 当技能执行开始时发出
+signal skill_execution_completed(skill_data: Resource, targets: Array[Node], result: Dictionary)					## 当技能执行完成时发出
+signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result: Dictionary)						## 当技能执行失败时发出
 
 #region --- 属性管理 ---
 
@@ -32,7 +35,7 @@ signal action_tags_changed(restricted_tags: Array[String])														    ## �
 ## 消耗hp
 @abstract func consume_hp(amount: float) -> bool
 ## 恢复hp
-@abstract func restore_hp(amount: float) -> bool
+@abstract func restore_hp(amount: float) -> float
 ## 消耗mp
 @abstract func consume_mp(amount: float) -> bool
 ## 恢复mp
@@ -70,7 +73,7 @@ signal action_tags_changed(restricted_tags: Array[String])														    ## �
 ## 应用状态
 @abstract func apply_status(status_template: Resource, p_source: Node, effect_data_from_skill: Resource) -> Dictionary
 ## 移除状态
-@abstract func remove_status(status_id: StringName, force_remove: bool = false) -> void
+@abstract func remove_status(status_id: StringName, trigger_removal: bool = false) -> bool
 ## 更新状态持续时间
 @abstract func update_status_durations() -> void
 ## 处理激活状态
@@ -91,7 +94,7 @@ signal action_tags_changed(restricted_tags: Array[String])														    ## �
 ## 获取技能限制动作标签
 @abstract func get_restricted_action_tags() -> Array[String]
 ## 检查是否可以执行指定动作类型
-@abstract func can_perform_action_category(action_category: String) -> bool
+@abstract func can_perform_action_category(action_category: StringName) -> bool
 ## 检查技能是否可用
 @abstract func is_skill_available(skill_id: StringName) -> bool
 #endregion

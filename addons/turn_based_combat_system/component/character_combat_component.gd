@@ -62,14 +62,16 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 		result["error"] = "无法执行该动作类型"
 		return result
 
-	var skill_context : Dictionary = params.get("skill_context", {})
-	var targets : Array[Character]
+	var skill_context : Dictionary = params
+	var targets : Array[Node] = [target]
 	for t in params.get("targets", []):
 		targets.append(t)
 	match action_type:
 		ActionType.ATTACK:
+			skill_context["skill_id"] = attack_skill_id
 			result = await _execute_attack(target, skill_context)
 		ActionType.DEFEND:
+			skill_context["skill_id"] = defense_skill_id
 			result = await _execute_defend(skill_context)
 		ActionType.SKILL:
 			var skill_id : StringName = params.get("skill_id", null)
@@ -98,7 +100,7 @@ func take_damage(base_damage: float, source : Character, p_element : int, is_mel
 	
 	# 触发伤害修改事件，允许状态效果修改伤害值
 	var damage_event_context : DamageEventContext = DamageEventContext.new(source, get_parent(), damage_info)
-	await SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken", damage_event_context)
+	TBCombatSystem.trigger_game_event(&"on_damage_taken", get_parent(), damage_event_context)
 	
 	# 获取可能被修改后的伤害值
 	final_damage = damage_info.final_damage
@@ -113,7 +115,7 @@ func take_damage(base_damage: float, source : Character, p_element : int, is_mel
 	_skill_component.consume_hp(final_damage)
 	
 	# 触发伤害完成事件
-	await SkillSystem.trigger_game_event(get_parent(), &"on_damage_taken_completed", damage_event_context)
+	TBCombatSystem.trigger_game_event(&"on_damage_taken_completed", get_parent(), damage_event_context)
 	return final_damage
 
 ## 治疗处理方法
@@ -164,6 +166,21 @@ func get_available_skills() -> Array[StringName]:
 	available_skills.erase(defense_skill_id)
 	return available_skills
 
+## 检查动作是否需要目标
+func need_target_for_action(action_type: ActionType) -> bool:
+	match action_type:
+		ActionType.ATTACK:
+			return true
+		ActionType.DEFEND:
+			return false
+		ActionType.SKILL:
+			return true
+		ActionType.ITEM:
+			return true
+		_:
+			return false
+	return false
+
 #region --- 私有方法 ---
 ## 死亡处理方法
 func _die(death_source: Variant = null):
@@ -180,7 +197,7 @@ func _execute_attack(target: Character, skill_context: Dictionary) -> Dictionary
 	
 	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name if target else ""])
 	
-	var targets : Array[Character]
+	var targets : Array[Node]
 	if is_instance_valid(target):
 		targets.append(target)
 	var result : Dictionary = await _execute_skill(attack_skill_id, targets, skill_context)
@@ -197,7 +214,7 @@ func _execute_defend(skill_context: Dictionary) -> Dictionary:
 	print_rich("[color=cyan]%s 选择防御[/color]" % [character.character_name])
 	
 	# 使用防御技能
-	var targets: Array[Character] = [character] # 目标是自己
+	var targets: Array[Node] = [character] # 目标是自己
 	var result: Dictionary = await _execute_skill(defense_skill_id, targets, skill_context)
 
 	return result
@@ -207,7 +224,7 @@ func _execute_defend(skill_context: Dictionary) -> Dictionary:
 ## [param targets] 目标列表
 ## [param skill_context] 技能执行上下文
 ## [return] 技能执行结果
-func _execute_skill(skill_id: StringName, targets: Array[Character], skill_context: Dictionary) -> Dictionary:
+func _execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
 	var caster = get_parent()
 	if not is_instance_valid(caster) or skill_id.is_empty():
 		return {"success": false, "error": "无效的施法者或技能"}
@@ -226,8 +243,10 @@ func _execute_skill(skill_id: StringName, targets: Array[Character], skill_conte
 		await get_parent().move_to_cast_marker()
 
 	# 尝试执行技能
-	# var result = await SkillSystem.attempt_execute_skill(skill, caster, targets, skill_context)
-	var result = await _skill_component.execute_skill(skill_id, targets, skill_context)
+	var final_targets : Array[Node]
+	for target in targets:
+		final_targets.append(target)
+	var result = await _skill_component.execute_skill(skill_id, final_targets, skill_context)
 	
 	await get_parent().move_back()
 	return result
@@ -261,9 +280,7 @@ func _execute_item(item, targets: Array) -> Dictionary:
 
 #region --- 信号处理 ---
 ## 属性当前值变化的处理
-func _on_attribute_current_value_changed(
-		attribute_id: StringName, _old_value: float, new_value: float
-	) -> void:
+func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, new_value: float) -> void:
 	# 检查是否是生命值变化
 	if attribute_id == &"CurrentHealth" and new_value <= 0:
 		_die()
