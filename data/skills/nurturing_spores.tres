@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_86y80"]
 [ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/heal_effect.gd" id="2_e856f"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_fs47j"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_jlppw"]
 [ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="3_ibhp6"]
 [ext_resource type="Resource" uid="uid://q8m3y4evh63n" path="res://data/skill_status/regeneration.tres" id="4_fs47j"]

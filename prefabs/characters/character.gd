@@ -79,7 +79,7 @@ func _ready() -> void:
 
 ## 初始化角色
 func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
-	if character_data:
+	if is_instance_valid(character_data):
 		_initialize_from_data(character_data)
 	else:
 		push_error("角色场景 " + name + " 没有分配CharacterData!")
@@ -93,6 +93,7 @@ func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 	cast_marker = p_cast_marker
 
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
+	# print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 
 ## 玩家选择行动
 func execute_action(action_type: CharacterCombatComponent.ActionType, target: Character = null, params: Dictionary = {}) -> void:
@@ -135,17 +136,10 @@ func on_turn_end(battle_manager : BattleManager) -> void:
 	if combat_component:
 		combat_component.on_turn_end(battle_manager)
 
-## 是否足够释放技能MP
-func has_enough_mp_for_any_skill() -> bool:
-	if is_instance_valid(skill_component):
-		return skill_component.has_enough_mp_for_skill()
-	push_error("Character: 技能组件未初始化！")
-	return false
-
 ## 检查是否有足够的MP使用指定技能
-func has_enough_mp_for_skill(skill: SkillData) -> bool:
+func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
 	if is_instance_valid(skill_component):
-		return skill_component.has_enough_mp_for_skill(skill.skill_id)
+		return skill_component.has_enough_mp_for_skill(skill_id)
 	push_error("Character: 技能组件未初始化！")
 	return false
 
@@ -218,7 +212,13 @@ func _init_components(battle_manager: BattleManager) -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize(character_data.element, character_data.attack_skill_id, character_data.defense_skill_id)
+	combat_component.initialize(character_data.element, character_data.attack_skill.skill_id, character_data.defense_skill.skill_id)
+	if not skill_component is CharacterSkillComponent:
+		push_error("技能组件不是CharacterSkillComponent类型！")
+		return
+	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
+	skill_component.add_skill(character_data.attack_skill.skill_id, character_data.attack_skill)
+	skill_component.add_skill(character_data.defense_skill.skill_id, character_data.defense_skill)
 
 	# 连接组件信号
 	if not combat_component.character_defeated.is_connected(_on_character_defeated):
@@ -231,8 +231,6 @@ func _initialize_from_data(data: CharacterData) -> void:
 	# 保存数据引用
 	character_data = data
 	ai_component.behavior_resource = data.ai_behavior
-	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
-	print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 
 ## 设置角色动画
 func _setup_animations() -> void:

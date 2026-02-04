@@ -12,8 +12,8 @@ class_name CharacterData
 
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
-@export var attack_skill_id : StringName = ""
-@export var defense_skill_id : StringName = ""
+@export var attack_skill : SkillData = preload("res://data/skills/attack.tres")
+@export var defense_skill : SkillData = preload("res://data/skills/defend.tres")
 
 @export_group("视觉表现")
 @export var animation_library : AnimationLibrary			## 角色动画库

@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/ai/ai_behavior.gd" id="1_5bd2y"]
 [ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="1_pg15q"]
-[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://data/skills/attack.tres" id="2_msrch"]
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute.gd" id="3_5bd2y"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://data/skills/attack.tres" id="3_5hrjx"]
 [ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://data/skill_attributes/current_health.tres" id="4_lachk"]
 [ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://data/skill_attributes/current_mana.tres" id="5_fewsb"]
 [ext_resource type="Script" uid="uid://8esdurm415rx" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute_set.gd" id="6_qam5p"]
-[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://data/skills/defend.tres" id="7_bkft3"]
 [ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/definitions/character_data.gd" id="8_4nd0j"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://data/skills/defend.tres" id="8_i4yjg"]
 [ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="8_msrch"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="9_fu4un"]
 [ext_resource type="Resource" uid="uid://cl4gb5k8bxedw" path="res://data/skills/nurturing_spores.tres" id="11_msrch"]
@@ -58,7 +58,6 @@ metadata/_custom_type_script = "uid://1svsj8jgldy7"
 [sub_resource type="Resource" id="Resource_cjb8a"]
 script = ExtResource("6_qam5p")
 attributes_to_initialize = Array[ExtResource("3_5bd2y")]([SubResource("Resource_asr23"), SubResource("Resource_n1w7c"), ExtResource("4_lachk"), ExtResource("5_fewsb"), SubResource("Resource_jf55n"), SubResource("Resource_0i5n8"), SubResource("Resource_tcc5r")])
-metadata/_custom_type_script = "uid://ca045i7dpt4me"
 
 [resource]
 script = ExtResource("8_4nd0j")
@@ -68,8 +67,6 @@ attribute_set_resource = SubResource("Resource_cjb8a")
 element = 3
 ai_behavior = SubResource("Resource_lachk")
 skills = Array[ExtResource("9_fu4un")]([ExtResource("11_msrch"), ExtResource("12_5bd2y")])
-attack_skill = ExtResource("2_msrch")
-defense_skill = ExtResource("7_bkft3")
 animation_library = ExtResource("1_pg15q")
 sprite_offset = Vector2(0, 75)
 icon = ExtResource("8_msrch")

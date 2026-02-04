@@ -11,6 +11,7 @@ const CHARACTER = preload("res://prefabs/characters/character.tscn")
 @onready var stream_player: AudioStreamPlayer = $AudioStreamPlayer
 
 var current_action : CharacterCombatComponent.ActionType
+## 当前选中技能
 var current_selected_skill : SkillData
 
 func _ready() -> void:
@@ -126,28 +127,36 @@ func _on_action_attack_pressed() -> void:
 		return
 	current_action = CharacterCombatComponent.ActionType.ATTACK
 	var character = battle_manager.current_turn_character
-	var attack_skill = character.combat_component.attack_skill
-	if attack_skill.needs_target():
+	if character.combat_component.need_target_for_action(current_action):
 		battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets())
 	else:
-		battle_manager.player_select_action(current_action, null, {"skill": attack_skill, "targets": []})
+		battle_manager.player_select_action(current_action)
 
 ## 当玩家选择防御时调用
 func _on_action_defend_pressed() -> void:
-	if battle_manager.is_player_turn:
-		current_action = CharacterCombatComponent.ActionType.DEFEND
+	if not battle_manager.is_player_turn:
+		return
+	
+	current_action = CharacterCombatComponent.ActionType.DEFEND
+	var character = battle_manager.current_turn_character
+	if character.combat_component.need_target_for_action(current_action):
+		battle_ui.show_target_selection(battle_manager.get_valid_ally_targets(true))
+	else:
 		battle_manager.player_select_action(current_action)
 
 ## 当玩家选择技能按钮时调用
 func _on_action_skill_pressed() -> void:
-	if battle_manager.is_player_turn:
-		current_action = CharacterCombatComponent.ActionType.SKILL
-		battle_ui.show_skill_menu(battle_manager.current_turn_character)
+	if not battle_manager.is_player_turn:
+		return
+	
+	current_action = CharacterCombatComponent.ActionType.SKILL
+	battle_ui.show_skill_menu(battle_manager.current_turn_character)
 
 ## 当玩家选择道具时调用
 func _on_action_item_pressed() -> void:
-	if battle_manager.is_player_turn:
-		update_battle_info("物品功能尚未实现")
+	if not battle_manager.is_player_turn:
+		return
+	update_battle_info("物品功能尚未实现")
 
 ## 当玩家选择技能时调用
 func _on_skill_selected(skill: SkillData) -> void:

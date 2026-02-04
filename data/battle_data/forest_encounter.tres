@@ -20,13 +20,6 @@ player_data_list = Dictionary[ExtResource("1_5h02x"), Vector2]({
 ExtResource("5_gl04b"): Vector2(0, 0),
 ExtResource("6_jtilb"): Vector2(200, 0)
 })
-max_turn_count = 99
-defeat_scene = ""
-victory_scene = ""
 exp_reward = 50
 gold_reward = 25
-item_rewards = []
-is_boss_battle = false
-allow_escape = true
-special_conditions = {}
 battle_description = "在森林中遭遇了哥布林！"
