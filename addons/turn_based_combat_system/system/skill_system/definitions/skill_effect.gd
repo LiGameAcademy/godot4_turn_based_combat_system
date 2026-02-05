@@ -106,9 +106,9 @@ func process_effect(source: Character, target: Character, context : SkillExecuti
 ## [param effect] 效果数据
 ## [param initial_targets] 初始目标
 ## [return] 效果的实际目标
-func _get_determine_targets(caster: Character, targets: Array[Character], context : SkillExecutionContext) -> Array[Character]:
+func _get_determine_targets(caster: Node, targets: Array[Node], context : SkillExecutionContext) -> Array[Node]:
 	# 默认使用技能的目标
-	var effect_targets: Array[Character] = targets.duplicate()
+	var effect_targets: Array[Node] = targets.duplicate()
 	
 	#TODO 如果效果有特殊的目标覆盖规则，可以在这里处理
 	# 例如，某些效果可能会影响主目标周围的敌人，或者只影响施法者自己
@@ -119,7 +119,7 @@ func _get_determine_targets(caster: Character, targets: Array[Character], contex
 			"self_only":
 				effect_targets = [caster] if is_instance_valid(caster) else []
 			"all_allies":
-				effect_targets = context.battle_manager.get_valid_ally_targets(true, caster)
+				effect_targets = context.battle_manager.get_valid_ally_targets(caster, true)
 			"all_enemies":
 				effect_targets = context.battle_manager.get_valid_enemy_targets(caster)
 	

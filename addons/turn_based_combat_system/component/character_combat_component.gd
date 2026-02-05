@@ -26,9 +26,16 @@ var can_action : bool = true:
 		var restricted_tags := _skill_component.get_restricted_action_tags()
 		return not restricted_tags.has(&"any_action")
 
+var is_alive : bool:
+	get:
+		if not is_instance_valid(_skill_component):
+			return false
+		return _skill_component.get_attribute_current_value(&"CurrentHealth") > 0
+
 # 信号
 signal character_defeated()															## 死亡时发出信号
-signal action_executed(action_type, target, result)									## 动作执行信号
+signal action_started(action_type, target, params)									## 动作开始执行信号
+signal action_executed(action_type, target, result)									## 动作执行完成信号
 signal item_used(user, item, targets, results)										## 道具使用信号
 
 ## 初始化组件
@@ -61,6 +68,9 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 	if not can_perform_action(action_type):
 		result["error"] = "无法执行该动作类型"
 		return result
+
+	# 发出动作开始执行信号
+	action_started.emit(action_type, target, params)
 
 	var skill_context : Dictionary = params
 	var targets : Array[Node] = [target]

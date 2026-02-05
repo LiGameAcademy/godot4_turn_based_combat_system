@@ -1,6 +1,8 @@
 extends SkillEffect
 class_name SpecialEffect
 
+## 特殊效果
+
 ## 特殊效果参数
 @export_group("特殊效果参数", "special_")
 @export var special_type: String = "none"  		## 特殊效果类型

@@ -27,17 +27,19 @@ enum TargetType {
 @export var skill_id: StringName = &"new_skill" 				## 内部ID，用StringName效率略高
 @export var skill_name: String = "新技能"       				## UI显示名称
 @export var skill_type: SkillType = SkillType.ACTIVE			## 技能类型
-@export_multiline var description: String = "技能描述..." 		## UI显示描述
+@export_multiline 
+var description: String = "技能描述..." 		## UI显示描述
 @export var is_melee: bool = true							## 是否是近战
 
 @export_group("消耗与目标")
 @export var mp_cost: int = 5									## 魔法消耗
 @export var target_type: TargetType = TargetType.ENEMY_SINGLE	## 目标类型
-@export_range(0, 10) var target_count: int = 1 				## 目标数量，仅对多目标类型有效
+@export_range(0, 10) 
+var target_count: int = 1 				## 目标数量，仅对多目标类型有效
 @export var can_target_dead : bool = false 					## 是否可以对死亡目标施放
 
 @export_group("效果")
-@export var effects : Array[SkillEffect] = []					## 主动技能施放时的直接效果
+@export var effects : Array[SkillEffect] = []				## 主动技能施放时的直接效果
 @export_enum("any_action", "any_skill", "magic_skill", "ranged_skill", "melee_skill", "basic_attack", "physical_attack")
 var action_categories: Array[String] = ["any_action"] 		## 所属行动类别
 
@@ -46,10 +48,10 @@ var action_categories: Array[String] = ["any_action"] 		## 所属行动类别
 @export var status_to_apply_when_learned: SkillStatusData = null
 
 @export_group("视觉与音效 (可选)")
-@export var icon: Texture2D = null 							## 技能图标
-@export var cast_animation: StringName = "" 					## 施法动画名 (如果角色动画器中有)
-@export var pre_cast_delay: float = 0.2						## 释放前延迟
-@export var post_cast_delay: float = 0.0						## 释放后延迟
+@export var icon: Texture2D = null 						## 技能图标
+@export var cast_animation: StringName = "" 				## 施法动画名 (如果角色动画器中有)
+@export var pre_cast_delay: float = 0.2					## 释放前延迟
+@export var post_cast_delay: float = 0.0					## 释放后延迟
 
 # 未来可扩展其他视觉和音效选项
 # @export var vfx_scene: PackedScene # 技能特效场景

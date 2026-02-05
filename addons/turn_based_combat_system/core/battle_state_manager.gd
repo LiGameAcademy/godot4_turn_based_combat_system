@@ -8,12 +8,10 @@ class_name BattleStateManager
 enum BattleState { 
 	IDLE, 					## 空闲状态
 	START, 					## 开始状态
-	ROUND_START,			## 回合开始状态
-	ROUND_END,				## 回合结束状态
-	TURN_START,				## 回合开始状态
-	TURN_END,				## 回合结束状态
-	PLAYER_TURN,			## 玩家回合状态
-	ENEMY_TURN,				## 敌人回合状态
+	ROUND_START,			## 大回合开始状态
+	ROUND_END,				## 大回合结束状态
+	TURN_START,				## 小回合开始状态
+	TURN_END,				## 小回合结束状态
 	VICTORY, 				## 胜利状态
 	DEFEAT					## 失败状态
 }
@@ -32,14 +30,15 @@ func initialize(initial_state: BattleState = BattleState.IDLE) -> void:
 ## 切换状态的核心方法
 func change_state(new_state: BattleState) -> void:
 	if current_state == new_state:
+		print_rich("[color=purple][状态机][/color] 状态相同，无需切换: %s" % BattleState.keys()[new_state])
 		return
 	
 	previous_state = current_state
 	current_state = new_state
-	
+
+	state_changed.emit(previous_state, new_state)
 	# 打印日志并发出信号
 	print_rich("[color=purple][状态机][/color] 状态切换: [color=gray]%s[/color] -> [color=yellow]%s[/color]" % [BattleState.keys()[previous_state], BattleState.keys()[new_state]])
-	state_changed.emit(previous_state, new_state)
 
 ## 判断当前状态
 func is_in_state(state: BattleState) -> bool:

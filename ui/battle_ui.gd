@@ -103,7 +103,7 @@ func show_skill_menu(character: Character) -> bool:
 	return false
 
 ## 显示目标选择菜单
-func show_target_selection(targets: Array[Character]) -> bool:
+func show_target_selection(targets: Array[Node]) -> bool:
 	if target_selection_menu and not targets.is_empty():
 		target_selection_menu.show_targets(targets)
 		return true

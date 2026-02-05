@@ -188,6 +188,7 @@ func is_skill_ranged(skill_id: StringName) -> bool:
 	if not is_instance_valid(skill):
 		return false
 	return skill.is_ranged
+
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
 	# 0. 验证技能前置条件
@@ -214,12 +215,20 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 			push_error("CharacterSkillComponent: 无法显示状态文本，battle_manager 无效！")
 		return {"error": validation_result.reason}
 
+	if caster.has_method("play_animation"):
+		caster.play_animation(skill.cast_animation)
+	else:
+		push_error("CharacterSkillComponent: 角色 %s 没有 play_animation 方法！" % caster.character_name)
+
+	await get_tree().create_timer(skill.pre_cast_delay).timeout
 	# 3. 消耗资源
 	_consume_skill_resources(skill, caster, actual_targets, skill_execution_context)
-
 	# 4. 异步执行技能效果处理
-	var skill_execution_result : Dictionary = await _execute_skill_effects(skill, caster, actual_targets, skill_execution_context)
+	# var skill_execution_result : Dictionary = await _execute_skill_effects(skill, caster, actual_targets, skill_execution_context)
+	var skill_execution_result : Dictionary = await _process_effects(skill.effects, caster, actual_targets, skill_execution_context)
 
+	await get_tree().create_timer(skill.post_cast_delay).timeout
+	
 	# 5. 发出技能执行完成信号
 	skill_execution_completed.emit(skill, actual_targets, skill_execution_result)
 	return skill_execution_result
@@ -302,7 +311,7 @@ func remove_status(status_id: StringName, trigger_removal: bool = true) -> bool:
 	# 如果需要触发结束效果
 	if trigger_removal and not runtime_status_instance.end_effects.is_empty():
 		print_rich("[color=purple]触发 %s 的状态 %s 的结束效果[/color]" % [owner.character_name, runtime_status_instance.status_name])
-		var result = await _process_status_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
+		var result = await _process_effects(runtime_status_instance.end_effects, runtime_status_instance.source_character, [get_parent()], SkillExecutionContext.new())
 		if not result.success:
 			push_warning("Failed to process end effects for status %s: %s" % [runtime_status_instance.status_name, result.get("error", "unknown error")])
 	# 移除状态
@@ -363,7 +372,7 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 		var status_instance: SkillStatusData = _active_statuses[status_id]
 		if not status_instance.ongoing_effects.is_empty():
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
-			_process_status_effects(status_instance.ongoing_effects, effect_source, get_parent(), SkillExecutionContext.new(battle_manager))
+			_process_effects(status_instance.ongoing_effects, effect_source, [get_parent()], SkillExecutionContext.new(battle_manager))
 
 ## 私有方法：更新状态触发次数
 ## [param status] 要更新的状态
@@ -564,7 +573,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Node,
 
 	# 触发初始效果
 	if not runtime_status_instance.initial_effects.is_empty():
-		_process_status_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, get_parent(), SkillExecutionContext.new())
+		_process_effects(runtime_status_instance.initial_effects, runtime_status_instance.source_character, [get_parent()], SkillExecutionContext.new())
 
 	result_info["applied_successfully"] = true
 	result_info["reason"] = "new_status_applied"
@@ -609,29 +618,20 @@ func _remove_action_restrictions(categories: Array[String]) -> void:
 		print_rich("[color=green]%s 移除动作限制标签: %s[/color]" % [get_parent().character_name, categories])
 		action_tags_changed.emit(_restricted_action_tags)
 
-## 执行技能效果
-func _execute_skill_effects(skill: SkillData, caster: Node, actual_targets: Array[Node], skill_execution_context: SkillExecutionContext) -> Dictionary:
+## 处理效果
+func _process_effects(effects: Array[SkillEffect], caster: Node, targets: Array[Node], skill_execution_context: SkillExecutionContext) -> Dictionary:
 	var result : Dictionary = {"success": true, "reason": ""}
-	for target in actual_targets:
+	for target in targets:
 		if not is_instance_valid(target):
 			continue
-		for effect in skill.effects:
+		for effect in effects:
+			if not is_instance_valid(effect):
+				continue
 			var effect_result = await _process_effect(effect, caster, target, skill_execution_context)
 			if not effect_result.success:
 				result.success = false
 				result.reason = "Failed to process effect: %s" % effect
-				return result
-	return result
-
-## 处理状态效果
-func _process_status_effects(status_effects: Array[SkillEffect], caster: Node, target: Node, skill_execution_context: SkillExecutionContext) -> Dictionary:
-	var result : Dictionary = {"success": true, "reason": ""}
-	for status_effect in status_effects:
-		var status_effect_result = await _process_effect(status_effect, caster, target, skill_execution_context)
-		if not status_effect_result.success:
-			result.success = false
-			result.reason = "Failed to process status effect: %s" % status_effect
-			return result
+				# return result
 	return result
 
 ## 处理效果
@@ -699,8 +699,8 @@ func _determine_execution_targets(caster: Node, skill: SkillData, selected_targe
 	if skill.needs_target():
 		final_targets = selected_targets
 	else:
-		var all_allies = context.battle_manager.get_valid_ally_targets(false, caster)
-		var all_allies_inc_self = context.battle_manager.get_valid_ally_targets(true, caster)
+		var all_allies = context.battle_manager.get_valid_ally_targets(caster, false)
+		var all_allies_inc_self = context.battle_manager.get_valid_ally_targets(caster, true)
 		var all_enemies = context.battle_manager.get_valid_enemy_targets(caster)
 		match skill.target_type:
 			SkillData.TargetType.SELF:
@@ -758,6 +758,6 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 		var skill_context : SkillExecutionContext = SkillExecutionContext.new()
 		if context is DamageEventContext:
 			skill_context.damage_info = context.damage_info
-		_process_status_effects(trigger_effects, status.source_character, event_source, skill_context)
+		_process_effects(trigger_effects, status.source_character, [event_source], skill_context)
 		update_status_trigger_counts(status)
 #endregion

@@ -18,7 +18,6 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://ui/damage_number.tscn")
 @export var is_player : bool = true
 ## 目标偏移量
 @export var target_move_offset : Vector2 = Vector2(80, 0)
-var _original_position : Vector2 = Vector2.ZERO		## 原始位置
 
 #region --- 常用属性的便捷Getter ---
 var current_hp: float:
@@ -47,22 +46,17 @@ var character_name : StringName:
 	set(value): assert(false, "cannot set character_name")
 #endregion
 
+var _original_position : Vector2 = Vector2.ZERO		## 原始位置
+
 # 属性委托给战斗组件
 var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
 var element: int:									## 元素类型
 	get : return combat_component.element
-var can_action: bool = true:
-	get: 
-		if not combat_component:
-			push_error("战斗组件未初始化！")
-			return false
-		return combat_component.can_action
 
 var cast_marker : Marker2D
 
 # 信号 - 这些信号将转发组件的信号
-signal character_defeated																														## 当角色死亡时触发
 signal character_clicked(character)
 
 func _ready() -> void:
@@ -76,6 +70,25 @@ func _ready() -> void:
 
 	# 设置鼠标交互
 	_setup_character_click_area()
+
+	combat_component.action_started.connect(_on_action_started)
+	combat_component.action_executed.connect(_on_action_executed)
+
+## 获取技能组件
+func get_skill_component() -> SkillComponentInterface:
+	return skill_component
+
+## 获取AI组件
+func get_ai_component() -> CharacterAIComponent:
+	return ai_component
+
+## 获取战斗组件
+func get_combat_component() -> CharacterCombatComponent:
+	return combat_component
+
+## 获取角色名称
+func get_character_name() -> StringName:
+	return character_name
 
 ## 初始化角色
 func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
@@ -94,14 +107,6 @@ func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
 	# print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
-
-## 玩家选择行动
-func execute_action(action_type: CharacterCombatComponent.ActionType, target: Character = null, params: Dictionary = {}) -> void:
-	if not combat_component:
-		return
-	z_index = 128
-	await combat_component.execute_action(action_type, target, params)
-	z_index = 0
 
 ## 生成伤害数字
 func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> void:
@@ -125,16 +130,6 @@ func heal(amount: float) -> float:
 	var result = combat_component.heal(amount)
 	spawn_damage_number(result, Color.GREEN)
 	return result
-
-## 开始回合
-func on_turn_start(battle_manager : BattleManager) -> void:
-	if combat_component:
-		combat_component.on_turn_start(battle_manager)
-
-## 结束回合
-func on_turn_end(battle_manager : BattleManager) -> void:
-	if combat_component:
-		combat_component.on_turn_end(battle_manager)
 
 ## 检查是否有足够的MP使用指定技能
 func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
@@ -169,20 +164,12 @@ func play_animation(animation_name: String) -> void:
 		animation_player.play(&"idle")
 	else:
 		push_warning("动画 %s 不存在" % animation_name)
-		
+
 ## 应用技能状态
 func apply_skill_status(status_instance: SkillStatusData, source_character: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
 	if skill_component:
 		return skill_component.apply_status(status_instance, source_character, effect_data_from_skill)
 	return {"applied_successfully": false, "reason": "invalid_status_template"}
-
-## 获取技能组件
-func get_skill_component() -> SkillComponentInterface:
-	return skill_component
-
-## 获取AI组件
-func get_ai_component() -> CharacterAIComponent:
-	return ai_component
 
 ## 移动到目标
 func move_to_target(target: Character) -> void:
@@ -220,10 +207,6 @@ func _init_components(battle_manager: BattleManager) -> void:
 	skill_component.add_skill(character_data.attack_skill.skill_id, character_data.attack_skill)
 	skill_component.add_skill(character_data.defense_skill.skill_id, character_data.defense_skill)
 
-	# 连接组件信号
-	if not combat_component.character_defeated.is_connected(_on_character_defeated):
-		combat_component.character_defeated.connect(_on_character_defeated)
-
 	ai_component.initialize(battle_manager)
 
 ## 初始化玩家数据
@@ -253,13 +236,6 @@ func _setup_character_click_area() -> void:
 	character_click_area.input_event.connect(_on_character_input_event)
 
 #region --- 信号处理 ---
-## 当角色死亡时调用
-func _on_character_defeated() -> void:
-	if state_indicator:
-		state_indicator.hide_indicator()
-	modulate = Color(0.5, 0.5, 0.5, 0.5) # 变灰示例
-	character_defeated.emit()
-
 ## 当鼠标进入角色区域
 func _on_character_mouse_entered() -> void:
 	# 改变鼠标光标
@@ -282,4 +258,12 @@ func _on_character_input_event(_viewport: Node, event: InputEvent, _shape_idx: i
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		# 发射点击信号
 		character_clicked.emit(self)
+
+## 当动作开始执行时
+func _on_action_started(_action_type: CharacterCombatComponent.ActionType, _target: Node, _params: Dictionary) -> void:
+	z_index = 128
+
+## 当动作执行完成时
+func _on_action_executed(_action_type: CharacterCombatComponent.ActionType, _target: Node, _result: Dictionary) -> void:
+	z_index = 0
 #endregion

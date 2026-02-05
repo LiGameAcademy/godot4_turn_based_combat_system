@@ -83,9 +83,9 @@ func _spawn_character(character_data: CharacterData, position_offset: Vector2) -
 
 #region --- 信号处理 ---
 ## 当回合改变时调用
-func _on_turn_changed(character: Character) -> void:
+func _on_turn_changed(character: Node) -> void:
 	show_action_ui(battle_manager.is_player_turn)
-	battle_ui.update_turn_order(battle_manager.characters, battle_manager.current_turn_index)
+	battle_ui.update_turn_order(battle_manager.characters, battle_manager.current_turn_count)
 	update_battle_info("{0} 的回合".format([character.character_name]))
 
 ## 处理战斗结束
@@ -128,7 +128,7 @@ func _on_action_attack_pressed() -> void:
 	current_action = CharacterCombatComponent.ActionType.ATTACK
 	var character = battle_manager.current_turn_character
 	if character.combat_component.need_target_for_action(current_action):
-		battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets())
+		battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets(character))
 	else:
 		battle_manager.player_select_action(current_action)
 
@@ -140,7 +140,7 @@ func _on_action_defend_pressed() -> void:
 	current_action = CharacterCombatComponent.ActionType.DEFEND
 	var character = battle_manager.current_turn_character
 	if character.combat_component.need_target_for_action(current_action):
-		battle_ui.show_target_selection(battle_manager.get_valid_ally_targets(true))
+		battle_ui.show_target_selection(battle_manager.get_valid_ally_targets(character, true))
 	else:
 		battle_manager.player_select_action(current_action)
 
@@ -161,15 +161,15 @@ func _on_action_item_pressed() -> void:
 ## 当玩家选择技能时调用
 func _on_skill_selected(skill: SkillData) -> void:
 	current_selected_skill = skill
-	
+	var character = battle_manager.current_turn_character
 	if skill.needs_target():
-		var valid_targets : Array[Character] = []
+		var valid_targets : Array[Node] = []
 		if skill.is_enemy_target():
-			valid_targets = battle_manager.get_valid_enemy_targets()
+			valid_targets = battle_manager.get_valid_enemy_targets(character)
 		elif skill.is_including_self():
-			valid_targets = battle_manager.get_valid_ally_targets(true)
+			valid_targets = battle_manager.get_valid_ally_targets(character, true)
 		else:
-			valid_targets = battle_manager.get_valid_ally_targets(false)
+			valid_targets = battle_manager.get_valid_ally_targets(character, false)
 		battle_ui.show_target_selection(valid_targets)
 	else:
 		# 自动目标技能，直接执行

@@ -156,7 +156,7 @@ func decide_action() -> Dictionary:
 	
 	# 评估每个可能的攻击目标
 	var valid_attack_targets = []
-	var enemies : Array[Character] = _battle_manager.get_valid_enemy_targets(get_parent())
+	var enemies : Array[Node] = _battle_manager.get_valid_enemy_targets(get_parent())
 	for target in potential_targets:
 		if target in enemies:
 			valid_attack_targets.append(target)
@@ -187,7 +187,7 @@ func get_potential_targets() -> Array:
 	var owner_character = get_parent() as Character
 	# 根据技能类型获取不同的目标列表
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
-	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(owner_character, true)
 	
 	# 合并目标列表
 	targets.append_array(enemy_targets)
@@ -204,7 +204,7 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 	var owner_character = get_parent() as Character
 
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
-	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(owner_character, true)
 	
 	# 根据技能目标类型筛选目标
 	match skill.target_type:
@@ -283,7 +283,7 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 	var best_score = -1.0
 
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
-	var ally_targets = _battle_manager.get_valid_ally_targets(true, owner_character)
+	var ally_targets = _battle_manager.get_valid_ally_targets(owner_character, true)
 	
 	for target in valid_targets:
 		var score = 0.0

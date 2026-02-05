@@ -1,6 +1,8 @@
 extends SkillEffect
 class_name RedirectDamage
 
+## 承受伤害效果参数
+
 @export var redirect_damage_percent: float = 0.8    ## 为队友承受多少比例的伤害
 @export var self_damage_multiplier: float = 0.5     ## 承受的伤害会乘以这个系数
 
