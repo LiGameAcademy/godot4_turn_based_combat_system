@@ -46,40 +46,53 @@ func initialize(character: Character) -> void:
 
 ## 连接信号
 func _connect_signals() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
 	# 连接属性变化信号
-	_character.skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
+	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
 	
 	# 连接状态变化信号
-	_character.skill_component.status_applied.connect(_on_status_applied)
-	_character.skill_component.status_removed.connect(_on_status_removed)
-	_character.skill_component.status_updated.connect(_on_status_updated)
+	skill_component.status_applied.connect(_on_status_applied)
+	skill_component.status_removed.connect(_on_status_removed)
+	skill_component.status_updated.connect(_on_status_updated)
 
 ## 断开信号连接
 func _disconnect_signals() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
 	# 断开属性变化信号
-	if _character.skill_component.attribute_current_value_changed.is_connected(_on_attribute_current_value_changed):
-		_character.skill_component.attribute_current_value_changed.disconnect(_on_attribute_current_value_changed)
+	if skill_component.attribute_current_value_changed.is_connected(_on_attribute_current_value_changed):
+		skill_component.attribute_current_value_changed.disconnect(_on_attribute_current_value_changed)
 	
 	# 断开状态变化信号
-	if _character.skill_component.status_applied.is_connected(_on_status_applied):
-		_character.skill_component.status_applied.disconnect(_on_status_applied)
-	if _character.skill_component.status_removed.is_connected(_on_status_removed):
-		_character.skill_component.status_removed.disconnect(_on_status_removed)
-	if _character.skill_component.status_updated.is_connected(_on_status_updated):
-		_character.skill_component.status_updated.disconnect(_on_status_updated)
+	if skill_component.status_applied.is_connected(_on_status_applied):
+		skill_component.status_applied.disconnect(_on_status_applied)
+	if skill_component.status_removed.is_connected(_on_status_removed):
+		skill_component.status_removed.disconnect(_on_status_removed)
+	if skill_component.status_updated.is_connected(_on_status_updated):
+		skill_component.status_updated.disconnect(_on_status_updated)
 
 ## 更新名称显示
 func _update_name_display() -> void:
-	if not _character:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
 		return
 	
-	name_label.text = _character.character_name
+	name_label.text = str(_character.get_character_name()) if _character.has_method("get_character_name") else "Unknown"
 
 ## 更新属性条显示
 func _update_attribute_bars() -> void:
@@ -96,17 +109,10 @@ func _update_attribute_bars() -> void:
 	if not is_instance_valid(skill_comp):
 		return
 	
-	# 获取HP属性
-	var current_hp = skill_comp.get_attribute(&"CurrentHealth")
-	var max_hp = skill_comp.get_attribute(&"MaxHealth")
-	if current_hp and max_hp:
-		hp_bar.setup(current_hp, max_hp)
-	
-	# 获取MP属性
-	var current_mp = skill_comp.get_attribute(&"CurrentMana")
-	var max_mp = skill_comp.get_attribute(&"MaxMana")
-	if current_mp and max_mp:
-		mp_bar.setup(current_mp, max_mp)
+	# 更新HP条
+	_update_health_bar()
+	# 更新MP条
+	_update_mana_bar()
 
 ## 初始化状态图标
 func _initialize_status_icons() -> void:
@@ -173,22 +179,43 @@ func clear_status_icons() -> void:
 	# 清空字典
 	_status_icons.clear()
 
+func _update_health_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	var current_hp = skill_component.get_attribute(&"CurrentHealth")
+	var max_hp = skill_component.get_attribute(&"MaxHealth")
+	if current_hp and max_hp:
+		hp_bar.update_display(current_hp, max_hp)
+
+func _update_mana_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	var current_mp = skill_component.get_attribute(&"CurrentMana")
+	var max_mp = skill_component.get_attribute(&"MaxMana")
+	if current_mp and max_mp:
+		mp_bar.update_display(current_mp, max_mp)
+
 ## 属性当前值变化回调
 func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
 	# 检查是否是HP或MP属性
 	if attribute_id == &"CurrentHealth" or attribute_id == &"MaxHealth":
-		# 更新HP条
-		var current_hp = _character.skill_component.get_attribute(&"CurrentHealth")
-		var max_hp = _character.skill_component.get_attribute(&"MaxHealth")
-		if current_hp and max_hp:
-			hp_bar.setup(current_hp, max_hp)
-	
+		_update_health_bar()
 	elif attribute_id == &"CurrentMana" or attribute_id == &"MaxMana":
-		# 更新MP条
-		var current_mp = _character.skill_component.get_attribute(&"CurrentMana")
-		var max_mp = _character.skill_component.get_attribute(&"MaxMana")
-		if current_mp and max_mp:
-			mp_bar.setup(current_mp, max_mp)
+		_update_mana_bar()
 
 ## 状态应用回调
 func _on_status_applied(status_instance: SkillStatusData) -> void:

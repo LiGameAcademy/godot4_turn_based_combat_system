@@ -1,6 +1,7 @@
-# scenes/ui/battle_transition.gd
 extends CanvasLayer
 class_name BattleTransition
+
+## 战斗过渡效果
 
 var animation_player: AnimationPlayer
 var color_rect: ColorRect

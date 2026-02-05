@@ -26,6 +26,8 @@ var _skill_buttons: Dictionary = {}
 @export var skill_status_icon_scene: PackedScene = preload("res://ui/skill_status_icon.tscn")
 # @export var skill_button_scene: PackedScene = preload("res://scenes/ui/skill_button.tscn")
 
+var _attribute_labels: Dictionary[StringName, AttributeLabel] = {}
+
 # 信号
 signal closed
 
@@ -35,6 +37,9 @@ func _ready() -> void:
 	
 	# 连接关闭按钮信号
 	close_button.pressed.connect(_on_close_button_pressed)
+
+	for child : AttributeLabel in other_attributes_grid.get_children():
+		_attribute_labels[child.attribute_id] = child
 
 	# 清除预设的技能和状态容器内容
 	_clear_skills_container()
@@ -49,6 +54,13 @@ func show_character_details(character: Character) -> void:
 	# 保存角色引用
 	_character = character
 	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
+
+	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
+
 	# 更新UI显示
 	_update_character_info()
 	
@@ -62,25 +74,30 @@ func hide_panel() -> void:
 
 ## 更新角色信息显示
 func _update_character_info() -> void:
-	if not _character:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
 		return
 	
 	# 更新基本信息
-	character_name_label.text = _character.character_name
+	character_name_label.text = str(_character.get_character_name()) if _character.has_method("get_character_name") else "Unknown"
 	
 	# 显示角色图标
-	character_sprite.texture = _character.character_data.icon
+	character_sprite.texture = _character.get_icon() if _character.has_method("get_icon") else null
+
 	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
 	if not is_instance_valid(skill_component):
 		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
 		return
 	
-	health_bar.setup(skill_component.get_attribute("CurrentHealth"), skill_component.get_attribute("MaxHealth"))
-	mana_bar.setup(skill_component.get_attribute("CurrentMana"), skill_component.get_attribute("MaxMana"))
+	_update_health_bar()
+	_update_mana_bar()
 
 	# 更新其他属性标签
-	for child : AttributeLabel in other_attributes_grid.get_children():
-		child.setup(skill_component.get_attribute_set())
+	for attribute_id in _attribute_labels:
+		var attribute_label : AttributeLabel = _attribute_labels.get(attribute_id, null)
+		if not is_instance_valid(attribute_label):
+			continue
+		_update_attribute_display(attribute_id, attribute_label)
 	
 	# 更新技能和状态显示
 	_update_skills_display()
@@ -116,14 +133,20 @@ func _clear_status_container() -> void:
 
 ## 更新技能显示
 func _update_skills_display() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
 		return
 	
 	# 清除现有的技能按钮
 	_clear_skills_container()
 	
 	# 获取角色的所有技能
-	var available_skills = _character.skill_component.get_available_skills()
+	var available_skills = skill_component.get_available_skills()
 	if available_skills.is_empty():
 		# 如果没有技能，添加一个提示标签
 		var label = Label.new()
@@ -135,6 +158,34 @@ func _update_skills_display() -> void:
 	for skill in available_skills:
 		_add_skill_button(skill)
 
+func _update_health_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
+	
+	var current_health : float = skill_component.get_attribute_current_value("CurrentHealth")
+	var max_health : float = skill_component.get_attribute_base_value("MaxHealth")
+	health_bar.update_display(current_health, max_health)
+
+func _update_mana_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
+	
+	var current_mana : float = skill_component.get_attribute_current_value("CurrentMana")
+	var max_mana : float = skill_component.get_attribute_base_value("MaxMana")
+	mana_bar.update_display(current_mana, max_mana)
+
 ## 添加技能按钮
 func _add_skill_button(skill_data: SkillData) -> void:
 	var skill_button : Button = Button.new()
@@ -145,14 +196,20 @@ func _add_skill_button(skill_data: SkillData) -> void:
 
 ## 更新状态显示
 func _update_status_display() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
 		return
 	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
+
 	# 清除现有的状态图标
 	_clear_status_container()
 	
 	# 获取当前所有状态
-	var active_statuses = _character.skill_component.get_active_statuses()
+	var active_statuses = skill_component.get_active_statuses()
 	if active_statuses.is_empty():
 		# 如果没有状态，添加一个提示标签
 		var label = Label.new()
@@ -163,6 +220,21 @@ func _update_status_display() -> void:
 	# 添加每个状态的图标
 	for status in active_statuses:
 		_add_status_icon(active_statuses[status])
+
+## 更新属性显示
+func _update_attribute_display(attribute_id: StringName, attribute_label: AttributeLabel) -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterDetailPanel: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
+		return
+	
+	var attribute_value : float = skill_component.get_attribute_current_value(attribute_id)
+	var attribute_name : StringName = skill_component.get_attribute(attribute_id).display_name
+	attribute_label.update_display(attribute_name, attribute_value)
 
 ## 添加状态图标
 func _add_status_icon(status_data: SkillStatusData) -> void:
@@ -193,3 +265,14 @@ func _add_status_icon(status_data: SkillStatusData) -> void:
 ## 关闭按钮点击处理
 func _on_close_button_pressed() -> void:
 	hide_panel()
+
+func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
+	if attribute_id == &"CurrentHealth" or attribute_id == &"MaxHealth":
+		_update_health_bar()
+	elif attribute_id == &"CurrentMana" or attribute_id == &"MaxMana":
+		_update_mana_bar()
+	else:
+		var attribute_label : AttributeLabel = _attribute_labels.get(attribute_id, null)
+		if not is_instance_valid(attribute_label):
+			return
+		_update_attribute_display(attribute_id, attribute_label)

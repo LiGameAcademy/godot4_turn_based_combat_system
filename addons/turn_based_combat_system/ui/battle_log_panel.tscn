@@ -100,13 +100,14 @@ scroll_following = true
 
 [node name="FilterPopup" type="PopupPanel" parent="." unique_id=190703764]
 unique_name_in_owner = true
-size = Vector2i(200, 250)
+oversampling_override = 1.0
+size = Vector2i(200, 354)
 
 [node name="FilterVBox" type="VBoxContainer" parent="FilterPopup" unique_id=69457759]
 offset_left = 4.0
 offset_top = 4.0
 offset_right = 196.0
-offset_bottom = 246.0
+offset_bottom = 350.0
 
 [node name="Label" type="Label" parent="FilterPopup/FilterVBox" unique_id=203859048]
 layout_mode = 2

@@ -90,6 +90,10 @@ func get_combat_component() -> CharacterCombatComponent:
 func get_character_name() -> StringName:
 	return character_name
 
+## 获取角色图标
+func get_icon() -> Texture2D:
+	return character_data.icon
+
 ## 初始化角色
 func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 	if is_instance_valid(character_data):

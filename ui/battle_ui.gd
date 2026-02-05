@@ -73,6 +73,11 @@ func reset() -> void:
 	if !turn_order_indicator:
 		push_error("BattleUI: TurnOrderIndicator not found")
 
+# 更新回合数显示
+func update_round_count(turn_count: int) -> void:
+	if turn_order_indicator:
+		turn_order_indicator.set_title("第 {0} 回合 行动顺序".format([turn_count]))
+
 # UI显示和隐藏方法
 func show_action_menu(current_character) -> void:
 	hide_all_menus() # 先隐藏其他菜单
@@ -138,21 +143,17 @@ func log_attack(attacker_name: String, target_name: String, damage: int) -> void
 	if battle_log_panel:
 		battle_log_panel.log_attack(attacker_name, target_name, damage)
 
-
 func log_defend(character_name: String) -> void:
 	if battle_log_panel:
 		battle_log_panel.log_defend(character_name)
-
 
 func log_skill(caster_name: String, skill_name: String, target_names: Array, effect_description: String = "") -> void:
 	if battle_log_panel:
 		battle_log_panel.log_skill(caster_name, skill_name, target_names, effect_description)
 
-
 func log_damage(target_name: String, damage: int, source: String = "") -> void:
 	if battle_log_panel:
 		battle_log_panel.log_damage(target_name, damage, source)
-
 
 func log_heal(target_name: String, amount: int, source: String = "") -> void:
 	if battle_log_panel:

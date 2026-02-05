@@ -1,6 +1,8 @@
 extends MarginContainer
 class_name ActionMenu
 
+## 行动菜单
+
 # 引用UI元素
 @onready var attack_button: Button = $HBoxContainer/AttackButton
 @onready var defend_button: Button = $HBoxContainer/DefendButton

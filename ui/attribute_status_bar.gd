@@ -3,14 +3,13 @@ extends ProgressBar
 class_name AttributeStatusBar
 
 @onready var attribute_status_label: Label = %AttributeStatusLabel
-var _current_attribute : SkillAttribute
-var _max_attribute : SkillAttribute
 
 @export var attribute_name : String = "HP"
 @export var attribute_color : Color = Color.GREEN
 # 动画相关变量
 @export var animation_speed: float = 5.0  # 值越大，动画越快
 @export var use_animation: bool = true  # 是否使用动画效果
+
 var _target_value: float = 0.0
 var _target_max_value: float = 0.0
 var _current_displayed_value: float = 0.0
@@ -20,28 +19,15 @@ var _is_animating: bool = false  # 内部使用，标记动画是否正在进行
 
 func _ready() -> void:
 	self_modulate = attribute_color
-
-func setup(attribute: SkillAttribute, max_attribute: SkillAttribute) -> void:
-	_current_attribute = attribute
-	_max_attribute = max_attribute
-	if not _current_attribute.current_value_changed.is_connected(_on_current_attribute_current_value_changed):
-		_current_attribute.current_value_changed.connect(_on_current_attribute_current_value_changed)
-	if not _max_attribute.current_value_changed.is_connected(_on_max_attribute_current_value_changed):
-		_max_attribute.current_value_changed.connect(_on_max_attribute_current_value_changed)
 	
+func update_display(current_atr_value: float, max_atr_value: float) -> void:
 	# 初始化动画值
-	_target_value = attribute.get_current_value()
-	_target_max_value = max_attribute.get_current_value()
 	_current_displayed_value = _target_value
 	_current_displayed_max_value = _target_max_value
 	
-	# 立即更新一次显示
-	_update_display()
-	
-func _update_display() -> void:
 	# 更新目标值
-	_target_value = _current_attribute.get_current_value()
-	_target_max_value = _max_attribute.get_current_value()
+	_target_value = current_atr_value
+	_target_max_value = max_atr_value
 	
 	# 如果不使用动画，直接更新值
 	if not use_animation:
@@ -99,9 +85,3 @@ func _update_animated_values(current_values: Vector2) -> void:
 
 func _set_attribute_text(current_value: float, max_atr_value: float) -> void:
 	attribute_status_label.text = attribute_name + ": %d / %d" % [roundi(current_value), roundi(max_atr_value)]
-
-func _on_current_attribute_current_value_changed(_old_value: float, _current_value: float) -> void:
-	_update_display()
-	
-func _on_max_attribute_current_value_changed(_old_value: float, _current_value: float) -> void:
-	_update_display()

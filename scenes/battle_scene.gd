@@ -17,6 +17,7 @@ var current_selected_skill : SkillData
 func _ready() -> void:
 	# 连接战斗管理器信号
 	battle_manager.turn_changed.connect(_on_turn_changed)
+	battle_manager.round_changed.connect(_on_round_changed)
 	battle_manager.battle_ended.connect(_on_battle_ended)
 	battle_manager.battle_info_logged.connect(_on_battle_info_logged)
 	# 链接BattleUI信号
@@ -85,7 +86,12 @@ func _spawn_character(character_data: CharacterData, position_offset: Vector2) -
 ## 当回合改变时调用
 func _on_turn_changed(character: Node) -> void:
 	show_action_ui(battle_manager.is_player_turn)
-	battle_ui.update_turn_order(battle_manager.characters, battle_manager.current_turn_count)
+	# 用来显示的回合队列
+	var display_turn_queue: Array[Node] = []
+	var current_character := battle_manager.current_turn_character
+	display_turn_queue.append(current_character)
+	display_turn_queue.append_array(battle_manager.turn_queue)
+	battle_ui.update_turn_order(display_turn_queue, battle_manager.current_turn_count)
 	update_battle_info("{0} 的回合".format([character.character_name]))
 
 ## 处理战斗结束
@@ -201,4 +207,8 @@ func _on_target_selection_cancelled() -> void:
 		battle_ui.show_skill_menu(battle_manager.current_turn_character)
 		current_selected_skill = null
 	show_action_ui(battle_manager.is_player_turn)
+
+## 当回合改变时调用
+func _on_round_changed(turn_count: int) -> void:
+	battle_ui.update_round_count(turn_count)
 #endregion

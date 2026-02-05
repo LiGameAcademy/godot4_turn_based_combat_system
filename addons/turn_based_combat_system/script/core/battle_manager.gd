@@ -44,9 +44,10 @@ var current_turn_count: int :
 		return combat_rule_manager.current_turn_count
 
 ## 信号
-signal turn_changed(character: Node)						## 当前行动者改变时触发
+signal turn_changed(character: Node)							## 当前行动者改变时触发
 signal battle_ended(is_victory: bool)							## 战斗结束时触发
 signal battle_info_logged(text: String)							## 战斗日志记录时触发
+signal round_changed(turn_count: int)							## 回合改变时触发
 
 ## 敌人行动执行时触发
 signal enemy_action_executed(source: Node, target: Node, damage: float)	
@@ -263,6 +264,7 @@ func _handle_round_start_state() -> void:
 	else:
 		state_manager.change_state(BattleStateManager.BattleState.TURN_START)
 	_log_battle_info("[color=yellow][战斗系统][/color] 第 {0} 回合开始".format([current_turn_count]))
+	round_changed.emit(current_turn_count)
 
 func _handle_turn_start_state() -> void:
 	turn_order_manager.get_next_character()
