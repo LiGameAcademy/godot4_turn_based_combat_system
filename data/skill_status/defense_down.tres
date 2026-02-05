@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://bgahn3mwsoujr"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_tsm7t"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="2_ea1hn"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_status_data.gd" id="3_leain"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_tsm7t"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_ea1hn"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_leain"]
 
 [sub_resource type="Resource" id="Resource_tsm7t"]
 script = ExtResource("1_tsm7t")

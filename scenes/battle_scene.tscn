@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://data/characters_data/player_assassin.tres" id="2_rl52j"]
 [ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://data/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
 [ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://data/characters_data/enemy_mushroom_data.tres" id="6_3511k"]
-[ext_resource type="PackedScene" uid="uid://bm5572m6qto7" path="res://addons/turn_based_combat_system/core/battle_manager.tscn" id="7_svpld"]
+[ext_resource type="PackedScene" uid="uid://bm5572m6qto7" path="res://addons/turn_based_combat_system/script/core/battle_manager.tscn" id="7_svpld"]
 
 [node name="BattleScene" type="Node2D" unique_id=1466379268]
 script = ExtResource("1_ugm31")

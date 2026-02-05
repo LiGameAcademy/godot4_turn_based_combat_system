@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://dbk0upttih0yp"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_82skn"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="2_a45p0"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_hh34x"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_vdfmw"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="3_vdfmw"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_82skn"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="2_a45p0"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_hh34x"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_vdfmw"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="3_vdfmw"]
 [ext_resource type="Resource" uid="uid://nb7w4k0528xl" path="res://data/skill_status/stun.tres" id="4_0tovd"]
-[ext_resource type="Script" uid="uid://ciuisa4jrnmyp" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/multi_strike_effect.gd" id="6_0tovd"]
+[ext_resource type="Script" uid="uid://ciuisa4jrnmyp" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/multi_strike_effect.gd" id="6_0tovd"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://data/skills/attack.tres" id="6_g5af4"]
 
 [sub_resource type="Resource" id="Resource_g5af4"]

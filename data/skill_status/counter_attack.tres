@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://ctv63r3mlnnnm"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_jghag"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="2_jvt7c"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_status_data.gd" id="3_nqpfo"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_8ri2a"]
-[ext_resource type="Script" uid="uid://bujuuja36wteo" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/probability_condition.gd" id="5_api04"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_jghag"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_jvt7c"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_nqpfo"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_8ri2a"]
+[ext_resource type="Script" uid="uid://bujuuja36wteo" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/probability_condition.gd" id="5_api04"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://data/skills/attack.tres" id="5_noib6"]
-[ext_resource type="Script" uid="uid://dp7wxdkilwqv3" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/counter_attack_effect.gd" id="6_api04"]
+[ext_resource type="Script" uid="uid://dp7wxdkilwqv3" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/counter_attack_effect.gd" id="6_api04"]
 
 [sub_resource type="Resource" id="Resource_fxv3j"]
 script = ExtResource("5_api04")

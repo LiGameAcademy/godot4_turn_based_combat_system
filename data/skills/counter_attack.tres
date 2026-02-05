@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://i1aj8k56wevm"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_o3w6a"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_exo0t"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_o3w6a"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_exo0t"]
 [ext_resource type="Resource" uid="uid://ctv63r3mlnnnm" path="res://data/skill_status/counter_attack.tres" id="3_exo0t"]
 
 [resource]

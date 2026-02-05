@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="SkillAttribute" format=3 uid="uid://b1gbs024jdeds"]
 
-[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_attribute.gd" id="1_hl4rm"]
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute.gd" id="1_hl4rm"]
 
 [resource]
 resource_local_to_scene = true

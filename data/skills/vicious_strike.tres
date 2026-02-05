@@ -1,11 +1,11 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://c0dt7jqwtnbr"]
 
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="1_abcde"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_wwvtt"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_wwvtt"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="3_al8w6"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="1_abcde"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_wwvtt"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_wwvtt"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="3_al8w6"]
 [ext_resource type="Resource" uid="uid://b1b5163oy6kh6" path="res://data/skill_status/bleed.tres" id="3_klmno"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="4_l7v3r"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="4_l7v3r"]
 
 [sub_resource type="Resource" id="Resource_8hv47"]
 script = ExtResource("3_al8w6")

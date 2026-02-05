@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://rxkf72h6p0s2"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect.gd" id="1_ggsii"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_1x2lo"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_ggsii"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_1x2lo"]
 [ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://data/skill_status/defend.tres" id="2_3uyfq"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="2_v0cas"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/system/skill_system/definitions/skill_data.gd" id="2_yqq3l"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="2_v0cas"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_yqq3l"]
 
 [sub_resource type="Resource" id="Resource_3uyfq"]
 script = ExtResource("2_v0cas")

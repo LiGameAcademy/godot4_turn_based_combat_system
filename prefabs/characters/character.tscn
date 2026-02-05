@@ -1,12 +1,12 @@
 [gd_scene format=3 uid="uid://cb2e2cndtui6m"]
 
 [ext_resource type="PackedScene" uid="uid://djpwdkkb8ufbt" path="res://ui/character_info_container.tscn" id="2_ysl2u"]
-[ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://addons/turn_based_combat_system/system/skill_system/character_skill_component.gd" id="3_biicj"]
-[ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://addons/turn_based_combat_system/component/character_combat_component.gd" id="3_e22cc"]
+[ext_resource type="Script" uid="uid://blrs4jiqbl4v5" path="res://addons/turn_based_combat_system/script/system/skill_system/character_skill_component.gd" id="3_biicj"]
+[ext_resource type="Script" uid="uid://bnwrmd7xm1v5n" path="res://addons/turn_based_combat_system/script/component/character_combat_component.gd" id="3_e22cc"]
 [ext_resource type="Script" uid="uid://drhgqgra8rnsh" path="res://prefabs/characters/character.gd" id="4_2qjml"]
 [ext_resource type="PackedScene" uid="uid://bj4w0ajv2jk2h" path="res://ui/state_indicator.tscn" id="4_ma1fs"]
-[ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://addons/turn_based_combat_system/component/character_ai_component.gd" id="5_ma1fs"]
-[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/ai/ai_behavior.gd" id="5_yscb1"]
+[ext_resource type="Script" uid="uid://wbh0x8825w2b" path="res://addons/turn_based_combat_system/script/component/character_ai_component.gd" id="5_ma1fs"]
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="5_yscb1"]
 [ext_resource type="Texture2D" uid="uid://cqcg1s3a5cmh7" path="res://assets/sprites/characters/heros/crystal_mauler/attack_1.png" id="8_biicj"]
 [ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="9_8gmw8"]
 
