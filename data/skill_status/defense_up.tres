@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://wq7jwx25q7lw"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_bxgqh"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_trvmp"]
+[ext_resource type="Texture2D" uid="uid://dawol1l8bqgsf" path="res://assets/textures/icons/status/defend_up.svg" id="3_trvmp"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_xc7yw"]
+
+[sub_resource type="Resource" id="Resource_xc7yw"]
+script = ExtResource("1_bxgqh")
+attribute_id = &"DefensePower"
+magnitude = 0.2
+operation = 2
+metadata/_custom_type_script = "uid://bh2l13xqoik56"
+
+[resource]
+script = ExtResource("3_xc7yw")
+status_id = &"defense_up"
+status_name = "防御提升"
+description = "大地的力量增强了你的防御。"
+icon = ExtResource("3_trvmp")
+status_type = 0
+attribute_modifiers = Array[ExtResource("1_bxgqh")]([SubResource("Resource_xc7yw")])
+trigger_turns = 1
+trigger_count = 1
+metadata/_custom_type_script = "uid://2eyouurk7vcw"

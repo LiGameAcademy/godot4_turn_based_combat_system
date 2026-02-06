@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://d1dcyyxniyvrr"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_u16sj"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_ldllj"]
+[ext_resource type="Texture2D" uid="uid://duqwbwc07qk21" path="res://assets/textures/icons/status/dodge.svg" id="3_4ih74"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_h7m2o"]
+
+[sub_resource type="Resource" id="Resource_ka2b5"]
+script = ExtResource("1_u16sj")
+attribute_id = &"speed"
+magnitude = 20.0
+
+[resource]
+script = ExtResource("4_h7m2o")
+status_id = &"dodge"
+status_name = "狡猾闪躲"
+description = "变得极其警觉和敏捷，速度大幅提升。"
+icon = ExtResource("3_4ih74")
+status_type = 0
+duration = 2
+attribute_modifiers = Array[ExtResource("1_u16sj")]([SubResource("Resource_ka2b5")])
+trigger_turns = 1
+trigger_count = 1

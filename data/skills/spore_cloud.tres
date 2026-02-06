@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://dfe4fy4w5iwym"]
+
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_bnoah"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="2_ogysq"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_r7tk5"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_rffb6"]
+[ext_resource type="Resource" uid="uid://bgahn3mwsoujr" path="res://data/skill_status/defense_down.tres" id="3_stgi0"]
+
+[sub_resource type="Resource" id="Resource_7hgoh"]
+script = ExtResource("2_ogysq")
+status_to_apply = ExtResource("3_stgi0")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_r7tk5")
+skill_id = &"spore_cloud"
+skill_name = "孢子迷雾"
+description = "向所有敌人喷射削弱孢子，降低他们的防御力"
+is_melee = false
+mp_cost = 12
+target_type = 2
+effects = Array[ExtResource("2_rffb6")]([SubResource("Resource_7hgoh")])
+action_categories = Array[String](["any_action", "magic_skill", "any_skill"])
+cast_animation = &"attack"
+metadata/_custom_type_script = "uid://do7l16ao2ut6t"

@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://bsxm37g35mr4n"]
+
+[ext_resource type="Script" uid="uid://b608sr3puwo6r" path="res://ui/action_menu.gd" id="1_action"]
+
+[node name="ActionMenu" type="MarginContainer" unique_id=890924291]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_right = 219.0
+offset_bottom = 31.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_action")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=2132060198]
+layout_mode = 2
+alignment = 1
+
+[node name="AttackButton" type="Button" parent="HBoxContainer" unique_id=575950440]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Attack"
+
+[node name="DefendButton" type="Button" parent="HBoxContainer" unique_id=2106516001]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Defend"
+
+[node name="SkillButton" type="Button" parent="HBoxContainer" unique_id=1845177387]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skill"
+
+[node name="ItemButton" type="Button" parent="HBoxContainer" unique_id=2085355695]
+layout_mode = 2
+size_flags_horizontal = 3
+disabled = true
+text = "Item"

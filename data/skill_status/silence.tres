@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://dce1fg2h3i4j5"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_pk774"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_j0u4x"]
+[ext_resource type="Texture2D" uid="uid://cntt4xoqan4ix" path="res://assets/textures/icons/status/silence.svg" id="3_inbmk"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_h5sui"]
+
+[resource]
+script = ExtResource("4_h5sui")
+status_id = &"silence"
+status_name = "沉默"
+description = "无法使用任何需要消耗魔法值的技能。"
+icon = ExtResource("3_inbmk")
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[String](["magic_skill"])

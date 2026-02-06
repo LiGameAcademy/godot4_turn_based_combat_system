@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://bm5572m6qto7"]
+
+[ext_resource type="Script" uid="uid://dq50of22ae7fx" path="res://addons/turn_based_combat_system/script/core/battle_manager.gd" id="1_xvnia"]
+[ext_resource type="Script" uid="uid://di683i6hqfos5" path="res://addons/turn_based_combat_system/script/core/battle_state_manager.gd" id="2_p7ldh"]
+[ext_resource type="Script" uid="uid://htsaaa4uwn2u" path="res://addons/turn_based_combat_system/script/core/battle_visual_effects.gd" id="3_1ouot"]
+[ext_resource type="Script" uid="uid://bs03e3t582ml2" path="res://addons/turn_based_combat_system/script/core/battle_character_registry_manager.gd" id="4_4u0i4"]
+[ext_resource type="Script" uid="uid://di1d00tvbpiq3" path="res://addons/turn_based_combat_system/script/core/turn_order_manager.gd" id="5_ps4pm"]
+[ext_resource type="Script" uid="uid://brbk1v6j3gefy" path="res://addons/turn_based_combat_system/script/core/combat_rule_manager.gd" id="6_voddp"]
+
+[node name="BattleManager" type="Node" unique_id=1103008005]
+script = ExtResource("1_xvnia")
+
+[node name="BattleStateManager" type="Node" parent="." unique_id=1537897343]
+unique_name_in_owner = true
+script = ExtResource("2_p7ldh")
+metadata/_custom_type_script = "uid://di683i6hqfos5"
+
+[node name="BattleVisualEffects" type="Node" parent="." unique_id=1039241378]
+unique_name_in_owner = true
+script = ExtResource("3_1ouot")
+metadata/_custom_type_script = "uid://htsaaa4uwn2u"
+
+[node name="BattleCharacterRegistryManager" type="Node" parent="." unique_id=781821254]
+unique_name_in_owner = true
+script = ExtResource("4_4u0i4")
+metadata/_custom_type_script = "uid://bs03e3t582ml2"
+
+[node name="TurnOrderManager" type="Node" parent="." unique_id=2058222211]
+unique_name_in_owner = true
+script = ExtResource("5_ps4pm")
+metadata/_custom_type_script = "uid://di1d00tvbpiq3"
+
+[node name="CombatRuleManager" type="Node" parent="." unique_id=1278929251]
+unique_name_in_owner = true
+script = ExtResource("6_voddp")
+metadata/_custom_type_script = "uid://brbk1v6j3gefy"

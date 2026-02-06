@@ -1,0 +1,230 @@
+extends VBoxContainer
+class_name CharacterInfoContainer
+
+@onready var name_label: Label = %NameLabel
+@onready var hp_bar: AttributeStatusBar = %HPBar
+@onready var mp_bar: AttributeStatusBar = %MPBar
+@onready var skill_status_container: HBoxContainer = %SkillStatusContainer
+
+# 当前绑定的角色
+var _character: Character = null
+
+# 状态图标字典，用于快速查找和更新
+# Key: status_id (StringName), Value: SkillStatusIcon
+var _status_icons: Dictionary = {}
+
+# 状态图标场景
+@export var skill_status_icon_scene: PackedScene = preload("res://ui/skill_status_icon.tscn")
+
+
+func _ready() -> void:
+	for child in skill_status_container.get_children():
+		child.queue_free()
+
+## 初始化角色信息容器
+## [param character] 要绑定的角色
+func initialize(character: Character) -> void:
+	if not character:
+		push_error("CharacterInfoContainer: 无法初始化，角色为空")
+		return
+	
+	# 清除之前的绑定
+	if _character:
+		_disconnect_signals()
+		clear_status_icons()
+	
+	# 设置新角色
+	_character = character
+	
+	# 连接信号
+	_connect_signals()
+	
+	# 初始化显示
+	_update_name_display()
+	_update_attribute_bars()
+	_initialize_status_icons()
+
+## 连接信号
+func _connect_signals() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	# 连接属性变化信号
+	skill_component.attribute_current_value_changed.connect(_on_attribute_current_value_changed)
+	
+	# 连接状态变化信号
+	skill_component.status_applied.connect(_on_status_applied)
+	skill_component.status_removed.connect(_on_status_removed)
+	skill_component.status_updated.connect(_on_status_updated)
+
+## 断开信号连接
+func _disconnect_signals() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	# 断开属性变化信号
+	if skill_component.attribute_current_value_changed.is_connected(_on_attribute_current_value_changed):
+		skill_component.attribute_current_value_changed.disconnect(_on_attribute_current_value_changed)
+	
+	# 断开状态变化信号
+	if skill_component.status_applied.is_connected(_on_status_applied):
+		skill_component.status_applied.disconnect(_on_status_applied)
+	if skill_component.status_removed.is_connected(_on_status_removed):
+		skill_component.status_removed.disconnect(_on_status_removed)
+	if skill_component.status_updated.is_connected(_on_status_updated):
+		skill_component.status_updated.disconnect(_on_status_updated)
+
+## 更新名称显示
+func _update_name_display() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	name_label.text = str(_character.get_character_name()) if _character.has_method("get_character_name") else "Unknown"
+
+## 更新属性条显示
+func _update_attribute_bars() -> void:
+	if not _character:
+		return
+	
+	# 获取角色的属性组件
+	var skill_comp : SkillComponentInterface = null
+	if _character.has_method("get_skill_component"):
+		skill_comp = _character.get_skill_component()
+	else:
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+	
+	if not is_instance_valid(skill_comp):
+		return
+	
+	# 更新HP条
+	_update_health_bar()
+	# 更新MP条
+	_update_mana_bar()
+
+## 初始化状态图标
+func _initialize_status_icons() -> void:
+	if not _character or not _character.skill_component:
+		return
+	
+	# 清除现有的状态图标
+	clear_status_icons()
+	
+	# 获取当前所有状态
+	var active_statuses = _character.skill_component.get_active_statuses()
+	for status_id in active_statuses:
+		var status : SkillStatusData = active_statuses[status_id]
+		if not status.is_hidden_from_ui:
+			_add_status_icon(status)
+
+## 添加状态图标
+func _add_status_icon(status_data: SkillStatusData) -> void:
+	if not status_data or not skill_status_icon_scene:
+		return
+	
+	# 检查是否已存在该状态的图标
+	if _status_icons.has(status_data.status_id):
+		# 如果已存在，更新它
+		_status_icons[status_data.status_id].update_status(status_data)
+		return
+	
+	# 创建新的状态图标
+	var status_icon = skill_status_icon_scene.instantiate()
+	if not status_icon is SkillStatusIcon:
+		push_error("CharacterInfoContainer: 实例化的状态图标不是SkillStatusIcon类型")
+		return
+	
+	# 添加到容器
+	skill_status_container.add_child(status_icon)
+	
+	# 设置状态数据
+	status_icon.setup(status_data)
+	
+	# 保存到字典中
+	_status_icons[status_data.status_id] = status_icon
+
+## 移除状态图标
+func _remove_status_icon(status_id: StringName) -> void:
+	if not _status_icons.has(status_id):
+		return
+	
+	# 获取图标
+	var status_icon = _status_icons[status_id]
+	
+	# 从字典中移除
+	_status_icons.erase(status_id)
+	
+	# 从容器中移除并释放
+	status_icon.queue_free()
+
+## 清除所有状态图标
+func clear_status_icons() -> void:
+	# 清除所有状态图标
+	for status_id in _status_icons.keys():
+		var status_icon = _status_icons[status_id]
+		status_icon.queue_free()
+	
+	# 清空字典
+	_status_icons.clear()
+
+func _update_health_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	var current_hp : float = skill_component.get_attribute_current_value(&"CurrentHealth")
+	var max_hp : float = skill_component.get_attribute_current_value(&"MaxHealth")
+	hp_bar.update_display(current_hp, max_hp)
+
+func _update_mana_bar() -> void:
+	if not is_instance_valid(_character):
+		push_error("CharacterInfoContainer: 角色为空")
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+		return
+	
+	var current_mp : float = skill_component.get_attribute_current_value(&"CurrentMana")
+	var max_mp : float = skill_component.get_attribute_current_value(&"MaxMana")
+	mp_bar.update_display(current_mp, max_mp)
+
+## 属性当前值变化回调
+func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
+	# 检查是否是HP或MP属性
+	if attribute_id == &"CurrentHealth" or attribute_id == &"MaxHealth":
+		_update_health_bar()
+	elif attribute_id == &"CurrentMana" or attribute_id == &"MaxMana":
+		_update_mana_bar()
+
+## 状态应用回调
+func _on_status_applied(status_instance: SkillStatusData) -> void:
+	_add_status_icon(status_instance)
+
+## 状态移除回调
+func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
+	_remove_status_icon(status_id)
+
+## 状态更新回调
+func _on_status_updated(status_instance: SkillStatusData, _old_stacks: int, _old_duration: int) -> void:
+	# 更新状态图标
+	if _status_icons.has(status_instance.status_id):
+		_status_icons[status_instance.status_id].update_status(status_instance)

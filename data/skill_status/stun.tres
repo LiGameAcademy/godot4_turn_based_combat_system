@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://nb7w4k0528xl"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_vxwja"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_5d2jn"]
+[ext_resource type="Texture2D" uid="uid://bb7j0sewffv1t" path="res://assets/textures/icons/status/stun.svg" id="3_usa3q"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_2dpkw"]
+
+[resource]
+script = ExtResource("4_2dpkw")
+status_id = &"stun"
+status_name = "眩晕"
+icon = ExtResource("3_usa3q")
+status_type = 1
+trigger_turns = 1
+trigger_count = 1
+restricted_action_categories = Array[String](["any_action"])

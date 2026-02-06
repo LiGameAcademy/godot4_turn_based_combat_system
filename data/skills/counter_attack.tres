@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://i1aj8k56wevm"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_31tge"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_nhkws"]
+[ext_resource type="Resource" uid="uid://ctv63r3mlnnnm" path="res://data/skill_status/counter_attack.tres" id="3_exo0t"]
+
+[resource]
+script = ExtResource("2_nhkws")
+skill_id = &"counter_attack"
+skill_name = "反击"
+skill_type = 1
+description = ""
+mp_cost = 0
+status_to_apply_when_learned = ExtResource("3_exo0t")
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://df2dj86tvvbqx"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_rrjs1"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_5s8cf"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_28621"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="2_wd2ol"]
+[ext_resource type="Resource" uid="uid://wq7jwx25q7lw" path="res://data/skill_status/defense_up.tres" id="3_28621"]
+
+[sub_resource type="Resource" id="Resource_evjyc"]
+script = ExtResource("2_wd2ol")
+status_to_apply = ExtResource("3_28621")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("2_5s8cf")
+skill_id = &"stoneskin_blessing"
+skill_name = "石肤祝福"
+description = "向大地祈祷，使我方全体获得岩石般的坚韧，防御力提升，持续3回合。"
+is_melee = false
+target_type = 7
+effects = Array[ExtResource("1_rrjs1")]([SubResource("Resource_evjyc")])
+action_categories = Array[String](["any_action", "any_skill"])
+cast_animation = &"defend"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

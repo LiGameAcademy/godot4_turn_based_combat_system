@@ -1,0 +1,34 @@
+extends Resource
+class_name CharacterData
+
+@export var character_name: String = "英雄"								## 角色名称
+@export_multiline var description: String = "一个勇敢的战士"		  	## 描述
+@export var attribute_set_resource: SkillAttributeSet = null			## 属性模版
+
+## 元素属性 0: 无 1: 火 2: 水 3: 土 4: 光
+@export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE
+
+@export var ai_behavior: AIBehavior = AIBehavior.new()
+
+@export_group("技能列表")
+@export var skills: Array[SkillData] = [] # 存储角色拥有的技能
+@export var attack_skill : SkillData = preload("res://data/skills/attack.tres")
+@export var defense_skill : SkillData = preload("res://data/skills/defend.tres")
+
+@export_group("视觉表现")
+@export var animation_library : AnimationLibrary			## 角色动画库
+@export var sprite_offset : Vector2 = Vector2.ZERO		## 角色偏移
+@export var icon : Texture2D								## 角色图标
+
+# 辅助函数
+func get_skill_by_id(id: StringName) -> SkillData:
+	for skill in skills:
+		if skill and skill.skill_id == id:
+			return skill
+	return null
+
+func get_skill_by_name(name: String) -> SkillData:
+	for skill in skills:
+		if skill and skill.skill_name == name:
+			return skill
+	return null
