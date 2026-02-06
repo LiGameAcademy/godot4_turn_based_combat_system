@@ -107,35 +107,6 @@ func disable_filter() -> void:
 	_active_filters.clear()
 	_update_log_display()
 
-## 更新日志显示
-func _update_log_display() -> void:
-	# 清空当前显示
-	battle_info.clear()
-	
-	# 应用过滤器并显示日志
-	for entry in _log_entries:
-		# 如果过滤器启用且该类型不在过滤器中，则跳过
-		if _filter_enabled and not entry["type"] in _active_filters:
-			continue
-		
-		# 获取颜色
-		var color = LOG_COLORS[entry["type"]]
-		
-		# 格式化并添加日志条目
-		var formatted_log = "[color=%s][%s] %s[/color]" % [color, entry["timestamp"], entry["message"]]
-		
-		# 如果有详细信息，添加可折叠的详情
-		if not entry["details"].is_empty():
-			formatted_log += "\n  [color=#aaaaaa]%s[/color]" % entry["details"]
-		
-		# 添加到富文本
-		battle_info.append_text(formatted_log)
-		battle_info.add_text("\n") # 添加换行分隔
-	
-	# 滚动到底部
-	# 使用 call_deferred 确保在内容完全更新后再滚动
-	call_deferred("_scroll_to_bottom")
-
 ## 添加攻击日志
 func log_attack(attacker: String, target: String, damage: int) -> void:
 	var message = "%s 攻击了 %s" % [attacker, target]
@@ -146,15 +117,6 @@ func log_attack(attacker: String, target: String, damage: int) -> void:
 func log_defend(character: String) -> void:
 	var message = "%s 选择了防御" % character
 	add_log(message, LogType.DEFEND)
-
-## 滚动到日志底部
-func _scroll_to_bottom() -> void:
-	# 确保滚动到最后一行
-	if battle_info.get_line_count() > 0:
-		# 使用最大值确保滚动到底部
-		#battle_info.scroll_vertical = battle_info.get_content_height()
-		# 另一种方法是滚动到最后一行
-		battle_info.scroll_to_line(battle_info.get_line_count() - 1)
 
 ## 添加技能日志
 func log_skill(caster: String, skill_name: String, targets: Array, effects: String) -> void:
@@ -189,6 +151,44 @@ func log_status_effect(target: String, effect_name: String, is_applied: bool) ->
 ## 添加系统日志
 func log_system(message: String) -> void:
 	add_log(message, LogType.SYSTEM)
+
+## 更新日志显示
+func _update_log_display() -> void:
+	# 清空当前显示
+	battle_info.clear()
+	
+	# 应用过滤器并显示日志
+	for entry in _log_entries:
+		# 如果过滤器启用且该类型不在过滤器中，则跳过
+		if _filter_enabled and not entry["type"] in _active_filters:
+			continue
+		
+		# 获取颜色
+		var color = LOG_COLORS[entry["type"]]
+		
+		# 格式化并添加日志条目
+		var formatted_log = "[color=%s][%s] %s[/color]" % [color, entry["timestamp"], entry["message"]]
+		
+		# 如果有详细信息，添加可折叠的详情
+		if not entry["details"].is_empty():
+			formatted_log += "\n  [color=#aaaaaa]%s[/color]" % entry["details"]
+		
+		# 添加到富文本
+		battle_info.append_text(formatted_log)
+		battle_info.add_text("\n") # 添加换行分隔
+	
+	# 滚动到底部
+	# 使用 call_deferred 确保在内容完全更新后再滚动
+	call_deferred("_scroll_to_bottom")
+
+## 滚动到日志底部
+func _scroll_to_bottom() -> void:
+	# 确保滚动到最后一行
+	if battle_info.get_line_count() > 0:
+		# 使用最大值确保滚动到底部
+		#battle_info.scroll_vertical = battle_info.get_content_height()
+		# 另一种方法是滚动到最后一行
+		battle_info.scroll_to_line(battle_info.get_line_count() - 1)
 
 ## 处理过滤按钮点击
 func _on_filter_button_pressed() -> void:

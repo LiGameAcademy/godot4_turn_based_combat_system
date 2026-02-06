@@ -17,3 +17,6 @@ func _get_base_description() -> String:
 		"teleport": return "传送目标"
 		"summon": return "召唤生物"
 		_: return "特殊效果: " + special_type_value 
+
+func _process_effect(_source: Node, _target: Node, _context: SkillExecutionContext) -> Dictionary:
+	return {"success": true}

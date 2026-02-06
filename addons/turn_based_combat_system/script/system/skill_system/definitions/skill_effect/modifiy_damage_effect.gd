@@ -18,11 +18,31 @@ func _get_base_description() -> String:
 
 ## 处理修改伤害效果
 ## 这个处理器不直接应用伤害，而是修改传入的伤害信息对象
-func _process_effect(_source: Character, _target: Character, context : SkillExecutionContext) -> Dictionary:
+func _process_effect(_source: Node, _target: Node, context : SkillExecutionContext) -> Dictionary:
 	var results = {}
-	
+	if not is_instance_valid(_source):
+		push_error("ModifyDamageEffect: 无效的源节点引用")
+		return {
+			"success": false,
+			"reason": "Invalid source node reference!"
+		}
+	if not is_instance_valid(_target):
+		push_error("ModifyDamageEffect: 无效的目标节点引用")
+		return {
+			"success": false,
+			"reason": "Invalid target node reference!"
+		}
+
+	var target_skill_component : SkillComponentInterface = _target.get_skill_component() if _target.has_method("get_skill_component") else null
+	if not is_instance_valid(target_skill_component):
+		push_error("ModifyDamageEffect: 无效的目标技能组件引用")
+		return {
+			"success": false,
+			"reason": "Invalid target skill component reference!"
+		}
+
 	# 检查伤害信息
-	if not context.damage_info:
+	if not is_instance_valid(context.damage_info):
 		print_rich("[color=red]ModifyDamageEffectProcessor: 上下文中缺少伤害信息对象[/color]")
 		return {"success": false, "error": "上下文中缺少伤害信息对象"}
 	

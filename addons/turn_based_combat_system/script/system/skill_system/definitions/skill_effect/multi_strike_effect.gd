@@ -7,7 +7,7 @@ class_name MultiStrikeEffect
 ## 每一击的伤害倍率。数组的长度应与总次数匹配。
 @export var strike_multipliers: Array[float] = [1.2, 1.0]
 ## 连击中每次攻击所使用的基础技能模板（通常是角色的普通攻击）
-@export var base_attack_skill: SkillData
+@export var base_attack_skill_id: StringName = &"attack"
 ## 两次攻击之间的动画延迟
 @export var delay_between_strikes: float = 0.2
 
@@ -32,12 +32,27 @@ func _get_base_description() -> String:
 	# 4. 将数据填入模板
 	return format_string % [strike_count, damage_list_string]
 
-func _process_effect(source: Character, _target: Character, context: SkillExecutionContext) -> Dictionary:
+func _process_effect(source: Node, _target: Node, context: SkillExecutionContext) -> Dictionary:
+	if not is_instance_valid(source):
+		push_error("MultiStrikeEffect: 无效的源节点引用")
+		return {
+			"success": false,
+			"reason": "Invalid source node reference!"
+		}
+
+	var source_skill_component : SkillComponentInterface = source.get_skill_component() if source.has_method("get_skill_component") else null
+	if not is_instance_valid(source_skill_component):
+		push_error("MultiStrikeEffect: 无效的源技能组件引用")
+		return {
+			"success": false,
+			"reason": "Invalid source skill component reference!"
+		}
+
 	var battle_manager: BattleManager = context.battle_manager
 
 	# --- 1. 目标获取与筛选 ---
 	# 从战场上获取所有存活的敌人
-	var all_enemies = battle_manager.character_registry.get_all_alive_characters(false)
+	var all_enemies = battle_manager.get_valid_enemy_targets(source)
 	all_enemies.shuffle() # 随机打乱
 	
 	# 选取不多于总数的敌人作为目标
@@ -57,8 +72,7 @@ func _process_effect(source: Character, _target: Character, context: SkillExecut
 		}
 		
 		# b. 【核心】调用完整的、带演出的子行动
-		#    我们复用之前为“连击”设计的子行动服务
-		await battle_manager.execute_staged_sub_action(source, current_target, base_attack_skill, override_context)
+		await source_skill_component.execute_skill(base_attack_skill_id, [current_target], override_context)
 		
 		# c. 如果不是最后一次攻击，则等待一小段节奏延迟
 		if i < final_targets.size() - 1:

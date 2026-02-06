@@ -1,26 +1,20 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://kacsn8v7n6by"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_03g3p"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_2lmik"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_xskkb"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="3_xyykp"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_2lmik"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_uo2ax"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="3_yibej"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="4_ejhrk"]
 
 [sub_resource type="Resource" id="Resource_xskkb"]
-script = ExtResource("3_xyykp")
-disable = null
-visual_effect = null
-sound_effect = null
-target_override = null
-element = null
-post_cast_delay = 0.3
+script = ExtResource("3_yibej")
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]
-script = ExtResource("2_xskkb")
+script = ExtResource("4_ejhrk")
 skill_id = &"attack"
 skill_name = "普通攻击"
 description = ""
 mp_cost = 0
-effects = Array[ExtResource("1_03g3p")]([SubResource("Resource_xskkb")])
+effects = Array[ExtResource("1_2lmik")]([SubResource("Resource_xskkb")])
 cast_animation = &"attack"
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

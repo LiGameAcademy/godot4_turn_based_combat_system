@@ -10,11 +10,11 @@ var _character_registry: BattleCharacterRegistryManager
 
 # 可配置的规则
 @export var max_turns: int = -1 		## 最大回合数，-1表示无限制
-var current_turn_count: int = 0			## 当前回合数
+var current_turn_count: int = 0		## 当前回合数
 
 # 战斗状态信号
-signal player_victory	## 玩家胜利
-signal player_defeat	## 玩家失败
+signal player_victory				## 玩家胜利
+signal player_defeat					## 玩家失败
 
 ## 初始化，在 BattleManager 中获取其他模块的引用
 ## [param registry] BattleCharacterRegistryManager 实例

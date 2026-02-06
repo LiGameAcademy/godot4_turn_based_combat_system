@@ -51,8 +51,6 @@ var _original_position : Vector2 = Vector2.ZERO		## 原始位置
 # 属性委托给战斗组件
 var is_alive : bool = true:							## 生存状态标记
 	get: return current_hp > 0
-var element: int:									## 元素类型
-	get : return combat_component.element
 
 var cast_marker : Marker2D
 
@@ -168,12 +166,6 @@ func play_animation(animation_name: String) -> void:
 		animation_player.play(&"idle")
 	else:
 		push_warning("动画 %s 不存在" % animation_name)
-
-## 应用技能状态
-func apply_skill_status(status_instance: SkillStatusData, source_character: Character, effect_data_from_skill: SkillEffect) -> Dictionary:
-	if skill_component:
-		return skill_component.apply_status(status_instance, source_character, effect_data_from_skill)
-	return {"applied_successfully": false, "reason": "invalid_status_template"}
 
 ## 移动到目标
 func move_to_target(target: Character) -> void:

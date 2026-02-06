@@ -1,25 +1,25 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://dl6veckqncbeh"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_o74iy"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_7xt54"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="2_lh7af"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_q505j"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_7xt54"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_dery0"]
 [ext_resource type="Resource" uid="uid://d1dcyyxniyvrr" path="res://data/skill_status/dodge.tres" id="3_1msnw"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="3_tllsg"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="5_k10bg"]
 
 [sub_resource type="Resource" id="Resource_k3dyo"]
-script = ExtResource("2_lh7af")
+script = ExtResource("3_tllsg")
 status_to_apply = ExtResource("3_1msnw")
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
-script = ExtResource("2_q505j")
+script = ExtResource("5_k10bg")
 skill_id = &"cowardly_dodge"
 skill_name = "狡猾闪躲"
 description = "进入高度警觉状态，大幅提升速度，持续2回合。"
 is_melee = false
 mp_cost = 4
 target_type = 5
-effects = Array[ExtResource("1_o74iy")]([SubResource("Resource_k3dyo")])
+effects = Array[ExtResource("1_7xt54")]([SubResource("Resource_k3dyo")])
 action_categories = Array[String](["magic_skill"])
 cast_animation = &"attack"
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

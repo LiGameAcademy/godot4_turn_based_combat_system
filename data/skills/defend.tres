@@ -1,24 +1,24 @@
 [gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://rxkf72h6p0s2"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_ggsii"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_1x2lo"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_vkcsw"]
 [ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://data/skill_status/defend.tres" id="2_3uyfq"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/apply_status_effect.gd" id="2_v0cas"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_yqq3l"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_g8y10"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="3_8t7wc"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="5_ci2g6"]
 
 [sub_resource type="Resource" id="Resource_3uyfq"]
-script = ExtResource("2_v0cas")
+script = ExtResource("3_8t7wc")
 status_to_apply = ExtResource("2_3uyfq")
 metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
 
 [resource]
-script = ExtResource("2_yqq3l")
+script = ExtResource("5_ci2g6")
 skill_id = &"defend"
 skill_name = "防御"
 description = ""
 is_melee = false
 mp_cost = 0
 target_type = 5
-effects = Array[ExtResource("1_ggsii")]([SubResource("Resource_3uyfq")])
+effects = Array[ExtResource("1_vkcsw")]([SubResource("Resource_3uyfq")])
 cast_animation = &"defend"
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

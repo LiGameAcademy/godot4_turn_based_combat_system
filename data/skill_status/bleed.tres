@@ -1,30 +1,23 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://b1b5163oy6kh6"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_1t35x"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="1_vy3m8"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_abcde"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_kk0pj"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_alumo"]
 [ext_resource type="Texture2D" uid="uid://c8hkms5m7m0mw" path="res://assets/textures/icons/status/bleeding.svg" id="3_iej62"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect_data/damage_effect.gd" id="3_j6d07"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_k5qkw"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="5_ngniw"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_fmdwr"]
 
 [sub_resource type="Resource" id="Resource_iej62"]
-script = ExtResource("3_j6d07")
+script = ExtResource("5_ngniw")
 damage_amount = 5
-damage_power_scale = null
-disable = null
-visual_effect = null
-sound_effect = null
-target_override = null
-element = null
-conditions = null
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]
-script = ExtResource("1_vy3m8")
+script = ExtResource("6_fmdwr")
 status_id = &"bleed"
 status_name = "流血"
 icon = ExtResource("3_iej62")
 status_type = 1
-ongoing_effects = Array[ExtResource("2_abcde")]([SubResource("Resource_iej62")])
+ongoing_effects = Array[ExtResource("2_alumo")]([SubResource("Resource_iej62")])
 trigger_turns = 1
 trigger_count = 1
-metadata/_custom_type_script = "uid://do7l16ao2ut6t"

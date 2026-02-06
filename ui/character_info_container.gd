@@ -189,10 +189,9 @@ func _update_health_bar() -> void:
 		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
-	var current_hp = skill_component.get_attribute(&"CurrentHealth")
-	var max_hp = skill_component.get_attribute(&"MaxHealth")
-	if current_hp and max_hp:
-		hp_bar.update_display(current_hp, max_hp)
+	var current_hp : float = skill_component.get_attribute_current_value(&"CurrentHealth")
+	var max_hp : float = skill_component.get_attribute_current_value(&"MaxHealth")
+	hp_bar.update_display(current_hp, max_hp)
 
 func _update_mana_bar() -> void:
 	if not is_instance_valid(_character):
@@ -204,10 +203,9 @@ func _update_mana_bar() -> void:
 		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
-	var current_mp = skill_component.get_attribute(&"CurrentMana")
-	var max_mp = skill_component.get_attribute(&"MaxMana")
-	if current_mp and max_mp:
-		mp_bar.update_display(current_mp, max_mp)
+	var current_mp : float = skill_component.get_attribute_current_value(&"CurrentMana")
+	var max_mp : float = skill_component.get_attribute_current_value(&"MaxMana")
+	mp_bar.update_display(current_mp, max_mp)
 
 ## 属性当前值变化回调
 func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
