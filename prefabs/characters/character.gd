@@ -109,30 +109,12 @@ func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 
 	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
 	# print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
-
 ## 生成伤害数字
 func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> void:
 	var damage_number : DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
 	get_parent().add_child(damage_number)
 	damage_number.global_position = global_position + Vector2(0, -50)
 	damage_number.show_damage(amount, false, color, prefix)
-
-## 伤害处理方法
-func take_damage(base_damage: float, source: Character, p_element: int, is_melee: bool) -> float:
-	if not combat_component:
-		return 0.0
-	var result = await combat_component.take_damage(base_damage, source, p_element, is_melee)
-	spawn_damage_number(result, Color.RED)
-	return result
-
-## 治疗处理方法
-func heal(amount: float) -> float:
-	if not combat_component:
-		return 0.0
-	var result = combat_component.heal(amount)
-	spawn_damage_number(result, Color.GREEN)
-	return result
-
 ## 检查是否有足够的MP使用指定技能
 func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
 	if is_instance_valid(skill_component):

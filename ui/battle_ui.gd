@@ -42,7 +42,9 @@ func _ready() -> void:
 	
 	if !action_menu:
 		push_error("BattleUI: ActionMenu not found")
-		
+
+	TBCombatSystem.game_event_triggered.connect(_on_game_event_triggered)
+
 	# 初始化时重置UI状态
 	reset()
 	show()
@@ -193,3 +195,43 @@ func _on_target_selected(target: Character) -> void:
 
 func _on_target_selection_cancelled() -> void:
 	target_selection_cancelled.emit()
+
+func _on_game_event_triggered(event_type: StringName, event_source: Node, context: EventContext) -> void:
+	if event_type == "on_skill_execution_completed":
+		var skill_execution_completed_context: EventSkillExecutionCompletedContext = context
+		var caster_name = event_source.get_character_name() if event_source.has_method("get_character_name") else "unknown"
+		var target_names : Array[String] = []
+		var targets : Array[Node] = skill_execution_completed_context.targets
+		for target in targets:
+			if not is_instance_valid(target):
+				continue
+			var target_name = target.get_character_name() if target.has_method("get_character_name") else "unknown"
+			if target_name == "unknown":
+				continue
+			target_names.append(target_name)
+		var skill_name = skill_execution_completed_context.skill_data.skill_name
+		var effect_description = skill_execution_completed_context.skill_data.get_effect_description()
+		battle_log_panel.log_skill(caster_name, skill_name, target_names, effect_description)
+	elif event_type == "on_heal_completed":
+		var heal_completed_context: EventHealCompletedContext = context
+		var target_name = event_source.get_character_name() if event_source.has_method("get_character_name") else "unknown"
+		var amount = heal_completed_context.amount
+		var healer_name = heal_completed_context.healer.get_character_name() if heal_completed_context.healer.has_method("get_character_name") else "unknown"
+		battle_log_panel.log_heal(target_name, amount, healer_name)
+	elif event_type == "on_damage_taken_completed":
+		var damage_taken_completed_context: DamageEventContext = context
+		var target_name = event_source.get_character_name() if event_source.has_method("get_character_name") else "unknown"
+		var damage = damage_taken_completed_context.damage_info.final_damage
+		var source = damage_taken_completed_context.damage_info.source
+		var source_name = source.get_character_name() if source.has_method("get_character_name") else "unknown"
+		battle_log_panel.log_damage(target_name, damage, source_name)
+	elif event_type == "on_status_applied":
+		var status_applied_context: EventStatusAppliedContext = context
+		var target_name = event_source.get_character_name() if event_source.has_method("get_character_name") else "unknown"
+		var status_name = status_applied_context.status_instance.status_name
+		battle_log_panel.log_status_effect(target_name, status_name, true)
+	elif event_type == "on_status_removed":
+		var status_removed_context: EventStatusRemovedContext = context
+		var target_name = event_source.get_character_name() if event_source.has_method("get_character_name") else "unknown"
+		var status_name = status_removed_context.status_instance_data_before_removal.status_name
+		battle_log_panel.log_status_effect(target_name, status_name, false)

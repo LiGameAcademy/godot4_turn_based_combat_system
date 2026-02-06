@@ -27,10 +27,18 @@ func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillDa
 	_active_attribute_set.current_value_changed.connect(
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
 			attribute_current_value_changed.emit(attribute_instance.attribute_name, old_value, new_value)
+			TBCombatSystem.trigger_game_event(
+				"on_attribute_current_value_changed", 
+				get_parent(), 
+				EventAttributeCurrentValueChangedContext.new(get_parent(), attribute_instance.attribute_name, old_value, new_value)
+			)
 	)
 	_active_attribute_set.base_value_changed.connect(
 		func(attribute_instance: SkillAttribute, old_value: float, new_value: float) -> void:
 			attribute_base_value_changed.emit(attribute_instance.attribute_name, old_value, new_value)
+			TBCombatSystem.trigger_game_event(
+				"on_attribute_base_value_changed", get_parent(), EventAttributeBaseValueChangedContext.new(get_parent(), attribute_instance.attribute_name, old_value, new_value)
+			)
 	)
 
 	TBCombatSystem.game_event_triggered.connect(
@@ -194,9 +202,11 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	# 0. 验证技能前置条件
 	var caster = get_parent()
 	if not is_instance_valid(caster):
+		_on_skill_execution_failed(null, targets, {"error": "施法者不存在"})
 		return {"error": "施法者不存在"}
 	var skill : SkillData = get_skill(skill_id)
 	if not is_instance_valid(skill):
+		_on_skill_execution_failed(skill, targets, {"error": "技能不存在"})
 		return {"error": "技能不存在"}
 
 	var skill_execution_context : SkillExecutionContext = SkillExecutionContext.from_dictionary(skill_context)
@@ -208,12 +218,20 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	var validation_result : Dictionary = _validate_skill_usability(skill, caster, actual_targets, skill_execution_context)
 	if not validation_result.is_usable:
 		print_rich("[color=orange]Skill '%s' failed validation: %s[/color]" % [skill.skill_name, validation_result.reason])
-		skill_execution_failed.emit(skill, actual_targets, validation_result)
+		_on_skill_execution_failed(skill, actual_targets, validation_result)
 		if is_instance_valid(skill_execution_context.battle_manager):
 			skill_execution_context.battle_manager.show_status_text(caster, validation_result.reason, true)
 		else:
 			push_error("CharacterSkillComponent: 无法显示状态文本，battle_manager 无效！")
-		return {"error": validation_result.reason}
+			_on_skill_execution_failed(get_skill(skill_id), actual_targets, {"error": "技能施法条件不满足"})
+		return {"error": "技能施法条件不满足"}
+
+	skill_execution_started.emit(skill, actual_targets, skill_execution_context)
+	TBCombatSystem.trigger_game_event(
+		"on_skill_execution_started", 
+		get_parent(), 
+		EventSkillExecutionStartedContext.new(get_parent(), skill, actual_targets, skill_context)
+	)
 
 	if caster.has_method("play_animation"):
 		caster.play_animation(skill.cast_animation)
@@ -231,6 +249,9 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	
 	# 5. 发出技能执行完成信号
 	skill_execution_completed.emit(skill, actual_targets, skill_execution_result)
+	TBCombatSystem.trigger_game_event(
+		"on_skill_execution_completed", get_parent(), EventSkillExecutionCompletedContext.new(get_parent(), skill, actual_targets, skill_execution_result)
+	)
 	return skill_execution_result
 #endregion
 
@@ -319,7 +340,9 @@ func remove_status(status_id: StringName, trigger_removal: bool = true) -> bool:
 	
 	# 发出状态移除信号
 	status_removed.emit(status_id, runtime_status_instance)
-	
+	TBCombatSystem.trigger_game_event(
+		"on_status_removed", get_parent(), EventStatusRemovedContext.new(get_parent(), status_id, runtime_status_instance)
+		)
 	print_rich("[color=red]%s 的状态 %s 被移除[/color]" % [owner.character_name, runtime_status_instance.status_name])
 	
 	return true
@@ -541,6 +564,9 @@ func _update_existing_status(
 	# 如果状态有变化，发出信号
 	if old_stacks != runtime_status_instance.stacks or old_duration != runtime_status_instance.remaining_duration:
 		status_updated.emit(runtime_status_instance, old_stacks, old_duration)
+		TBCombatSystem.trigger_game_event(
+			"on_status_updated", get_parent(), EventStatusUpdatedContext.new(get_parent(), status_id, runtime_status_instance, old_stacks, old_duration)
+			)
 	
 	return runtime_status_instance
 
@@ -587,6 +613,11 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Node,
 	
 	# 发出状态应用信号
 	status_applied.emit(runtime_status_instance)
+	TBCombatSystem.trigger_game_event(
+		"on_status_applied", 
+		get_parent(), 
+		EventStatusAppliedContext.new(get_parent(), runtime_status_instance)
+		)
 	
 	return runtime_status_instance
 
@@ -603,6 +634,9 @@ func _add_action_restrictions(categories: Array[String]) -> void:
 	if changed:
 		print_rich("[color=orange]%s 添加动作限制标签: %s[/color]" % [get_parent().character_name, categories])
 		action_tags_changed.emit(_restricted_action_tags)
+		TBCombatSystem.trigger_game_event(
+			"on_action_tags_changed", get_parent(), EventActionTagsChangedContext.new(get_parent(), _restricted_action_tags)
+		)
 
 ## 私有方法：移除动作限制
 ## [param categories] 动作限制类别
@@ -617,6 +651,9 @@ func _remove_action_restrictions(categories: Array[String]) -> void:
 	if changed:
 		print_rich("[color=green]%s 移除动作限制标签: %s[/color]" % [get_parent().character_name, categories])
 		action_tags_changed.emit(_restricted_action_tags)
+		TBCombatSystem.trigger_game_event(
+			"on_action_tags_changed", get_parent(), EventActionTagsChangedContext.new(get_parent(), _restricted_action_tags)
+		)
 
 ## 处理效果
 func _process_effects(effects: Array[SkillEffect], caster: Node, targets: Array[Node], skill_execution_context: SkillExecutionContext) -> Dictionary:
@@ -760,4 +797,10 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 			skill_context.damage_info = context.damage_info
 		_process_effects(trigger_effects, status.source_character, [event_source], skill_context)
 		update_status_trigger_counts(status)
+	
+func _on_skill_execution_failed(skill: SkillData, actual_targets: Array[Node], result: Dictionary) -> void:
+	skill_execution_failed.emit(skill, actual_targets, result)
+	TBCombatSystem.trigger_game_event(
+		"on_skill_execution_failed", get_parent(), EventSkillExecutionFailedContext.new(get_parent(), skill, actual_targets, result)
+	)
 #endregion

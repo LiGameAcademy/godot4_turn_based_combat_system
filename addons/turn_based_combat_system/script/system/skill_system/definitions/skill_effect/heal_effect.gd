@@ -52,7 +52,7 @@ func _process_effect(source: Node, target: Node, _context : SkillExecutionContex
 	})
 	
 	# 应用治疗
-	target_combat_component.heal(amount)
+	target_combat_component.heal(amount, source)
 	
 	# 记录结果
 	results["heal_amount"] = amount

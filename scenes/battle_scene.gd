@@ -179,7 +179,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 		battle_ui.show_target_selection(valid_targets)
 	else:
 		# 自动目标技能，直接执行
-		var params = {"skill": skill, "targets": []}
+		var params = {"skill": skill, "targets": [], "skill_id": skill.skill_id}
 		battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, params)
 
 ## 当玩家取消技能选择时调用
@@ -196,7 +196,10 @@ func _on_target_selected(target: Character) -> void:
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
 	if current_selected_skill != null:
 		# 确保有选中的技能
-		params = {"skill": current_selected_skill}
+		params = {
+			"skill": current_selected_skill, 
+			"skill_id": current_selected_skill.skill_id
+			}
 		
 	battle_manager.player_select_action(current_action, target, params)
 

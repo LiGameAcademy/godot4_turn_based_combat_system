@@ -155,8 +155,9 @@ func _update_skills_display() -> void:
 		return
 	
 	# 添加每个技能的按钮
-	for skill in available_skills:
-		_add_skill_button(skill)
+	for skill_id in available_skills:
+		var skill_data = skill_component.get_skill(skill_id)
+		_add_skill_button(skill_data)
 
 func _update_health_bar() -> void:
 	if not is_instance_valid(_character):

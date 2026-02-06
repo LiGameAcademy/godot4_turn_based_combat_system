@@ -70,15 +70,20 @@ func get_full_description() -> String:
 	desc += "目标: " + _get_target_type_name() + "\n"
 
 	desc += "\n效果:\n"
-	var effects_to_describe: Array[SkillEffect] = effects
-	for effect in effects_to_describe: # 处理 ACTIVE 和 PASSIVE 的主要效果
+	desc += get_effect_description() + "\n\n"
+	desc += "[color=gray]" + description + "[/color]\n\n"
+	return desc.strip_edges()
+
+## 获取技能效果描述
+func get_effect_description() -> String:
+	var desc = ""
+	for effect in effects: # 处理 ACTIVE 和 PASSIVE 的主要效果
 		if effect.disable:
 			continue
 		if is_instance_valid(effect): # 确保 effect 实例有效
 			desc += "- " + effect.get_description() + "\n"
 		else:
 			desc += "- [color=red](无效效果数据)[/color]\n"
-	desc += "[color=gray]" + description + "[/color]\n\n"
 	return desc.strip_edges()
 
 ## 是否需要选择目标

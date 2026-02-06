@@ -85,11 +85,9 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 			result = await _execute_defend(skill_context)
 		ActionType.SKILL:
 			var skill_id : StringName = params.get("skill_id", null)
-			targets.append(target)
 			result = await _execute_skill(skill_id, targets, skill_context)
 		ActionType.ITEM:
 			var item = params.get("item", null)
-			targets.append(target)
 			result = await _execute_item(item, targets)
 		_:
 			push_error("未知的动作类型：" + str(action_type))
@@ -131,11 +129,14 @@ func take_damage(base_damage: float, source : Character, p_element : int, is_mel
 ## 治疗处理方法
 ## [param amount] 治疗量
 ## [return] 实际恢复的治疗量
-func heal(amount: float) -> float:
+func heal(amount: float, healer : Node) -> float:
 	if amount <= 0:
 		return 0
 	# 恢复生命值
 	_skill_component.restore_hp(amount)
+	# 触发治疗完成事件
+	var heal_completed_context : EventHealCompletedContext = EventHealCompletedContext.new(get_parent(), amount, healer)
+	TBCombatSystem.trigger_game_event(&"on_heal_completed", get_parent(), heal_completed_context)
 	return amount
 
 ## 在回合开始时调用

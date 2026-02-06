@@ -5,11 +5,11 @@ class_name SkillComponentInterface
 ## 技能组件接口
 
 signal status_applied(status_instance: Resource)																	## 当状态效果被应用到角色身上时发出
-signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						## 当状态效果从角色身上移除时发出
+signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						    ## 当状态效果从角色身上移除时发出
 signal status_updated(status_instance: Resource, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
 signal attribute_base_value_changed(attribute_id: StringName, old_value: float, new_value: float)				    ## 属性基础值改变
 signal attribute_current_value_changed(attribute_id: StringName, old_value: float, new_value: float)			    ## 属性当前值改变
-signal action_tags_changed(restricted_tags: Array[String])														## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
+signal action_tags_changed(restricted_tags: Array[String])														    ## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
 signal skill_execution_started(skill_data: Resource, targets: Array[Node], skill_context: Dictionary)				## 当技能执行开始时发出
 signal skill_execution_completed(skill_data: Resource, targets: Array[Node], result: Dictionary)					## 当技能执行完成时发出
 signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result: Dictionary)						## 当技能执行失败时发出

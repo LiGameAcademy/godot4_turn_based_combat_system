@@ -268,11 +268,22 @@ func _handle_round_start_state() -> void:
 
 func _handle_turn_start_state() -> void:
 	turn_order_manager.get_next_character()
+	
+	if not is_instance_valid(current_turn_character):
+		push_error("当前行动者不存在！")
+		return
+	var combat_component = current_turn_character.get_combat_component() if current_turn_character.has_method("get_combat_component") else null
+	if not is_instance_valid(combat_component):
+		push_error("当前行动者没有战斗组件！")
+		return
+	combat_component.on_turn_start(self)
+
 	if not is_player_turn:
 		await get_tree().create_timer(1.0).timeout
 		await execute_enemy_ai()
 	var character_name : String = current_turn_character.get_character_name() if current_turn_character.has_method("get_character_name") else "Unknown"
 	_log_battle_info("[color=yellow][战斗系统][/color] {0} 的回合开始".format([character_name]))
+	
 
 func _handle_turn_end_state() -> void:
 	var combat_component = current_turn_character.get_combat_component() if current_turn_character.has_method("get_combat_component") else null
