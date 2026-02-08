@@ -39,7 +39,7 @@ window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ability_system/plugin.cfg", "res://addons/turn_based_combat_system/plugin.cfg", "res://addons/wakatime/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ability_system/plugin.cfg", "res://addons/turn_based_combat_system/plugin.cfg")
 
 [rendering]
 
