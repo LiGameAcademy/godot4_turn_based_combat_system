@@ -23,8 +23,8 @@ var _battle_manager: BattleManager								## 战斗管理器
 ## AI执行结果类
 class AIActionResult:
 	var is_valid: bool = false
-	var source: Character = null
-	var target: Character = null
+	var source: TBC_Character = null
+	var target: TBC_Character = null
 	var damage: float = 0.0
 	var action_type: int = -1
 	var skill: SkillData = null
@@ -50,7 +50,7 @@ func execute_action() -> AIActionResult:
 		return AIActionResult.new(false)
 	
 	# 获取角色
-	var owner_character = get_parent() as Character
+	var owner_character = get_parent() as TBC_Character
 	if not is_instance_valid(owner_character) or not owner_character.combat_component:
 		return AIActionResult.new(false)
 	
@@ -95,7 +95,7 @@ func decide_action() -> Dictionary:
 		print_rich("[color=red]AI未启用[/color]")
 		return {"action_type": null, "target": null, "params": {}}
 
-	var owner_character : Character = get_parent() as Character
+	var owner_character : TBC_Character = get_parent() as TBC_Character
 	# 基础检查
 	if not is_instance_valid(owner_character) or not owner_character.combat_component:
 		return {"action_type": null, "target": null, "params": {}}
@@ -117,7 +117,7 @@ func decide_action() -> Dictionary:
 		# 评估每个技能的价值
 		var best_skill = null
 		var best_skill_score = -1.0
-		var best_skill_targets : Array[Character] = []
+		var best_skill_targets : Array[TBC_Character] = []
 		
 		for skill_id in available_skills:
 			var skill : SkillData = skill_component.get_skill(skill_id)
@@ -183,8 +183,8 @@ func decide_action() -> Dictionary:
 ## 获取潜在目标
 ## [return] 潜在目标列表
 func get_potential_targets() -> Array:
-	var targets : Array[Character]= []
-	var owner_character = get_parent() as Character
+	var targets : Array[TBC_Character]= []
+	var owner_character = get_parent() as TBC_Character
 	# 根据技能类型获取不同的目标列表
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
 	var ally_targets = _battle_manager.get_valid_ally_targets(owner_character, true)
@@ -199,9 +199,9 @@ func get_potential_targets() -> Array:
 ## [param skill] 技能数据
 ## [param potential_targets] 可能的目标列表
 ## [return] 适合的目标列表
-func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]) -> Array[Character]:
-	var valid_targets : Array[Character] = []
-	var owner_character = get_parent() as Character
+func get_targets_for_skill(skill: SkillData, potential_targets: Array[TBC_Character]) -> Array[TBC_Character]:
+	var valid_targets : Array[TBC_Character] = []
+	var owner_character = get_parent() as TBC_Character
 
 	var enemy_targets = _battle_manager.get_valid_enemy_targets(owner_character)
 	var ally_targets = _battle_manager.get_valid_ally_targets(owner_character, true)
@@ -251,13 +251,13 @@ func get_targets_for_skill(skill: SkillData, potential_targets: Array[Character]
 func set_ai_enabled(enabled: bool) -> void:
 	ai_enabled = enabled
 
-func is_enemy(target: Character) -> bool:
+func is_enemy(target: TBC_Character) -> bool:
 	return _battle_manager.is_enemy(get_parent(), target)
 
 # 判断是否应该使用防御动作
 ## [param character] 角色
 ## [return] 是否应该防御
-func _should_use_defense(character: Character) -> bool:
+func _should_use_defense(character: TBC_Character) -> bool:
 	# 如果角色生命值低，更倾向于防御
 	var health_percent = character.current_hp / float(character.max_hp)
 	
@@ -276,9 +276,9 @@ func _should_use_defense(character: Character) -> bool:
 ## [param skill] 技能数据
 ## [param valid_targets] 有效目标列表
 ## [return] 最佳目标
-func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Character:
+func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> TBC_Character:
 	# 根据技能类型和行为选择最佳目标
-	var owner_character = get_parent() as Character
+	var owner_character = get_parent() as TBC_Character
 	var best_target = null
 	var best_score = -1.0
 
@@ -325,7 +325,7 @@ func _select_best_target_for_skill(skill: SkillData, valid_targets: Array) -> Ch
 ## 获取角色可用的技能列表
 ## [return] 可用技能列表
 func _get_available_skills() -> Array[StringName]:
-	var owner_character : Character = get_parent() as Character
+	var owner_character : TBC_Character = get_parent() as TBC_Character
 	if not owner_character.skill_component or not owner_character.combat_component:
 		print_rich("[color=red]技能组件或战斗组件未初始化[/color]")
 		return []
@@ -337,7 +337,7 @@ func _get_available_skills() -> Array[StringName]:
 ## [param skill] 技能数据
 ## [return] 是否可用
 func _can_use_skill(skill: SkillData) -> bool:
-	var owner_character : Character = get_parent() as Character
+	var owner_character : TBC_Character = get_parent() as TBC_Character
 	if not owner_character.skill_component or not owner_character.combat_component:
 		return false
 	

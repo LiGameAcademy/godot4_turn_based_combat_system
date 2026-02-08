@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_3euqu"]
 [ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="1_egqq8"]
-[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/definitions/character_data.gd" id="1_p4oqj"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/character_data.gd" id="1_p4oqj"]
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute.gd" id="1_pnbt8"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="2_e3ilk"]
 [ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://data/skills/attack.tres" id="2_s514i"]

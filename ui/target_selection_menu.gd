@@ -11,7 +11,7 @@ var available_targets: Array[Node] = []
 var selected_target_index: int = -1
 
 ## 信号定义
-signal target_selected(target: Character)
+signal target_selected(target: Node)
 signal target_selection_cancelled
 
 func _ready() -> void:

@@ -1,14 +1,14 @@
 extends Node2D
 class_name BattleScene
 
-const CHARACTER = preload("res://prefabs/characters/character.tscn")
-
 ## 战斗场景，负责战斗的UI显示和交互
 @onready var player_area: Node2D = %PlayerArea
 @onready var enemy_area: Node2D = %EnemyArea
 @onready var battle_manager: BattleManager = %BattleManager
 @onready var battle_ui : BattleUI = %BattleUI
 @onready var stream_player: AudioStreamPlayer = $AudioStreamPlayer
+
+@export var CHARACTER = preload("res://addons/turn_based_combat_system/examples/prefabs/tbc_character.tscn")
 
 var current_action : CharacterCombatComponent.ActionType
 ## 当前选中技能
@@ -39,14 +39,17 @@ func initialize_battle(battle_data: BattleData) -> void:
 
 	for player_data in battle_data.player_data_list:
 		var pos : Vector2 = battle_data.player_data_list[player_data]
-		var player: Character = _spawn_character(player_data, pos)
+		var player: Node = _spawn_character(player_data, pos)
+		if "is_player" in player:
+			player.is_player = true
 		player_area.add_child(player)
 		battle_manager.add_character(player, true)
 
 	for enemy_data in battle_data.enemy_data_list:
 		var pos : Vector2 = battle_data.enemy_data_list[enemy_data]
-		var enemy: Character = _spawn_character(enemy_data, pos)
-		enemy.is_player = false
+		var enemy: Node = _spawn_character(enemy_data, pos)
+		if "is_player" in enemy:
+			enemy.is_player = false
 		enemy_area.add_child(enemy)
 		battle_manager.add_character(enemy, false)
 
@@ -74,11 +77,13 @@ func _connect_character_click_signals() -> void:
 	
 	# 连接每个角色的点击信号
 	for character in all_characters:
-		character.character_clicked.connect(_on_character_clicked)
+		if character.has_signal("character_clicked"):
+			character.character_clicked.connect(_on_character_clicked)
 
-func _spawn_character(character_data: CharacterData, position_offset: Vector2) -> Character:
-	var character: Character = CHARACTER.instantiate()
-	character.character_data = character_data
+func _spawn_character(character_data: Resource, position_offset: Vector2) -> Node:
+	var character: Node = CHARACTER.instantiate()
+	if character.has_method("setup"):
+		character.setup(character_data)
 	character.position = position_offset
 	return character
 
@@ -92,7 +97,7 @@ func _on_turn_changed(character: Node) -> void:
 	display_turn_queue.append(current_character)
 	display_turn_queue.append_array(battle_manager.turn_queue)
 	battle_ui.update_turn_order(display_turn_queue, battle_manager.current_turn_count)
-	update_battle_info("{0} 的回合".format([character.character_name]))
+	update_battle_info("{0} 的回合".format([character.get_character_name() if character.has_method("get_character_name") else ""]))
 
 ## 处理战斗结束
 func _on_battle_ended(is_victory: bool) -> void:
@@ -108,7 +113,7 @@ func _on_battle_ended(is_victory: bool) -> void:
 	# 可以在这里处理战斗结束后的逻辑，如显示结算界面等
 	
 ## 处理敌人行动执行
-func _on_enemy_action_executed(attacker: Character, target: Character, damage: int) -> void:
+func _on_enemy_action_executed(attacker: TBC_Character, target: TBC_Character, damage: int) -> void:
 	# 更新战斗信息
 	var info_text = attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!"
 	battle_ui.update_battle_info(info_text)
@@ -121,7 +126,7 @@ func _on_battle_info_logged(text: String) -> void:
 	update_battle_info(text)
 
 ## 处理角色点击事件
-func _on_character_clicked(character: Character) -> void:
+func _on_character_clicked(character: TBC_Character) -> void:
 	# 显示角色详情
 	battle_ui.show_character_details(character)
 #endregion
@@ -191,7 +196,7 @@ func _on_skill_selection_cancelled() -> void:
 	show_action_ui(battle_manager.is_player_turn)
 
 ## 当玩家选择了技能目标时调用
-func _on_target_selected(target: Character) -> void:
+func _on_target_selected(target: TBC_Character) -> void:
 	var params : Dictionary = {}
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
 	if current_selected_skill != null:

@@ -61,7 +61,7 @@ func initialize(p_element : int = 0, p_attack_skill_id : StringName = "", p_defe
 ## [param target] 动作目标
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
-func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
+func execute_action(action_type: ActionType, target : Node = null, params : Dictionary = {}) -> Dictionary:
 	var result = {"success": false, "action_type": action_type, "target": target, "params": params}
 
 	# 检查是否可以执行该动作类型
@@ -100,7 +100,7 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
 ## [return] 实际造成的伤害值
-func take_damage(base_damage: float, source : Character, p_element : int, is_melee: bool = false) -> float:
+func take_damage(base_damage: float, source : Node, p_element : int, is_melee: bool = false) -> float:
 	var final_damage: float = base_damage
 	
 	# 创建伤害信息对象
@@ -201,7 +201,7 @@ func _die(death_source: Variant = null):
 ## 执行攻击
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(target: Character, skill_context: Dictionary) -> Dictionary:
+func _execute_attack(target: Node, skill_context: Dictionary) -> Dictionary:
 	var attacker = get_parent()
 	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}

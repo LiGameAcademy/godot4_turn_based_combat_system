@@ -27,6 +27,11 @@ buses/default_bus_layout="res://assets/default_bus_layout.tres"
 
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 TBCombatSystem="*uid://bsjch8l8qf2u2"
+GameplayAbilitySystem="*uid://u2lf4qtnkmft"
+DamageCalculator="*uid://b2jxgcjagrkdx"
+TagManager="*uid://crdi6238nttlg"
+AbilityEventBus="*uid://dly4cms3ynkwf"
+GameplayCueManager="*uid://b4t83autfu2j7"
 
 [display]
 
@@ -34,7 +39,7 @@ window/stretch/mode="canvas_items"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/turn_based_combat_system/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ability_system/plugin.cfg", "res://addons/turn_based_combat_system/plugin.cfg", "res://addons/wakatime/plugin.cfg")
 
 [rendering]
 

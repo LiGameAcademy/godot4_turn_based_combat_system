@@ -2,8 +2,9 @@ extends Resource
 class_name CharacterData
 
 @export var character_name: String = "英雄"								## 角色名称
-@export_multiline var description: String = "一个勇敢的战士"		  	## 描述
-@export var attribute_set_resource: SkillAttributeSet = null			## 属性模版
+@export_multiline 
+var description: String = "一个勇敢的战士"		  							## 描述
+@export var attribute_set_resource: SkillAttributeSet = null				## 属性模版
 
 ## 元素属性 0: 无 1: 火 2: 水 3: 土 4: 光
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE

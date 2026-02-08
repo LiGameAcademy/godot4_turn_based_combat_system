@@ -7,7 +7,7 @@
 [ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://data/skill_attributes/current_health.tres" id="4_lachk"]
 [ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://data/skill_attributes/current_mana.tres" id="5_fewsb"]
 [ext_resource type="Script" uid="uid://8esdurm415rx" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_set.gd" id="7_ipx4b"]
-[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/definitions/character_data.gd" id="8_4nd0j"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/character_data.gd" id="8_4nd0j"]
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://data/skills/defend.tres" id="8_i4yjg"]
 [ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="8_msrch"]
 [ext_resource type="Resource" uid="uid://cl4gb5k8bxedw" path="res://data/skills/nurturing_spores.tres" id="11_msrch"]

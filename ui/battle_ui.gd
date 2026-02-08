@@ -16,7 +16,7 @@ signal action_skill_pressed
 signal action_item_pressed
 signal skill_selected(skill: SkillData)
 signal skill_selection_cancelled
-signal target_selected(target: Character)
+signal target_selected(target: Node)
 signal target_selection_cancelled
 
 func _ready() -> void:
@@ -81,15 +81,17 @@ func update_round_count(turn_count: int) -> void:
 		turn_order_indicator.set_title("第 {0} 回合 行动顺序".format([turn_count]))
 
 # UI显示和隐藏方法
-func show_action_menu(current_character) -> void:
+func show_action_menu(current_character: Node) -> void:
 	hide_all_menus() # 先隐藏其他菜单
 	
 	if not action_menu:
 		return
 	
 	if is_instance_valid(current_character):
-		var can_use_any_special_skill: bool = current_character.has_enough_mp_for_skill()
-		action_menu.set_skill_button_enabled(can_use_any_special_skill)
+		var skill_component : SkillComponentInterface = current_character.get_skill_component() if current_character.has_method("get_skill_component") else null
+		if is_instance_valid(skill_component):
+			var can_use_any_special_skill: bool = skill_component.has_enough_mp_for_skill()
+			action_menu.set_skill_button_enabled(can_use_any_special_skill)
 	else:
 		action_menu.set_skill_button_enabled(false)
 	
@@ -97,7 +99,7 @@ func show_action_menu(current_character) -> void:
 	action_menu.setup_default_focus()
 
 ## 显示技能选择菜单
-func show_skill_menu(character: Character) -> bool:
+func show_skill_menu(character: Node) -> bool:
 	hide_all_menus()
 	
 	if skill_select_menu and character:
@@ -162,7 +164,7 @@ func log_heal(target_name: String, amount: int, source: String = "") -> void:
 		battle_log_panel.log_heal(target_name, amount, source)
 
 # 角色详情面板相关方法
-func show_character_details(character: Character) -> void:
+func show_character_details(character: Node) -> void:
 	if not _character_detail_panel:
 		_character_detail_panel = $CharacterDetailPanel
 	# 显示角色详情
@@ -190,7 +192,7 @@ func _on_skill_selected(skill: SkillData) -> void:
 func _on_skill_selection_cancelled() -> void:
 	skill_selection_cancelled.emit()
 
-func _on_target_selected(target: Character) -> void:
+func _on_target_selected(target: Node) -> void:
 	target_selected.emit(target)
 
 func _on_target_selection_cancelled() -> void:

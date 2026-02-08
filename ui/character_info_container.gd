@@ -7,7 +7,7 @@ class_name CharacterInfoContainer
 @onready var skill_status_container: HBoxContainer = %SkillStatusContainer
 
 # 当前绑定的角色
-var _character: Character = null
+var _character: Node = null
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
@@ -16,14 +16,13 @@ var _status_icons: Dictionary = {}
 # 状态图标场景
 @export var skill_status_icon_scene: PackedScene = preload("res://ui/skill_status_icon.tscn")
 
-
 func _ready() -> void:
 	for child in skill_status_container.get_children():
 		child.queue_free()
 
 ## 初始化角色信息容器
 ## [param character] 要绑定的角色
-func initialize(character: Character) -> void:
+func initialize(character: Node) -> void:
 	if not character:
 		push_error("CharacterInfoContainer: 无法初始化，角色为空")
 		return
@@ -116,7 +115,12 @@ func _update_attribute_bars() -> void:
 
 ## 初始化状态图标
 func _initialize_status_icons() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
 	# 清除现有的状态图标

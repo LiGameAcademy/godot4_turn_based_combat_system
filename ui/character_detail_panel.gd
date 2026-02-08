@@ -12,7 +12,7 @@ class_name CharacterDetailPanel
 @onready var other_attributes_grid: GridContainer = %OtherAttributesGrid
 
 # 当前显示的角色引用
-var _character: Character = null
+var _character: TBC_Character = null
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
@@ -46,7 +46,7 @@ func _ready() -> void:
 	_clear_status_container()
 
 ## 显示指定角色的详细信息
-func show_character_details(character: Character) -> void:
+func show_character_details(character: TBC_Character) -> void:
 	if not character:
 		push_error("CharacterDetailPanel: 无法显示角色详情，角色为空")
 		return

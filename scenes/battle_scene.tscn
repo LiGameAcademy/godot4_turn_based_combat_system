@@ -1,15 +1,13 @@
 [gd_scene format=3 uid="uid://bvnf2raqi3v41"]
 
-[ext_resource type="PackedScene" uid="uid://cb2e2cndtui6m" path="res://prefabs/characters/character.tscn" id="1_qp2wj"]
 [ext_resource type="Script" uid="uid://b8sa4413uav8x" path="res://scenes/battle_scene.gd" id="1_ugm31"]
 [ext_resource type="PackedScene" uid="uid://dqlpd6akofusk" path="res://ui/battle_ui.tscn" id="2_dddu7"]
-[ext_resource type="Resource" uid="uid://x3ps14kdto0r" path="res://data/characters_data/player_assassin.tres" id="2_rl52j"]
-[ext_resource type="Resource" uid="uid://hcxd57tvokjr" path="res://data/characters_data/enemy_goblin_data.tres" id="3_13vd6"]
-[ext_resource type="Resource" uid="uid://bx46tbxv3xim0" path="res://data/characters_data/enemy_mushroom_data.tres" id="6_3511k"]
+[ext_resource type="PackedScene" uid="uid://dpdicf1la5scj" path="res://prefabs/characters/character.tscn" id="3_8qdv8"]
 [ext_resource type="PackedScene" uid="uid://bm5572m6qto7" path="res://addons/turn_based_combat_system/script/core/battle_manager.tscn" id="7_svpld"]
 
 [node name="BattleScene" type="Node2D" unique_id=1466379268]
 script = ExtResource("1_ugm31")
+CHARACTER = ExtResource("3_8qdv8")
 
 [node name="BattleUI" parent="." unique_id=1620188863 instance=ExtResource("2_dddu7")]
 unique_name_in_owner = true
@@ -33,21 +31,11 @@ color = Color(0.14902, 0.137255, 0.188235, 1)
 unique_name_in_owner = true
 position = Vector2(350, 450)
 
-[node name="PlayerCharacter" parent="PlayerArea" unique_id=119273659 instance=ExtResource("1_qp2wj")]
-character_data = ExtResource("2_rl52j")
+[node name="Character" parent="PlayerArea" unique_id=1961049707 instance=ExtResource("3_8qdv8")]
 
 [node name="EnemyArea" type="Node2D" parent="." unique_id=1007072195]
 unique_name_in_owner = true
 position = Vector2(800, 450)
-
-[node name="EnemyCharacter" parent="EnemyArea" unique_id=154400660 instance=ExtResource("1_qp2wj")]
-character_data = ExtResource("3_13vd6")
-is_player = false
-
-[node name="MushRoomEnemy" parent="EnemyArea" unique_id=1216114492 instance=ExtResource("1_qp2wj")]
-position = Vector2(200, 0)
-character_data = ExtResource("6_3511k")
-is_player = false
 
 [node name="CastMarker2D" type="Marker2D" parent="." unique_id=36771625]
 position = Vector2(620, 450)

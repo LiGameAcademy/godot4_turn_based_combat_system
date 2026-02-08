@@ -1,12 +1,14 @@
 class_name StatusEffectDisplay
 extends HBoxContainer
 
-var character: Character = null
+## 状态效果显示器，用于显示目标节点的状态效果
+
+var character: TBC_Character = null
 var effect_icons = {}  # 效果ID -> 图标节点
 
 @export var status_icon_scene: PackedScene
 
-func initialize(target_character: Character) -> void:
+func initialize(target_character: TBC_Character) -> void:
 	character = target_character
 	
 	# 连接信号

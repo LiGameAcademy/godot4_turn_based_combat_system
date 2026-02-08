@@ -13,7 +13,7 @@
 [ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://data/skills/defend.tres" id="12_g6qwt"]
 [ext_resource type="Script" uid="uid://8esdurm415rx" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_set.gd" id="13_7khhc"]
 [ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="15_tw80f"]
-[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/definitions/character_data.gd" id="16_f5c4c"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/character_data.gd" id="16_f5c4c"]
 [ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="17_af7so"]
 [ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://data/skills/fireball.tres" id="18_833s5"]
 [ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://data/skills/minor_heal.tres" id="19_rc2b5"]

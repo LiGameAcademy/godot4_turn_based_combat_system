@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://hcxd57tvokjr"]
 
-[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/definitions/character_data.gd" id="1_45vgr"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/character_data.gd" id="1_45vgr"]
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_cjb8a"]
 [ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute.gd" id="1_hhnc7"]
 [ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="1_tcc5r"]

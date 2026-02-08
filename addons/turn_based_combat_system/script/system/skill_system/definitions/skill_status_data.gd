@@ -67,8 +67,8 @@ enum StatusType {
 var restricted_action_categories: Array[String] = []
 
 # --- 运行时变量 (在 duplicate(true) 后由 character.gd 设置和管理) ---
-var source_character: Character   													## 施加此状态的角色
-var target_character: Character   													## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
+var source_character: Node   													## 施加此状态的角色
+var target_character: Node   													## 拥有此状态的角色 (方便状态效果内部逻辑访问目标)
 var remaining_duration: int:       												## 剩余持续时间
 	set(value):
 		remaining_duration = value
