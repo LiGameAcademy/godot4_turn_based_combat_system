@@ -1,7 +1,8 @@
 @tool
-extends ProgressBar
+extends MarginContainer
 class_name AttributeStatusBar
 
+@onready var progress_bar: ProgressBar = %ProgressBar
 @onready var attribute_status_label: Label = %AttributeStatusLabel
 
 @export var attribute_name : String = "HP"
@@ -33,8 +34,8 @@ func update_display(current_atr_value: float, max_atr_value: float) -> void:
 	if not use_animation:
 		_current_displayed_value = _target_value
 		_current_displayed_max_value = _target_max_value
-		value = _current_displayed_value
-		max_value = _current_displayed_max_value
+		progress_bar.value = _current_displayed_value
+		progress_bar.max_value = _current_displayed_max_value
 		_set_attribute_text(_current_displayed_value, _current_displayed_max_value)
 		return
 	
@@ -77,8 +78,8 @@ func _update_animated_values(current_values: Vector2) -> void:
 	_current_displayed_max_value = current_values.y
 	
 	# 更新进度条
-	value = _current_displayed_value
-	max_value = _current_displayed_max_value
+	progress_bar.value = _current_displayed_value
+	progress_bar.max_value = _current_displayed_max_value
 	
 	# 更新文本标签
 	_set_attribute_text(_current_displayed_value, _current_displayed_max_value)

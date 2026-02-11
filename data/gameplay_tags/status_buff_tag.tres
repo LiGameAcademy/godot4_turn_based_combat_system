@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://ty8jcc6j2gva"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_y211d"]
+
+[resource]
+script = ExtResource("1_y211d")
+id = &"status"
+display_name = "状态"
+description = "这是一个状态"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

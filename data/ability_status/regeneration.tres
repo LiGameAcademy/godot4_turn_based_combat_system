@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://do0pq6wst14ul"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_xc45k"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_ewhfi"]
+[ext_resource type="Texture2D" uid="uid://dmng40xhxsw25" path="res://assets/textures/icons/status/regeneration.svg" id="3_dxlsg"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_df8kq"]
+[ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/heal_effect.gd" id="5_dqolj"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_d2va4"]
+
+[sub_resource type="Resource" id="Resource_65pbh"]
+script = ExtResource("5_dqolj")
+heal_power_scale = 0.0
+metadata/_custom_type_script = "uid://b8xbt0r5gucli"
+
+[resource]
+script = ExtResource("6_d2va4")
+status_id = &"regeneration"
+status_name = "再生"
+description = "生命力缓慢地恢复。"
+icon = ExtResource("3_dxlsg")
+ongoing_effects = Array[ExtResource("2_ewhfi")]([SubResource("Resource_65pbh")])
+trigger_turns = 1
+trigger_count = 1

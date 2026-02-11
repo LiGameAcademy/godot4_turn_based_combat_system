@@ -4,14 +4,26 @@
 [ext_resource type="PackedScene" uid="uid://b26kadxoregwn" path="res://ui/attribute_status_bar.tscn" id="2_q86e0"]
 [ext_resource type="PackedScene" uid="uid://op0vy21pnru7" path="res://ui/skill_status_icon.tscn" id="3_81t2v"]
 
-[node name="CharacterInfoContainer" type="VBoxContainer" unique_id=1106976805]
-offset_right = 151.0
-offset_bottom = 84.0
-size_flags_horizontal = 4
-size_flags_vertical = 10
+[node name="CharacterInfoContainer" type="MarginContainer" unique_id=713921709]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -70.0
+offset_top = -60.0
+offset_right = 70.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_bcio5")
 
-[node name="NameLabel" type="Label" parent="." unique_id=1533626091]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1106976805]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+
+[node name="NameLabel" type="Label" parent="VBoxContainer" unique_id=1533626091]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 0
@@ -21,12 +33,13 @@ theme_override_font_sizes/font_size = 18
 text = "角色名称"
 horizontal_alignment = 1
 
-[node name="HPBar" parent="." unique_id=1606226110 instance=ExtResource("2_q86e0")]
+[node name="HPBar" parent="VBoxContainer" unique_id=1606226110 instance=ExtResource("2_q86e0")]
 unique_name_in_owner = true
+self_modulate = Color(0, 1, 0, 1)
 layout_mode = 2
 size_flags_vertical = 0
 
-[node name="MPBar" parent="." unique_id=993859057 instance=ExtResource("2_q86e0")]
+[node name="MPBar" parent="VBoxContainer" unique_id=993859057 instance=ExtResource("2_q86e0")]
 unique_name_in_owner = true
 self_modulate = Color(0, 0, 1, 1)
 layout_mode = 2
@@ -34,18 +47,18 @@ size_flags_vertical = 0
 attribute_name = "MP"
 attribute_color = Color(0, 0, 1, 1)
 
-[node name="SkillStatusContainer" type="HBoxContainer" parent="." unique_id=427429069]
+[node name="SkillStatusContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=427429069]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="SkillStatusIcon" parent="SkillStatusContainer" unique_id=1406478339 instance=ExtResource("3_81t2v")]
+[node name="SkillStatusIcon" parent="VBoxContainer/SkillStatusContainer" unique_id=1406478339 instance=ExtResource("3_81t2v")]
 layout_mode = 2
 
-[node name="SkillStatusIcon2" parent="SkillStatusContainer" unique_id=1729093713 instance=ExtResource("3_81t2v")]
+[node name="SkillStatusIcon2" parent="VBoxContainer/SkillStatusContainer" unique_id=1729093713 instance=ExtResource("3_81t2v")]
 layout_mode = 2
 
-[node name="SkillStatusIcon3" parent="SkillStatusContainer" unique_id=1349556909 instance=ExtResource("3_81t2v")]
+[node name="SkillStatusIcon3" parent="VBoxContainer/SkillStatusContainer" unique_id=1349556909 instance=ExtResource("3_81t2v")]
 layout_mode = 2
 
-[node name="SkillStatusIcon4" parent="SkillStatusContainer" unique_id=1589456305 instance=ExtResource("3_81t2v")]
+[node name="SkillStatusIcon4" parent="VBoxContainer/SkillStatusContainer" unique_id=1589456305 instance=ExtResource("3_81t2v")]
 layout_mode = 2

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://d3t3blt8osk0p"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_0n4nh"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="2_aus8j"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="2_b7bgm"]
+[ext_resource type="Texture2D" uid="uid://bnblxk1mu06ix" path="res://assets/textures/icons/status/attack_up.svg" id="3_paie1"]
+[ext_resource type="Script" uid="uid://bj8wgemc4twgi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_modifier.gd" id="3_t2mue"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="4_paie1"]
+[ext_resource type="Script" uid="uid://cbqxhqtnqudcb" path="res://addons/godot_ability_system/scripts/effects/ge_attribute_modifier.gd" id="4_twm7w"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="5_t2mue"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="8_i7qix"]
+
+[sub_resource type="Resource" id="Resource_yymoe"]
+script = ExtResource("3_t2mue")
+attribute_id = &"attack_power"
+value = 5.0
+metadata/_custom_type_script = "uid://bj8wgemc4twgi"
+
+[sub_resource type="Resource" id="Resource_eyg8x"]
+script = ExtResource("4_twm7w")
+modifiers = Array[ExtResource("3_t2mue")]([SubResource("Resource_yymoe")])
+metadata/_custom_type_script = "uid://cbqxhqtnqudcb"
+
+[sub_resource type="Resource" id="Resource_twm7w"]
+script = ExtResource("5_t2mue")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_v1o76"]
+script = ExtResource("8_i7qix")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
+
+[resource]
+script = ExtResource("4_paie1")
+status_id = &"attack_up"
+status_display_name = "攻击提升"
+status_description = "攻击力得到强化"
+duration = 3.0
+duration_policy = SubResource("Resource_twm7w")
+icon = ExtResource("3_paie1")
+tags = Array[StringName]([&"status.debuff"])
+apply_effects = Array[ExtResource("1_0n4nh")]([SubResource("Resource_eyg8x")])
+stacking_policy = SubResource("Resource_v1o76")

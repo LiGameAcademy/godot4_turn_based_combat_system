@@ -472,15 +472,10 @@ script = ExtResource("1_nt6lx")
 [node name="CharacterInfoContainer" parent="." unique_id=1060588341 instance=ExtResource("2_ysl2u")]
 unique_name_in_owner = true
 anchors_preset = 7
-anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -70.0
 offset_top = -220.0
-offset_right = 70.0
 offset_bottom = -100.0
-grow_horizontal = 2
 grow_vertical = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1950012176]

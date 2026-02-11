@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://ccx1aau0l51me"]
+
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_wb3pk"]
+[ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="2_s68q7"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_bpcky"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_7oovk"]
+[ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="4_jmn28"]
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_whv52"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="8_xqh23"]
+[ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="9_vhsl4"]
+
+[sub_resource type="Resource" id="Resource_lachk"]
+script = ExtResource("1_wb3pk")
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[sub_resource type="Resource" id="Resource_encu5"]
+script = ExtResource("3_bpcky")
+attribute_id = &"max_mana"
+attribute_display_name = "魔法值"
+attribute_description = "魔法值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_wb3pk"]
+script = ExtResource("3_bpcky")
+attribute_id = &"max_health"
+attribute_display_name = "生命值"
+attribute_description = "生命值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_s68q7"]
+script = ExtResource("3_bpcky")
+attribute_id = &"speed"
+attribute_display_name = "速度"
+attribute_description = "速度决定了单位的出手顺序。"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_qnbas"]
+script = ExtResource("3_bpcky")
+attribute_id = &"attack_power"
+attribute_display_name = "攻击力"
+attribute_description = "攻击力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_atghj"]
+script = ExtResource("3_bpcky")
+attribute_id = &"defense_power"
+attribute_display_name = "防御力"
+attribute_description = "防御力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_jkwja"]
+script = ExtResource("5_whv52")
+attributes = Dictionary[ExtResource("3_bpcky"), float]({
+SubResource("Resource_encu5"): 50.0,
+SubResource("Resource_wb3pk"): 150.0,
+SubResource("Resource_s68q7"): 7.0,
+SubResource("Resource_qnbas"): 15.0,
+SubResource("Resource_atghj"): 10.0
+})
+metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[resource]
+script = ExtResource("4_jmn28")
+character_name = "蘑菇怪"
+description = "一片古老菌毯的延伸体，会散播各种影响战局的孢子。单独存在时很脆弱，但成群出现时则非常麻烦。"
+attribute_set_resource = SubResource("Resource_jkwja")
+element = 3
+ai_behavior = SubResource("Resource_lachk")
+animation_library = ExtResource("2_s68q7")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("9_vhsl4")

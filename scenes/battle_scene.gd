@@ -30,6 +30,8 @@ func _ready() -> void:
 	battle_ui.target_selected.connect(_on_target_selected)
 	battle_ui.target_selection_cancelled.connect(_on_target_selection_cancelled)
 
+	TagManager.register_tags_from_directory("res://data/gameplay_tags/")
+
 func initialize_battle(battle_data: BattleData) -> void:
 	for player in player_area.get_children():
 		player.queue_free()

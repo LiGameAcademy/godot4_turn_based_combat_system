@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://cmm8r73yr2mob"]
+
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_ywxla"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="2_80jlc"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_yrb8k"]
+[ext_resource type="Resource" uid="uid://dk8d0hssklu64" path="res://data/attributes/max_mana.tres" id="4_hejwr"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_rwtu0"]
+[ext_resource type="Resource" uid="uid://dqyyxtke705u3" path="res://data/attributes/max_health.tres" id="5_dxjiq"]
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_esf7t"]
+[ext_resource type="Resource" uid="uid://dt4ifdui4apo5" path="res://data/attributes/speed.tres" id="6_tasol"]
+[ext_resource type="Resource" uid="uid://bunxmfu1ul8b2" path="res://data/attributes/attack_power.tres" id="7_inpjf"]
+[ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="7_ywxla"]
+[ext_resource type="Resource" uid="uid://cbsfg0mrcborh" path="res://data/attributes/defense_power.tres" id="8_rppdi"]
+[ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="9_icq2d"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="13_esf7t"]
+
+[sub_resource type="Resource" id="Resource_x2mhx"]
+script = ExtResource("1_ywxla")
+behavior_type = "aggressive"
+self_preservation_weight = 0.0
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[sub_resource type="Resource" id="Resource_80jlc"]
+script = ExtResource("5_esf7t")
+attributes = Dictionary[ExtResource("3_yrb8k"), float]({
+ExtResource("4_hejwr"): 20.0,
+ExtResource("5_dxjiq"): 80.0,
+ExtResource("6_tasol"): 8.0,
+ExtResource("7_inpjf"): 10.0,
+ExtResource("8_rppdi"): 2.0
+})
+metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[resource]
+script = ExtResource("7_ywxla")
+character_name = "哥布林"
+description = "常见的低级怪物，弱小但行动迅速。"
+attribute_set_resource = SubResource("Resource_80jlc")
+element = 3
+ai_behavior = SubResource("Resource_x2mhx")
+animation_library = ExtResource("2_80jlc")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("9_icq2d")

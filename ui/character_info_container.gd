@@ -1,5 +1,7 @@
-extends VBoxContainer
+extends MarginContainer
 class_name CharacterInfoContainer
+
+## 角色状态条
 
 @onready var name_label: Label = %NameLabel
 @onready var hp_bar: AttributeStatusBar = %HPBar

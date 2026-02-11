@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HealthVital" format=3 uid="uid://v4qmexrhd6nv"]
+
+[ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="1_kjjyh"]
+
+[resource]
+script = ExtResource("1_kjjyh")
+vital_id = &"current_health"
+display_name = "生命值"
+max_value_attribute = &"max_health"
+metadata/_custom_type_script = "uid://de4yqlfssv0xe"

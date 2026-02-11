@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://cbddij87t1dbv"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_y2iq0"]
+
+[resource]
+script = ExtResource("1_y2iq0")
+id = &"status.debuff"
+display_name = "减益"
+description = "这是一个减益状态"
+parent_tag_id = &"status"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

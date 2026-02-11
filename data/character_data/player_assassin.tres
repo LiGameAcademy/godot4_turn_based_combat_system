@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://bnu5idba7q7is"]
+
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_ujsad"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="2_hosdr"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="3_7glp5"]
+[ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="3_uvcse"]
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="4_src1a"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="13_miwnf"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="15_p1ce1"]
+[ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://addons/turn_based_combat_system/examples/data/skills/fireball.tres" id="16_b6gv1"]
+[ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://addons/turn_based_combat_system/examples/data/skills/minor_heal.tres" id="17_aufsq"]
+[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://addons/turn_based_combat_system/examples/data/skills/silence.tres" id="18_gj3bh"]
+[ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://addons/turn_based_combat_system/examples/data/skills/stun.tres" id="19_dw4y0"]
+
+[sub_resource type="Resource" id="Resource_uhyyp"]
+script = ExtResource("2_hosdr")
+attribute_id = &"max_mana"
+attribute_display_name = "魔法值"
+attribute_description = "魔法值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_hufcg"]
+script = ExtResource("2_hosdr")
+attribute_id = &"max_health"
+attribute_display_name = "生命值"
+attribute_description = "生命值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_r27ad"]
+script = ExtResource("2_hosdr")
+attribute_id = &"speed"
+attribute_display_name = "速度"
+attribute_description = "速度决定了单位的出手顺序。"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_1xjwg"]
+script = ExtResource("2_hosdr")
+attribute_id = &"attack_power"
+attribute_display_name = "攻击力"
+attribute_description = "攻击力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_ou8ee"]
+script = ExtResource("2_hosdr")
+attribute_id = &"defense_power"
+attribute_display_name = "防御力"
+attribute_description = "防御力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_qj5oa"]
+script = ExtResource("4_src1a")
+attributes = Dictionary[ExtResource("2_hosdr"), float]({
+SubResource("Resource_uhyyp"): 50.0,
+SubResource("Resource_hufcg"): 100.0,
+SubResource("Resource_r27ad"): 10.0,
+SubResource("Resource_1xjwg"): 10.0,
+SubResource("Resource_ou8ee"): 5.0
+})
+metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[resource]
+script = ExtResource("3_uvcse")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+attribute_set_resource = SubResource("Resource_qj5oa")
+element = 2
+skills = Array[ExtResource("15_p1ce1")]([ExtResource("16_b6gv1"), ExtResource("17_aufsq"), ExtResource("18_gj3bh"), ExtResource("19_dw4y0")])
+animation_library = ExtResource("1_ujsad")
+icon = ExtResource("13_miwnf")

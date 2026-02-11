@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://bjkf5avqwf3u8"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_oiljv"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_uehy0"]
+[ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_chy60"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_7m30k"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="5_4taig"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_erjnh"]
+
+[sub_resource type="Resource" id="Resource_obah3"]
+script = ExtResource("5_4taig")
+damage_amount = 1
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[resource]
+script = ExtResource("6_erjnh")
+status_id = &"ignite"
+status_name = "点燃"
+description = "每回合受到火焰伤害。"
+icon = ExtResource("3_chy60")
+status_type = 1
+stack_behavior = 2
+ongoing_effects = Array[ExtResource("2_uehy0")]([SubResource("Resource_obah3")])
+trigger_turns = 1
+trigger_count = 1

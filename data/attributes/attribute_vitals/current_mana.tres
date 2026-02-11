@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ManaVital" format=3 uid="uid://drwakqh3iv8o2"]
+
+[ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="1_sf23m"]
+
+[resource]
+script = ExtResource("1_sf23m")
+vital_id = &"current_mana"
+display_name = "魔法值"
+max_value_attribute = &"max_mana"
+metadata/_custom_type_script = "uid://diwvpcc0axlat"
