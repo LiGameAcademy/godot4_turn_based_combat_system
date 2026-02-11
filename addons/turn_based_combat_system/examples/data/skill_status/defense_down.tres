@@ -1,21 +1,21 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://bgahn3mwsoujr"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_1st82"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_i8b4g"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_1p36c"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_0cush"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_fhdw8"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_fpwd0"]
 
 [sub_resource type="Resource" id="Resource_tsm7t"]
-script = ExtResource("1_1st82")
+script = ExtResource("1_0cush")
 attribute_id = &"DefensePower"
 magnitude = -0.2
 operation = 2
 
 [resource]
-script = ExtResource("3_1p36c")
+script = ExtResource("3_fpwd0")
 status_id = &"defense_down"
 status_name = "防御下降"
 description = "孢子侵蚀了护甲，防御力大幅降低。"
 status_type = 1
-attribute_modifiers = Array[ExtResource("1_1st82")]([SubResource("Resource_tsm7t")])
+attribute_modifiers = Array[ExtResource("1_0cush")]([SubResource("Resource_tsm7t")])
 trigger_turns = 1
 trigger_count = 1

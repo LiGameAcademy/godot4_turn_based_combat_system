@@ -1,25 +1,36 @@
-[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://bjkf5avqwf3u8"]
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://bjkf5avqwf3u8"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_oiljv"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_uehy0"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_35qeu"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_oiljv"]
 [ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_chy60"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_7m30k"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="5_4taig"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_erjnh"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_uehy0"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="4_chy60"]
+[ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_7m30k"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="5_chy60"]
+[ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="6_4taig"]
 
-[sub_resource type="Resource" id="Resource_obah3"]
-script = ExtResource("5_4taig")
-damage_amount = 1
-metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+[sub_resource type="Resource" id="Resource_7m30k"]
+script = ExtResource("2_oiljv")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_erjnh"]
+script = ExtResource("5_7m30k")
+damage_multiplier = 0.5
+metadata/_custom_type_script = "uid://cra1yv70jj5sn"
+
+[sub_resource type="Resource" id="Resource_6ey7s"]
+script = ExtResource("6_4taig")
+trigger_on_events = Array[StringName]([&"turn_ended"])
+event_triggered_effects = Array[ExtResource("1_35qeu")]([SubResource("Resource_erjnh")])
+metadata/_custom_type_script = "uid://cx8rx62srat4v"
 
 [resource]
-script = ExtResource("6_erjnh")
+script = ExtResource("5_chy60")
 status_id = &"ignite"
-status_name = "点燃"
-description = "每回合受到火焰伤害。"
+status_display_name = "点燃"
+status_description = "单位被点燃，每回合受到火焰伤害"
+duration = 3.0
+duration_policy = SubResource("Resource_7m30k")
 icon = ExtResource("3_chy60")
-status_type = 1
-stack_behavior = 2
-ongoing_effects = Array[ExtResource("2_uehy0")]([SubResource("Resource_obah3")])
-trigger_turns = 1
-trigger_count = 1
+tags = Array[StringName]([&"status.debuff"])
+features = Array[ExtResource("3_uehy0")]([SubResource("Resource_6ey7s")])

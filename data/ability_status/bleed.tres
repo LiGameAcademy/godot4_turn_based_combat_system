@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://do7odahj41gwh" path="res://addons/godot_ability_system/scripts/damage/simple_damage_logic.gd" id="4_hjnww"]
 [ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="4_lkd7m"]
 [ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_0vung"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="5_tdxa1"]
 [ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="6_lkd7m"]
 
 [sub_resource type="Resource" id="Resource_u51gt"]
@@ -20,15 +21,9 @@ metadata/_custom_type_script = "uid://do7odahj41gwh"
 
 [sub_resource type="Resource" id="Resource_0t1lb"]
 script = ExtResource("5_0vung")
-damage_multiplier = null
-invulnerable_block_tag = null
+damage_multiplier = 0.5
 damage_strategy = SubResource("Resource_tdxa1")
-vital_comp_name = null
-vital_id = null
-filters = null
-sub_effects = null
-target_required_tags = null
-target_blocked_tags = null
+vital_id = &"current_health"
 metadata/_custom_type_script = "uid://cra1yv70jj5sn"
 
 [sub_resource type="Resource" id="Resource_0vung"]

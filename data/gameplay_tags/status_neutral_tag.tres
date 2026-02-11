@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://qo8lwv2sc7wf"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_nh5dg"]
+
+[resource]
+script = ExtResource("1_nh5dg")
+id = &"status.neutral"
+display_name = "中立"
+description = "这是一个中立状态"
+parent_tag_id = &"status"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

@@ -103,7 +103,7 @@ func get_full_description() -> String:
 		desc += "持续无限 (或直到被驱散). "
 	elif duration_type == DurationType.COMBAT_LONG:
 		desc += "持续至战斗结束. "
-		
+
 	if max_stacks > 1:
 		desc += "最多叠加 %d 层. " % max_stacks
 	if not initial_effects.is_empty(): desc += "应用时触发效果.\n"

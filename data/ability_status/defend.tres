@@ -1,22 +1,35 @@
-[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://c0rd3id6u23yq"]
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://c0rd3id6u23yq"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_8qotj"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_36f16"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_36f16"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="2_2kumt"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_lf6yh"]
 [ext_resource type="Texture2D" uid="uid://cpjc8vbq2ygfs" path="res://assets/textures/icons/status/defend.svg" id="3_2kumt"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_lf6yh"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="5_idhx7"]
-[ext_resource type="Script" uid="uid://47pmrvmk5e7c" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/modifiy_damage_effect.gd" id="6_ly4y3"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="3_lf6yh"]
+[ext_resource type="Script" uid="uid://cm2md6dyr4e7g" path="res://addons/godot_ability_system/scripts/effects/ge_modify_incoming_damage.gd" id="4_idhx7"]
+[ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="5_ly4y3"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="7_gec3d"]
 
-[sub_resource type="Resource" id="Resource_fim4e"]
-script = ExtResource("6_ly4y3")
-metadata/_custom_type_script = "uid://47pmrvmk5e7c"
+[sub_resource type="Resource" id="Resource_idhx7"]
+script = ExtResource("2_lf6yh")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_rxrdg"]
+script = ExtResource("4_idhx7")
+metadata/_custom_type_script = "uid://cm2md6dyr4e7g"
+
+[sub_resource type="Resource" id="Resource_pgj61"]
+script = ExtResource("5_ly4y3")
+trigger_on_events = Array[StringName]([&""])
+event_triggered_effects = Array[ExtResource("1_36f16")]([SubResource("Resource_rxrdg")])
+metadata/_custom_type_script = "uid://cx8rx62srat4v"
 
 [resource]
-script = ExtResource("4_lf6yh")
+script = ExtResource("7_gec3d")
 status_id = &"defend"
-status_name = "防御"
+status_display_name = "防御"
+status_description = "减免50%受到的伤害"
+duration = 3.0
+duration_policy = SubResource("Resource_idhx7")
 icon = ExtResource("3_2kumt")
-trigger_on_events = Array[StringName]([&"on_damage_taken"])
-trigger_effects = Array[ExtResource("2_36f16")]([SubResource("Resource_fim4e")])
-trigger_turns = 1
-trigger_count = 1
+tags = Array[StringName]([&"status."])
+features = Array[ExtResource("2_2kumt")]([SubResource("Resource_pgj61")])

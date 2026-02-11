@@ -1,23 +1,43 @@
-[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://hbeisi0k5bth"]
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://hbeisi0k5bth"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_20cmi"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_0mm4d"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_7e3ps"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="2_2v6ci"]
+[ext_resource type="Script" uid="uid://bj8wgemc4twgi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_modifier.gd" id="3_d6nxd"]
 [ext_resource type="Texture2D" uid="uid://duqwbwc07qk21" path="res://assets/textures/icons/status/dodge.svg" id="3_jeexb"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_bl4gr"]
+[ext_resource type="Script" uid="uid://cbqxhqtnqudcb" path="res://addons/godot_ability_system/scripts/effects/ge_attribute_modifier.gd" id="4_6530g"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="5_qsuke"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="6_ubsan"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="8_qool3"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="9_qadmb"]
 
-[sub_resource type="Resource" id="Resource_ka2b5"]
-script = ExtResource("1_20cmi")
+[sub_resource type="Resource" id="Resource_76cm1"]
+script = ExtResource("3_d6nxd")
 attribute_id = &"speed"
-magnitude = 20.0
+value = 20.0
+modifier_type = 2
+metadata/_custom_type_script = "uid://bj8wgemc4twgi"
+
+[sub_resource type="Resource" id="Resource_efgjy"]
+script = ExtResource("4_6530g")
+modifiers = Array[ExtResource("3_d6nxd")]([SubResource("Resource_76cm1")])
+metadata/_custom_type_script = "uid://cbqxhqtnqudcb"
+
+[sub_resource type="Resource" id="Resource_s0w64"]
+script = ExtResource("5_qsuke")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_jds4y"]
+script = ExtResource("9_qadmb")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
 
 [resource]
-script = ExtResource("4_bl4gr")
+script = ExtResource("8_qool3")
 status_id = &"dodge"
-status_name = "狡猾闪躲"
-description = "变得极其警觉和敏捷，速度大幅提升。"
+status_display_name = "狡猾闪躲"
+status_description = "变得及其精绝和敏捷，大幅提升速度。"
+duration = 2.0
+duration_policy = SubResource("Resource_s0w64")
 icon = ExtResource("3_jeexb")
-status_type = 0
-duration = 2
-attribute_modifiers = Array[ExtResource("1_20cmi")]([SubResource("Resource_ka2b5")])
-trigger_turns = 1
-trigger_count = 1
+tags = Array[StringName]([&"status.buff"])
+apply_effects = Array[ExtResource("1_7e3ps")]([SubResource("Resource_efgjy")])
+stacking_policy = SubResource("Resource_jds4y")

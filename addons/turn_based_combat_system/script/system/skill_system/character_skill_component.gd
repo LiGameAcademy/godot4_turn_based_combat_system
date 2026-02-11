@@ -104,6 +104,14 @@ func consume_hp(amount: float) -> bool:
 func restore_hp(amount: float) -> float:
 	_active_attribute_set.modify_base_value(&"CurrentHealth", amount)
 	return amount
+
+## 获取当前mp
+func get_current_mp() -> float:
+	return _active_attribute_set.get_current_value(&"CurrentMana")
+
+## 获取当前hp
+func get_current_hp() -> float:
+	return _active_attribute_set.get_current_value(&"CurrentHealth")
 #endregion
 
 #region --- 技能管理 ---
@@ -183,6 +191,20 @@ func get_skill_mp_cost(skill_id: StringName) -> int:
 		return 0
 	return skill.mp_cost
 
+## 获取技能显示名称
+func get_skill_display_name(skill_id: StringName) -> String:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return ""
+	return skill.get_display_name()
+
+## 获取技能描述
+func get_skill_description(skill_id: StringName) -> String:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return ""
+	return skill.get_full_description()
+
 ## 检查技能是否为近战技能
 func is_skill_melee(skill_id: StringName) -> bool:
 	var skill : SkillData = get_skill(skill_id)
@@ -196,6 +218,20 @@ func is_skill_ranged(skill_id: StringName) -> bool:
 	if not is_instance_valid(skill):
 		return false
 	return skill.is_ranged
+
+## 获取技能目标
+func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
+	var battle_manager : BattleManager = context.get("battle_manager", null)
+	if not is_instance_valid(battle_manager):
+		return [] as Array[Node]
+	var skill : SkillData = get_skill(skill_id)
+	if skill.is_enemy_target():
+		return battle_manager.get_valid_enemy_targets(get_parent())
+	elif skill.is_including_self():
+		return battle_manager.get_valid_ally_targets(get_parent(), true)
+	else:
+		return battle_manager.get_valid_ally_targets(get_parent(), false)
+	return [] as Array[Node]
 
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
@@ -253,6 +289,7 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 		"on_skill_execution_completed", get_parent(), EventSkillExecutionCompletedContext.new(get_parent(), skill, actual_targets, skill_execution_result)
 	)
 	return skill_execution_result
+
 #endregion
 
 #region --- 状态管理 ---

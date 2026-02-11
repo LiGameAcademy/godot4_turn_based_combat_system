@@ -1,23 +1,23 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://ctv63r3mlnnnm"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_ngor4"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_scmhk"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_ay48w"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_5b4ya"]
-[ext_resource type="Script" uid="uid://bujuuja36wteo" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/probability_condition.gd" id="5_yipja"]
-[ext_resource type="Script" uid="uid://dp7wxdkilwqv3" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/counter_attack_effect.gd" id="6_fm2aa"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_kp5uu"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_v38vw"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_assuu"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_chx1p"]
+[ext_resource type="Script" uid="uid://bujuuja36wteo" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/probability_condition.gd" id="5_3fksc"]
+[ext_resource type="Script" uid="uid://dp7wxdkilwqv3" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/counter_attack_effect.gd" id="6_mv1jx"]
 
 [sub_resource type="Resource" id="Resource_fxv3j"]
-script = ExtResource("5_yipja")
+script = ExtResource("5_3fksc")
 metadata/_custom_type_script = "uid://bujuuja36wteo"
 
 [sub_resource type="Resource" id="Resource_a3xbg"]
-script = ExtResource("6_fm2aa")
-conditions = Array[ExtResource("4_5b4ya")]([SubResource("Resource_fxv3j")])
+script = ExtResource("6_mv1jx")
+conditions = Array[ExtResource("4_chx1p")]([SubResource("Resource_fxv3j")])
 metadata/_custom_type_script = "uid://dp7wxdkilwqv3"
 
 [resource]
-script = ExtResource("3_ay48w")
+script = ExtResource("3_assuu")
 status_id = &"counter_attack"
 status_name = "反击"
 is_hidden_from_ui = true
@@ -25,6 +25,6 @@ status_type = 0
 duration_type = 1
 stack_behavior = 0
 trigger_on_events = Array[StringName]([&"on_damage_taken_completed"])
-trigger_effects = Array[ExtResource("2_scmhk")]([SubResource("Resource_a3xbg")])
+trigger_effects = Array[ExtResource("2_v38vw")]([SubResource("Resource_a3xbg")])
 trigger_turns = 3
 metadata/_custom_type_script = "uid://2eyouurk7vcw"

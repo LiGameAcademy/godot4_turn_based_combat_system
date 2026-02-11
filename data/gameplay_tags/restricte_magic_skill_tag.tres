@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://bgry2nao0qt5q"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_ng821"]
+
+[resource]
+script = ExtResource("1_ng821")
+id = &"restricted_action.magic_skill"
+display_name = "限制技能"
+description = "无法释放技能"
+parent_tag_id = &"restricted_action"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

@@ -1,25 +1,25 @@
 [gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://dblm23dkh168w"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_j2kup"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_isq25"]
-[ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_3heod"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_jdxga"]
-[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="5_6cs5p"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_m8qtk"]
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_vqjbt"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_egwi1"]
+[ext_resource type="Texture2D" uid="uid://ycs81ggtbvs8" path="res://assets/textures/icons/status/ignite.svg" id="3_f2jbu"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_2t6pq"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="5_2b38i"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="6_05xpp"]
 
 [sub_resource type="Resource" id="Resource_obah3"]
-script = ExtResource("5_6cs5p")
+script = ExtResource("5_2b38i")
 damage_amount = 1
 metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
 
 [resource]
-script = ExtResource("6_m8qtk")
+script = ExtResource("6_05xpp")
 status_id = &"ignite"
 status_name = "点燃"
 description = "每回合受到火焰伤害。"
-icon = ExtResource("3_3heod")
+icon = ExtResource("3_f2jbu")
 status_type = 1
 stack_behavior = 2
-ongoing_effects = Array[ExtResource("2_isq25")]([SubResource("Resource_obah3")])
+ongoing_effects = Array[ExtResource("2_egwi1")]([SubResource("Resource_obah3")])
 trigger_turns = 1
 trigger_count = 1

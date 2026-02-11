@@ -1,30 +1,22 @@
-[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://cvv7h38psqegp"]
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://cvv7h38psqegp"]
 
-[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_5ird7"]
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_8k8um"]
-[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="3_c4mai"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="4_i3xru"]
-[ext_resource type="Script" uid="uid://bujuuja36wteo" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/probability_condition.gd" id="5_f5o8y"]
-[ext_resource type="Script" uid="uid://dp7wxdkilwqv3" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/counter_attack_effect.gd" id="6_rg17f"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_5ft7y"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="2_0xui4"]
+[ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="3_0xui4"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="3_6s1bm"]
 
-[sub_resource type="Resource" id="Resource_fxv3j"]
-script = ExtResource("5_f5o8y")
-metadata/_custom_type_script = "uid://bujuuja36wteo"
-
-[sub_resource type="Resource" id="Resource_a3xbg"]
-script = ExtResource("6_rg17f")
-conditions = Array[ExtResource("4_i3xru")]([SubResource("Resource_fxv3j")])
-metadata/_custom_type_script = "uid://dp7wxdkilwqv3"
+[sub_resource type="Resource" id="Resource_6s1bm"]
+script = ExtResource("3_0xui4")
+trigger_on_events = Array[StringName]([&"on_damage_taken_completed"])
+event_triggered_effects = Array[ExtResource("1_5ft7y")]([null])
+feature_name = "反击特性"
+metadata/_custom_type_script = "uid://cx8rx62srat4v"
 
 [resource]
-script = ExtResource("3_c4mai")
+script = ExtResource("3_6s1bm")
 status_id = &"counter_attack"
-status_name = "反击"
-is_hidden_from_ui = true
-status_type = 0
-duration_type = 1
-stack_behavior = 0
-trigger_on_events = Array[StringName]([&"on_damage_taken_completed"])
-trigger_effects = Array[ExtResource("2_8k8um")]([SubResource("Resource_a3xbg")])
-trigger_turns = 3
+status_display_name = "反击"
+status_description = "收到伤害时，有一定的几率对攻击者释放普通攻击"
+tags = Array[StringName]([&"status.buff", &"is_hidden_form_ui"])
+features = Array[ExtResource("2_0xui4")]([SubResource("Resource_6s1bm")])
 metadata/_custom_type_script = "uid://2eyouurk7vcw"

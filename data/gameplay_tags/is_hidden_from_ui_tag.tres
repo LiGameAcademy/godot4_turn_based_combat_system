@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://bhil1vooku0ti"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_apm48"]
+
+[resource]
+script = ExtResource("1_apm48")
+id = &"is_hidden_form_ui"
+display_name = "隐藏UI"
+description = "在UI面板中隐藏"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

@@ -40,8 +40,16 @@ func restore_hp(amount: float) -> float:
 ## 消耗mp
 func consume_mp(amount: float) -> bool:
 	return false
+	
 ## 恢复mp
 func restore_mp(amount: float) -> float:
+	return 0.0
+	
+## 获取当前mp
+func get_current_mp() -> float:
+	return 0.0
+## 获取当前hp
+func get_current_hp() -> float:
 	return 0.0
 #endregion
 
@@ -76,6 +84,15 @@ func is_skill_melee(skill_id: StringName) -> bool:
 ## 获取技能的MP消耗
 func get_skill_mp_cost(skill_id: StringName) -> int:
 	return 0
+## 获取技能目标
+func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
+	return []
+## 获取技能显示名称
+func get_skill_display_name(skill_id: StringName) -> String:
+	return ""
+## 获取技能描述
+func get_skill_description(skill_id: StringName) -> String:
+	return ""
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
 	return {}

@@ -40,6 +40,10 @@ signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result
 @abstract func consume_mp(amount: float) -> bool
 ## 恢复mp
 @abstract func restore_mp(amount: float) -> float
+## 获取当前mp
+@abstract func get_current_mp() -> float
+## 获取当前hp
+@abstract func get_current_hp() -> float
 #endregion
 
 #region --- 技能管理 ---
@@ -61,10 +65,16 @@ signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result
 @abstract func get_available_skills() -> Array[StringName]
 ## 检查技能是否为近战技能
 @abstract func is_skill_melee(skill_id: StringName) -> bool
+## 获取技能显示名称
+@abstract func get_skill_display_name(skill_id: StringName) -> String
+## 获取技能描述
+@abstract func get_skill_description(skill_id: StringName) -> String
 ## 获取技能的MP消耗
 @abstract func get_skill_mp_cost(skill_id: StringName) -> int
 ## 执行技能
 @abstract func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary
+## 获取技能目标
+@abstract func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]
 #endregion
 
 #region --- 状态管理 ---
