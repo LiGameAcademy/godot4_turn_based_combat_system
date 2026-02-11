@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://bj0cy2ylq5eft"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_fa8c2"]
+
+[resource]
+script = ExtResource("1_fa8c2")
+id = &"ability.magic_skill"
+display_name = "魔法技能"
+description = ""
+parent_tag_id = &"ability"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

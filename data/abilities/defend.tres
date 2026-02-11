@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://d01rs3dorg0hc"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_7itaw"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_tixs4"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="3_fjxrs"]
+[ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://addons/turn_based_combat_system/examples/data/skill_status/defend.tres" id="4_ac8b0"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="5_ag22m"]
+
+[sub_resource type="Resource" id="Resource_3uyfq"]
+script = ExtResource("3_fjxrs")
+status_to_apply = ExtResource("4_ac8b0")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("5_ag22m")
+skill_id = &"defend"
+skill_name = "防御"
+description = ""
+is_melee = false
+mp_cost = 0
+target_type = 5
+effects = Array[ExtResource("1_7itaw")]([SubResource("Resource_3uyfq")])
+cast_animation = &"defend"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

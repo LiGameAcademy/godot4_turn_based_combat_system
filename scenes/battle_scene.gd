@@ -12,7 +12,7 @@ class_name BattleScene
 
 var current_action : CharacterCombatComponent.ActionType
 ## 当前选中技能
-var current_selected_skill : SkillData
+var current_selected_skill_id : StringName = ""
 
 func _ready() -> void:
 	# 连接战斗管理器信号
@@ -152,7 +152,11 @@ func _on_action_defend_pressed() -> void:
 	
 	current_action = CharacterCombatComponent.ActionType.DEFEND
 	var character = battle_manager.current_turn_character
-	if character.combat_component.need_target_for_action(current_action):
+	var combat_component : CharacterCombatComponent = character.get_combat_component() if character.has_method("get_combat_component") else null
+	if not is_instance_valid(combat_component):
+		return
+
+	if combat_component.need_target_for_action(current_action):
 		battle_ui.show_target_selection(battle_manager.get_valid_ally_targets(character, true))
 	else:
 		battle_manager.player_select_action(current_action)
@@ -172,27 +176,28 @@ func _on_action_item_pressed() -> void:
 	update_battle_info("物品功能尚未实现")
 
 ## 当玩家选择技能时调用
-func _on_skill_selected(skill: SkillData) -> void:
-	current_selected_skill = skill
-	var character = battle_manager.current_turn_character
-	if skill.needs_target():
-		var valid_targets : Array[Node] = []
-		if skill.is_enemy_target():
-			valid_targets = battle_manager.get_valid_enemy_targets(character)
-		elif skill.is_including_self():
-			valid_targets = battle_manager.get_valid_ally_targets(character, true)
-		else:
-			valid_targets = battle_manager.get_valid_ally_targets(character, false)
-		battle_ui.show_target_selection(valid_targets)
-	else:
+func _on_skill_selected(skill_id: StringName) -> void:
+	current_selected_skill_id = skill_id
+	var current_character : TBC_Character = battle_manager.current_turn_character
+	if not is_instance_valid(current_character):
+		return
+
+	var skill_component : SkillComponentInterface = current_character.get_skill_component() if current_character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		return
+
+	var skill_targets = skill_component.get_skill_targets(skill_id, {"battle_manager": battle_manager})
+	if skill_targets.is_empty():
 		# 自动目标技能，直接执行
-		var params = {"skill": skill, "targets": [], "skill_id": skill.skill_id}
+		var params = {"skill_id": skill_id}
 		battle_manager.player_select_action(CharacterCombatComponent.ActionType.SKILL, null, params)
+	else:
+		battle_ui.show_target_selection(skill_targets)
 
 ## 当玩家取消技能选择时调用
 func _on_skill_selection_cancelled() -> void:
 	# 重置当前选中的技能
-	current_selected_skill = null
+	current_selected_skill_id = ""
 	
 	# 返回到玩家行动选择状态
 	show_action_ui(battle_manager.is_player_turn)
@@ -201,21 +206,18 @@ func _on_skill_selection_cancelled() -> void:
 func _on_target_selected(target: TBC_Character) -> void:
 	var params : Dictionary = {}
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
-	if current_selected_skill != null:
+	if not current_selected_skill_id.is_empty():
 		# 确保有选中的技能
-		params = {
-			"skill": current_selected_skill, 
-			"skill_id": current_selected_skill.skill_id
-			}
+		params = {"skill_id": current_selected_skill_id}
 		
 	battle_manager.player_select_action(current_action, target, params)
 
 ## 当玩家取消目标选择时调用
 func _on_target_selection_cancelled() -> void:
 	# 返回技能选择菜单
-	if current_selected_skill:
+	if not current_selected_skill_id.is_empty():
 		battle_ui.show_skill_menu(battle_manager.current_turn_character)
-		current_selected_skill = null
+		current_selected_skill_id = ""
 	show_action_ui(battle_manager.is_player_turn)
 
 ## 当回合改变时调用

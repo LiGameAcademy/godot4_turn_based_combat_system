@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://848u2d2vfq6a"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_6y351"]
+
+[resource]
+script = ExtResource("1_6y351")
+id = &"ability.is_melee"
+display_name = "近战技能"
+description = "是近战技能"
+parent_tag_id = &"ability"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

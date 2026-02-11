@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ActiveAbilityDefinition" format=3 uid="uid://cfs7077g3sp5n"]
+
+[ext_resource type="Script" uid="uid://cmn60ti1qd07f" path="res://addons/godot_ability_system/scripts/abilities/costs/ability_cost_base.gd" id="1_llymd"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="2_2atn3"]
+[ext_resource type="Script" uid="uid://do7odahj41gwh" path="res://addons/godot_ability_system/scripts/damage/simple_damage_logic.gd" id="3_l2tri"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="4_3k71i"]
+[ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="5_2atn3"]
+[ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_uyo62"]
+[ext_resource type="Script" uid="uid://bi6pufwhna1aj" path="res://addons/godot_ability_system/scripts/abilities/definitions/active_ability_definition.gd" id="6_l2tri"]
+
+[sub_resource type="Resource" id="Resource_4smjh"]
+script = ExtResource("3_l2tri")
+metadata/_custom_type_script = "uid://do7odahj41gwh"
+
+[sub_resource type="Resource" id="Resource_ds2q2"]
+script = ExtResource("5_uyo62")
+damage_strategy = SubResource("Resource_4smjh")
+metadata/_custom_type_script = "uid://cra1yv70jj5sn"
+
+[resource]
+script = ExtResource("6_l2tri")
+animation_name = &"attack"
+pre_cast_delay = 0.2
+effects = Array[ExtResource("2_2atn3")]([SubResource("Resource_ds2q2")])
+ability_id = &"attack"
+ability_name = "普通攻击"
+description = "对目标释放普通攻击，造成100%的攻击伤害。"
+tags = Array[StringName]([&"ability.is_melee", &"ability.any_action"])
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

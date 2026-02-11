@@ -14,7 +14,7 @@ signal action_attack_pressed						## 攻击动作按下
 signal action_defend_pressed
 signal action_skill_pressed
 signal action_item_pressed
-signal skill_selected(skill: SkillData)
+signal skill_selected(skill_id: StringName)
 signal skill_selection_cancelled
 signal target_selected(target: Node)
 signal target_selection_cancelled
@@ -102,14 +102,20 @@ func show_action_menu(current_character: Node) -> void:
 func show_skill_menu(character: Node) -> bool:
 	hide_all_menus()
 	
-	if skill_select_menu and character:
-		if character and character.character_data:
-			var character_data: CharacterData = character.character_data
-			var skills: Array[SkillData] = character_data.skills
-			skill_select_menu.show_menu(skills, character.current_mp)
-			return true
+	if not is_instance_valid(character):
+		return false
 	
-	return false
+	if not is_instance_valid(skill_select_menu):
+		return false
+	
+	var skill_component : SkillComponentInterface = character.get_skill_component() if character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		return false
+	
+	var skills: Dictionary[StringName, Resource] = skill_component.get_skills()
+
+	skill_select_menu.show_menu(skills, skill_component)
+	return true
 
 ## 显示目标选择菜单
 func show_target_selection(targets: Array[Node]) -> bool:
