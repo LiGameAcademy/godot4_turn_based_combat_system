@@ -5,12 +5,8 @@
 [ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="3_7glp5"]
 [ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="3_uvcse"]
 [ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="4_src1a"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="7_qbywg"]
 [ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="13_miwnf"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="15_p1ce1"]
-[ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://addons/turn_based_combat_system/examples/data/skills/fireball.tres" id="16_b6gv1"]
-[ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://addons/turn_based_combat_system/examples/data/skills/minor_heal.tres" id="17_aufsq"]
-[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://addons/turn_based_combat_system/examples/data/skills/silence.tres" id="18_gj3bh"]
-[ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://addons/turn_based_combat_system/examples/data/skills/stun.tres" id="19_dw4y0"]
 
 [sub_resource type="Resource" id="Resource_uhyyp"]
 script = ExtResource("2_hosdr")
@@ -64,6 +60,5 @@ character_name = "勇者"
 description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
 attribute_set_resource = SubResource("Resource_qj5oa")
 element = 2
-skills = Array[ExtResource("15_p1ce1")]([ExtResource("16_b6gv1"), ExtResource("17_aufsq"), ExtResource("18_gj3bh"), ExtResource("19_dw4y0")])
 animation_library = ExtResource("1_ujsad")
 icon = ExtResource("13_miwnf")

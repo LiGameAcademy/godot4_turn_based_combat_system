@@ -4,4 +4,7 @@
 
 [resource]
 script = ExtResource("1_pnv15")
+id = &"status"
+display_name = "状态"
+description = ""
 metadata/_custom_type_script = "uid://0287xxc5l2rf"

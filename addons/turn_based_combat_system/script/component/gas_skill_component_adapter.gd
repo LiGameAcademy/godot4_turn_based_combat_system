@@ -78,18 +78,26 @@ func has_skill(skill_id: StringName) -> bool:
 ## 获取可用技能列表
 func get_available_skills() -> Array[StringName]:
 	return []
+
 ## 检查技能是否为近战技能
 func is_skill_melee(skill_id: StringName) -> bool:
 	return false
+
 ## 获取技能的MP消耗
 func get_skill_mp_cost(skill_id: StringName) -> int:
 	return 0
+
 ## 获取技能目标
 func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
-	return []
+	var ability_instance := ability_component.request_ability_preview(skill_id)
+	var targeting_context : Dictionary = ability_component.confirm_targeting()
+	var targets : Array[Node] = targeting_context.get("targets", [])
+	return targets
+
 ## 获取技能显示名称
 func get_skill_display_name(skill_id: StringName) -> String:
 	return ""
+	
 ## 获取技能描述
 func get_skill_description(skill_id: StringName) -> String:
 	return ""

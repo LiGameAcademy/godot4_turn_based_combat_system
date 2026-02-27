@@ -13,8 +13,8 @@ var description: String = "一个勇敢的战士"		  							## 描述
 
 @export_group("技能列表")
 @export var skills: Array[SkillData] = [] # 存储角色拥有的技能
-@export var attack_skill : SkillData = preload("res://data/skills/attack.tres")
-@export var defense_skill : SkillData = preload("res://data/skills/defend.tres")
+@export var attack_skill : SkillData = preload("uid://kacsn8v7n6by")
+@export var defense_skill : SkillData = preload("uid://rxkf72h6p0s2")
 
 @export_group("视觉表现")
 @export var animation_library : AnimationLibrary			## 角色动画库

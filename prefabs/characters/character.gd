@@ -4,7 +4,12 @@ extends Node2D
 @onready var character_ai_component: CharacterAIComponent = %CharacterAIComponent
 @onready var gas_skill_component_adapter: GAS_SkillComponentAdapter = $GAS_SkillComponentAdapter
 
-func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
+var _character_data : CharacterData
+
+func setup(character_data : CharacterData) -> void:
+	_character_data = character_data
+
+func initialize(_battle_manager: BattleManager, _p_cast_marker: Marker2D) -> void:
 	pass
 
 func get_combat_component() -> CharacterCombatComponent:
@@ -20,7 +25,7 @@ func get_character_name() -> String:
 	return ""
 
 func get_icon() -> Texture2D:
-	return null
+	return _character_data.icon
 
 func play_animation() -> void:
 	pass

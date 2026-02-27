@@ -4,7 +4,8 @@
 
 [resource]
 script = ExtResource("1_y211d")
-id = &"status"
-display_name = "状态"
-description = "这是一个状态"
+id = &"status.buff"
+display_name = "增益"
+description = "这是一个增益状态"
+parent_tag_id = &"status"
 metadata/_custom_type_script = "uid://0287xxc5l2rf"

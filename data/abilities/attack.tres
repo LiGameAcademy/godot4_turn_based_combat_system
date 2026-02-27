@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="5_2atn3"]
 [ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_uyo62"]
 [ext_resource type="Script" uid="uid://bi6pufwhna1aj" path="res://addons/godot_ability_system/scripts/abilities/definitions/active_ability_definition.gd" id="6_l2tri"]
+[ext_resource type="Script" uid="uid://otm4g4bqm3se" path="res://scripts/definitions/turn_based_unit_selection_preview_strategy.gd" id="7_l2tri"]
 
 [sub_resource type="Resource" id="Resource_4smjh"]
 script = ExtResource("3_l2tri")
@@ -17,6 +18,10 @@ script = ExtResource("5_uyo62")
 damage_strategy = SubResource("Resource_4smjh")
 metadata/_custom_type_script = "uid://cra1yv70jj5sn"
 
+[sub_resource type="Resource" id="Resource_3k71i"]
+script = ExtResource("7_l2tri")
+metadata/_custom_type_script = "uid://otm4g4bqm3se"
+
 [resource]
 script = ExtResource("6_l2tri")
 animation_name = &"attack"
@@ -26,4 +31,5 @@ ability_id = &"attack"
 ability_name = "普通攻击"
 description = "对目标释放普通攻击，造成100%的攻击伤害。"
 tags = Array[StringName]([&"ability.is_melee", &"ability.any_action"])
+preview_strategy = SubResource("Resource_3k71i")
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"
