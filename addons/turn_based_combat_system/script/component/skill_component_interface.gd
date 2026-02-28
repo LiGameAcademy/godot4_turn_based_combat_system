@@ -6,13 +6,13 @@ class_name SkillComponentInterface
 
 signal status_applied(status_instance: Resource)																	## 当状态效果被应用到角色身上时发出
 signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						    ## 当状态效果从角色身上移除时发出
-signal status_updated(status_instance: Resource, old_stacks: int, old_duration: int)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
+signal status_updated(status_id: StringName)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
 signal attribute_base_value_changed(attribute_id: StringName, old_value: float, new_value: float)				    ## 属性基础值改变
 signal attribute_current_value_changed(attribute_id: StringName, old_value: float, new_value: float)			    ## 属性当前值改变
 signal action_tags_changed(restricted_tags: Array[String])														    ## 角色限制动作标签改变																	## 当角色被限制执行某个动作类型时发出
-signal skill_execution_started(skill_data: Resource, targets: Array[Node], skill_context: Dictionary)				## 当技能执行开始时发出
-signal skill_execution_completed(skill_data: Resource, targets: Array[Node], result: Dictionary)					## 当技能执行完成时发出
-signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result: Dictionary)						## 当技能执行失败时发出
+signal skill_execution_started(skill_data: Resource, skill_context: Dictionary)				## 当技能执行开始时发出
+signal skill_execution_completed(skill_data: Resource, result: Dictionary)					## 当技能执行完成时发出
+signal skill_execution_failed(skill_data: Resource, result: Dictionary)						## 当技能执行失败时发出
 
 #region --- 属性管理 ---
 
@@ -23,15 +23,13 @@ signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result
 ## 设置属性基础值
 @abstract func set_attribute_base_value(attribute_id: StringName, value: float) -> void
 ## 添加属性修改器
-@abstract func add_attribute_modifier(attribute_id: StringName, modifier: SkillAttributeModifier) -> void
+@abstract func add_attribute_modifier(attribute_id: StringName, magnitude: float, operation: int, source_id: StringName) -> void
 ## 移除属性修改器
-@abstract func remove_attribute_modifier(attribute_id: StringName, modifier: SkillAttributeModifier) -> void
+@abstract func remove_attribute_modifier(attribute_id: StringName, modifier: Resource) -> void
 ## 获取属性修改器
-@abstract func get_attribute_modifiers(attribute_id: StringName) -> Array[SkillAttributeModifier]
-## 获取属性实例
-@abstract func get_attribute(attribute_id: StringName) -> SkillAttribute
-## 获取属性集
-@abstract func get_attribute_set() -> SkillAttributeSet
+@abstract func get_attribute_modifiers(attribute_id: StringName) -> Array[Resource]
+## 获取属性配置
+@abstract func get_attribute(attribute_id: StringName) -> Resource
 ## 消耗hp
 @abstract func consume_hp(amount: float) -> bool
 ## 恢复hp
@@ -44,6 +42,8 @@ signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result
 @abstract func get_current_mp() -> float
 ## 获取当前hp
 @abstract func get_current_hp() -> float
+## 获取属性名称
+@abstract func get_attribute_name(attribute_id: StringName) -> StringName
 #endregion
 
 #region --- 技能管理 ---
@@ -98,6 +98,8 @@ signal skill_execution_failed(skill_data: Resource, targets: Array[Node], result
 @abstract func get_triggerable_status(event_type: StringName) -> Array[Resource]
 ## 更新状态触发次数
 @abstract func update_status_trigger_counts(status: Resource) -> void
+
+@abstract func status_is_hidden_from_ui(status_id : StringName) -> bool
 #endregion
 
 #region --- 标签管理 ---

@@ -488,6 +488,7 @@ hframes = 6
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1648226994]
 unique_name_in_owner = true
 libraries/ = SubResource("AnimationLibrary_c1l18")
+autoplay = &"idle"
 
 [node name="CharacterClickArea" type="Area2D" parent="." unique_id=879348612]
 unique_name_in_owner = true

@@ -4,7 +4,8 @@ class_name CharacterData
 @export var character_name: String = "英雄"								## 角色名称
 @export_multiline 
 var description: String = "一个勇敢的战士"		  							## 描述
-@export var attribute_set_resource: GameplayAttributeSet = null			## 属性模版
+@export var attribute_sets: Array[GameplayAttributeSet] = []			## 属性模版
+@export var vitals: Array[GameplayVital] = []							## 生命值\魔法值
 
 ## 元素属性 0: 无 1: 火 2: 水 3: 土 4: 光
 @export_enum("none", "fire", "water", "earth", "light") var element: int = 0 # ElementTypes.Element.NONE
@@ -12,7 +13,7 @@ var description: String = "一个勇敢的战士"		  							## 描述
 @export var ai_behavior: AIBehavior = AIBehavior.new()
 
 @export_group("技能列表")
-@export var skills: Array[GameplayAbilityDefinition] = [] # 存储角色拥有的技能
+@export var initial_skills: Array[GameplayAbilityDefinition] = [] # 存储角色拥有的技能
 @export var attack_skill : GameplayAbilityDefinition
 @export var defense_skill : GameplayAbilityDefinition
 
@@ -23,13 +24,13 @@ var description: String = "一个勇敢的战士"		  							## 描述
 
 # 辅助函数
 func get_skill_by_id(id: StringName) -> GameplayAbilityDefinition:
-	for skill in skills:
+	for skill in initial_skills:
 		if skill and skill.skill_id == id:
 			return skill
 	return null
 
 func get_skill_by_name(name: String) -> GameplayAbilityDefinition:
-	for skill in skills:
+	for skill in initial_skills:
 		if skill and skill.skill_name == name:
 			return skill
 	return null

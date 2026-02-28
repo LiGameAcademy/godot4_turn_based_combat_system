@@ -14,7 +14,7 @@ const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://ui/damage_number.tscn")
 @onready var animation_player : AnimationPlayer = %AnimationPlayer
 @onready var character_click_area: Area2D = %CharacterClickArea
 
-@export var character_data: CharacterData
+@export var _character_data: CharacterData
 @export var is_player : bool = true
 ## 目标偏移量
 @export var target_move_offset : Vector2 = Vector2(80, 0)
@@ -42,7 +42,7 @@ var speed: float:
 	get: return skill_component.get_attribute_current_value(&"Speed") if skill_component else 0.0
 	set(value): assert(false, "cannot set speed")
 var character_name : StringName:
-	get: return character_data.character_name if character_data else "" 
+	get: return _character_data.character_name if _character_data else "" 
 	set(value): assert(false, "cannot set character_name")
 #endregion
 
@@ -60,7 +60,7 @@ signal character_clicked(character)
 func _ready() -> void:
 	if state_indicator:
 		state_indicator.hide()
-	sprite_2d.position += character_data.sprite_offset
+	sprite_2d.position += _character_data.sprite_offset
 	if not is_player:
 		sprite_2d.flip_h = true
 
@@ -93,12 +93,12 @@ func get_character_name() -> StringName:
 
 ## 获取角色图标
 func get_icon() -> Texture2D:
-	return character_data.icon
+	return _character_data.icon
 
 ## 初始化角色
 func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
-	if is_instance_valid(character_data):
-		_initialize_from_data(character_data)
+	if is_instance_valid(_character_data):
+		_initialize_from_data(_character_data)
 	else:
 		push_error("角色场景 " + name + " 没有分配CharacterData!")
 	# 初始化组件
@@ -110,7 +110,7 @@ func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
 
 	cast_marker = p_cast_marker
 
-	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
+	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [_character_data.character_name, current_hp, max_hp, attack_power])
 	# print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
 
 ## 生成伤害数字
@@ -175,27 +175,27 @@ func _init_components(battle_manager: BattleManager) -> void:
 		push_error("技能组件未初始化！")
 		return
 	
-	combat_component.initialize(character_data.element, character_data.attack_skill.skill_id, character_data.defense_skill.skill_id)
+	combat_component.initialize(_character_data.element, _character_data.attack_skill.skill_id, _character_data.defense_skill.skill_id)
 	if not skill_component is CharacterSkillComponent:
 		push_error("技能组件不是CharacterSkillComponent类型！")
 		return
-	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
-	skill_component.add_skill(character_data.attack_skill.skill_id, character_data.attack_skill)
-	skill_component.add_skill(character_data.defense_skill.skill_id, character_data.defense_skill)
+	skill_component.initialize(_character_data.attribute_set_resource, _character_data.skills.duplicate(true))
+	skill_component.add_skill(_character_data.attack_skill.skill_id, _character_data.attack_skill)
+	skill_component.add_skill(_character_data.defense_skill.skill_id, _character_data.defense_skill)
 
 	ai_component.initialize(battle_manager)
 
 ## 初始化玩家数据
 func _initialize_from_data(data: CharacterData) -> void:
 	# 保存数据引用
-	character_data = data
+	_character_data = data
 	ai_component.behavior_resource = data.ai_behavior
 
 ## 设置角色动画
 func _setup_animations() -> void:
 	if animation_player:
 		animation_player.remove_animation_library(&"")
-		animation_player.add_animation_library(&"", character_data.animation_library)
+		animation_player.add_animation_library(&"", _character_data.animation_library)
 		animation_player.play(&"idle")
 	else:
 		push_error("找不到AnimationPlayer组件，无法设置动画")

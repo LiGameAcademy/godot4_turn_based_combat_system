@@ -2,75 +2,60 @@
 
 [ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_iru3i"]
 [ext_resource type="AnimationLibrary" uid="uid://cd0oe24x0pr5f" path="res://assets/animations/hero/animation_library_crystal_mauler.res" id="2_di2nr"]
+[ext_resource type="Resource" uid="uid://cfs7077g3sp5n" path="res://data/abilities/attack.tres" id="3_2uhlt"]
 [ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_nvepy"]
 [ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="4_a2gqg"]
 [ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_wd1mc"]
 [ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_esmhd"]
+[ext_resource type="Resource" uid="uid://dk8d0hssklu64" path="res://data/attributes/max_mana.tres" id="5_iru3i"]
+[ext_resource type="Resource" uid="uid://dqyyxtke705u3" path="res://data/attributes/max_health.tres" id="6_di2nr"]
+[ext_resource type="Resource" uid="uid://dt4ifdui4apo5" path="res://data/attributes/speed.tres" id="7_2uhlt"]
+[ext_resource type="Resource" uid="uid://bunxmfu1ul8b2" path="res://data/attributes/attack_power.tres" id="8_a7e6l"]
+[ext_resource type="Resource" uid="uid://cbsfg0mrcborh" path="res://data/attributes/defense_power.tres" id="9_7ay11"]
 [ext_resource type="Texture2D" uid="uid://cdnxl7jbpxxru" path="res://assets/textures/icons/crystal_mauler.tres" id="9_hhkbs"]
-[ext_resource type="Resource" uid="uid://c8jqv6rcatce" path="res://addons/turn_based_combat_system/examples/data/skills/runic_ward.tres" id="9_nvepy"]
-[ext_resource type="Resource" uid="uid://dbk0upttih0yp" path="res://addons/turn_based_combat_system/examples/data/skills/shattering_maul.tres" id="10_wd1mc"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="11_87nsq"]
-[ext_resource type="Resource" uid="uid://df2dj86tvvbqx" path="res://addons/turn_based_combat_system/examples/data/skills/stoneskin_blessing.tres" id="11_esmhd"]
-[ext_resource type="Resource" uid="uid://i1aj8k56wevm" path="res://addons/turn_based_combat_system/examples/data/skills/counter_attack.tres" id="12_iru3i"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="12_hyxir"]
+[ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="14_wlqv1"]
+[ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="16_a7e6l"]
+[ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="17_7ay11"]
 
 [sub_resource type="Resource" id="Resource_ltof3"]
 script = ExtResource("1_iru3i")
 metadata/_custom_type_script = "uid://c1h2m46l2lj50"
 
-[sub_resource type="Resource" id="Resource_iru3i"]
-script = ExtResource("3_nvepy")
-attribute_id = &"max_mana"
-attribute_display_name = "魔法值"
-attribute_description = "魔法值上限"
-metadata/_custom_type_script = "uid://dj0iwc88r8noi"
-
-[sub_resource type="Resource" id="Resource_di2nr"]
-script = ExtResource("3_nvepy")
-attribute_id = &"max_health"
-attribute_display_name = "生命值"
-attribute_description = "生命值上限"
-metadata/_custom_type_script = "uid://dj0iwc88r8noi"
-
-[sub_resource type="Resource" id="Resource_2uhlt"]
-script = ExtResource("3_nvepy")
-attribute_id = &"speed"
-attribute_display_name = "速度"
-attribute_description = "速度决定了单位的出手顺序。"
-metadata/_custom_type_script = "uid://dj0iwc88r8noi"
-
-[sub_resource type="Resource" id="Resource_a7e6l"]
-script = ExtResource("3_nvepy")
-attribute_id = &"attack_power"
-attribute_display_name = "攻击力"
-attribute_description = "攻击力的描述"
-metadata/_custom_type_script = "uid://dj0iwc88r8noi"
-
-[sub_resource type="Resource" id="Resource_7ay11"]
-script = ExtResource("3_nvepy")
-attribute_id = &"defense_power"
-attribute_display_name = "防御力"
-attribute_description = "防御力的描述"
-metadata/_custom_type_script = "uid://dj0iwc88r8noi"
-
-[sub_resource type="Resource" id="Resource_hyxir"]
+[sub_resource type="Resource" id="Resource_l1jj2"]
 script = ExtResource("5_esmhd")
 attributes = Dictionary[ExtResource("3_nvepy"), float]({
-SubResource("Resource_iru3i"): 90.0,
-SubResource("Resource_di2nr"): 220.0,
-SubResource("Resource_2uhlt"): 6.0,
-SubResource("Resource_a7e6l"): 18.0,
-SubResource("Resource_7ay11"): 30.0
+ExtResource("5_iru3i"): 50.0,
+ExtResource("6_di2nr"): 150.0,
+ExtResource("7_2uhlt"): 7.0,
+ExtResource("8_a7e6l"): 15.0,
+ExtResource("9_7ay11"): 10.0
 })
 metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[sub_resource type="Resource" id="Resource_hejwr"]
+script = ExtResource("16_a7e6l")
+vital_id = &"health"
+display_name = "生命值"
+max_value_attribute = &"max_health"
+metadata/_custom_type_script = "uid://b6k2lmhsmbn2c"
+
+[sub_resource type="Resource" id="Resource_dxjiq"]
+script = ExtResource("17_7ay11")
+vital_id = &"mana"
+display_name = "魔法值"
+max_value_attribute = &"max_mana"
+metadata/_custom_type_script = "uid://diwvpcc0axlat"
 
 [resource]
 script = ExtResource("4_a2gqg")
 character_name = "格罗姆尼尔"
 description = "来自地底深城的坚毅矮人，他的战锤能粉碎岩石，他的意志如水晶般坚不可摧。作为团队的先锋，他总是站在最前线，为同伴筑起一道可靠的屏障。"
-attribute_set_resource = SubResource("Resource_hyxir")
+attribute_sets = Array[ExtResource("5_esmhd")]([SubResource("Resource_l1jj2")])
+vitals = Array[ExtResource("14_wlqv1")]([SubResource("Resource_hejwr"), SubResource("Resource_dxjiq")])
 element = 3
 ai_behavior = SubResource("Resource_ltof3")
-skills = Array[ExtResource("11_87nsq")]([ExtResource("9_nvepy"), ExtResource("10_wd1mc"), ExtResource("11_esmhd"), ExtResource("12_iru3i")])
+attack_skill = ExtResource("3_2uhlt")
 animation_library = ExtResource("2_di2nr")
 icon = ExtResource("9_hhkbs")
 metadata/_custom_type_script = "uid://bdekeym7nn8i2"

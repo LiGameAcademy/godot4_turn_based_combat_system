@@ -63,24 +63,26 @@ func set_attribute_base_value(attribute_name: StringName, value: float) -> void:
 	_active_attribute_set.set_base_value(attribute_name, value)
 
 ## 添加属性修改器
-func add_attribute_modifier(attribute_name: StringName, modifier: SkillAttributeModifier) -> void:
-	_active_attribute_set.add_attribute_modifier(attribute_name, modifier)
+func add_attribute_modifier(attribute_name: StringName, magnitude: float, operation: int, source_id: StringName) -> void:
+	var mod : SkillAttributeModifier = SkillAttributeModifier.new(
+		attribute_name,
+		magnitude,
+		operation,
+		int(source_id)
+	)
+	_active_attribute_set.apply_modifier(mod)
 
 ## 移除属性修改器
-func remove_attribute_modifier(attribute_name: StringName, modifier: SkillAttributeModifier) -> void:
-	_active_attribute_set.remove_attribute_modifier(attribute_name, modifier)
+func remove_attribute_modifier(_attribute_name: StringName, modifier: Resource) -> void:
+	_active_attribute_set.remove_modifier(modifier as SkillAttributeModifier)
 
 ## 获取属性修改器
-func get_attribute_modifiers(attribute_name: StringName) -> Array[SkillAttributeModifier]:
-	return _active_attribute_set.get_attribute_modifiers(attribute_name)
+func get_attribute_modifiers(attribute_name: StringName) -> Array[Resource]:
+	return _active_attribute_set.get_modifiers(attribute_name)
 
 ## 获取属性实例
-func get_attribute(attribute_name: StringName) -> SkillAttribute:
+func get_attribute(attribute_name: StringName) -> Resource:
 	return _active_attribute_set.get_attribute(attribute_name)
-
-## 获取AttributeSet
-func get_attribute_set() -> SkillAttributeSet:
-	return _active_attribute_set
 
 ## 消耗MP
 func consume_mp(amount: float) -> bool:
@@ -112,6 +114,9 @@ func get_current_mp() -> float:
 ## 获取当前hp
 func get_current_hp() -> float:
 	return _active_attribute_set.get_current_value(&"CurrentHealth")
+
+func get_attribute_name(attribute_id: StringName) -> StringName:
+	return _active_attribute_set.get_attribute(attribute_id).display_name
 #endregion
 
 #region --- 技能管理 ---
@@ -262,7 +267,7 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 			_on_skill_execution_failed(get_skill(skill_id), actual_targets, {"error": "技能施法条件不满足"})
 		return {"error": "技能施法条件不满足"}
 
-	skill_execution_started.emit(skill, actual_targets, skill_execution_context)
+	skill_execution_started.emit(skill, skill_execution_context)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_started", 
 		get_parent(), 
@@ -284,7 +289,7 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	await get_tree().create_timer(skill.post_cast_delay).timeout
 	
 	# 5. 发出技能执行完成信号
-	skill_execution_completed.emit(skill, actual_targets, skill_execution_result)
+	skill_execution_completed.emit(skill, skill_execution_result)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_completed", get_parent(), EventSkillExecutionCompletedContext.new(get_parent(), skill, actual_targets, skill_execution_result)
 	)
@@ -460,6 +465,11 @@ func get_triggerable_status(event_type: StringName) -> Array[Resource]:
 
 	return triggerable_statuses
 
+func status_is_hidden_from_ui(status_id : StringName) -> bool:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return false
+	return status.is_hidden_from_ui
 #endregion
 
 #region --- 标签管理 ---
@@ -600,7 +610,7 @@ func _update_existing_status(
 	
 	# 如果状态有变化，发出信号
 	if old_stacks != runtime_status_instance.stacks or old_duration != runtime_status_instance.remaining_duration:
-		status_updated.emit(runtime_status_instance, old_stacks, old_duration)
+		status_updated.emit(runtime_status_instance.status_id)
 		TBCombatSystem.trigger_game_event(
 			"on_status_updated", get_parent(), EventStatusUpdatedContext.new(get_parent(), status_id, runtime_status_instance, old_stacks, old_duration)
 			)
@@ -836,7 +846,7 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 		update_status_trigger_counts(status)
 	
 func _on_skill_execution_failed(skill: SkillData, actual_targets: Array[Node], result: Dictionary) -> void:
-	skill_execution_failed.emit(skill, actual_targets, result)
+	skill_execution_failed.emit(skill, result)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_failed", get_parent(), EventSkillExecutionFailedContext.new(get_parent(), skill, actual_targets, result)
 	)

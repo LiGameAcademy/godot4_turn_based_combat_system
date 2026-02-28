@@ -12,7 +12,7 @@ class_name CharacterDetailPanel
 @onready var other_attributes_grid: GridContainer = %OtherAttributesGrid
 
 # 当前显示的角色引用
-var _character: TBC_Character = null
+var _character: Node = null
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
@@ -46,8 +46,8 @@ func _ready() -> void:
 	_clear_status_container()
 
 ## 显示指定角色的详细信息
-func show_character_details(character: TBC_Character) -> void:
-	if not character:
+func show_character_details(character: Node) -> void:
+	if not is_instance_valid(character):
 		push_error("CharacterDetailPanel: 无法显示角色详情，角色为空")
 		return
 	
@@ -169,8 +169,8 @@ func _update_health_bar() -> void:
 		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
 		return
 	
-	var current_health : float = skill_component.get_attribute_current_value("CurrentHealth")
-	var max_health : float = skill_component.get_attribute_base_value("MaxHealth")
+	var current_health : float = skill_component.get_current_hp()
+	var max_health : float = skill_component.get_attribute_base_value("max_health")
 	health_bar.update_display(current_health, max_health)
 
 func _update_mana_bar() -> void:
@@ -183,8 +183,8 @@ func _update_mana_bar() -> void:
 		push_error("CharacterDetailPanel: 角色没有get_skill_component方法")
 		return
 	
-	var current_mana : float = skill_component.get_attribute_current_value("CurrentMana")
-	var max_mana : float = skill_component.get_attribute_base_value("MaxMana")
+	var current_mana : float = skill_component.get_current_mp()
+	var max_mana : float = skill_component.get_attribute_base_value("max_mana")
 	mana_bar.update_display(current_mana, max_mana)
 
 ## 添加技能按钮
@@ -234,7 +234,7 @@ func _update_attribute_display(attribute_id: StringName, attribute_label: Attrib
 		return
 	
 	var attribute_value : float = skill_component.get_attribute_current_value(attribute_id)
-	var attribute_name : StringName = skill_component.get_attribute(attribute_id).display_name
+	var attribute_name : StringName = skill_component.get_attribute_name(attribute_id)
 	attribute_label.update_display(attribute_name, attribute_value)
 
 ## 添加状态图标

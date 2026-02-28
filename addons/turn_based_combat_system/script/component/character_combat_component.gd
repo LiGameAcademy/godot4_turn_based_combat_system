@@ -30,7 +30,7 @@ var is_alive : bool:
 	get:
 		if not is_instance_valid(_skill_component):
 			return false
-		return _skill_component.get_attribute_current_value(&"CurrentHealth") > 0
+		return _skill_component.get_current_hp() > 0
 
 # 信号
 signal character_defeated()															## 死亡时发出信号
@@ -206,7 +206,9 @@ func _execute_attack(target: Node, skill_context: Dictionary) -> Dictionary:
 	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
 	
-	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name if target else ""])
+	var attacker_character_name : StringName = attacker.get_character_name() if attacker.has_method("get_character_name") else ""
+	var target_character_name : StringName = target.get_character_name() if target.has_method("get_character_name") else ""
+	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker_character_name, target_character_name])
 	
 	var targets : Array[Node]
 	if is_instance_valid(target):
@@ -246,7 +248,8 @@ func _execute_skill(skill_id: StringName, targets: Array[Node], skill_context: D
 	if not _skill_component.has_enough_mp_for_skill(skill_id):
 		return {"success": false, "error": "魔法值不足"}
 
-	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill_id])
+	var caster_character_name : StringName = caster.get_character_name() if caster.has_method("get_character_name") else ""
+	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster_character_name, skill_id])
 
 	if _skill_component.is_skill_melee(skill_id) and not targets.is_empty():
 		await get_parent().move_to_target(targets[0])

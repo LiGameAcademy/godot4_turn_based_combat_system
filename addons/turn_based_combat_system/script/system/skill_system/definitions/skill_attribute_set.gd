@@ -127,6 +127,14 @@ func remove_modifiers_by_source_id(source_id: int) -> void:
 			if modifier.source_id == source_id:
 				attr.remove_modifier_internal(modifier)
 
+func get_modifiers(attribute_name: StringName) -> Array[Resource]:
+	var attr : SkillAttribute = get_attribute(attribute_name)
+	if not attr: return []
+	var modifiers : Array[Resource]
+	for mod in attr.get_active_modifiers():
+		modifiers.append(mod)
+	return modifiers
+
 #region --- 钩子函数 (虚拟方法，由具体业务逻辑的AttributeSet子类重写) ---
 
 ## 在属性的基础值将要被修改之前调用。

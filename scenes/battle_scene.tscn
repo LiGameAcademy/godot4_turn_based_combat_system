@@ -31,8 +31,6 @@ color = Color(0.14902, 0.137255, 0.188235, 1)
 unique_name_in_owner = true
 position = Vector2(350, 450)
 
-[node name="Character" parent="PlayerArea" unique_id=1961049707 instance=ExtResource("3_8qdv8")]
-
 [node name="EnemyArea" type="Node2D" parent="." unique_id=1007072195]
 unique_name_in_owner = true
 position = Vector2(800, 450)

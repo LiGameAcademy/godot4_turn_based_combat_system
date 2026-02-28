@@ -133,7 +133,7 @@ func execute_enemy_ai() -> void:
 	if not action_result or not action_result.is_valid:
 		_log_battle_info("[color=red][错误][/color] AI无法决策或执行失败，跳过回合")
 	else:
-		# 发送敌人行动执行信号
+		# 发送敌人行动执行信号 
 		enemy_action_executed.emit(action_result.source, action_result.target, action_result.damage)
 
 	await get_tree().create_timer(1.0).timeout

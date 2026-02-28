@@ -128,7 +128,7 @@ func _on_battle_info_logged(text: String) -> void:
 	update_battle_info(text)
 
 ## 处理角色点击事件
-func _on_character_clicked(character: TBC_Character) -> void:
+func _on_character_clicked(character: Node) -> void:
 	# 显示角色详情
 	battle_ui.show_character_details(character)
 #endregion
@@ -140,7 +140,14 @@ func _on_action_attack_pressed() -> void:
 		return
 	current_action = CharacterCombatComponent.ActionType.ATTACK
 	var character = battle_manager.current_turn_character
-	if character.combat_component.need_target_for_action(current_action):
+	if not is_instance_valid(character):
+		return
+	
+	var combat_component : CharacterCombatComponent = character.get_combat_component() if character.has_method("get_combat_component") else null
+	if not is_instance_valid(combat_component):
+		return
+
+	if combat_component.need_target_for_action(current_action):
 		battle_ui.show_target_selection(battle_manager.get_valid_enemy_targets(character))
 	else:
 		battle_manager.player_select_action(current_action)
@@ -203,7 +210,7 @@ func _on_skill_selection_cancelled() -> void:
 	show_action_ui(battle_manager.is_player_turn)
 
 ## 当玩家选择了技能目标时调用
-func _on_target_selected(target: TBC_Character) -> void:
+func _on_target_selected(target: Node) -> void:
 	var params : Dictionary = {}
 	# 覆盖技能的默认目标逻辑，强制使用玩家选择的目标
 	if not current_selected_skill_id.is_empty():

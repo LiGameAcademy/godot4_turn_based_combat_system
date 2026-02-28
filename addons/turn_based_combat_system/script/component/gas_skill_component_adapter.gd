@@ -3,66 +3,194 @@ class_name GAS_SkillComponentAdapter
 
 ## GAS技能系统组件适配器
 
+const TAG_IS_HIDDEN_FORM_UI : StringName = "is_hidden_form_ui"
+const TAG_IS_MELEE_SKILL : StringName = "ability.is_melee"
+
 @export var vital_attribute_component: GameplayVitalAttributeComponent
 @export var status_component : GameplayStatusComponent
 @export var ability_component : GameplayAbilityComponent
 
+func _ready() -> void:
+	status_component.status_applied.connect(
+		func(_status_id: StringName, instance: GameplayStatusInstance) -> void:
+			status_applied.emit(instance)
+	)
+	status_component.status_removed.connect(
+		func(status_id: StringName) -> void:
+			var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+			status_removed.emit(status_id, status_instance.status_data)
+	)
+	status_component.status_stacked.connect(
+		func(status_id: StringName, _new_stacks: int) -> void:
+			status_updated.emit(status_id)
+	)
+	vital_attribute_component.attribute_value_changed.connect(
+		func(attribute_id: StringName, new_value: float) -> void:
+			attribute_current_value_changed.emit(attribute_id, new_value)
+	)
+	vital_attribute_component.attribute_base_value_changed.connect(
+		func(attribute_id: StringName, old_value: float, new_value: float) -> void:
+			attribute_base_value_changed.emit(attribute_id, old_value, new_value)
+	)
+	ability_component.ability_completed.connect(
+		func(ability: GameplayAbilityInstance, success: bool) -> void:
+			if success:
+				skill_execution_completed.emit(ability.get_definition(), {"success": true})
+			else:
+				skill_execution_failed.emit(ability.get_definition(), {"success": false})
+	)
+	ability_component.ability_activated.connect(
+		func(ability: GameplayAbilityInstance, context: Dictionary) -> void:
+			skill_execution_started.emit(ability.get_definition(), context)
+	)
+
+func initialize(
+		atr_sets: Array[GameplayAttributeSet], 
+		vitals : Array[GameplayVital], 
+		initial_abilities : Array[GameplayAbilityDefinition]) -> void:
+	if not is_instance_valid(vital_attribute_component):
+		push_error("生命值组件未初始化！")
+		return
+	if not is_instance_valid(ability_component):
+		push_error("能力组件未初始化！")
+		return
+	vital_attribute_component.initialize(atr_sets, vitals)
+	ability_component.initialize(initial_abilities)
+
 ## 获取属性当前值
 func get_attribute_current_value(attribute_id: StringName) -> float:
-	return 10.0
+	if not is_instance_valid(vital_attribute_component):
+		return 0.0
+	var attribute : GameplayAttributeInstance = vital_attribute_component.get_attribute(attribute_id)
+	return attribute.get_value()
+
 ## 获取属性基础值
 func get_attribute_base_value(attribute_id: StringName) -> float:
-	return 0.0
+	if not is_instance_valid(vital_attribute_component):
+		return 0.0
+	var attribute : GameplayAttributeInstance = vital_attribute_component.get_attribute(attribute_id)
+	return attribute.base_value
+
 ## 设置属性基础值
-func set_attribute_base_value(attribute_id: StringName, value: float) -> void:
-	pass
+func set_attribute_base_value(attribute_id: StringName, _value: float) -> void:
+	push_error("不允许设置属性基础值！ %s" % attribute_id)
+
 ## 添加属性修改器
-func add_attribute_modifier(attribute_id: StringName, modifier: SkillAttributeModifier) -> void:
-	pass
+func add_attribute_modifier(attribute_id: StringName, magnitude: float, operation: int, source_id: StringName) -> void:
+	if not is_instance_valid(vital_attribute_component):
+		return
+	var mod : GameplayAttributeModifier = GameplayAttributeModifier.new(
+		attribute_id,
+		magnitude,
+		operation,
+		source_id
+	)
+	vital_attribute_component.add_modifier(mod)
+
 ## 移除属性修改器
-func remove_attribute_modifier(attribute_id: StringName, modifier: SkillAttributeModifier) -> void:
-	pass
+func remove_attribute_modifier(attribute_id: StringName, modifier: Resource) -> void:
+	if not is_instance_valid(vital_attribute_component):
+		return	
+	vital_attribute_component.remove_modifier(modifier as GameplayAttributeModifier)
+
 ## 获取属性修改器
-func get_attribute_modifiers(attribute_id: StringName) -> Array[SkillAttributeModifier]:
-	return []
-## 获取属性实例
-func get_attribute(attribute_id: StringName) -> SkillAttribute:
-	return null
-## 获取属性集
-func get_attribute_set() -> SkillAttributeSet:
-	return null
+func get_attribute_modifiers(attribute_id: StringName) -> Array[Resource]:
+	var modifiers : Array[Resource] = []
+	if not is_instance_valid(vital_attribute_component):
+		return modifiers
+	modifiers = vital_attribute_component.get_modifiers(attribute_id)
+	return modifiers
+
+## 获取属性配置
+func get_attribute(attribute_id: StringName) -> Resource:
+	if not is_instance_valid(vital_attribute_component):
+		return null
+	var attribute = vital_attribute_component.get_attribute(attribute_id)
+	return attribute.attribute_def
+
 ## 消耗hp
 func consume_hp(amount: float) -> bool:
-	return false
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var health_vital : HealthVital = vital_attribute_component.get_vital("health")
+	health_vital.modify_value(-amount)
+	return true
+
 ## 恢复hp
 func restore_hp(amount: float) -> float:
-	return 0.0
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var health_vital : HealthVital = vital_attribute_component.get_vital("health")
+	health_vital.modify_value(amount)
+	return amount
+
 ## 消耗mp
 func consume_mp(amount: float) -> bool:
-	return false
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var mana_vital : ManaVital = vital_attribute_component.get_vital("mana")
+	mana_vital.modify_value(-amount)
+	return true
 	
 ## 恢复mp
 func restore_mp(amount: float) -> float:
-	return 0.0
-	
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var mana_vital : ManaVital = vital_attribute_component.get_vital("mana")
+	mana_vital.modify_value(amount)
+	return amount
+
 ## 获取当前mp
 func get_current_mp() -> float:
-	return 0.0
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var mana_vital : ManaVital = vital_attribute_component.get_vital("mana")
+	return mana_vital.current_value
+
 ## 获取当前hp
 func get_current_hp() -> float:
-	return 0.0
+	if not is_instance_valid(vital_attribute_component):
+		return false
+	var health_vital : HealthVital = vital_attribute_component.get_vital("health")
+	return health_vital.current_value
+
+## 获取属性名称
+func get_attribute_name(attribute_id: StringName) -> StringName:
+	if not is_instance_valid(vital_attribute_component):
+		return ""
+	var attribute = vital_attribute_component.get_attribute(attribute_id)
+	return attribute.attribute_def.attribute_display_name
 #endregion
 
 #region --- 技能管理 ---
 ## 添加技能
 func add_skill(skill_id: StringName, skill: Resource) -> void:
 	pass
+
 ## 移除技能
 func remove_skill(skill_id: StringName) -> void:
 	pass
+
 ## 检查是否有足够的MP释放技能, 如果skill_id为空, 则检查是否有足够的MP释放任意技能
 func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
-	return false
+	if skill_id.is_empty():
+		var abilities := ability_component.get_all_ability_instances()
+		for ability_instance in abilities.values():
+			var can_activate := ability_component.can_activate_ability(ability_instance.get_definition().ability_id, {})
+			if can_activate:
+				return true
+		return false
+	else:
+		var ability_instance := ability_component.get_ability_instance(skill_id)
+		# var current_mana := get_current_mp()
+		var ability_definition := ability_instance.get_definition()
+		if not ability_definition is ActiveAbilityDefinition:
+			return false
+		for cost in ability_definition.costs:
+			if not cost.can_pay(ability_instance, get_parent()):
+				return false
+		return true
+
 ## 获取所有技能
 func get_skills() -> Dictionary[StringName, Resource]:
 	return {}
@@ -81,7 +209,9 @@ func get_available_skills() -> Array[StringName]:
 
 ## 检查技能是否为近战技能
 func is_skill_melee(skill_id: StringName) -> bool:
-	return false
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	var ability_definition := ability_instance.get_definition()
+	return ability_definition.tags.has(TAG_IS_MELEE_SKILL)
 
 ## 获取技能的MP消耗
 func get_skill_mp_cost(skill_id: StringName) -> int:
@@ -103,7 +233,10 @@ func get_skill_description(skill_id: StringName) -> String:
 	return ""
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
-	return {}
+	var final_context := skill_context.duplicate()
+	final_context.targets = targets
+	var ok := ability_component.try_activate_ability(skill_id, final_context)
+	return {"success": ok}
 #endregion
 
 #region --- 状态管理 ---
@@ -137,6 +270,16 @@ func get_triggerable_status(event_type: StringName) -> Array[Resource]:
 ## 更新状态触发次数
 func update_status_trigger_counts(status: Resource) -> void:
 	pass
+
+func status_is_hidden_from_ui(status_id : StringName) -> bool:
+	var status : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status):
+		return false
+	var status_data : GameplayStatusData = status.status_data
+	if not is_instance_valid(status_data):
+		return false
+	return status_data.tags.has(TAG_IS_HIDDEN_FORM_UI)
+
 #endregion
 
 #region --- 标签管理 ---
@@ -145,8 +288,9 @@ func get_restricted_action_tags() -> Array[String]:
 	return []
 ## 检查是否可以执行指定动作类型
 func can_perform_action_category(action_category: StringName) -> bool:
-	return false
+	return true
 ## 检查技能是否可用
 func is_skill_available(skill_id: StringName) -> bool:
-	return false
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	return not ability_instance.get_definition().disabled
 #endregion
