@@ -5,6 +5,8 @@ class_name GAS_SkillComponentAdapter
 
 const TAG_IS_HIDDEN_FORM_UI : StringName = "is_hidden_form_ui"
 const TAG_IS_MELEE_SKILL : StringName = "ability.is_melee"
+const TAG_IS_BUFF : StringName = "status.buff"
+const TAG_IS_DEBUFF : StringName = "status.debuff"
 
 @export var vital_attribute_component: GameplayVitalAttributeComponent
 @export var status_component : GameplayStatusComponent
@@ -12,8 +14,8 @@ const TAG_IS_MELEE_SKILL : StringName = "ability.is_melee"
 
 func _ready() -> void:
 	status_component.status_applied.connect(
-		func(_status_id: StringName, instance: GameplayStatusInstance) -> void:
-			status_applied.emit(instance)
+		func(status_id: StringName, _instance: GameplayStatusInstance) -> void:
+			status_applied.emit(status_id)
 	)
 	status_component.status_removed.connect(
 		func(status_id: StringName) -> void:
@@ -42,6 +44,13 @@ func _ready() -> void:
 	ability_component.ability_activated.connect(
 		func(ability: GameplayAbilityInstance, context: Dictionary) -> void:
 			skill_execution_started.emit(ability.get_definition(), context)
+	)
+	vital_attribute_component.vital_value_changed.connect(
+		func(vital_id: StringName, current: float, _max: float, _percent: float, _is_regen: bool) -> void:
+			if vital_id == &"health":
+				current_health_changed.emit(current)
+			elif vital_id == &"mana":
+				current_mana_changed.emit(current)
 	)
 
 func initialize(
@@ -231,11 +240,14 @@ func get_skill_display_name(skill_id: StringName) -> String:
 ## 获取技能描述
 func get_skill_description(skill_id: StringName) -> String:
 	return ""
+
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
 	var final_context := skill_context.duplicate()
 	final_context.targets = targets
+	var ability_instance := ability_component.get_ability_instance(skill_id)
 	var ok := ability_component.try_activate_ability(skill_id, final_context)
+	await ability_instance.ability_completed
 	return {"success": ok}
 #endregion
 
@@ -280,6 +292,60 @@ func status_is_hidden_from_ui(status_id : StringName) -> bool:
 		return false
 	return status_data.tags.has(TAG_IS_HIDDEN_FORM_UI)
 
+## 获取状态图标
+func get_status_icon(status_id: StringName) -> Texture2D:
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return null
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return null
+	return status_data.icon
+
+## 获取状态类型
+func get_status_type(status_id: StringName) -> int:
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return 2
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return 2
+	
+	if status_data.tags.has(TAG_IS_BUFF):
+		return 0
+	elif status_data.tags.has(TAG_IS_DEBUFF):
+		return 1
+	return 2
+
+## 获取状态最大层数
+func get_status_max_stacks(status_id: StringName) -> int:
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return 0
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return 0
+	return status_data.max_stacks
+
+## 获取状态当前堆叠层数
+func get_status_current_stacks(status_id: StringName) -> int:
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return 0
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return 0
+	return status_instance.stacks
+
+## 获取状态剩余持续时间	
+func get_status_remaining_duration(status_id: StringName) -> int:
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return 0
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return 0
+	return status_instance.remaining_duration
 #endregion
 
 #region --- 标签管理 ---

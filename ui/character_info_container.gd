@@ -21,6 +21,7 @@ var _status_icons: Dictionary[StringName, SkillStatusIcon] = {}
 func _ready() -> void:
 	for child in skill_status_container.get_children():
 		child.queue_free()
+	
 
 ## 初始化角色信息容器
 ## [param character] 要绑定的角色
@@ -63,6 +64,10 @@ func _connect_signals() -> void:
 	skill_component.status_applied.connect(_on_status_applied)
 	skill_component.status_removed.connect(_on_status_removed)
 	skill_component.status_updated.connect(_on_status_updated)
+	
+	# 连接生命值变化信号
+	skill_component.current_health_changed.connect(_on_current_health_changed)
+	skill_component.current_mana_changed.connect(_on_current_mana_changed)
 
 ## 断开信号连接
 func _disconnect_signals() -> void:
@@ -131,20 +136,28 @@ func _initialize_status_icons() -> void:
 	# 获取当前所有状态
 	var active_statuses = skill_component.get_active_statuses()
 	for status_id in active_statuses:
-		var status : Resource = active_statuses[status_id]
+		# var status : Resource = active_statuses[status_id]
 		if not skill_component.status_is_hidden_from_ui(status_id):
-			_add_status_icon(status)
+			_add_status_icon(status_id)
 
 ## 添加状态图标
-func _add_status_icon(status_data: Resource) -> void:
-	if not is_instance_valid(status_data) or not is_instance_valid(skill_status_icon_scene):
+func _add_status_icon(status_id: StringName) -> void:
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
-	
+
+	var icon := skill_component.get_status_icon(status_id)
+	var status_type := skill_component.get_status_type(status_id)
+	var max_stacks := skill_component.get_status_max_stacks(status_id)
+	var stacks := skill_component.get_status_stacks(status_id)
+	var remaining_duration := skill_component.get_status_remaining_duration(status_id)
+
 	# 检查是否已存在该状态的图标
-	if _status_icons.has(status_data.status_id):
+	if _status_icons.has(status_id):
 		# 如果已存在，更新它
-		var status_icon := _status_icons[status_data.status_id]
-		status_icon.update_status(status_data)
+		var status_icon := _status_icons[status_id]
+		status_icon.update_display(icon, status_type, max_stacks, stacks, remaining_duration)
 		return
 	
 	# 创建新的状态图标
@@ -157,10 +170,10 @@ func _add_status_icon(status_data: Resource) -> void:
 	skill_status_container.add_child(status_icon)
 	
 	# 设置状态数据
-	status_icon.setup(status_data)
+	status_icon.update_display(icon, status_type, max_stacks, stacks, remaining_duration)
 	
 	# 保存到字典中
-	_status_icons[status_data.status_id] = status_icon
+	_status_icons[status_id] = status_icon
 
 ## 移除状态图标
 func _remove_status_icon(status_id: StringName) -> void:
@@ -223,8 +236,8 @@ func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: f
 		_update_mana_bar()
 
 ## 状态应用回调
-func _on_status_applied(status_instance: SkillStatusData) -> void:
-	_add_status_icon(status_instance)
+func _on_status_applied(status_id: StringName) -> void:
+	_add_status_icon(status_id)
 
 ## 状态移除回调
 func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
@@ -240,3 +253,9 @@ func _on_status_updated(status_id: StringName) -> void:
 			return
 		var status_data : SkillStatusData = skill_component.get_status(status_id)
 		_status_icons[status_id].update_status(status_data)
+
+func _on_current_health_changed(_new_value: float) -> void:
+	_update_health_bar()
+
+func _on_current_mana_changed(_new_value: float) -> void:
+	_update_mana_bar()

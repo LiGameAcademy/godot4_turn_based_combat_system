@@ -35,6 +35,7 @@ GameplayCueManager="*uid://b4t83autfu2j7"
 
 [display]
 
+window/subwindows/embed_subwindows=false
 window/stretch/mode="canvas_items"
 
 [editor_plugins]

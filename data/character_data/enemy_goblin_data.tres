@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_yrb8k"]
 [ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_rwtu0"]
 [ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_esf7t"]
+[ext_resource type="Resource" uid="uid://d01rs3dorg0hc" path="res://data/abilities/defend.tres" id="7_esf7t"]
 [ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="7_ywxla"]
 [ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="9_icq2d"]
 [ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="9_jk44c"]
@@ -88,6 +89,7 @@ vitals = Array[ExtResource("9_jk44c")]([SubResource("Resource_hejwr"), SubResour
 element = 3
 ai_behavior = SubResource("Resource_x2mhx")
 attack_skill = ExtResource("3_rwtu0")
+defense_skill = ExtResource("7_esf7t")
 animation_library = ExtResource("2_80jlc")
 sprite_offset = Vector2(0, 75)
 icon = ExtResource("9_icq2d")

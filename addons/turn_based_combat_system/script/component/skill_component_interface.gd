@@ -4,7 +4,7 @@ class_name SkillComponentInterface
 
 ## 技能组件接口
 
-signal status_applied(status_instance: Resource)																	## 当状态效果被应用到角色身上时发出
+signal status_applied(status_id: StringName)																	## 当状态效果被应用到角色身上时发出
 signal status_removed(status_id: StringName, status_instance_data_before_removal: Resource)						    ## 当状态效果从角色身上移除时发出
 signal status_updated(status_id: StringName)								## 当状态效果更新时发出 (例如 stacks 或 duration 变化)
 signal attribute_base_value_changed(attribute_id: StringName, old_value: float, new_value: float)				    ## 属性基础值改变
@@ -13,6 +13,9 @@ signal action_tags_changed(restricted_tags: Array[String])														    ## �
 signal skill_execution_started(skill_data: Resource, skill_context: Dictionary)				## 当技能执行开始时发出
 signal skill_execution_completed(skill_data: Resource, result: Dictionary)					## 当技能执行完成时发出
 signal skill_execution_failed(skill_data: Resource, result: Dictionary)						## 当技能执行失败时发出
+
+signal current_health_changed(new_value: float)
+signal current_mana_changed(new_value: float)
 
 #region --- 属性管理 ---
 
@@ -100,6 +103,16 @@ signal skill_execution_failed(skill_data: Resource, result: Dictionary)						## 
 @abstract func update_status_trigger_counts(status: Resource) -> void
 
 @abstract func status_is_hidden_from_ui(status_id : StringName) -> bool
+## 获取状态图标
+@abstract func get_status_icon(status_id: StringName) -> Texture2D
+## 获取状态类型
+@abstract func get_status_type(status_id: StringName) -> int
+## 获取状态最大层数
+@abstract func get_status_max_stacks(status_id: StringName) -> int
+## 获取状态当前堆叠层数
+@abstract func get_status_current_stacks(status_id: StringName) -> int
+## 获取状态剩余持续时间
+@abstract func get_status_remaining_duration(status_id: StringName) -> int
 #endregion
 
 #region --- 标签管理 ---

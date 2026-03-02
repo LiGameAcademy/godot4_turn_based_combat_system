@@ -12,6 +12,7 @@
 [ext_resource type="Resource" uid="uid://bunxmfu1ul8b2" path="res://data/attributes/attack_power.tres" id="7_1xjwg"]
 [ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="7_qbywg"]
 [ext_resource type="Resource" uid="uid://cbsfg0mrcborh" path="res://data/attributes/defense_power.tres" id="8_ou8ee"]
+[ext_resource type="Resource" uid="uid://d01rs3dorg0hc" path="res://data/abilities/defend.tres" id="11_1xjwg"]
 [ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="13_miwnf"]
 [ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="13_qj5oa"]
 [ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="15_1xjwg"]
@@ -50,5 +51,6 @@ attribute_sets = Array[ExtResource("4_src1a")]([SubResource("Resource_7fwro")])
 vitals = Array[ExtResource("13_qj5oa")]([SubResource("Resource_hejwr"), SubResource("Resource_dxjiq")])
 element = 2
 attack_skill = ExtResource("2_r27ad")
+defense_skill = ExtResource("11_1xjwg")
 animation_library = ExtResource("1_ujsad")
 icon = ExtResource("13_miwnf")

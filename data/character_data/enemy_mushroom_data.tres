@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="8_xqh23"]
 [ext_resource type="Resource" uid="uid://cbsfg0mrcborh" path="res://data/attributes/defense_power.tres" id="9_8x5ir"]
 [ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="9_vhsl4"]
+[ext_resource type="Resource" uid="uid://d01rs3dorg0hc" path="res://data/abilities/defend.tres" id="12_8x5ir"]
 [ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="14_itenj"]
 [ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="16_8x5ir"]
 [ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="17_itenj"]
@@ -56,6 +57,7 @@ vitals = Array[ExtResource("14_itenj")]([SubResource("Resource_hejwr"), SubResou
 element = 3
 ai_behavior = SubResource("Resource_lachk")
 attack_skill = ExtResource("3_jkwja")
+defense_skill = ExtResource("12_8x5ir")
 animation_library = ExtResource("2_s68q7")
 sprite_offset = Vector2(0, 75)
 icon = ExtResource("9_vhsl4")

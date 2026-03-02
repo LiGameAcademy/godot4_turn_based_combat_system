@@ -224,7 +224,8 @@ func _execute_defend(skill_context: Dictionary) -> Dictionary:
 	if not is_instance_valid(character):
 		return {"success": false, "error": "无效的角色引用"}
 	
-	print_rich("[color=cyan]%s 选择防御[/color]" % [character.character_name])
+	var defense_character_name : StringName = character.get_character_name() if character.has_method("get_character_name") else ""
+	print_rich("[color=cyan]%s 选择防御[/color]" % [defense_character_name])
 	
 	# 使用防御技能
 	var targets: Array[Node] = [character] # 目标是自己

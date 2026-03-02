@@ -1,24 +1,25 @@
-[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://d01rs3dorg0hc"]
+[gd_resource type="Resource" script_class="ActiveAbilityDefinition" format=3 uid="uid://d01rs3dorg0hc"]
 
-[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_7itaw"]
-[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_tixs4"]
-[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="3_fjxrs"]
-[ext_resource type="Resource" uid="uid://tlc7ibafdnkx" path="res://addons/turn_based_combat_system/examples/data/skill_status/defend.tres" id="4_ac8b0"]
-[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="5_ag22m"]
+[ext_resource type="Script" uid="uid://cmn60ti1qd07f" path="res://addons/godot_ability_system/scripts/abilities/costs/ability_cost_base.gd" id="1_fjxrs"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="2_ac8b0"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="3_ag22m"]
+[ext_resource type="Script" uid="uid://b44v0u0g5ig0m" path="res://addons/godot_ability_system/scripts/effects/ge_apply_status.gd" id="4_nfetk"]
+[ext_resource type="Resource" uid="uid://c0rd3id6u23yq" path="res://data/ability_status/defend.tres" id="5_dx2dp"]
+[ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="6_48grj"]
+[ext_resource type="Script" uid="uid://bi6pufwhna1aj" path="res://addons/godot_ability_system/scripts/abilities/definitions/active_ability_definition.gd" id="7_n61h8"]
 
-[sub_resource type="Resource" id="Resource_3uyfq"]
-script = ExtResource("3_fjxrs")
-status_to_apply = ExtResource("4_ac8b0")
-metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+[sub_resource type="Resource" id="Resource_hv2s2"]
+script = ExtResource("4_nfetk")
+status_data = ExtResource("5_dx2dp")
+metadata/_custom_type_script = "uid://b44v0u0g5ig0m"
 
 [resource]
-script = ExtResource("5_ag22m")
-skill_id = &"defend"
-skill_name = "防御"
-description = ""
-is_melee = false
-mp_cost = 0
-target_type = 5
-effects = Array[ExtResource("1_7itaw")]([SubResource("Resource_3uyfq")])
-cast_animation = &"defend"
+script = ExtResource("7_n61h8")
+animation_name = &"defend"
+pre_cast_delay = 0.3
+post_cast_delay = 0.5
+effects = Array[ExtResource("2_ac8b0")]([SubResource("Resource_hv2s2")])
+ability_id = &"defend"
+ability_name = "防御"
+description = "防御的描述"
 metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

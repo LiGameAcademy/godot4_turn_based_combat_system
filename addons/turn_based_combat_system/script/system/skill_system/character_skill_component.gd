@@ -10,6 +10,15 @@ var _skills: Dictionary[StringName, SkillData] = {}
 ## 角色标签系统，用于控制角色可执行的动作类型
 var _restricted_action_tags : Array[String] = []
 
+func _ready() -> void:
+	attribute_current_value_changed.connect(
+		func(attribute_id: StringName, _old_value: float, new_value: float) -> void:
+			if attribute_id == &"CurrentHealth":
+				current_health_changed.emit(new_value)
+			elif attribute_id == &"CurrentMana":
+				current_mana_changed.emit(new_value)
+	)
+
 ## 初始化组件
 func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
 	# 这是因为AttributeSet本身是一个Resource, 直接使用会导致所有实例共享数据
@@ -470,6 +479,36 @@ func status_is_hidden_from_ui(status_id : StringName) -> bool:
 	if not is_instance_valid(status):
 		return false
 	return status.is_hidden_from_ui
+
+func get_status_icon(status_id: StringName) -> Texture2D:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return null
+	return status.icon
+
+func get_status_type(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.status_type
+
+func get_status_max_stacks(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.max_stacks
+
+func get_status_current_stacks(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.stacks
+
+func get_status_remaining_duration(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.remaining_duration
 #endregion
 
 #region --- 标签管理 ---
@@ -659,7 +698,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Node,
 	])
 	
 	# 发出状态应用信号
-	status_applied.emit(runtime_status_instance)
+	status_applied.emit(runtime_status_instance.status_id)
 	TBCombatSystem.trigger_game_event(
 		"on_status_applied", 
 		get_parent(), 
