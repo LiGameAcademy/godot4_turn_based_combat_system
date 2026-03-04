@@ -448,32 +448,6 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
 			_process_effects(status_instance.ongoing_effects, effect_source, [get_parent()], SkillExecutionContext.new(battle_manager))
 
-## 私有方法：更新状态触发次数
-## [param status] 要更新的状态
-func update_status_trigger_counts(status: Resource) -> void:
-	if not is_instance_valid(status) or not status is SkillStatusData:
-		push_error("SkillComponent: status is not SkillStatusData!")
-		return
-	status.current_turn_trigger_count += 1
-	status.current_total_trigger_count += 1
-	
-	# 检查是否达到最大触发次数
-	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
-		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
-		# 使用延迟调用移除状态，避免在遍历过程中修改集合
-		call_deferred("remove_status", status.status_id)
-
-## 获取触发状态
-func get_triggerable_status(event_type: StringName) -> Array[Resource]:
-	var triggerable_statuses: Array[Resource] = []
-	for status in _active_statuses.values():
-		if not is_instance_valid(status) or not status is SkillStatusData:
-			continue
-		if status.can_trigger_on_event(event_type):
-			triggerable_statuses.append(status)
-
-	return triggerable_statuses
-
 func status_is_hidden_from_ui(status_id : StringName) -> bool:
 	var status : SkillStatusData = _active_statuses.get(status_id)
 	if not is_instance_valid(status):
@@ -859,6 +833,32 @@ func _get_random_targets(targets: Array[Node], count: int) -> Array[Node]:
 	random_targets.shuffle()
 	return random_targets.slice(0, count)
 
+## 获取触发状态
+func _get_triggerable_status(event_type: StringName) -> Array[Resource]:
+	var triggerable_statuses: Array[Resource] = []
+	for status in _active_statuses.values():
+		if not is_instance_valid(status) or not status is SkillStatusData:
+			continue
+		if status.can_trigger_on_event(event_type):
+			triggerable_statuses.append(status)
+
+	return triggerable_statuses
+
+## 私有方法：更新状态触发次数
+## [param status] 要更新的状态
+func _update_status_trigger_counts(status: Resource) -> void:
+	if not is_instance_valid(status) or not status is SkillStatusData:
+		push_error("SkillComponent: status is not SkillStatusData!")
+		return
+	status.current_turn_trigger_count += 1
+	status.current_total_trigger_count += 1
+	
+	# 检查是否达到最大触发次数
+	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
+		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
+		# 使用延迟调用移除状态，避免在遍历过程中修改集合
+		call_deferred("remove_status", status.status_id)
+
 ## 触发游戏事件
 ## [param event_source] 事件的触发者
 ## [param event_type] 事件类型，如 "on_damage_taken", "on_turn_start", "on_attack" 等
@@ -870,7 +870,7 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 	if event_source != get_parent():
 		return
 
-	var triggerable_statuses = get_triggerable_status(event_type)
+	var triggerable_statuses = _get_triggerable_status(event_type)
 	if triggerable_statuses.is_empty():
 		return
 	
@@ -882,7 +882,7 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 		if context is DamageEventContext:
 			skill_context.damage_info = context.damage_info
 		_process_effects(trigger_effects, status.source_character, [event_source], skill_context)
-		update_status_trigger_counts(status)
+		_update_status_trigger_counts(status)
 	
 func _on_skill_execution_failed(skill: SkillData, actual_targets: Array[Node], result: Dictionary) -> void:
 	skill_execution_failed.emit(skill, result)

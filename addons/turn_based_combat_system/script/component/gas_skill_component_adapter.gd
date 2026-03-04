@@ -66,6 +66,7 @@ func initialize(
 	vital_attribute_component.initialize(atr_sets, vitals)
 	ability_component.initialize(initial_abilities)
 
+#region --- 属性管理 ---
 ## 获取属性当前值
 func get_attribute_current_value(attribute_id: StringName) -> float:
 	if not is_instance_valid(vital_attribute_component):
@@ -174,11 +175,16 @@ func get_attribute_name(attribute_id: StringName) -> StringName:
 #region --- 技能管理 ---
 ## 添加技能
 func add_skill(skill_id: StringName, skill: Resource) -> void:
-	pass
+	if not skill is GameplayAbilityDefinition:
+		push_error("技能 %s 不是 GameplayAbilityDefinition 类型！" % skill_id)
+		return
+	ability_component.learn_ability(skill)
 
 ## 移除技能
 func remove_skill(skill_id: StringName) -> void:
-	pass
+	var ok := ability_component.forget_ability(skill_id)
+	if not ok:
+		push_error("技能 %s 移除失败！" % skill_id)
 
 ## 检查是否有足够的MP释放技能, 如果skill_id为空, 则检查是否有足够的MP释放任意技能
 func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
@@ -200,21 +206,43 @@ func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
 				return false
 		return true
 
-## 获取所有技能
+## 获取所有技能配置
 func get_skills() -> Dictionary[StringName, Resource]:
-	return {}
-## 获取技能
+	var skills : Dictionary[StringName, Resource] = {}
+	var abilities : Dictionary[StringName, GameplayAbilityInstance] = ability_component.get_all_ability_instances()
+	for ability_id : StringName in abilities:
+		var ability_instance : GameplayAbilityInstance = abilities[ability_id]
+		skills[ability_id] = ability_instance.get_definition()
+	return skills
+
+## 获取技能配置
 func get_skill(skill_id: StringName) -> Resource:
-	return null
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return null
+	return ability_instance.get_definition()
+
 ## 获取技能数量
 func get_skill_count() -> int:
-	return 0
+	var abilities : Dictionary[StringName, GameplayAbilityInstance] = ability_component.get_all_ability_instances()
+	return abilities.size()
+
 ## 检查是否有指定技能
 func has_skill(skill_id: StringName) -> bool:
-	return false
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return false
+	return true
+
 ## 获取可用技能列表
 func get_available_skills() -> Array[StringName]:
-	return []
+	var abilities : Dictionary[StringName, GameplayAbilityInstance] = ability_component.get_all_ability_instances()
+	var available_skills : Array[StringName] = []
+	for ability_id : StringName in abilities:
+		var ability_instance : GameplayAbilityInstance = abilities[ability_id]
+		if not ability_instance.disabled:
+			available_skills.append(ability_id)
+	return available_skills
 
 ## 检查技能是否为近战技能
 func is_skill_melee(skill_id: StringName) -> bool:
@@ -224,7 +252,18 @@ func is_skill_melee(skill_id: StringName) -> bool:
 
 ## 获取技能的MP消耗
 func get_skill_mp_cost(skill_id: StringName) -> int:
-	return 0
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return 0
+	var ability_definition := ability_instance.get_definition()
+	var cost_feature : CostFeature = ability_instance.get_feature("CostFeature")
+	if not is_instance_valid(cost_feature):
+		return 0
+	var mana_cost : int = 0
+	for cost in cost_feature.costs:
+		if cost is VitalCost and cost.vital_id == &"mana":
+			mana_cost += cost.amount
+	return mana_cost
 
 ## 获取技能目标
 func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
@@ -235,11 +274,19 @@ func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]
 
 ## 获取技能显示名称
 func get_skill_display_name(skill_id: StringName) -> String:
-	return ""
-	
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return ""
+	var ability_definition : GameplayAbilityDefinition = ability_instance.get_definition()
+	return ability_definition.ability_name
+
 ## 获取技能描述
 func get_skill_description(skill_id: StringName) -> String:
-	return ""
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return ""
+	var ability_definition : GameplayAbilityDefinition = ability_instance.get_definition()
+	return ability_definition.description
 
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
@@ -252,36 +299,62 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 #endregion
 
 #region --- 状态管理 ---
-## 获取所有激活状态
+## 获取所有激活状态配置
 func get_active_statuses() -> Dictionary[StringName, Resource]:
-	return {}
+	var statuses : Dictionary[StringName, Resource] = {}
+	var status_instances : Array[GameplayStatusInstance] = status_component.get_active_statuses()
+	for status_instance in status_instances:
+		var status_data : GameplayStatusData = status_instance.status_data
+		if not is_instance_valid(status_data):
+			continue
+		var status_id : StringName = status_instance.status_data.status_id
+		statuses[status_id] = status_data
+	return statuses
+
 ## 应用状态
-func apply_status(status_template: Resource, p_source: Node, effect_data_from_skill: Resource) -> Dictionary:
-	return {}
+func apply_status(status_template: Resource, p_source: Node, _effect_data_from_skill: Resource) -> Dictionary:
+	var result = {"applied_successfully": false, "status_instance": null, "reason": "unknown"}
+	if not is_instance_valid(status_template) or not status_template is GameplayStatusData:
+		result.reason = "invalid_status_template"
+		return result
+	if not is_instance_valid(p_source):
+		result.reason = "invalid_source"
+		return result
+	var status_instance : GameplayStatusInstance = status_component.apply_status(status_template, p_source)
+	return result
+
 ## 移除状态
 func remove_status(status_id: StringName, trigger_removal: bool = false) -> bool:
-	return false
+	return status_component.remove_status(status_id)
+
 ## 更新状态持续时间
 func update_status_durations() -> void:
-	pass
+	AbilityEventBus.trigger_game_event(&"turn_started")
+
 ## 处理激活状态
-func process_active_statuses(battle_manager: BattleManager) -> void:
+func process_active_statuses(_battle_manager: BattleManager) -> void:
 	pass
-## 获取状态
+
+## 获取状态配置
 func get_status(status_id: StringName) -> Resource:
-	return null
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return null
+	var status_data : GameplayStatusData = status_instance.status_data
+	if not is_instance_valid(status_data):
+		return null
+	return status_data
+
 ## 检查是否有指定状态
 func has_status(status_id: StringName) -> bool:
-	return false
+	return status_component.has_status(status_id)
+
 ## 获取状态层数
 func get_status_stacks(status_id: StringName) -> int:
-	return 0
-## 获取触发状态
-func get_triggerable_status(event_type: StringName) -> Array[Resource]:
-	return []
-## 更新状态触发次数
-func update_status_trigger_counts(status: Resource) -> void:
-	pass
+	var status_instance : GameplayStatusInstance = status_component.get_status(status_id)
+	if not is_instance_valid(status_instance):
+		return 0
+	return status_instance.stacks
 
 func status_is_hidden_from_ui(status_id : StringName) -> bool:
 	var status : GameplayStatusInstance = status_component.get_status(status_id)
@@ -352,9 +425,11 @@ func get_status_remaining_duration(status_id: StringName) -> int:
 ## 获取技能限制动作标签
 func get_restricted_action_tags() -> Array[String]:
 	return []
+
 ## 检查是否可以执行指定动作类型
 func can_perform_action_category(action_category: StringName) -> bool:
 	return true
+
 ## 检查技能是否可用
 func is_skill_available(skill_id: StringName) -> bool:
 	var ability_instance := ability_component.get_ability_instance(skill_id)

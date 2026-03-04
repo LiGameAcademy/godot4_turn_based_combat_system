@@ -97,10 +97,6 @@ signal current_mana_changed(new_value: float)
 @abstract func has_status(status_id: StringName) -> bool
 ## 获取状态层数
 @abstract func get_status_stacks(status_id: StringName) -> int
-## 获取触发状态
-@abstract func get_triggerable_status(event_type: StringName) -> Array[Resource]
-## 更新状态触发次数
-@abstract func update_status_trigger_counts(status: Resource) -> void
 
 @abstract func status_is_hidden_from_ui(status_id : StringName) -> bool
 ## 获取状态图标

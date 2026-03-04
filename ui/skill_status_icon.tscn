@@ -4,13 +4,13 @@
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_sw716"]
 
-[node name="SkillStatusIcon" type="Control"]
+[node name="SkillStatusIcon" type="Control" unique_id=1719875843]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_sw716")
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1311215136]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 0
@@ -19,7 +19,7 @@ offset_bottom = 32.0
 texture = SubResource("PlaceholderTexture2D_sw716")
 expand_mode = 1
 
-[node name="TextureLabel" type="Label" parent="."]
+[node name="TextureLabel" type="Label" parent="." unique_id=1553078716]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -30,7 +30,7 @@ grow_vertical = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="InfoLabel" type="Label" parent="."]
+[node name="InfoLabel" type="Label" parent="." unique_id=1742975662]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 3
