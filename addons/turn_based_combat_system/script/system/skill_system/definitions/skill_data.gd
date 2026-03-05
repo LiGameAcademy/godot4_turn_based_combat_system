@@ -93,6 +93,10 @@ func get_effect_description() -> String:
 func needs_target() -> bool:
 	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ALLY_SINGLE, TargetType.ALLY_SINGLE_INC_SELF]
 
+## 是否自身目标
+func is_self_target() -> bool:
+	return target_type == TargetType.SELF
+
 ## 敌人目标
 func is_enemy_target() -> bool:
 	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ENEMY_ALL]

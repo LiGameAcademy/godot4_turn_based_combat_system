@@ -1,6 +1,10 @@
 extends Resource
 class_name AIBehavior
 
+const MAX_HEALTH_ATTRIBUTE_ID = "max_health"
+const MAX_MP_ATTRIBUTE_ID = "max_mp"
+const ATTACK_POWER_ATTRIBUTE_ID = "attack_power"
+
 ## 行为类型
 @export_enum("aggressive", "defensive", "support", "random")
 var behavior_type: String = "balanced"
@@ -30,15 +34,6 @@ var weights: Dictionary:
 			"self_preservation": self_preservation_weight		## 自我保护倾向
 		}
 
-## 技能类型标签
-enum SkillTag {
-	OFFENSIVE,  ## 攻击性技能
-	DEFENSIVE,  ## 防御性技能
-	HEALING,    ## 治疗技能
-	SUPPORT,    ## 增益/辅助技能
-	DEBUFF      ## 减益技能
-}
-
 ## 设置行为类型
 ## [param type] 行为类型
 func set_behavior_type(type: String) -> void:
@@ -46,42 +41,62 @@ func set_behavior_type(type: String) -> void:
 	_configure_behavior()
 
 ## 评估技能的价值
-## [param character] 角色
-## [param skill] 技能数据
+## [param owner_character] 角色
+## [param skill_id] 技能ID
 ## [param targets] 目标列表
 ## [return] 评分
-func evaluate_skill(character: TBC_Character, skill: SkillData, targets: Array) -> float:
+func evaluate_skill(owner_character: Node, skill_id: StringName, targets: Array) -> float:
 	var score = 0.0
 	
-	# 根据技能类型给予基础分数
-	var skill_tags = _get_skill_tags(skill)
+	var skill_component : SkillComponentInterface = owner_character.get_skill_component() if owner_character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_warning("AIBehavior: 技能组件不存在")
+		return 0.0
 	
-	if SkillTag.OFFENSIVE in skill_tags:
+	var max_health = skill_component.get_attribute_current_value(MAX_HEALTH_ATTRIBUTE_ID)
+	var max_mp = skill_component.get_attribute_current_value(MAX_MP_ATTRIBUTE_ID)
+	var current_hp = skill_component.get_current_hp()
+
+	# 根据技能类型给予基础分数
+	if skill_component.is_skill_offensive(skill_id):
 		score += weights["skill_offensive"]
 	
-	if SkillTag.HEALING in skill_tags:
+	if skill_component.is_skill_healing(skill_id):
 		score += weights["skill_healing"]
 		
 		# 如果有队友血量低，增加治疗技能评分
 		for target in targets:
-			if not _is_enemy(character, target):
-				var health_percent = target.current_hp / float(target.max_hp)
+			if not is_instance_valid(target):
+				push_warning("AIBehavior: 目标不存在")
+				continue
+			var target_skill_component = target.get_skill_component() if target.has_method("get_skill_component") else null
+			if not is_instance_valid(target_skill_component):
+				push_warning("AIBehavior: 目标技能组件不存在")
+				continue
+			var target_max_health = target_skill_component.get_attribute_current_value(MAX_HEALTH_ATTRIBUTE_ID)
+			var target_current_hp = target_skill_component.get_current_hp()
+			# var target_max_mp = target_skill_component.get_attribute_current_value(MAX_MP_ATTRIBUTE_ID)
+			if not _is_enemy(owner_character, target):
+				var health_percent = target_current_hp / float(target_max_health)
 				if health_percent < 0.5:
 					score += weights["heal_low_health"] * (1.0 - health_percent)
 	
-	if SkillTag.SUPPORT in skill_tags:
+	if skill_component.is_skill_support(skill_id):
 		score += weights["skill_support"]
 	
-	if SkillTag.DEFENSIVE in skill_tags:
+	if skill_component.is_skill_defensive(skill_id):
 		# 如果自身血量低，增加防御技能评分
-		var health_percent = character.current_hp / float(character.max_hp)
+		var health_percent = current_hp / float(max_health)
 		if health_percent < 0.5:
 			score += weights["self_preservation"] * (1.0 - health_percent)
 	
 	# 考虑技能消耗
 	var mp_percent_cost = 0.0
-	if character.max_mp > 0:
-		mp_percent_cost = skill.mp_cost / float(character.max_mp)
+	if max_mp > 0:
+		var mp_cost = skill_component.get_skill_mp_cost(skill_id)
+		if mp_cost > 0:
+			mp_percent_cost = mp_cost / float(max_mp)
+			score -= mp_percent_cost * 0.5  # 减少高消耗技能的评分
 	score -= mp_percent_cost * 0.5  # 减少高消耗技能的评分
 
 	# 随机因素，增加一些不可预测性
@@ -93,21 +108,28 @@ func evaluate_skill(character: TBC_Character, skill: SkillData, targets: Array) 
 ## [param _character] 角色
 ## [param target] 目标
 ## [return] 评分
-func evaluate_attack_target(_character: TBC_Character, target: TBC_Character) -> float:
+func evaluate_attack_target(_character: Node, target: Node) -> float:
 	var score = 0.0
 	
 	# 基础攻击倾向
 	score += weights["attack"]
 	
 	# 目标血量因素
-	var health_percent = target.current_hp / float(target.max_hp)
+	var target_skill_component : SkillComponentInterface = target.get_skill_component() if target.has_method("get_skill_component") else null
+	if not is_instance_valid(target_skill_component):
+		push_warning("AIBehavior: 目标技能组件不存在")
+		return 0.0
+	var target_max_health = target_skill_component.get_attribute_current_value(MAX_HEALTH_ATTRIBUTE_ID)
+	var target_current_hp = target_skill_component.get_current_hp()
+	var health_percent = target_current_hp / float(target_max_health)
 	score += weights["target_low_health"] * (1.0 - health_percent)
 	
 	# 目标威胁度（可以基于角色属性、职业等）
 	# 这里简单实现，实际可能需要更复杂的威胁度计算
 	var threat_score = 0.0
-	if target.attack_power > 0:
-		threat_score = target.attack_power / 100.0  # 假设100是一个标准值
+	var target_attack_power = target_skill_component.get_attribute_current_value(ATTACK_POWER_ATTRIBUTE_ID)
+	if target_attack_power > 0:
+		threat_score = target_attack_power / 100.0  # 假设100是一个标准值
 	score += weights["target_high_threat"] * threat_score
 	
 	# 随机因素
@@ -115,44 +137,18 @@ func evaluate_attack_target(_character: TBC_Character, target: TBC_Character) ->
 	
 	return score
 
-## 获取技能的标签（类型）
-## [param skill] 技能数据
-## [return] 标签列表
-func _get_skill_tags(skill: SkillData) -> Array:
-	var tags : Array[SkillTag] = []
-	
-	# 根据技能效果判断类型
-	for effect in skill.effects:
-		if effect is DamageEffect or effect is ModifyDamageEffect:
-			tags.append(SkillTag.OFFENSIVE)
-		elif effect is HealEffect:
-			tags.append(SkillTag.HEALING)
-		elif effect is ApplyStatusEffect:
-			# 根据状态类型判断
-			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
-				tags.append(SkillTag.SUPPORT)
-			elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
-				tags.append(SkillTag.DEBUFF)
-	# 去重
-	var unique_tags : Array[SkillTag] = []
-	for tag in tags:
-		if not tag in unique_tags:
-			unique_tags.append(tag)
-	
-	return unique_tags
-
 ## 判断两个角色是否敌对
 ## [param character1] 角色1
 ## [param character2] 角色2
 ## [return] 是否敌对
-func _is_enemy(character1: TBC_Character, character2: TBC_Character) -> bool:
+func _is_enemy(character1: Node, character2: Node) -> bool:
 	# 使用角色组件中的character_registry来判断敌对关系
-	if character1.ai_component:
-		return character1.ai_component.is_enemy(character2)
+	var ai_component1 = character1.get_ai_component() if character1.has_method("get_ai_component") else null
+	if not is_instance_valid(ai_component1):
+		push_warning("AIBehavior: 角色1的AI组件不存在")
+		return false
+	return ai_component1.is_enemy(character2)
 	
-	# 如果没有角色注册管理器，则无法判断
-	return false
-
 ## 根据行为类型配置权重
 func _configure_behavior() -> void:
 	match behavior_type:

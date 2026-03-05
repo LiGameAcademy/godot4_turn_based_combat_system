@@ -78,6 +78,14 @@ signal current_mana_changed(new_value: float)
 @abstract func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary
 ## 获取技能目标
 @abstract func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]
+## 检查技能是否为攻击性技能
+@abstract func is_skill_offensive(skill_id: StringName) -> bool
+## 检查技能是否为治疗技能
+@abstract func is_skill_healing(skill_id: StringName) -> bool
+## 检查技能是否为支援技能
+@abstract func is_skill_support(skill_id: StringName) -> bool
+## 检查技能是否为防御技能
+@abstract func is_skill_defensive(skill_id: StringName) -> bool
 #endregion
 
 #region --- 状态管理 ---

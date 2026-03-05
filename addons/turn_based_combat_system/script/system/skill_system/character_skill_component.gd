@@ -239,11 +239,19 @@ func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]
 	if not is_instance_valid(battle_manager):
 		return [] as Array[Node]
 	var skill : SkillData = get_skill(skill_id)
-	if skill.is_enemy_target():
+	if not is_instance_valid(skill):
+		return [] as Array[Node]
+	if skill.is_self_target():
+		# 自身目标
+		return [get_parent()]
+	elif skill.is_enemy_target():
+		# 敌人目标
 		return battle_manager.get_valid_enemy_targets(get_parent())
 	elif skill.is_including_self():
+		# 包含自身目标
 		return battle_manager.get_valid_ally_targets(get_parent(), true)
 	else:
+		# 友方不包含自身
 		return battle_manager.get_valid_ally_targets(get_parent(), false)
 	return [] as Array[Node]
 
@@ -304,6 +312,33 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	)
 	return skill_execution_result
 
+## 检查技能是否为攻击性技能
+func is_skill_offensive(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"offensive")
+
+## 检查技能是否为治疗技能
+func is_skill_healing(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"healing")
+
+## 检查技能是否为支援技能
+func is_skill_support(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"support")
+
+## 检查技能是否为防御技能
+func is_skill_defensive(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"defensive")
 #endregion
 
 #region --- 状态管理 ---
@@ -889,4 +924,31 @@ func _on_skill_execution_failed(skill: SkillData, actual_targets: Array[Node], r
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_failed", get_parent(), EventSkillExecutionFailedContext.new(get_parent(), skill, actual_targets, result)
 	)
+
+## 获取技能的标签（类型）
+## [param skill] 技能数据
+## [return] 标签列表
+func _get_skill_tags(skill: SkillData) -> Array[StringName]:
+	var tags : Array[StringName] = []
+	
+	# 根据技能效果判断类型
+	for effect in skill.effects:
+		if effect is DamageEffect or effect is ModifyDamageEffect:
+			tags.append(&"offensive")
+		elif effect is HealEffect:
+			tags.append(&"healing")
+		elif effect is ApplyStatusEffect:
+			# 根据状态类型判断
+			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+				tags.append(&"support")
+			elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+				tags.append(&"debuff")
+	# 去重
+	var unique_tags : Array[StringName] = []
+	for tag in tags:
+		if not tag in unique_tags:
+			unique_tags.append(tag)
+	
+	return unique_tags
+
 #endregion

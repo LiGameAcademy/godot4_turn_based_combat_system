@@ -8,6 +8,11 @@ const TAG_IS_MELEE_SKILL : StringName = "ability.is_melee"
 const TAG_IS_BUFF : StringName = "status.buff"
 const TAG_IS_DEBUFF : StringName = "status.debuff"
 
+const TAG_IS_OFFENSIVE_SKILL : StringName = "ability.offensive"
+const TAG_IS_HEALING_SKILL : StringName = "ability.healing"
+const TAG_IS_SUPPORT_SKILL : StringName = "ability.support"
+const TAG_IS_DEFENSIVE_SKILL : StringName = "ability.defensive"
+
 @export var vital_attribute_component: GameplayVitalAttributeComponent
 @export var status_component : GameplayStatusComponent
 @export var ability_component : GameplayAbilityComponent
@@ -296,6 +301,38 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	var ok := ability_component.try_activate_ability(skill_id, final_context)
 	await ability_instance.ability_completed
 	return {"success": ok}
+
+## 检查技能是否为攻击性技能
+func is_skill_offensive(skill_id: StringName) -> bool:
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return false
+	var ability_definition := ability_instance.get_definition()
+	return ability_definition.tags.has(TAG_IS_OFFENSIVE_SKILL)
+
+## 检查技能是否为治疗技能
+func is_skill_healing(skill_id: StringName) -> bool:
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return false
+	var ability_definition := ability_instance.get_definition()
+	return ability_definition.tags.has(TAG_IS_HEALING_SKILL)
+
+## 检查技能是否为支援技能
+func is_skill_support(skill_id: StringName) -> bool:
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return false
+	var ability_definition := ability_instance.get_definition()
+	return ability_definition.tags.has(TAG_IS_SUPPORT_SKILL)
+
+## 检查技能是否为防御技能
+func is_skill_defensive(skill_id: StringName) -> bool:
+	var ability_instance := ability_component.get_ability_instance(skill_id)
+	if not is_instance_valid(ability_instance):
+		return false
+	var ability_definition := ability_instance.get_definition()
+	return ability_definition.tags.has(TAG_IS_DEFENSIVE_SKILL)	
 #endregion
 
 #region --- 状态管理 ---
