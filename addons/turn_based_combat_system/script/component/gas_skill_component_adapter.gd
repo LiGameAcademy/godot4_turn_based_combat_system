@@ -175,6 +175,10 @@ func get_attribute_name(attribute_id: StringName) -> StringName:
 		return ""
 	var attribute = vital_attribute_component.get_attribute(attribute_id)
 	return attribute.attribute_def.attribute_display_name
+
+## 获取属性vital
+func get_attribute_vital(vital_id: StringName) -> GameplayVital:
+	return vital_attribute_component.get_vital(vital_id)
 #endregion
 
 #region --- 技能管理 ---
@@ -274,7 +278,7 @@ func get_skill_mp_cost(skill_id: StringName) -> int:
 func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
 	var ability_instance := ability_component.request_ability_preview(skill_id)
 	var targeting_context : Dictionary = ability_component.confirm_targeting()
-	var targets : Array[Node] = targeting_context.get("targets", [])
+	var targets : Array[Node] = targeting_context.get("targets", [] as Array[Node])
 	return targets
 
 ## 获取技能显示名称

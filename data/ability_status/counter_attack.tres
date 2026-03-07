@@ -3,12 +3,18 @@
 [ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_5ft7y"]
 [ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="2_0xui4"]
 [ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="3_0xui4"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="3_5ird7"]
 [ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="3_6s1bm"]
+[ext_resource type="Script" uid="uid://coon8lgfvca24" path="res://scripts/definitions/gameplay_effects/ge_counter_attack.gd" id="4_8k8um"]
+
+[sub_resource type="Resource" id="Resource_c4mai"]
+script = ExtResource("4_8k8um")
+metadata/_custom_type_script = "uid://coon8lgfvca24"
 
 [sub_resource type="Resource" id="Resource_6s1bm"]
 script = ExtResource("3_0xui4")
-trigger_on_events = Array[StringName]([&"on_damage_taken_completed"])
-event_triggered_effects = Array[ExtResource("1_5ft7y")]([null])
+trigger_on_events = Array[StringName]([&"damage_received_after_hit"])
+event_triggered_effects = Array[ExtResource("1_5ft7y")]([SubResource("Resource_c4mai")])
 feature_name = "反击特性"
 metadata/_custom_type_script = "uid://cx8rx62srat4v"
 

@@ -44,6 +44,16 @@ func initialize(battle_manager: BattleManager, cast_marker: Marker2D) -> void:
 	character_info_container.initialize(self)
 	_cast_marker = cast_marker
 
+	var health_vital : HealthVital = gas_skill_component_adapter.get_attribute_vital("health")
+	health_vital.damage_applied.connect(
+		func(damage_info: GameplayDamageInfo, _final_damage: float) -> void:
+			play_animation("hit")
+			await animation_player.animation_finished
+			AbilityEventBus.trigger_game_event("damage_received_after_hit", {
+				"damage_info": damage_info
+		})
+	)
+
 func get_combat_component() -> CharacterCombatComponent:
 	return character_combat_component
 
@@ -58,6 +68,10 @@ func get_character_name() -> String:
 
 func get_icon() -> Texture2D:
 	return _character_data.icon
+
+## 是否闲置
+func is_idle() -> bool:
+	return animation_player.current_animation == "idle"
 
 func play_animation(animation_name: String, _animation_speed: float = 1.0) -> void:
 	print("%s 播放动画：%s" % [_character_data.character_name, animation_name])

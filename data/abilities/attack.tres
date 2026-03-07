@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ActiveAbilityDefinition" format=3 uid="uid://cfs7077g3sp5n"]
+[gd_resource type="Resource" script_class="ActiveAbilityDefinitionWithReactionWait" format=3 uid="uid://cfs7077g3sp5n"]
 
 [ext_resource type="Script" uid="uid://cmn60ti1qd07f" path="res://addons/godot_ability_system/scripts/abilities/costs/ability_cost_base.gd" id="1_llymd"]
 [ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="2_2atn3"]
@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="4_3k71i"]
 [ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="5_2atn3"]
 [ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_uyo62"]
-[ext_resource type="Script" uid="uid://bi6pufwhna1aj" path="res://addons/godot_ability_system/scripts/abilities/definitions/active_ability_definition.gd" id="6_l2tri"]
 [ext_resource type="Script" uid="uid://otm4g4bqm3se" path="res://scripts/definitions/turn_based_unit_selection_preview_strategy.gd" id="7_l2tri"]
+[ext_resource type="Script" uid="uid://bmfswdp8555u1" path="res://scripts/definitions/ability_definitions/active_ability_definition_with_reaction_wait.gd" id="8_l2tri"]
 
 [sub_resource type="Resource" id="Resource_l2tri"]
 script = ExtResource("3_l2tri")
@@ -25,10 +25,11 @@ script = ExtResource("7_l2tri")
 metadata/_custom_type_script = "uid://otm4g4bqm3se"
 
 [resource]
-script = ExtResource("6_l2tri")
+script = ExtResource("8_l2tri")
+wait_target_idle_max_time = 10.0
 animation_name = &"attack"
 pre_cast_delay = 0.2
-post_cast_delay = 0.3
+post_cast_delay = 0.5
 effects = Array[ExtResource("2_2atn3")]([SubResource("Resource_2atn3")])
 ability_id = &"attack"
 ability_name = "普通攻击"

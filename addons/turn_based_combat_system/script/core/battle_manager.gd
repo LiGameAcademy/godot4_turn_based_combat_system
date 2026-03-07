@@ -120,7 +120,7 @@ func execute_enemy_ai() -> void:
 		return
 
 	# 检查角色是否有AI组件
-	var ai_component = current_turn_character.get_ai_component() if current_turn_character.has_method("get_ai_component") else null
+	var ai_component : CharacterAIComponent = current_turn_character.get_ai_component() if current_turn_character.has_method("get_ai_component") else null
 
 	if not is_instance_valid(ai_component):
 		push_error("BattleManager: 当前行动者没有AI组件！")

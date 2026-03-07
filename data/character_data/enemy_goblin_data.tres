@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="9_icq2d"]
 [ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="9_jk44c"]
 [ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="10_yrb8k"]
+[ext_resource type="Resource" uid="uid://c2l8rj8c2gfvu" path="res://data/abilities/counter_attack.tres" id="10_ywxla"]
 [ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="11_rwtu0"]
 [ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="13_esf7t"]
 
@@ -88,6 +89,7 @@ attribute_sets = Array[ExtResource("5_esf7t")]([SubResource("Resource_80jlc")])
 vitals = Array[ExtResource("9_jk44c")]([SubResource("Resource_hejwr"), SubResource("Resource_dxjiq")])
 element = 3
 ai_behavior = SubResource("Resource_x2mhx")
+initial_skills = Array[ExtResource("13_esf7t")]([ExtResource("10_ywxla")])
 attack_skill = ExtResource("3_rwtu0")
 defense_skill = ExtResource("7_esf7t")
 animation_library = ExtResource("2_80jlc")
