@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayAttribute" format=3 uid="uid://cbsfg0mrcborh"]
+
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_8yu5l"]
+
+[resource]
+script = ExtResource("1_8yu5l")
+attribute_id = &"defense_power"
+attribute_display_name = "防御力"
+attribute_description = "防御力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"

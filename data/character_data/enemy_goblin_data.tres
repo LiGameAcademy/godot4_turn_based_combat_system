@@ -1,0 +1,97 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://cmm8r73yr2mob"]
+
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_ywxla"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="2_80jlc"]
+[ext_resource type="Resource" uid="uid://cfs7077g3sp5n" path="res://data/abilities/attack.tres" id="3_rwtu0"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_yrb8k"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_rwtu0"]
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_esf7t"]
+[ext_resource type="Resource" uid="uid://d01rs3dorg0hc" path="res://data/abilities/defend.tres" id="7_esf7t"]
+[ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="7_ywxla"]
+[ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="9_icq2d"]
+[ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="9_jk44c"]
+[ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="10_yrb8k"]
+[ext_resource type="Resource" uid="uid://c2l8rj8c2gfvu" path="res://data/abilities/counter_attack.tres" id="10_ywxla"]
+[ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="11_rwtu0"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="13_esf7t"]
+
+[sub_resource type="Resource" id="Resource_x2mhx"]
+script = ExtResource("1_ywxla")
+behavior_type = "aggressive"
+self_preservation_weight = 0.0
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[sub_resource type="Resource" id="Resource_1iy67"]
+script = ExtResource("3_yrb8k")
+attribute_id = &"max_mana"
+attribute_display_name = "魔法值"
+attribute_description = "魔法值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_yrb8k"]
+script = ExtResource("3_yrb8k")
+attribute_id = &"max_health"
+attribute_display_name = "生命值"
+attribute_description = "生命值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_rwtu0"]
+script = ExtResource("3_yrb8k")
+attribute_id = &"speed"
+attribute_display_name = "速度"
+attribute_description = "速度决定了单位的出手顺序。"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_esf7t"]
+script = ExtResource("3_yrb8k")
+attribute_id = &"attack_power"
+attribute_display_name = "攻击力"
+attribute_description = "攻击力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_ywxla"]
+script = ExtResource("3_yrb8k")
+attribute_id = &"defense_power"
+attribute_display_name = "防御力"
+attribute_description = "防御力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"
+
+[sub_resource type="Resource" id="Resource_80jlc"]
+script = ExtResource("5_esf7t")
+attributes = Dictionary[ExtResource("3_yrb8k"), float]({
+SubResource("Resource_1iy67"): 20.0,
+SubResource("Resource_yrb8k"): 80.0,
+SubResource("Resource_rwtu0"): 8.0,
+SubResource("Resource_esf7t"): 10.0,
+SubResource("Resource_ywxla"): 2.0
+})
+metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[sub_resource type="Resource" id="Resource_hejwr"]
+script = ExtResource("10_yrb8k")
+vital_id = &"health"
+display_name = "生命值"
+max_value_attribute = &"max_health"
+metadata/_custom_type_script = "uid://b6k2lmhsmbn2c"
+
+[sub_resource type="Resource" id="Resource_dxjiq"]
+script = ExtResource("11_rwtu0")
+vital_id = &"mana"
+display_name = "魔法值"
+max_value_attribute = &"max_mana"
+metadata/_custom_type_script = "uid://diwvpcc0axlat"
+
+[resource]
+script = ExtResource("7_ywxla")
+character_name = "哥布林"
+description = "常见的低级怪物，弱小但行动迅速。"
+attribute_sets = Array[ExtResource("5_esf7t")]([SubResource("Resource_80jlc")])
+vitals = Array[ExtResource("9_jk44c")]([SubResource("Resource_hejwr"), SubResource("Resource_dxjiq")])
+element = 3
+ai_behavior = SubResource("Resource_x2mhx")
+initial_skills = Array[ExtResource("13_esf7t")]([ExtResource("10_ywxla")])
+attack_skill = ExtResource("3_rwtu0")
+defense_skill = ExtResource("7_esf7t")
+animation_library = ExtResource("2_80jlc")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("9_icq2d")

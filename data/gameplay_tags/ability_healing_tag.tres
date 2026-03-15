@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://cyrshtstae4p0"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_2q4g2"]
+
+[resource]
+script = ExtResource("1_2q4g2")
+id = &"ability.healing"
+display_name = "治疗"
+description = "是治疗技能"
+parent_tag_id = &"ability"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

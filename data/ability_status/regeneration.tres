@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://do0pq6wst14ul"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_dxlsg"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_df8kq"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_dqolj"]
+[ext_resource type="Texture2D" uid="uid://dmng40xhxsw25" path="res://assets/textures/icons/status/regeneration.svg" id="3_dxlsg"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="4_d2va4"]
+[ext_resource type="Script" uid="uid://dw4mtt5ah1yp5" path="res://addons/godot_ability_system/scripts/effects/ge_modify_vital.gd" id="5_buxg2"]
+[ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="6_ax1fp"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="8_flpm3"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="9_df8kq"]
+
+[sub_resource type="Resource" id="Resource_ulwxl"]
+script = ExtResource("2_df8kq")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_umfss"]
+script = ExtResource("5_buxg2")
+vital_id = &"current_health"
+amount = 10.0
+metadata/_custom_type_script = "uid://dw4mtt5ah1yp5"
+
+[sub_resource type="Resource" id="Resource_r3isv"]
+script = ExtResource("6_ax1fp")
+trigger_on_events = Array[StringName]([&"turn_ended"])
+event_triggered_effects = Array[ExtResource("1_dxlsg")]([SubResource("Resource_umfss")])
+metadata/_custom_type_script = "uid://cx8rx62srat4v"
+
+[sub_resource type="Resource" id="Resource_dqolj"]
+script = ExtResource("9_df8kq")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
+
+[resource]
+script = ExtResource("8_flpm3")
+status_id = &"regeneration"
+status_display_name = "再生"
+status_description = "生命值缓慢地回复，每回合结束回复10点生命值"
+duration = 3.0
+duration_policy = SubResource("Resource_ulwxl")
+icon = ExtResource("3_dxlsg")
+tags = Array[StringName]([&"status.buff"])
+features = Array[ExtResource("3_dqolj")]([SubResource("Resource_r3isv")])
+stacking_policy = SubResource("Resource_dqolj")

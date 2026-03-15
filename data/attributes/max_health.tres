@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayAttribute" format=3 uid="uid://dqyyxtke705u3"]
+
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_deo3i"]
+
+[resource]
+script = ExtResource("1_deo3i")
+attribute_id = &"max_health"
+attribute_display_name = "生命值"
+attribute_description = "生命值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"

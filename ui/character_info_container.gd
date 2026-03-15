@@ -1,5 +1,7 @@
-extends VBoxContainer
+extends MarginContainer
 class_name CharacterInfoContainer
+
+## 角色状态条
 
 @onready var name_label: Label = %NameLabel
 @onready var hp_bar: AttributeStatusBar = %HPBar
@@ -7,23 +9,23 @@ class_name CharacterInfoContainer
 @onready var skill_status_container: HBoxContainer = %SkillStatusContainer
 
 # 当前绑定的角色
-var _character: Character = null
+var _character: Node = null
 
 # 状态图标字典，用于快速查找和更新
 # Key: status_id (StringName), Value: SkillStatusIcon
-var _status_icons: Dictionary = {}
+var _status_icons: Dictionary[StringName, SkillStatusIcon] = {}
 
 # 状态图标场景
 @export var skill_status_icon_scene: PackedScene = preload("res://ui/skill_status_icon.tscn")
 
-
 func _ready() -> void:
 	for child in skill_status_container.get_children():
 		child.queue_free()
+	
 
 ## 初始化角色信息容器
 ## [param character] 要绑定的角色
-func initialize(character: Character) -> void:
+func initialize(character: Node) -> void:
 	if not character:
 		push_error("CharacterInfoContainer: 无法初始化，角色为空")
 		return
@@ -62,6 +64,10 @@ func _connect_signals() -> void:
 	skill_component.status_applied.connect(_on_status_applied)
 	skill_component.status_removed.connect(_on_status_removed)
 	skill_component.status_updated.connect(_on_status_updated)
+	
+	# 连接生命值变化信号
+	skill_component.current_health_changed.connect(_on_current_health_changed)
+	skill_component.current_mana_changed.connect(_on_current_mana_changed)
 
 ## 断开信号连接
 func _disconnect_signals() -> void:
@@ -116,28 +122,42 @@ func _update_attribute_bars() -> void:
 
 ## 初始化状态图标
 func _initialize_status_icons() -> void:
-	if not _character or not _character.skill_component:
+	if not is_instance_valid(_character):
+		return
+	
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
 	# 清除现有的状态图标
 	clear_status_icons()
 	
 	# 获取当前所有状态
-	var active_statuses = _character.skill_component.get_active_statuses()
+	var active_statuses = skill_component.get_active_statuses()
 	for status_id in active_statuses:
-		var status : SkillStatusData = active_statuses[status_id]
-		if not status.is_hidden_from_ui:
-			_add_status_icon(status)
+		# var status : Resource = active_statuses[status_id]
+		if not skill_component.status_is_hidden_from_ui(status_id):
+			_add_status_icon(status_id)
 
 ## 添加状态图标
-func _add_status_icon(status_data: SkillStatusData) -> void:
-	if not status_data or not skill_status_icon_scene:
+func _add_status_icon(status_id: StringName) -> void:
+	var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
-	
+
+	var icon := skill_component.get_status_icon(status_id)
+	var status_type := skill_component.get_status_type(status_id)
+	var max_stacks := skill_component.get_status_max_stacks(status_id)
+	var stacks := skill_component.get_status_stacks(status_id)
+	var remaining_duration := skill_component.get_status_remaining_duration(status_id)
+
 	# 检查是否已存在该状态的图标
-	if _status_icons.has(status_data.status_id):
+	if _status_icons.has(status_id):
 		# 如果已存在，更新它
-		_status_icons[status_data.status_id].update_status(status_data)
+		var status_icon := _status_icons[status_id]
+		status_icon.update_display(icon, status_type, max_stacks, stacks, remaining_duration)
 		return
 	
 	# 创建新的状态图标
@@ -150,10 +170,10 @@ func _add_status_icon(status_data: SkillStatusData) -> void:
 	skill_status_container.add_child(status_icon)
 	
 	# 设置状态数据
-	status_icon.setup(status_data)
+	status_icon.update_display(icon, status_type, max_stacks, stacks, remaining_duration)
 	
 	# 保存到字典中
-	_status_icons[status_data.status_id] = status_icon
+	_status_icons[status_id] = status_icon
 
 ## 移除状态图标
 func _remove_status_icon(status_id: StringName) -> void:
@@ -189,8 +209,8 @@ func _update_health_bar() -> void:
 		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
-	var current_hp : float = skill_component.get_attribute_current_value(&"CurrentHealth")
-	var max_hp : float = skill_component.get_attribute_current_value(&"MaxHealth")
+	var current_hp : float = skill_component.get_current_hp()
+	var max_hp : float = skill_component.get_attribute_current_value(&"max_health")
 	hp_bar.update_display(current_hp, max_hp)
 
 func _update_mana_bar() -> void:
@@ -203,28 +223,39 @@ func _update_mana_bar() -> void:
 		push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
 		return
 	
-	var current_mp : float = skill_component.get_attribute_current_value(&"CurrentMana")
-	var max_mp : float = skill_component.get_attribute_current_value(&"MaxMana")
+	var current_mp : float = skill_component.get_current_mp()
+	var max_mp : float = skill_component.get_attribute_current_value(&"max_mana")
 	mp_bar.update_display(current_mp, max_mp)
 
 ## 属性当前值变化回调
 func _on_attribute_current_value_changed(attribute_id: StringName, _old_value: float, _new_value: float) -> void:
 	# 检查是否是HP或MP属性
-	if attribute_id == &"CurrentHealth" or attribute_id == &"MaxHealth":
+	if attribute_id == &"health" or attribute_id == &"max_health":
 		_update_health_bar()
-	elif attribute_id == &"CurrentMana" or attribute_id == &"MaxMana":
+	elif attribute_id == &"mana" or attribute_id == &"max_mana":
 		_update_mana_bar()
 
 ## 状态应用回调
-func _on_status_applied(status_instance: SkillStatusData) -> void:
-	_add_status_icon(status_instance)
+func _on_status_applied(status_id: StringName) -> void:
+	_add_status_icon(status_id)
 
 ## 状态移除回调
 func _on_status_removed(status_id: StringName, _status_instance_data_before_removal: SkillStatusData) -> void:
 	_remove_status_icon(status_id)
 
 ## 状态更新回调
-func _on_status_updated(status_instance: SkillStatusData, _old_stacks: int, _old_duration: int) -> void:
+func _on_status_updated(status_id: StringName) -> void:
 	# 更新状态图标
-	if _status_icons.has(status_instance.status_id):
-		_status_icons[status_instance.status_id].update_status(status_instance)
+	if _status_icons.has(status_id):
+		var skill_component: SkillComponentInterface = _character.get_skill_component() if _character.has_method("get_skill_component") else null
+		if not is_instance_valid(skill_component):
+			push_error("CharacterInfoContainer: 角色没有get_skill_component方法")
+			return
+		var status_data : SkillStatusData = skill_component.get_status(status_id)
+		_status_icons[status_id].update_status(status_data)
+
+func _on_current_health_changed(_new_value: float) -> void:
+	_update_health_bar()
+
+func _on_current_mana_changed(_new_value: float) -> void:
+	_update_mana_bar()

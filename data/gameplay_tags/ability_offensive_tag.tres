@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://87f8ru4w2q51"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_v6psg"]
+
+[resource]
+script = ExtResource("1_v6psg")
+id = &"ability.offensive"
+display_name = "攻击"
+description = "是攻击技能"
+parent_tag_id = &"ability"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

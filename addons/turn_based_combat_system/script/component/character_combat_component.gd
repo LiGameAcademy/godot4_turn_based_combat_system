@@ -30,7 +30,7 @@ var is_alive : bool:
 	get:
 		if not is_instance_valid(_skill_component):
 			return false
-		return _skill_component.get_attribute_current_value(&"CurrentHealth") > 0
+		return _skill_component.get_current_hp() > 0
 
 # 信号
 signal character_defeated()															## 死亡时发出信号
@@ -61,7 +61,7 @@ func initialize(p_element : int = 0, p_attack_skill_id : StringName = "", p_defe
 ## [param target] 动作目标
 ## [param params] 额外参数（如技能数据、道具数据等）
 ## [return] 动作执行结果
-func execute_action(action_type: ActionType, target : Character = null, params : Dictionary = {}) -> Dictionary:
+func execute_action(action_type: ActionType, target : Node = null, params : Dictionary = {}) -> Dictionary:
 	var result = {"success": false, "action_type": action_type, "target": target, "params": params}
 
 	# 检查是否可以执行该动作类型
@@ -100,7 +100,7 @@ func execute_action(action_type: ActionType, target : Character = null, params :
 ## 伤害处理方法
 ## [param base_damage] 基础伤害值
 ## [return] 实际造成的伤害值
-func take_damage(base_damage: float, source : Character, p_element : int, is_melee: bool = false) -> float:
+func take_damage(base_damage: float, source : Node, p_element : int, is_melee: bool = false) -> float:
 	var final_damage: float = base_damage
 	
 	# 创建伤害信息对象
@@ -201,12 +201,14 @@ func _die(death_source: Variant = null):
 ## 执行攻击
 ## [param target] 目标
 ## [return] 攻击结果
-func _execute_attack(target: Character, skill_context: Dictionary) -> Dictionary:
+func _execute_attack(target: Node, skill_context: Dictionary) -> Dictionary:
 	var attacker = get_parent()
 	if not is_instance_valid(target):
 		return {"success": false, "error": "无效的角色引用"}
 	
-	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker.character_name, target.character_name if target else ""])
+	var attacker_character_name : StringName = attacker.get_character_name() if attacker.has_method("get_character_name") else ""
+	var target_character_name : StringName = target.get_character_name() if target.has_method("get_character_name") else ""
+	print_rich("[color=yellow]%s 攻击 %s[/color]" % [attacker_character_name, target_character_name])
 	
 	var targets : Array[Node]
 	if is_instance_valid(target):
@@ -222,7 +224,8 @@ func _execute_defend(skill_context: Dictionary) -> Dictionary:
 	if not is_instance_valid(character):
 		return {"success": false, "error": "无效的角色引用"}
 	
-	print_rich("[color=cyan]%s 选择防御[/color]" % [character.character_name])
+	var defense_character_name : StringName = character.get_character_name() if character.has_method("get_character_name") else ""
+	print_rich("[color=cyan]%s 选择防御[/color]" % [defense_character_name])
 	
 	# 使用防御技能
 	var targets: Array[Node] = [character] # 目标是自己
@@ -246,7 +249,8 @@ func _execute_skill(skill_id: StringName, targets: Array[Node], skill_context: D
 	if not _skill_component.has_enough_mp_for_skill(skill_id):
 		return {"success": false, "error": "魔法值不足"}
 
-	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster.character_name, skill_id])
+	var caster_character_name : StringName = caster.get_character_name() if caster.has_method("get_character_name") else ""
+	print_rich("[color=lightblue]%s 使用技能 %s[/color]" % [caster_character_name, skill_id])
 
 	if _skill_component.is_skill_melee(skill_id) and not targets.is_empty():
 		await get_parent().move_to_target(targets[0])

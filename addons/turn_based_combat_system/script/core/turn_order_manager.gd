@@ -26,8 +26,8 @@ func build_queue(all_characters: Array[Node]) -> void:
 		var skill_component_b : SkillComponentInterface = b.get_skill_component() if b.has_method("get_skill_component") else null
 		if not is_instance_valid(skill_component_a) or not is_instance_valid(skill_component_b):
 			return false
-		var speed_a = skill_component_a.get_attribute_current_value("Speed")
-		var speed_b = skill_component_b.get_attribute_current_value("Speed")
+		var speed_a = skill_component_a.get_attribute_current_value(&"speed")
+		var speed_b = skill_component_b.get_attribute_current_value(&"speed")
 		return speed_a > speed_b
 		)
 	print("回合顺序已生成: %d 个角色" % turn_queue.size())

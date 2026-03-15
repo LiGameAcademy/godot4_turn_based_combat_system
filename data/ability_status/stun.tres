@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://cg1hjnd8rrix7"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_lvbk3"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_mtcax"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_7lkx0"]
+[ext_resource type="Texture2D" uid="uid://bb7j0sewffv1t" path="res://assets/textures/icons/status/stun.svg" id="3_lvbk3"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="5_osd1r"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="6_feaat"]
+
+[sub_resource type="Resource" id="Resource_mf2r7"]
+script = ExtResource("2_mtcax")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_an6ic"]
+script = ExtResource("6_feaat")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
+
+[resource]
+script = ExtResource("5_osd1r")
+status_id = &"stun"
+status_display_name = "眩晕"
+status_description = "单位眩晕，无法行动。跳过当前回合"
+duration = 3.0
+duration_policy = SubResource("Resource_mf2r7")
+icon = ExtResource("3_lvbk3")
+tags = Array[StringName]([&"status.debuff", &"restricted_action.any_action"])
+stacking_policy = SubResource("Resource_an6ic")

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://0d2dgfbb8auv"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_ljdh2"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_leyiw"]
+[ext_resource type="Script" uid="uid://b8xbt0r5gucli" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/heal_effect.gd" id="3_e6ksb"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="4_vq2qt"]
+[ext_resource type="Resource" uid="uid://q8m3y4evh63n" path="res://addons/turn_based_combat_system/examples/data/skill_status/regeneration.tres" id="5_ctuu3"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="6_li516"]
+
+[sub_resource type="Resource" id="Resource_ibhp6"]
+script = ExtResource("3_e6ksb")
+heal_amount = 25
+heal_power_scale = 0.0
+metadata/_custom_type_script = "uid://b8xbt0r5gucli"
+
+[sub_resource type="Resource" id="Resource_gatfd"]
+script = ExtResource("4_vq2qt")
+status_to_apply = ExtResource("5_ctuu3")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("6_li516")
+skill_id = &"nurturing_spores"
+skill_name = "滋养孢子"
+description = "为一名友方单位注入生命孢子，立即恢复其生命，并在后续几回合持续恢复。"
+is_melee = false
+mp_cost = 15
+target_type = 6
+effects = Array[ExtResource("1_ljdh2")]([SubResource("Resource_ibhp6"), SubResource("Resource_gatfd")])
+action_categories = Array[String](["any_action", "magic_skill", "any_skill"])
+cast_animation = &"attack"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

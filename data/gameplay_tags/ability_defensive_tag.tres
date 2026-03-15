@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://4mcssa1ss0lh"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_e3n32"]
+
+[resource]
+script = ExtResource("1_e3n32")
+id = &"ability.support"
+display_name = "支援"
+description = "是支援技能"
+parent_tag_id = &"ability"
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

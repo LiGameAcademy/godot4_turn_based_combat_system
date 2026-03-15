@@ -11,7 +11,7 @@ var available_targets: Array[Node] = []
 var selected_target_index: int = -1
 
 ## 信号定义
-signal target_selected(target: Character)
+signal target_selected(target: Node)
 signal target_selection_cancelled
 
 func _ready() -> void:
@@ -42,11 +42,17 @@ func show_targets(targets: Array[Node]) -> void:
 	for i in range(targets.size()):
 		var character = targets[i]
 		if character:
-			var item_text = character.character_name + " (HP: " + str(character.current_hp) + "/" + str(character.max_hp) + ")"
+			var skill_component : SkillComponentInterface = character.get_skill_component() if character.has_method("get_skill_component") else null
+			if not is_instance_valid(skill_component):
+				continue
+			var character_name : String = character.get_character_name() if character.has_method("get_character_name") else ""
+			var current_health := skill_component.get_current_hp()
+			var max_health := skill_component.get_attribute_current_value("max_health")
+			var item_text = character_name + " (HP: " + str(current_health) + "/" + str(max_health) + ")"
 			target_list.add_item(item_text)
 			
 			# 如果目标已死亡，标记为不可选
-			if character.current_hp <= 0:
+			if current_health <= 0:
 				target_list.set_item_disabled(i, true)
 				target_list.set_item_custom_fg_color(i, Color(0.5, 0.5, 0.5))
 	
@@ -69,9 +75,16 @@ func _on_target_item_activated(index: int) -> void:
 func _on_select_button_pressed() -> void:
 	if selected_target_index >= 0 and selected_target_index < available_targets.size():
 		var target = available_targets[selected_target_index]
-		if target and target.current_hp > 0:
-			target_selected.emit(target)
-			hide()
+		if not is_instance_valid(target):
+			return
+		var skill_component : SkillComponentInterface = target.get_skill_component() if target.has_method("get_skill_component") else null
+		if not is_instance_valid(skill_component):
+			return
+		var current_health := skill_component.get_current_hp()
+		if current_health <= 0:
+			return
+		target_selected.emit(target)
+		hide()
 
 ## 当点击取消按钮
 func _on_cancel_button_pressed() -> void:

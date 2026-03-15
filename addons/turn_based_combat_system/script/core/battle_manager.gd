@@ -79,11 +79,11 @@ func start_battle() -> void:
 	
 	var player_characters = character_registry.get_player_team(true)
 	if player_characters.is_empty():
-		push_error("无法开始战斗：缺少玩家!")
+		push_error("BattleManager: 无法开始战斗：缺少玩家!")
 		return
 	var enemy_characters = character_registry.get_enemy_team(true)
 	if enemy_characters.is_empty():
-		push_error("无法开始战斗：缺少敌人!")
+		push_error("BattleManager: 无法开始战斗：缺少敌人!")
 		return
 	state_manager.change_state(BattleStateManager.BattleState.START)
 
@@ -93,16 +93,16 @@ func start_battle() -> void:
 ## [param params] 行动参数
 func player_select_action(action_type: CharacterCombatComponent.ActionType, target: Node = null, params: Dictionary = {}) -> void:
 	if not is_player_turn:
-		_log_battle_info("[color=red]当前不是玩家回合，无法选择行动![/color]")
+		_log_battle_info("[color=red]BattleManager: 当前不是玩家回合，无法选择行动![/color]")
 		return
 
 	if not is_instance_valid(current_turn_character):
-		push_error("当前行动者不存在！")
+		push_error("BattleManager: 当前行动者不存在！")
 		return
 
 	var combat_component = current_turn_character.get_combat_component() if current_turn_character.has_method("get_combat_component") else null
 	if not is_instance_valid(combat_component):
-		push_error("当前行动者没有战斗组件！")
+		push_error("BattleManager: 当前行动者没有战斗组件！")
 		return
 
 	_log_battle_info("[color=cyan]玩家选择行动: %s[/color]" % action_type)
@@ -116,14 +116,14 @@ func player_select_action(action_type: CharacterCombatComponent.ActionType, targ
 ## 执行敌人AI
 func execute_enemy_ai() -> void:
 	if not is_instance_valid(current_turn_character):
-		push_error("当前行动者不存在！")
+		push_error("BattleManager: 当前行动者不存在！")
 		return
 
 	# 检查角色是否有AI组件
-	var ai_component = current_turn_character.get_ai_component() if current_turn_character.has_method("get_ai_component") else null
+	var ai_component : CharacterAIComponent = current_turn_character.get_ai_component() if current_turn_character.has_method("get_ai_component") else null
 
 	if not is_instance_valid(ai_component):
-		push_error("当前行动者没有AI组件！")
+		push_error("BattleManager: 当前行动者没有AI组件！")
 		return
 
 	# 执行AI行动
@@ -131,9 +131,9 @@ func execute_enemy_ai() -> void:
 
 	# 如果AI无法决策或执行失败，直接结束回合
 	if not action_result or not action_result.is_valid:
-		_log_battle_info("[color=red][错误][/color] AI无法决策或执行失败，跳过回合")
+		_log_battle_info("[color=red][错误][/color] BattleManager: AI无法决策或执行失败，跳过回合")
 	else:
-		# 发送敌人行动执行信号
+		# 发送敌人行动执行信号 
 		enemy_action_executed.emit(action_result.source, action_result.target, action_result.damage)
 
 	await get_tree().create_timer(1.0).timeout

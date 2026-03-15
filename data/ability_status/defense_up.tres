@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://bk4wb5e5xjlyt"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_nk76j"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="2_iuun5"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_oxxs3"]
+[ext_resource type="Script" uid="uid://bj8wgemc4twgi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_modifier.gd" id="3_2w8bu"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_mwdd6"]
+[ext_resource type="Texture2D" uid="uid://dawol1l8bqgsf" path="res://assets/textures/icons/status/defend_up.svg" id="3_oxxs3"]
+[ext_resource type="Script" uid="uid://cbqxhqtnqudcb" path="res://addons/godot_ability_system/scripts/effects/ge_attribute_modifier.gd" id="4_ti652"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="5_xoba8"]
+[ext_resource type="Script" uid="uid://kespd3277x86" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_and_stack.gd" id="9_rc3le"]
+
+[sub_resource type="Resource" id="Resource_t5tyf"]
+script = ExtResource("3_2w8bu")
+attribute_id = &"defense_power"
+value = 0.2
+modifier_type = 1
+metadata/_custom_type_script = "uid://bj8wgemc4twgi"
+
+[sub_resource type="Resource" id="Resource_xb73w"]
+script = ExtResource("4_ti652")
+modifiers = Array[ExtResource("3_2w8bu")]([SubResource("Resource_t5tyf")])
+metadata/_custom_type_script = "uid://cbqxhqtnqudcb"
+
+[sub_resource type="Resource" id="Resource_iuun5"]
+script = ExtResource("2_oxxs3")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_pvhip"]
+script = ExtResource("9_rc3le")
+metadata/_custom_type_script = "uid://kespd3277x86"
+
+[resource]
+script = ExtResource("5_xoba8")
+status_id = &"defense_up"
+status_display_name = "防御提升"
+status_description = "大地的力量增强了你的防御"
+duration = 3.0
+duration_policy = SubResource("Resource_iuun5")
+icon = ExtResource("3_oxxs3")
+tags = Array[StringName]([&"status.buff"])
+apply_effects = Array[ExtResource("1_nk76j")]([SubResource("Resource_xb73w")])
+stacking_policy = SubResource("Resource_pvhip")
+metadata/_custom_type_script = "uid://2eyouurk7vcw"

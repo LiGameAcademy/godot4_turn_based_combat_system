@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://wolk45gu26l"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_y2rrr"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_yoo7b"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_fkv2i"]
+[ext_resource type="Texture2D" uid="uid://cntt4xoqan4ix" path="res://assets/textures/icons/status/silence.svg" id="3_yoo7b"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="5_0ugk7"]
+
+[sub_resource type="Resource" id="Resource_y7nhk"]
+script = ExtResource("2_yoo7b")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[resource]
+script = ExtResource("5_0ugk7")
+status_id = &"silence"
+status_display_name = "沉默"
+status_description = "无法使用任何需要消耗魔法值的技能"
+duration = 3.0
+duration_policy = SubResource("Resource_y7nhk")
+icon = ExtResource("3_yoo7b")
+tags = Array[StringName]([&"status.debuff", &"restricted_action.magic_skill"])

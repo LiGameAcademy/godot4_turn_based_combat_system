@@ -6,12 +6,17 @@ class_name TargetHealthCondition
 @export_range(0.0, 1.0) var above_percent: float = -1 	##最小值， 默认值小于0，使其失效
 
 func is_met(context: Dictionary) -> bool:
-	var target: Character = context.get("target")
+	var target: Node = context.get("target")
 	if not is_instance_valid(target): 
 		push_error("target health condition: target is not valid!")
 		return false
 	
-	var max_hp := target.skill_component.get_attribute_current_value(&"MaxHealth")
+	var skill_component: SkillComponentInterface = target.get_skill_component() if target.has_method("get_skill_component") else null
+	if not is_instance_valid(skill_component):
+		push_error("target health condition: target skill component is not valid!")
+		return false
+
+	var max_hp := skill_component.get_attribute_current_value(&"MaxHealth")
 	if max_hp == 0: 
 		push_error("target health condition: target mx_hp is 0!")
 		return false

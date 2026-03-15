@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayTag" format=3 uid="uid://b3fmclcp6xc7r"]
+
+[ext_resource type="Script" uid="uid://0287xxc5l2rf" path="res://addons/godot_ability_system/scripts/tags/gameplay_tag.gd" id="1_jx8ik"]
+
+[resource]
+script = ExtResource("1_jx8ik")
+id = &"restricted_action"
+display_name = "限制动作"
+description = ""
+metadata/_custom_type_script = "uid://0287xxc5l2rf"

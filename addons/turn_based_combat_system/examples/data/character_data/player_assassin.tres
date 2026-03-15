@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="TBC_CharacterData" format=3 uid="uid://x3ps14kdto0r"]
+
+[ext_resource type="AnimationLibrary" uid="uid://bp770obkpa13y" path="res://assets/animations/hero/animation_library_assassin.res" id="1_a4gkc"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://addons/turn_based_combat_system/examples/data/skills/attack.tres" id="2_gvk2p"]
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute.gd" id="3_mjxil"]
+[ext_resource type="Resource" uid="uid://b1gbs024jdeds" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/max_health.tres" id="4_bkf5y"]
+[ext_resource type="Resource" uid="uid://drdip2i404d88" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/max_mana.tres" id="5_io1q0"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/current_health.tres" id="6_bisbv"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/current_mana.tres" id="7_ltlre"]
+[ext_resource type="Resource" uid="uid://dy8vbokoah6gb" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/attack_power.tres" id="8_xqip0"]
+[ext_resource type="Resource" uid="uid://c1rhn2rpt7d7j" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/defense_power.tres" id="9_uka2w"]
+[ext_resource type="Resource" uid="uid://bmaomvfqxyfd8" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/speed.tres" id="10_v4uvy"]
+[ext_resource type="Script" uid="uid://8esdurm415rx" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_set.gd" id="11_mhjo2"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://addons/turn_based_combat_system/examples/data/skills/defend.tres" id="12_pnu3l"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="13_lh4hi"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/tbc_character_data.gd" id="14_arx01"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="15_6ssnu"]
+[ext_resource type="Resource" uid="uid://bra85c6w585gr" path="res://addons/turn_based_combat_system/examples/data/skills/fireball.tres" id="16_hb3xt"]
+[ext_resource type="Resource" uid="uid://ibufrbnn0i41" path="res://addons/turn_based_combat_system/examples/data/skills/minor_heal.tres" id="17_kvq8t"]
+[ext_resource type="Resource" uid="uid://d07k4h2wdv6tu" path="res://addons/turn_based_combat_system/examples/data/skills/silence.tres" id="18_c26nh"]
+[ext_resource type="Resource" uid="uid://bmht6ovonqs52" path="res://addons/turn_based_combat_system/examples/data/skills/stun.tres" id="19_y5i4f"]
+
+[sub_resource type="Resource" id="Resource_ph3fh"]
+script = ExtResource("11_mhjo2")
+attributes_to_initialize = Array[ExtResource("3_mjxil")]([ExtResource("4_bkf5y"), ExtResource("5_io1q0"), ExtResource("6_bisbv"), ExtResource("7_ltlre"), ExtResource("8_xqip0"), ExtResource("9_uka2w"), ExtResource("10_v4uvy")])
+
+[resource]
+script = ExtResource("14_arx01")
+character_name = "勇者"
+description = "一位勇敢的冒险者，善于使用剑术和基础魔法。"
+attribute_set_resource = SubResource("Resource_ph3fh")
+element = 2
+skills = Array[ExtResource("15_6ssnu")]([ExtResource("16_hb3xt"), ExtResource("17_kvq8t"), ExtResource("18_c26nh"), ExtResource("19_y5i4f")])
+animation_library = ExtResource("1_a4gkc")
+icon = ExtResource("13_lh4hi")

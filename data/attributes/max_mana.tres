@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayAttribute" format=3 uid="uid://dk8d0hssklu64"]
+
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_4xk3v"]
+
+[resource]
+script = ExtResource("1_4xk3v")
+attribute_id = &"max_mana"
+attribute_display_name = "魔法值"
+attribute_description = "魔法值上限"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"

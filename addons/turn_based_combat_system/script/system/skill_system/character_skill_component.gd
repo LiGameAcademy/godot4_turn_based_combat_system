@@ -10,6 +10,15 @@ var _skills: Dictionary[StringName, SkillData] = {}
 ## 角色标签系统，用于控制角色可执行的动作类型
 var _restricted_action_tags : Array[String] = []
 
+func _ready() -> void:
+	attribute_current_value_changed.connect(
+		func(attribute_id: StringName, _old_value: float, new_value: float) -> void:
+			if attribute_id == &"CurrentHealth":
+				current_health_changed.emit(new_value)
+			elif attribute_id == &"CurrentMana":
+				current_mana_changed.emit(new_value)
+	)
+
 ## 初始化组件
 func initialize(attribute_set_resource: SkillAttributeSet, skills: Array[SkillData]) -> void:
 	# 这是因为AttributeSet本身是一个Resource, 直接使用会导致所有实例共享数据
@@ -63,24 +72,26 @@ func set_attribute_base_value(attribute_name: StringName, value: float) -> void:
 	_active_attribute_set.set_base_value(attribute_name, value)
 
 ## 添加属性修改器
-func add_attribute_modifier(attribute_name: StringName, modifier: SkillAttributeModifier) -> void:
-	_active_attribute_set.add_attribute_modifier(attribute_name, modifier)
+func add_attribute_modifier(attribute_name: StringName, magnitude: float, operation: int, source_id: StringName) -> void:
+	var mod : SkillAttributeModifier = SkillAttributeModifier.new(
+		attribute_name,
+		magnitude,
+		operation,
+		int(source_id)
+	)
+	_active_attribute_set.apply_modifier(mod)
 
 ## 移除属性修改器
-func remove_attribute_modifier(attribute_name: StringName, modifier: SkillAttributeModifier) -> void:
-	_active_attribute_set.remove_attribute_modifier(attribute_name, modifier)
+func remove_attribute_modifier(_attribute_name: StringName, modifier: Resource) -> void:
+	_active_attribute_set.remove_modifier(modifier as SkillAttributeModifier)
 
 ## 获取属性修改器
-func get_attribute_modifiers(attribute_name: StringName) -> Array[SkillAttributeModifier]:
-	return _active_attribute_set.get_attribute_modifiers(attribute_name)
+func get_attribute_modifiers(attribute_name: StringName) -> Array[Resource]:
+	return _active_attribute_set.get_modifiers(attribute_name)
 
 ## 获取属性实例
-func get_attribute(attribute_name: StringName) -> SkillAttribute:
+func get_attribute(attribute_name: StringName) -> Resource:
 	return _active_attribute_set.get_attribute(attribute_name)
-
-## 获取AttributeSet
-func get_attribute_set() -> SkillAttributeSet:
-	return _active_attribute_set
 
 ## 消耗MP
 func consume_mp(amount: float) -> bool:
@@ -104,6 +115,17 @@ func consume_hp(amount: float) -> bool:
 func restore_hp(amount: float) -> float:
 	_active_attribute_set.modify_base_value(&"CurrentHealth", amount)
 	return amount
+
+## 获取当前mp
+func get_current_mp() -> float:
+	return _active_attribute_set.get_current_value(&"CurrentMana")
+
+## 获取当前hp
+func get_current_hp() -> float:
+	return _active_attribute_set.get_current_value(&"CurrentHealth")
+
+func get_attribute_name(attribute_id: StringName) -> StringName:
+	return _active_attribute_set.get_attribute(attribute_id).display_name
 #endregion
 
 #region --- 技能管理 ---
@@ -183,6 +205,20 @@ func get_skill_mp_cost(skill_id: StringName) -> int:
 		return 0
 	return skill.mp_cost
 
+## 获取技能显示名称
+func get_skill_display_name(skill_id: StringName) -> String:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return ""
+	return skill.get_display_name()
+
+## 获取技能描述
+func get_skill_description(skill_id: StringName) -> String:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return ""
+	return skill.get_full_description()
+
 ## 检查技能是否为近战技能
 func is_skill_melee(skill_id: StringName) -> bool:
 	var skill : SkillData = get_skill(skill_id)
@@ -196,6 +232,28 @@ func is_skill_ranged(skill_id: StringName) -> bool:
 	if not is_instance_valid(skill):
 		return false
 	return skill.is_ranged
+
+## 获取技能目标
+func get_skill_targets(skill_id: StringName, context: Dictionary) -> Array[Node]:
+	var battle_manager : BattleManager = context.get("battle_manager", null)
+	if not is_instance_valid(battle_manager):
+		return [] as Array[Node]
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return [] as Array[Node]
+	if skill.is_self_target():
+		# 自身目标
+		return [get_parent()]
+	elif skill.is_enemy_target():
+		# 敌人目标
+		return battle_manager.get_valid_enemy_targets(get_parent())
+	elif skill.is_including_self():
+		# 包含自身目标
+		return battle_manager.get_valid_ally_targets(get_parent(), true)
+	else:
+		# 友方不包含自身
+		return battle_manager.get_valid_ally_targets(get_parent(), false)
+	return [] as Array[Node]
 
 ## 执行技能
 func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Dictionary) -> Dictionary:
@@ -226,7 +284,7 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 			_on_skill_execution_failed(get_skill(skill_id), actual_targets, {"error": "技能施法条件不满足"})
 		return {"error": "技能施法条件不满足"}
 
-	skill_execution_started.emit(skill, actual_targets, skill_execution_context)
+	skill_execution_started.emit(skill, skill_execution_context)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_started", 
 		get_parent(), 
@@ -248,11 +306,39 @@ func execute_skill(skill_id: StringName, targets: Array[Node], skill_context: Di
 	await get_tree().create_timer(skill.post_cast_delay).timeout
 	
 	# 5. 发出技能执行完成信号
-	skill_execution_completed.emit(skill, actual_targets, skill_execution_result)
+	skill_execution_completed.emit(skill, skill_execution_result)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_completed", get_parent(), EventSkillExecutionCompletedContext.new(get_parent(), skill, actual_targets, skill_execution_result)
 	)
 	return skill_execution_result
+
+## 检查技能是否为攻击性技能
+func is_skill_offensive(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"offensive")
+
+## 检查技能是否为治疗技能
+func is_skill_healing(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"healing")
+
+## 检查技能是否为支援技能
+func is_skill_support(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"support")
+
+## 检查技能是否为防御技能
+func is_skill_defensive(skill_id: StringName) -> bool:
+	var skill : SkillData = get_skill(skill_id)
+	if not is_instance_valid(skill):
+		return false
+	return _get_skill_tags(skill).has(&"defensive")
 #endregion
 
 #region --- 状态管理 ---
@@ -397,32 +483,41 @@ func process_active_statuses(battle_manager : BattleManager) -> void:
 			var effect_source = status_instance.source_character if is_instance_valid(status_instance.source_character) else get_parent()
 			_process_effects(status_instance.ongoing_effects, effect_source, [get_parent()], SkillExecutionContext.new(battle_manager))
 
-## 私有方法：更新状态触发次数
-## [param status] 要更新的状态
-func update_status_trigger_counts(status: Resource) -> void:
-	if not is_instance_valid(status) or not status is SkillStatusData:
-		push_error("SkillComponent: status is not SkillStatusData!")
-		return
-	status.current_turn_trigger_count += 1
-	status.current_total_trigger_count += 1
-	
-	# 检查是否达到最大触发次数
-	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
-		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
-		# 使用延迟调用移除状态，避免在遍历过程中修改集合
-		call_deferred("remove_status", status.status_id)
+func status_is_hidden_from_ui(status_id : StringName) -> bool:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return false
+	return status.is_hidden_from_ui
 
-## 获取触发状态
-func get_triggerable_status(event_type: StringName) -> Array[Resource]:
-	var triggerable_statuses: Array[Resource] = []
-	for status in _active_statuses.values():
-		if not is_instance_valid(status) or not status is SkillStatusData:
-			continue
-		if status.can_trigger_on_event(event_type):
-			triggerable_statuses.append(status)
+func get_status_icon(status_id: StringName) -> Texture2D:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return null
+	return status.icon
 
-	return triggerable_statuses
+func get_status_type(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.status_type
 
+func get_status_max_stacks(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.max_stacks
+
+func get_status_current_stacks(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.stacks
+
+func get_status_remaining_duration(status_id: StringName) -> int:
+	var status : SkillStatusData = _active_statuses.get(status_id)
+	if not is_instance_valid(status):
+		return 0
+	return status.remaining_duration
 #endregion
 
 #region --- 标签管理 ---
@@ -563,7 +658,7 @@ func _update_existing_status(
 	
 	# 如果状态有变化，发出信号
 	if old_stacks != runtime_status_instance.stacks or old_duration != runtime_status_instance.remaining_duration:
-		status_updated.emit(runtime_status_instance, old_stacks, old_duration)
+		status_updated.emit(runtime_status_instance.status_id)
 		TBCombatSystem.trigger_game_event(
 			"on_status_updated", get_parent(), EventStatusUpdatedContext.new(get_parent(), status_id, runtime_status_instance, old_stacks, old_duration)
 			)
@@ -612,7 +707,7 @@ func _apply_new_status(status_template: SkillStatusData, p_source_char: Node,
 	])
 	
 	# 发出状态应用信号
-	status_applied.emit(runtime_status_instance)
+	status_applied.emit(runtime_status_instance.status_id)
 	TBCombatSystem.trigger_game_event(
 		"on_status_applied", 
 		get_parent(), 
@@ -773,6 +868,32 @@ func _get_random_targets(targets: Array[Node], count: int) -> Array[Node]:
 	random_targets.shuffle()
 	return random_targets.slice(0, count)
 
+## 获取触发状态
+func _get_triggerable_status(event_type: StringName) -> Array[Resource]:
+	var triggerable_statuses: Array[Resource] = []
+	for status in _active_statuses.values():
+		if not is_instance_valid(status) or not status is SkillStatusData:
+			continue
+		if status.can_trigger_on_event(event_type):
+			triggerable_statuses.append(status)
+
+	return triggerable_statuses
+
+## 私有方法：更新状态触发次数
+## [param status] 要更新的状态
+func _update_status_trigger_counts(status: Resource) -> void:
+	if not is_instance_valid(status) or not status is SkillStatusData:
+		push_error("SkillComponent: status is not SkillStatusData!")
+		return
+	status.current_turn_trigger_count += 1
+	status.current_total_trigger_count += 1
+	
+	# 检查是否达到最大触发次数
+	if status.trigger_count > 0 and status.current_total_trigger_count >= status.trigger_count:
+		print_rich("[color=orange]状态 %s 已达到最大触发次数 %d，将被移除[/color]" % [status.status_name, status.trigger_count])
+		# 使用延迟调用移除状态，避免在遍历过程中修改集合
+		call_deferred("remove_status", status.status_id)
+
 ## 触发游戏事件
 ## [param event_source] 事件的触发者
 ## [param event_type] 事件类型，如 "on_damage_taken", "on_turn_start", "on_attack" 等
@@ -784,7 +905,7 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 	if event_source != get_parent():
 		return
 
-	var triggerable_statuses = get_triggerable_status(event_type)
+	var triggerable_statuses = _get_triggerable_status(event_type)
 	if triggerable_statuses.is_empty():
 		return
 	
@@ -796,11 +917,38 @@ func _trigger_game_event(event_type: StringName, event_source: Node, context: Ev
 		if context is DamageEventContext:
 			skill_context.damage_info = context.damage_info
 		_process_effects(trigger_effects, status.source_character, [event_source], skill_context)
-		update_status_trigger_counts(status)
+		_update_status_trigger_counts(status)
 	
 func _on_skill_execution_failed(skill: SkillData, actual_targets: Array[Node], result: Dictionary) -> void:
-	skill_execution_failed.emit(skill, actual_targets, result)
+	skill_execution_failed.emit(skill, result)
 	TBCombatSystem.trigger_game_event(
 		"on_skill_execution_failed", get_parent(), EventSkillExecutionFailedContext.new(get_parent(), skill, actual_targets, result)
 	)
+
+## 获取技能的标签（类型）
+## [param skill] 技能数据
+## [return] 标签列表
+func _get_skill_tags(skill: SkillData) -> Array[StringName]:
+	var tags : Array[StringName] = []
+	
+	# 根据技能效果判断类型
+	for effect in skill.effects:
+		if effect is DamageEffect or effect is ModifyDamageEffect:
+			tags.append(&"offensive")
+		elif effect is HealEffect:
+			tags.append(&"healing")
+		elif effect is ApplyStatusEffect:
+			# 根据状态类型判断
+			if effect.status_to_apply.status_type == SkillStatusData.StatusType.BUFF:
+				tags.append(&"support")
+			elif effect.status_to_apply.status_type == SkillStatusData.StatusType.DEBUFF:
+				tags.append(&"debuff")
+	# 去重
+	var unique_tags : Array[StringName] = []
+	for tag in tags:
+		if not tag in unique_tags:
+			unique_tags.append(tag)
+	
+	return unique_tags
+
 #endregion

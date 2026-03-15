@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="GameplayAbilityDefinition" format=3 uid="uid://c2l8rj8c2gfvu"]
+
+[ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="1_8awwg"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="2_au5bf"]
+[ext_resource type="Script" uid="uid://5p7f1nsqc2ma" path="res://addons/godot_ability_system/scripts/abilities/features/passive_status_feature.gd" id="2_jjlp1"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="3_l18sx"]
+[ext_resource type="Resource" uid="uid://cvv7h38psqegp" path="res://data/ability_status/counter_attack.tres" id="4_8p2jt"]
+
+[sub_resource type="Resource" id="Resource_k17xr"]
+script = ExtResource("2_jjlp1")
+statuses = Dictionary[ExtResource("3_l18sx"), int]({
+ExtResource("4_8p2jt"): 1
+})
+metadata/_custom_type_script = "uid://5p7f1nsqc2ma"
+
+[resource]
+script = ExtResource("2_au5bf")
+ability_id = &"counter_attack"
+ability_name = "反击"
+description = "受到攻击时有几率对伤害来源释放普通攻击"
+features = Array[ExtResource("1_8awwg")]([SubResource("Resource_k17xr")])
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

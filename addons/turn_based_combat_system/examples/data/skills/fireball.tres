@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://bra85c6w585gr"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_g25c0"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_34wqb"]
+[ext_resource type="Resource" uid="uid://dblm23dkh168w" path="res://addons/turn_based_combat_system/examples/data/skill_status/ignite.tres" id="2_wb8wf"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="3_my6h7"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="4_wxmls"]
+[ext_resource type="Texture2D" uid="uid://bn3pbr75oofc6" path="res://assets/textures/icons/assassin.tres" id="6_whgey"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="7_6s0b2"]
+
+[sub_resource type="Resource" id="Resource_dua1n"]
+script = ExtResource("3_my6h7")
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_v0rhv"]
+script = ExtResource("4_wxmls")
+status_to_apply = ExtResource("2_wb8wf")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("7_6s0b2")
+skill_id = &"fireball"
+skill_name = "火球术"
+description = "向敌人投掷一个火球，造成火焰伤害。"
+is_melee = false
+mp_cost = 8
+effects = Array[ExtResource("1_g25c0")]([SubResource("Resource_dua1n"), SubResource("Resource_v0rhv")])
+action_categories = Array[String](["any_action", "magic_skill"])
+icon = ExtResource("6_whgey")
+cast_animation = &"projectile_cast"

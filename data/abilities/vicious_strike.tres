@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://cbio4202fpw4x"]
+
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="1_a8leo"]
+[ext_resource type="Script" uid="uid://co1ihhjcfry5a" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_confitions/skill_condition.gd" id="2_bff07"]
+[ext_resource type="Script" uid="uid://dmq6f1ckocmgd" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/damage_effect.gd" id="3_sii5m"]
+[ext_resource type="Script" uid="uid://dx52yiv5hjjpu" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect/apply_status_effect.gd" id="4_ypiuj"]
+[ext_resource type="Resource" uid="uid://b1b5163oy6kh6" path="res://addons/turn_based_combat_system/examples/data/skill_status/bleed.tres" id="5_twf0r"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="6_wfmqd"]
+
+[sub_resource type="Resource" id="Resource_8hv47"]
+script = ExtResource("3_sii5m")
+damage_amount = 5
+damage_power_scale = 0.0
+metadata/_custom_type_script = "uid://dmq6f1ckocmgd"
+
+[sub_resource type="Resource" id="Resource_wwvtt"]
+script = ExtResource("4_ypiuj")
+status_to_apply = ExtResource("5_twf0r")
+metadata/_custom_type_script = "uid://dx52yiv5hjjpu"
+
+[resource]
+script = ExtResource("6_wfmqd")
+skill_id = &"vicious_strike"
+skill_name = "恶毒突刺"
+description = "用生锈的匕首刺向敌人，造成少量伤害，并有很高几率使其流血。"
+effects = Array[ExtResource("1_a8leo")]([SubResource("Resource_8hv47"), SubResource("Resource_wwvtt")])
+action_categories = Array[String](["any_action", "basic_attack", "physical_attack"])
+cast_animation = &"attack"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

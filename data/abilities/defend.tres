@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="ActiveAbilityDefinition" format=3 uid="uid://d01rs3dorg0hc"]
+
+[ext_resource type="Script" uid="uid://cmn60ti1qd07f" path="res://addons/godot_ability_system/scripts/abilities/costs/ability_cost_base.gd" id="1_fjxrs"]
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="2_ac8b0"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="3_ag22m"]
+[ext_resource type="Script" uid="uid://b44v0u0g5ig0m" path="res://addons/godot_ability_system/scripts/effects/ge_apply_status.gd" id="4_nfetk"]
+[ext_resource type="Resource" uid="uid://c0rd3id6u23yq" path="res://data/ability_status/defend.tres" id="5_dx2dp"]
+[ext_resource type="Script" uid="uid://cm0x3pewlrveo" path="res://addons/godot_ability_system/scripts/abilities/features/gameplay_ability_feature.gd" id="6_48grj"]
+[ext_resource type="Script" uid="uid://bi6pufwhna1aj" path="res://addons/godot_ability_system/scripts/abilities/definitions/active_ability_definition.gd" id="7_n61h8"]
+
+[sub_resource type="Resource" id="Resource_hv2s2"]
+script = ExtResource("4_nfetk")
+status_data = ExtResource("5_dx2dp")
+metadata/_custom_type_script = "uid://b44v0u0g5ig0m"
+
+[resource]
+script = ExtResource("7_n61h8")
+animation_name = &"defend"
+pre_cast_delay = 0.3
+post_cast_delay = 0.5
+effects = Array[ExtResource("2_ac8b0")]([SubResource("Resource_hv2s2")])
+ability_id = &"defend"
+ability_name = "防御"
+description = "防御的描述"
+metadata/_custom_type_script = "uid://dd0peyl7nmqfg"

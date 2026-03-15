@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://clwplh35via3d"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_lc1kl"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_1upg3"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="2_88i25"]
+[ext_resource type="Script" uid="uid://bj8wgemc4twgi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_modifier.gd" id="3_hka00"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="3_xjt1l"]
+[ext_resource type="Texture2D" uid="uid://ca6w45lx073wb" path="res://assets/textures/icons/status/defense_down.svg" id="4_88i25"]
+[ext_resource type="Script" uid="uid://cbqxhqtnqudcb" path="res://addons/godot_ability_system/scripts/effects/ge_attribute_modifier.gd" id="4_h8tnw"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="5_hka00"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="9_hka00"]
+
+[sub_resource type="Resource" id="Resource_kv4sr"]
+script = ExtResource("3_hka00")
+attribute_id = &"defense_power"
+value = -0.2
+modifier_type = 1
+metadata/_custom_type_script = "uid://bj8wgemc4twgi"
+
+[sub_resource type="Resource" id="Resource_3okxs"]
+script = ExtResource("4_h8tnw")
+modifiers = Array[ExtResource("3_hka00")]([SubResource("Resource_kv4sr")])
+metadata/_custom_type_script = "uid://cbqxhqtnqudcb"
+
+[sub_resource type="Resource" id="Resource_h8tnw"]
+script = ExtResource("2_1upg3")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_a8haj"]
+script = ExtResource("9_hka00")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
+
+[resource]
+script = ExtResource("5_hka00")
+status_id = &"defense_down"
+status_display_name = "防御下降"
+status_description = "孢子侵蚀了护甲，防御力大幅降低"
+duration = 3.0
+duration_policy = SubResource("Resource_h8tnw")
+icon = ExtResource("4_88i25")
+tags = Array[StringName]([&"status.debuff"])
+apply_effects = Array[ExtResource("1_lc1kl")]([SubResource("Resource_3okxs")])
+stacking_policy = SubResource("Resource_a8haj")

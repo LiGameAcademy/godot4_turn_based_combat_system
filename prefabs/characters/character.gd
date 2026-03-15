@@ -1,66 +1,30 @@
 extends Node2D
-class_name Character
 
-const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://ui/damage_number.tscn")
+@onready var character_combat_component: CharacterCombatComponent = %CharacterCombatComponent
+@onready var character_ai_component: CharacterAIComponent = %CharacterAIComponent
+@onready var gas_skill_component_adapter: GAS_SkillComponentAdapter = $GAS_SkillComponentAdapter
 
-# 引用场景中的节点
-@onready var state_indicator : StateIndicator = $StateIndicator
-# 组件引用
-@onready var combat_component: CharacterCombatComponent = %CharacterCombatComponent
-@onready var skill_component: SkillComponentInterface = %CharacterSkillComponent
-@onready var ai_component: CharacterAIComponent = %CharacterAIComponent
-@onready var character_info_container : CharacterInfoContainer = %CharacterInfoContainer
-@onready var sprite_2d : Sprite2D = %Sprite2D
-@onready var animation_player : AnimationPlayer = %AnimationPlayer
+@onready var animation_player: AnimationPlayer = %AnimationPlayer
+@onready var state_indicator: StateIndicator = $StateIndicator
+@onready var sprite_2d: Sprite2D = %Sprite2D
 @onready var character_click_area: Area2D = %CharacterClickArea
+@onready var character_info_container: CharacterInfoContainer = %CharacterInfoContainer
 
-@export var character_data: CharacterData
-@export var is_player : bool = true
 ## 目标偏移量
 @export var target_move_offset : Vector2 = Vector2(80, 0)
 
-#region --- 常用属性的便捷Getter ---
-var current_hp: float:
-	get: return skill_component.get_attribute_current_value(&"CurrentHealth") if skill_component else 0.0
-	set(value): assert(false, "cannot set current_hp")
-var max_hp: float:
-	get: return skill_component.get_attribute_current_value(&"MaxHealth") if skill_component else 0.0
-	set(value): assert(false, "cannot set max_hp")
-var current_mp: float:
-	get: return skill_component.get_attribute_current_value(&"CurrentMana") if skill_component else 0.0
-	set(value): assert(false, "cannot set current_mp")
-var max_mp: float:
-	get: return skill_component.get_attribute_current_value(&"MaxMana") if skill_component else 0.0
-	set(value): assert(false, "cannot set max_mp")
-var attack_power: float:
-	get: return skill_component.get_attribute_current_value(&"AttackPower") if skill_component else 0.0
-	set(value): assert(false, "cannot set attack_power")
-var defense_power: float:
-	get: return skill_component.get_attribute_current_value(&"DefensePower") if skill_component else 0.0
-	set(value): assert(false, "cannot set defense_power")
-var speed: float:
-	get: return skill_component.get_attribute_current_value(&"Speed") if skill_component else 0.0
-	set(value): assert(false, "cannot set speed")
-var character_name : StringName:
-	get: return character_data.character_name if character_data else "" 
-	set(value): assert(false, "cannot set character_name")
-#endregion
-
+@export var is_player : bool = true
+var _character_data : CharacterData
 var _original_position : Vector2 = Vector2.ZERO		## 原始位置
+var _cast_marker : Marker2D
 
-# 属性委托给战斗组件
-var is_alive : bool = true:							## 生存状态标记
-	get: return current_hp > 0
-
-var cast_marker : Marker2D
-
-# 信号 - 这些信号将转发组件的信号
-signal character_clicked(character)
+signal character_clicked(character : Node)
 
 func _ready() -> void:
+	_setup_animations()
 	if state_indicator:
 		state_indicator.hide()
-	sprite_2d.position += character_data.sprite_offset
+	sprite_2d.position += _character_data.sprite_offset
 	if not is_player:
 		sprite_2d.flip_h = true
 
@@ -69,76 +33,48 @@ func _ready() -> void:
 	# 设置鼠标交互
 	_setup_character_click_area()
 
-	combat_component.action_started.connect(_on_action_started)
-	combat_component.action_executed.connect(_on_action_executed)
+	character_combat_component.action_started.connect(_on_action_started)
+	character_combat_component.action_executed.connect(_on_action_executed)
 
-## 获取技能组件
-func get_skill_component() -> SkillComponentInterface:
-	return skill_component
+func setup(character_data : CharacterData) -> void:
+	_character_data = character_data
 
-## 获取AI组件
-func get_ai_component() -> CharacterAIComponent:
-	return ai_component
-
-## 获取战斗组件
-func get_combat_component() -> CharacterCombatComponent:
-	return combat_component
-
-## 获取角色名称
-func get_character_name() -> StringName:
-	return character_name
-
-## 获取角色图标
-func get_icon() -> Texture2D:
-	return character_data.icon
-
-## 初始化角色
-func initialize(battle_manager: BattleManager, p_cast_marker: Marker2D) -> void:
-	if is_instance_valid(character_data):
-		_initialize_from_data(character_data)
-	else:
-		push_error("角色场景 " + name + " 没有分配CharacterData!")
-	# 初始化组件
+func initialize(battle_manager: BattleManager, cast_marker: Marker2D) -> void:
 	_init_components(battle_manager)
-
-	# 初始化UI显示
 	character_info_container.initialize(self)
-	_setup_animations()
+	_cast_marker = cast_marker
 
-	cast_marker = p_cast_marker
+	var health_vital : HealthVital = gas_skill_component_adapter.get_attribute_vital("health")
+	health_vital.damage_applied.connect(
+		func(damage_info: GameplayDamageInfo, _final_damage: float) -> void:
+			play_animation("hit")
+			await animation_player.animation_finished
+			AbilityEventBus.trigger_game_event("damage_received_after_hit", {
+				"damage_info": damage_info
+		})
+	)
 
-	print("%s initialized. HP: %.1f/%.1f, Attack: %.1f" % [character_data.character_name, current_hp, max_hp, attack_power])
-	# print(character_name + " 初始化完毕，HP: " + str(current_hp) + "/" + str(max_hp))
-## 生成伤害数字
-func spawn_damage_number(amount: float, color : Color, prefix : String = "") -> void:
-	var damage_number : DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
-	get_parent().add_child(damage_number)
-	damage_number.global_position = global_position + Vector2(0, -50)
-	damage_number.show_damage(amount, false, color, prefix)
-## 检查是否有足够的MP使用指定技能
-func has_enough_mp_for_skill(skill_id: StringName = "") -> bool:
-	if is_instance_valid(skill_component):
-		return skill_component.has_enough_mp_for_skill(skill_id)
-	push_error("Character: 技能组件未初始化！")
-	return false
+func get_combat_component() -> CharacterCombatComponent:
+	return character_combat_component
 
-## 使用MP
-func use_mp(amount: float) -> bool:
-	if is_instance_valid(skill_component):
-		return skill_component.consume_mp(amount)
-	push_error("Character: 技能组件未初始化！")
-	return false
+func get_skill_component() -> SkillComponentInterface:
+	return gas_skill_component_adapter
 
-## 恢复MP
-func restore_mp(amount: float) -> float:
-	if is_instance_valid(skill_component):
-		return skill_component.restore_mp(amount)
-	push_error("Character: 技能组件未初始化！")
-	return 0.0
+func get_ai_component() -> CharacterAIComponent:
+	return character_ai_component
+	
+func get_character_name() -> String:
+	return _character_data.character_name
 
-## 播放动画
-func play_animation(animation_name: String) -> void:
-	print("%s 播放动画：%s" % [character_name, animation_name])
+func get_icon() -> Texture2D:
+	return _character_data.icon
+
+## 是否闲置
+func is_idle() -> bool:
+	return animation_player.current_animation == "idle"
+
+func play_animation(animation_name: String, _animation_speed: float = 1.0) -> void:
+	print("%s 播放动画：%s" % [_character_data.character_name, animation_name])
 	
 	# 检查是否有对应的动画
 	if animation_player.has_animation(animation_name):
@@ -150,13 +86,13 @@ func play_animation(animation_name: String) -> void:
 		push_warning("动画 %s 不存在" % animation_name)
 
 ## 移动到目标
-func move_to_target(target: Character) -> void:
+func move_to_target(target: Node) -> void:
 	var move_offset = target_move_offset * (1 if target.is_player else -1)
 	await move_to(target.global_position + move_offset)
 
 ## 移动到施法位置
 func move_to_cast_marker() -> void:
-	await move_to(cast_marker.global_position)
+	await move_to(_cast_marker.global_position)
 
 ## 返回
 func move_back() -> void:
@@ -168,40 +104,15 @@ func move_to(target_position: Vector2) -> void:
 	tween.tween_property(self, "global_position", target_position, 0.2)
 	await tween.finished
 
-## 初始化组件
-func _init_components(battle_manager: BattleManager) -> void:
-	if not combat_component:
-		push_error("战斗组件未初始化！")
-		return
-	if not skill_component:
-		push_error("技能组件未初始化！")
-		return
-	
-	combat_component.initialize(character_data.element, character_data.attack_skill.skill_id, character_data.defense_skill.skill_id)
-	if not skill_component is CharacterSkillComponent:
-		push_error("技能组件不是CharacterSkillComponent类型！")
-		return
-	skill_component.initialize(character_data.attribute_set_resource, character_data.skills.duplicate(true))
-	skill_component.add_skill(character_data.attack_skill.skill_id, character_data.attack_skill)
-	skill_component.add_skill(character_data.defense_skill.skill_id, character_data.defense_skill)
-
-	ai_component.initialize(battle_manager)
-
-## 初始化玩家数据
-func _initialize_from_data(data: CharacterData) -> void:
-	# 保存数据引用
-	character_data = data
-	ai_component.behavior_resource = data.ai_behavior
-
-## 设置角色动画
+## 设置角色动画库
 func _setup_animations() -> void:
 	if animation_player:
 		animation_player.remove_animation_library(&"")
-		animation_player.add_animation_library(&"", character_data.animation_library)
+		animation_player.add_animation_library(&"", _character_data.animation_library)
 		animation_player.play(&"idle")
 	else:
 		push_error("找不到AnimationPlayer组件，无法设置动画")
-		
+
 ## 设置角色点击区域和鼠标交互
 func _setup_character_click_area() -> void:
 	if not character_click_area:
@@ -212,6 +123,24 @@ func _setup_character_click_area() -> void:
 	character_click_area.mouse_entered.connect(_on_character_mouse_entered)
 	character_click_area.mouse_exited.connect(_on_character_mouse_exited)
 	character_click_area.input_event.connect(_on_character_input_event)
+
+## 初始化组件
+func _init_components(battle_manager: BattleManager) -> void:
+	if not is_instance_valid(character_combat_component):
+		push_error("战斗组件未初始化！")
+		return
+	if not is_instance_valid(gas_skill_component_adapter):
+		push_error("技能适配器未初始化！")
+		return
+	
+	var attack_skill_id = _character_data.attack_skill.ability_id if is_instance_valid(_character_data.attack_skill) else ""
+	var defense_skill_id = _character_data.defense_skill.ability_id if is_instance_valid(_character_data.defense_skill) else ""
+	var initial_skills := _character_data.initial_skills.duplicate(true)
+	initial_skills.append(_character_data.attack_skill)
+	initial_skills.append(_character_data.defense_skill)
+	character_combat_component.initialize(_character_data.element, attack_skill_id, defense_skill_id)
+	gas_skill_component_adapter.initialize(_character_data.attribute_sets, _character_data.vitals, initial_skills)
+	character_ai_component.initialize(battle_manager)
 
 #region --- 信号处理 ---
 ## 当鼠标进入角色区域

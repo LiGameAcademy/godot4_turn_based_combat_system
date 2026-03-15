@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillStatusData" format=3 uid="uid://bjxt3tjkqsm12"]
+
+[ext_resource type="Script" uid="uid://bh2l13xqoik56" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_modifier.gd" id="1_afr2x"]
+[ext_resource type="Script" uid="uid://dudfq7tltbaqw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_effect.gd" id="2_04ck5"]
+[ext_resource type="Texture2D" uid="uid://bnblxk1mu06ix" path="res://assets/textures/icons/status/attack_up.svg" id="3_r57oh"]
+[ext_resource type="Script" uid="uid://2eyouurk7vcw" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_status_data.gd" id="4_war7i"]
+
+[sub_resource type="Resource" id="Resource_ungfc"]
+script = ExtResource("1_afr2x")
+attribute_id = &"AttackPower"
+magnitude = 5.0
+
+[resource]
+script = ExtResource("4_war7i")
+status_id = &"attack_up"
+status_name = "攻击提升"
+description = "攻击力得到强化。"
+icon = ExtResource("3_r57oh")
+status_type = 0
+attribute_modifiers = Array[ExtResource("1_afr2x")]([SubResource("Resource_ungfc")])
+trigger_turns = 1
+trigger_count = 1

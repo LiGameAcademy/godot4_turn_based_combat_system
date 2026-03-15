@@ -112,6 +112,7 @@ text = "生命值"
 
 [node name="HealthBar" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/HBoxContainer/VBoxContainer/MarginContainer/HBoxContainer" unique_id=1336014172 instance=ExtResource("2_d8pxp")]
 unique_name_in_owner = true
+self_modulate = Color(0, 1, 0, 1)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -143,23 +144,23 @@ columns = 2
 
 [node name="AttributeLabel5" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/OtherAttributesGrid" unique_id=1131674851 instance=ExtResource("2_xk3ex")]
 layout_mode = 2
-attribute_id = &"MaxMana"
+attribute_id = &"max_mana"
 
 [node name="AttributeLabel" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/OtherAttributesGrid" unique_id=1651774283 instance=ExtResource("2_xk3ex")]
 layout_mode = 2
-attribute_id = &"AttackPower"
+attribute_id = &"attack_power"
 
 [node name="AttributeLabel4" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/OtherAttributesGrid" unique_id=2651374 instance=ExtResource("2_xk3ex")]
 layout_mode = 2
-attribute_id = &"MaxHealth"
+attribute_id = &"max_health"
 
 [node name="AttributeLabel2" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/OtherAttributesGrid" unique_id=1849499189 instance=ExtResource("2_xk3ex")]
 layout_mode = 2
-attribute_id = &"DefensePower"
+attribute_id = &"defense_power"
 
 [node name="AttributeLabel3" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer/LeftPanel/OtherAttributesGrid" unique_id=941732574 instance=ExtResource("2_xk3ex")]
 layout_mode = 2
-attribute_id = &"Speed"
+attribute_id = &"speed"
 
 [node name="VSeparator" type="VSeparator" parent="PanelContainer/MarginContainer/VBoxContainer/ContentContainer" unique_id=1773622091]
 layout_mode = 2

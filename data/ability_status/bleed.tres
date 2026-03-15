@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="GameplayStatusData" format=3 uid="uid://v7pde1qx81u8"]
+
+[ext_resource type="Script" uid="uid://cb3e3wuphyka3" path="res://addons/godot_ability_system/scripts/effects/gameplay_effect.gd" id="1_khrf3"]
+[ext_resource type="Script" uid="uid://cj5saahxbdl2x" path="res://scripts/definitions/tbc_status_duration_policy.gd" id="2_5lh0i"]
+[ext_resource type="Script" uid="uid://ctnmjf6pyjfeu" path="res://addons/godot_ability_system/scripts/status/features/status_feature.gd" id="2_n6itx"]
+[ext_resource type="Texture2D" uid="uid://c8hkms5m7m0mw" path="res://assets/textures/icons/status/bleeding.svg" id="3_u51gt"]
+[ext_resource type="Script" uid="uid://8u46anns2vhm" path="res://addons/godot_ability_system/scripts/status/gameplay_status_data.gd" id="4_5lh0i"]
+[ext_resource type="Script" uid="uid://do7odahj41gwh" path="res://addons/godot_ability_system/scripts/damage/simple_damage_logic.gd" id="4_hjnww"]
+[ext_resource type="Script" uid="uid://cx8rx62srat4v" path="res://addons/godot_ability_system/scripts/status/features/feature_event_listener.gd" id="4_lkd7m"]
+[ext_resource type="Script" uid="uid://cra1yv70jj5sn" path="res://addons/godot_ability_system/scripts/effects/ge_apply_damage.gd" id="5_0vung"]
+[ext_resource type="Script" uid="uid://bh8lykstg57tm" path="res://addons/godot_ability_system/scripts/filters/gameplay_filter.gd" id="5_tdxa1"]
+[ext_resource type="Script" uid="uid://dc022ooby3n5j" path="res://addons/godot_ability_system/scripts/status/stacking/stacking_refresh_duration.gd" id="6_lkd7m"]
+
+[sub_resource type="Resource" id="Resource_u51gt"]
+script = ExtResource("2_5lh0i")
+metadata/_custom_type_script = "uid://cj5saahxbdl2x"
+
+[sub_resource type="Resource" id="Resource_tdxa1"]
+script = ExtResource("4_hjnww")
+metadata/_custom_type_script = "uid://do7odahj41gwh"
+
+[sub_resource type="Resource" id="Resource_0t1lb"]
+script = ExtResource("5_0vung")
+damage_multiplier = 0.5
+damage_strategy = SubResource("Resource_tdxa1")
+vital_id = &"current_health"
+metadata/_custom_type_script = "uid://cra1yv70jj5sn"
+
+[sub_resource type="Resource" id="Resource_0vung"]
+script = ExtResource("4_lkd7m")
+trigger_on_events = Array[StringName]([&"turn_ended"])
+event_triggered_effects = Array[ExtResource("1_khrf3")]([SubResource("Resource_0t1lb")])
+metadata/_custom_type_script = "uid://cx8rx62srat4v"
+
+[sub_resource type="Resource" id="Resource_hjnww"]
+script = ExtResource("6_lkd7m")
+metadata/_custom_type_script = "uid://dc022ooby3n5j"
+
+[resource]
+script = ExtResource("4_5lh0i")
+status_id = &"bleed"
+status_display_name = "流血"
+status_description = "每回合受到物理伤害"
+duration = 3.0
+duration_policy = SubResource("Resource_u51gt")
+icon = ExtResource("3_u51gt")
+tags = Array[StringName]([&"status.debuff"])
+features = Array[ExtResource("2_n6itx")]([SubResource("Resource_0vung")])
+stacking_policy = SubResource("Resource_hjnww")

@@ -58,6 +58,9 @@ var action_categories: Array[String] = ["any_action"] 		## 所属行动类别
 # @export var sfx: AudioStream # 技能音效
 #endregion
 
+func get_display_name() -> String:
+	return skill_name
+
 ## 检查是否能施放技能
 func can_cast(caster_current_mp: float) -> bool:
 	return caster_current_mp >= mp_cost
@@ -89,6 +92,10 @@ func get_effect_description() -> String:
 ## 是否需要选择目标
 func needs_target() -> bool:
 	return target_type in [TargetType.ENEMY_SINGLE, TargetType.ALLY_SINGLE, TargetType.ALLY_SINGLE_INC_SELF]
+
+## 是否自身目标
+func is_self_target() -> bool:
+	return target_type == TargetType.SELF
 
 ## 敌人目标
 func is_enemy_target() -> bool:

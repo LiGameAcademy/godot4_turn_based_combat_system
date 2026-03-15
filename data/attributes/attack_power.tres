@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="GameplayAttribute" format=3 uid="uid://bunxmfu1ul8b2"]
+
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="1_fh020"]
+
+[resource]
+script = ExtResource("1_fh020")
+attribute_id = &"attack_power"
+attribute_display_name = "攻击力"
+attribute_description = "攻击力的描述"
+metadata/_custom_type_script = "uid://dj0iwc88r8noi"

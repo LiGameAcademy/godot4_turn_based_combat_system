@@ -1,0 +1,89 @@
+[gd_resource type="Resource" script_class="TBC_CharacterData" format=3 uid="uid://hcxd57tvokjr"]
+
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_5t8ep"]
+[ext_resource type="AnimationLibrary" uid="uid://blhiy6bt07lej" path="res://assets/animations/enemy/animation_library_goblin.res" id="2_3l5xm"]
+[ext_resource type="Resource" uid="uid://kacsn8v7n6by" path="res://addons/turn_based_combat_system/examples/data/skills/attack.tres" id="3_vj6lg"]
+[ext_resource type="Script" uid="uid://1svsj8jgldy7" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute.gd" id="4_nt5sx"]
+[ext_resource type="Resource" uid="uid://bv0i1mb44oi5n" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/current_health.tres" id="5_3rlne"]
+[ext_resource type="Resource" uid="uid://cjgdmrws0lvrk" path="res://addons/turn_based_combat_system/examples/data/skill_attributes/current_mana.tres" id="6_urnyg"]
+[ext_resource type="Script" uid="uid://8esdurm415rx" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_attribute_set.gd" id="7_nmqke"]
+[ext_resource type="Resource" uid="uid://rxkf72h6p0s2" path="res://addons/turn_based_combat_system/examples/data/skills/defend.tres" id="8_6ml13"]
+[ext_resource type="Texture2D" uid="uid://gaypx26a3dc1" path="res://assets/textures/icons/goblin.tres" id="9_swqbg"]
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://addons/turn_based_combat_system/script/definations/tbc_character_data.gd" id="10_5t8ep"]
+[ext_resource type="Script" uid="uid://dd0peyl7nmqfg" path="res://addons/turn_based_combat_system/script/system/skill_system/definitions/skill_data.gd" id="11_1vuxb"]
+[ext_resource type="Resource" uid="uid://dl6veckqncbeh" path="res://addons/turn_based_combat_system/examples/data/skills/cowardly_dodge.tres" id="12_rhmmy"]
+[ext_resource type="Resource" uid="uid://c0dt7jqwtnbr" path="res://addons/turn_based_combat_system/examples/data/skills/vicious_strike.tres" id="13_3glim"]
+[ext_resource type="Resource" uid="uid://i1aj8k56wevm" path="res://addons/turn_based_combat_system/examples/data/skills/counter_attack.tres" id="14_r5kes"]
+
+[sub_resource type="Resource" id="Resource_x2mhx"]
+script = ExtResource("1_5t8ep")
+behavior_type = "aggressive"
+self_preservation_weight = 0.0
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[sub_resource type="Resource" id="Resource_asr23"]
+resource_local_to_scene = true
+script = ExtResource("4_nt5sx")
+attribute_name = &"MaxHealth"
+display_name = "最大生命值"
+base_value = 80.0
+min_value = 1.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_n1w7c"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"MaxMana"
+display_name = "最大魔法值"
+base_value = 20.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_jf55n"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"AttackPower"
+display_name = "攻击力"
+base_value = 8.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_0i5n8"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"DefensePower"
+display_name = "防御力"
+base_value = 2.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_ixuka"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"MagicAttack"
+display_name = "魔法攻击"
+base_value = 5.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_hhnc7"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"MagicDefense"
+display_name = "魔法防御"
+base_value = 2.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_tcc5r"]
+script = ExtResource("4_nt5sx")
+attribute_name = &"Speed"
+display_name = "速度"
+base_value = 8.0
+metadata/_custom_type_script = "uid://1svsj8jgldy7"
+
+[sub_resource type="Resource" id="Resource_cjb8a"]
+script = ExtResource("7_nmqke")
+attributes_to_initialize = Array[ExtResource("4_nt5sx")]([SubResource("Resource_asr23"), SubResource("Resource_n1w7c"), ExtResource("5_3rlne"), ExtResource("6_urnyg"), SubResource("Resource_jf55n"), SubResource("Resource_0i5n8"), SubResource("Resource_ixuka"), SubResource("Resource_hhnc7"), SubResource("Resource_tcc5r")])
+
+[resource]
+script = ExtResource("10_5t8ep")
+character_name = "哥布林"
+description = "常见的低级怪物，弱小但行动迅速。"
+attribute_set_resource = SubResource("Resource_cjb8a")
+element = 3
+ai_behavior = SubResource("Resource_x2mhx")
+skills = Array[ExtResource("11_1vuxb")]([ExtResource("12_rhmmy"), ExtResource("13_3glim"), ExtResource("14_r5kes")])
+animation_library = ExtResource("2_3l5xm")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("9_swqbg")

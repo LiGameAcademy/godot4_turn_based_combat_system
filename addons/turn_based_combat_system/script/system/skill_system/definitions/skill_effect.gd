@@ -127,7 +127,7 @@ func _get_determine_targets(caster: Node, targets: Array[Node], context : SkillE
 ## [param target] 目标角色
 ## [param params] 视觉效果参数
 ## 发送视觉效果请求
-func _request_visual_effect(effect_type: StringName, target: Character, battle_manager: BattleManager, params: Dictionary = {}) -> void:
+func _request_visual_effect(effect_type: StringName, target: Node, battle_manager: BattleManager, params: Dictionary = {}) -> void:
 	if not is_instance_valid(battle_manager):
 		push_error("SkillEffect: 无效的战斗管理器引用")
 		return

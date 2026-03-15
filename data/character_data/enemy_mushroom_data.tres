@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://ccx1aau0l51me"]
+
+[ext_resource type="Script" uid="uid://c1h2m46l2lj50" path="res://addons/turn_based_combat_system/script/ai/ai_behavior.gd" id="1_wb3pk"]
+[ext_resource type="AnimationLibrary" uid="uid://2c4qsitbdtek" path="res://assets/animations/enemy/animation_library_mushroom.res" id="2_s68q7"]
+[ext_resource type="Script" uid="uid://dj0iwc88r8noi" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute.gd" id="3_bpcky"]
+[ext_resource type="Resource" uid="uid://cfs7077g3sp5n" path="res://data/abilities/attack.tres" id="3_jkwja"]
+[ext_resource type="Script" uid="uid://dd5tuhga1jg51" path="res://addons/godot_ability_system/scripts/utilties/scalable_value.gd" id="4_7oovk"]
+[ext_resource type="Script" uid="uid://cjn4q8klxdryf" path="res://scripts/definitions/character_data.gd" id="4_jmn28"]
+[ext_resource type="Resource" uid="uid://dk8d0hssklu64" path="res://data/attributes/max_mana.tres" id="5_s68q7"]
+[ext_resource type="Script" uid="uid://bkkqftstlq2s6" path="res://addons/godot_ability_system/scripts/attributes/gameplay_attribute_set.gd" id="5_whv52"]
+[ext_resource type="Resource" uid="uid://dqyyxtke705u3" path="res://data/attributes/max_health.tres" id="6_qnbas"]
+[ext_resource type="Resource" uid="uid://dt4ifdui4apo5" path="res://data/attributes/speed.tres" id="7_atghj"]
+[ext_resource type="Resource" uid="uid://bunxmfu1ul8b2" path="res://data/attributes/attack_power.tres" id="8_jkwja"]
+[ext_resource type="Script" uid="uid://bm4h231fb21pv" path="res://addons/godot_ability_system/scripts/abilities/gameplay_ability_definition.gd" id="8_xqh23"]
+[ext_resource type="Resource" uid="uid://cbsfg0mrcborh" path="res://data/attributes/defense_power.tres" id="9_8x5ir"]
+[ext_resource type="Texture2D" uid="uid://dy4bvsblbfrul" path="res://assets/textures/icons/mushroom.tres" id="9_vhsl4"]
+[ext_resource type="Resource" uid="uid://d01rs3dorg0hc" path="res://data/abilities/defend.tres" id="12_8x5ir"]
+[ext_resource type="Script" uid="uid://de4yqlfssv0xe" path="res://addons/godot_ability_system/scripts/attributes/vitals/gameplay_vital.gd" id="14_itenj"]
+[ext_resource type="Script" uid="uid://b6k2lmhsmbn2c" path="res://addons/godot_ability_system/scripts/attributes/vitals/health_vital.gd" id="16_8x5ir"]
+[ext_resource type="Script" uid="uid://diwvpcc0axlat" path="res://addons/godot_ability_system/scripts/attributes/vitals/mana_vital.gd" id="17_itenj"]
+
+[sub_resource type="Resource" id="Resource_lachk"]
+script = ExtResource("1_wb3pk")
+metadata/_custom_type_script = "uid://c1h2m46l2lj50"
+
+[sub_resource type="Resource" id="Resource_15q13"]
+script = ExtResource("5_whv52")
+attributes = Dictionary[ExtResource("3_bpcky"), float]({
+ExtResource("5_s68q7"): 90.0,
+ExtResource("6_qnbas"): 220.0,
+ExtResource("7_atghj"): 6.0,
+ExtResource("8_jkwja"): 18.0,
+ExtResource("9_8x5ir"): 30.0
+})
+metadata/_custom_type_script = "uid://bkkqftstlq2s6"
+
+[sub_resource type="Resource" id="Resource_hejwr"]
+script = ExtResource("16_8x5ir")
+vital_id = &"health"
+display_name = "生命值"
+max_value_attribute = &"max_health"
+metadata/_custom_type_script = "uid://b6k2lmhsmbn2c"
+
+[sub_resource type="Resource" id="Resource_dxjiq"]
+script = ExtResource("17_itenj")
+vital_id = &"mana"
+display_name = "魔法值"
+max_value_attribute = &"max_mana"
+metadata/_custom_type_script = "uid://diwvpcc0axlat"
+
+[resource]
+script = ExtResource("4_jmn28")
+character_name = "蘑菇怪"
+description = "一片古老菌毯的延伸体，会散播各种影响战局的孢子。单独存在时很脆弱，但成群出现时则非常麻烦。"
+attribute_sets = Array[ExtResource("5_whv52")]([SubResource("Resource_15q13")])
+vitals = Array[ExtResource("14_itenj")]([SubResource("Resource_hejwr"), SubResource("Resource_dxjiq")])
+element = 3
+ai_behavior = SubResource("Resource_lachk")
+attack_skill = ExtResource("3_jkwja")
+defense_skill = ExtResource("12_8x5ir")
+animation_library = ExtResource("2_s68q7")
+sprite_offset = Vector2(0, 75)
+icon = ExtResource("9_vhsl4")
