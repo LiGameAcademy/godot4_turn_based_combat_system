@@ -24,8 +24,10 @@
 * **图文教程（深度优先，持续更新）：**
     详细的开发日志、设计文档、代码解析以及更深入的游戏设计思考，会优先发布在 **[老李的知识星球“老李游戏学院”](https://wx.zsxq.com/group/28885154818841)**。加入星球即可获取所有已发布和未来更新的图文内容，并参与学员社群的交流与问答。
 
-* **视频教程（逐步推出）：**
-    相关的视频教程系列也正在紧张制作中，旨在通过更直观的方式演示开发过程和讲解核心概念。视频教程将主要发布在B站。
+* **视频教程：**
+<a href="https://www.bilibili.com/cheese/play/ep1794593" target="_blank">
+  <img src="https://archive.biliimg.com/bfs/archive/34cda891cba76910353d5eb0927af24b1c83e531.jpg" alt="Bilibili Course">
+</a>
     **B站频道：[玩物不丧志的老李](https://space.bilibili.com/8618918)**
 
 ## 近期及未来架构方向（节选）
