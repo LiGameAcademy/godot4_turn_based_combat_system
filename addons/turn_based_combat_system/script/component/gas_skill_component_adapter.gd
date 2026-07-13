@@ -158,14 +158,14 @@ func restore_mp(amount: float) -> float:
 ## 获取当前mp
 func get_current_mp() -> float:
 	if not is_instance_valid(vital_attribute_component):
-		return false
+		return 0.0
 	var mana_vital : ManaVital = vital_attribute_component.get_vital("mana")
 	return mana_vital.current_value
 
 ## 获取当前hp
 func get_current_hp() -> float:
 	if not is_instance_valid(vital_attribute_component):
-		return false
+		return 0.0
 	var health_vital : HealthVital = vital_attribute_component.get_vital("health")
 	return health_vital.current_value
 

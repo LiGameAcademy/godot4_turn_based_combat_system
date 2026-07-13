@@ -73,7 +73,7 @@ func _ready() -> void:
 	combat_component.action_executed.connect(_on_action_executed)
 
 func setup(character_data: CharacterData) -> void:
-	character_data = character_data
+	_character_data = character_data
 
 ## 获取技能组件
 func get_skill_component() -> SkillComponentInterface:
