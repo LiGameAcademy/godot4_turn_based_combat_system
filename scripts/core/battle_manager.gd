@@ -2,17 +2,19 @@
 extends Node
 class_name BattleManager
 
+const DAMAGE_NUMBER_SCENE : PackedScene = preload("res://scenes/ui/damage_number.tscn")
+
 # 战斗状态枚举
 enum BattleState {
-	IDLE,           # 战斗未开始或已结束的空闲状态
-	BATTLE_START,   # 战斗初始化阶段
-	ROUND_START,    # 回合开始，处理回合初效果，决定行动者
-	PLAYER_TURN,    # 等待玩家输入并执行玩家行动
-	ENEMY_TURN,     # AI 决定并执行敌人行动
-	ACTION_EXECUTION, # 正在执行某个角色的具体行动
-	ROUND_END,      # 回合结束，处理回合末效果，检查胜负
-	VICTORY,        # 战斗胜利
-	DEFEAT          # 战斗失败
+	IDLE,           				# 战斗未开始或已结束的空闲状态
+	BATTLE_START,   				# 战斗初始化阶段
+	ROUND_START,    				# 回合开始，处理回合初效果，决定行动者
+	PLAYER_TURN,    				# 等待玩家输入并执行玩家行动
+	ENEMY_TURN,     				# AI 决定并执行敌人行动
+	ACTION_EXECUTION, 				# 正在执行某个角色的具体行动
+	ROUND_END,      				# 回合结束，处理回合末效果，检查胜负
+	VICTORY,        				# 战斗胜利
+	DEFEAT          				# 战斗失败
 }
 
 # 当前战斗状态
@@ -32,36 +34,7 @@ signal turn_changed(character)
 signal battle_ended(is_victory)
 
 func _ready():
-	# 自动查找并注册战斗场景中的角色
-	register_characters()
-
-# 注册战斗场景中的角色
-func register_characters():
-	# 查找战斗场景中的所有角色
-	var player_area = get_node_or_null("../PlayerArea")
-	var enemy_area = get_node_or_null("../EnemyArea")
-	
-	if player_area:
-		for child in player_area.get_children():
-			if child is Character:
-				add_player_character(child)
-	
-	if enemy_area:
-		for child in enemy_area.get_children():
-			if child is Character:
-				add_enemy_character(child)
-	
-	print("已注册 ", player_characters.size(), " 名玩家角色和 ", enemy_characters.size(), " 名敌人")
-
-# 开始战斗
-func start_battle():
-	print("战斗开始!")
-	
-	if player_characters.is_empty() or enemy_characters.is_empty():
-		push_error("无法开始战斗：缺少玩家或敌人!")
-		return
-	
-	set_state(BattleState.BATTLE_START)
+	set_state(BattleState.IDLE)
 
 # 设置战斗状态
 func set_state(new_state: BattleState):
@@ -76,7 +49,7 @@ func set_state(new_state: BattleState):
 	match current_state:
 		BattleState.IDLE:
 			# 重置战斗相关变量
-			pass
+			start_battle()
 			
 		BattleState.BATTLE_START:
 			# 战斗初始化
@@ -106,6 +79,10 @@ func set_state(new_state: BattleState):
 			pass
 			
 		BattleState.ROUND_END:
+			# 重置当前回合角色标记
+			if current_turn_character:
+				current_turn_character.reset_turn_flags()
+
 			# 回合结束处理
 			if not check_battle_end_condition():
 				set_state(BattleState.ROUND_START)
@@ -117,6 +94,43 @@ func set_state(new_state: BattleState):
 		BattleState.DEFEAT:
 			print("战斗失败...")
 			emit_signal("battle_ended", false)
+
+# 开始战斗
+func start_battle():
+	print("战斗开始!")
+
+	# 清空角色列表
+	player_characters.clear()
+	enemy_characters.clear()
+
+	# 自动查找并注册战斗场景中的角色
+	register_characters()
+	
+	if player_characters.is_empty() or enemy_characters.is_empty():
+		push_error("无法开始战斗：缺少玩家或敌人!")
+		return
+	
+	set_state(BattleState.BATTLE_START)
+
+# 注册战斗场景中的角色
+func register_characters():
+	# 查找战斗场景中的所有角色
+	var player_area = get_node_or_null("../PlayerArea")
+	var enemy_area = get_node_or_null("../EnemyArea")
+	
+	if player_area:
+		for child in player_area.get_children():
+			if child is Character:
+				add_player_character(child)
+				_subscribe_to_character_signals(child)
+	
+	if enemy_area:
+		for child in enemy_area.get_children():
+			if child is Character:
+				add_enemy_character(child)
+				_subscribe_to_character_signals(child)
+	
+	print("已注册 ", player_characters.size(), " 名玩家角色和 ", enemy_characters.size(), " 名敌人")
 
 # 玩家选择行动
 func player_select_action(action_type: String, target = null):
@@ -176,20 +190,15 @@ func execute_attack(attacker: Character, target: Character):
 	print(attacker.character_name, " 攻击 ", target.character_name)
 	
 	# 简单的伤害计算
-	var damage = max(1, attacker.attack - target.defense / 2)
-	
-	# 应用伤害
-	target.apply_damage(damage)
+	var damage = target.take_damage(attacker.attack - target.defense)
 	
 	# 更新UI信息
 	update_battle_info(attacker.character_name + " 对 " + target.character_name + " 造成了 " + str(damage) + " 点伤害!")
 
-	# 检查目标是否阵亡
-	if target.current_hp <= 0:
-		print(target.character_name, " 已被击败!")
-		
-	# 检查战斗是否结束
-	check_battle_end_condition()
+	# 显示伤害数字
+	spawn_damage_number(target.global_position, damage, Color.RED)
+	
+	print_rich("[color=red]" + target.character_name + " 受到 " + str(damage) + " 点伤害![/color]")
 
 # 执行防御
 func execute_defend(character: Character):
@@ -197,7 +206,10 @@ func execute_defend(character: Character):
 		return
 		
 	print(character.character_name, " 选择防御，受到的伤害将减少")
-	# TODO: 实现防御逻辑，可能是添加临时buff或设置状态
+	character.set_defending(true)
+	
+	# 更新UI信息
+	update_battle_info(character.character_name + " 进入防御状态，将受到减少的伤害!")
 
 # 构建回合队列
 func build_turn_queue():
@@ -298,3 +310,38 @@ func update_battle_info(text: String):
 	var info_label = get_node_or_null("../BattleUI/BattleInfo")
 	if info_label:
 		info_label.text = text
+
+## 生成伤害数字
+func spawn_damage_number(position: Vector2, amount: int, color : Color) -> void:
+	var damage_number = DAMAGE_NUMBER_SCENE.instantiate()
+	get_parent().add_child(damage_number)
+	damage_number.global_position = position + Vector2(0, -50)
+	damage_number.show_number(str(amount), color)
+
+## 订阅角色信号
+func _subscribe_to_character_signals(character : Character) -> void:
+	if !character.character_died.is_connected(_on_character_died):
+		character.character_died.connect(_on_character_died)
+	
+	#TODO 链接其他信号
+
+# 角色死亡信号处理函数
+func _on_character_died(character: Character) -> void:
+	print_rich("[color=purple]" + character.character_name + " 已被击败![/color]")
+	
+	# 从相应列表中移除
+	if player_characters.has(character):
+		player_characters.erase(character)
+	elif enemy_characters.has(character):
+		enemy_characters.erase(character)
+	
+	# 从回合队列中移除
+	if turn_queue.has(character):
+		turn_queue.erase(character)
+	
+	# 如果当前行动者死亡，需要特殊处理
+	if current_turn_character == character:
+		print("当前行动者 " + character.character_name + " 已阵亡。")
+	
+	# 检查战斗是否结束
+	check_battle_end_condition()	

@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://xoodbl5tf3xe"]
+
+[ext_resource type="Script" uid="uid://dted02yotqlwn" path="res://scenes/ui/damage_number.gd" id="1_ul084"]
+
+[node name="DamageNumber" type="Node2D"]
+script = ExtResource("1_ul084")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_font_sizes/font_size = 20
+text = "测试"
+horizontal_alignment = 1
+vertical_alignment = 1
