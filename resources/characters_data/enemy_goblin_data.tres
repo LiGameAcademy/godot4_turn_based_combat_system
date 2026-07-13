@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=2 format=3 uid="uid://hcxd57tvokjr"]
+
+[ext_resource type="Script" uid="uid://bdekeym7nn8i2" path="res://scripts/resources/character_data.gd" id="1_45vgr"]
+
+[resource]
+script = ExtResource("1_45vgr")
+character_name = "哥布林"
+description = "常见的低级怪物，弱小但行动迅速。"
+max_hp = 80
+current_hp = 80
+max_mp = 30
+current_mp = 30
+attack = 12
+defense = 6
+speed = 12
+color = Color(0.2, 0.7, 0.2, 1)

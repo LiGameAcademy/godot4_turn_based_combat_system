@@ -15,6 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="godot4_turn_based_combat_system_tutorial"
+run/main_scene="uid://bvnf2raqi3v41"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
