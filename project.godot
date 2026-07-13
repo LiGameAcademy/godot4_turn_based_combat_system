@@ -8,11 +8,19 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="godot4_turn_based_combat_system_tutorial"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
+
+[dotnet]
+
+project/assembly_name="godot4_turn_based_combat_system_tutorial"
 
 [rendering]
 
