@@ -1,12 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://bj4w0ajv2jk2e"]
+[gd_scene format=3 uid="uid://bj4w0ajv2jk2e"]
 
-[ext_resource type="Script" path="res://scenes/ui/defense_indicator.gd" id="1_1oxh2"]
+[ext_resource type="Script" uid="uid://bxlvjl3c10hlq" path="res://scenes/ui/defense_indicator.gd" id="1_1oxh2"]
 
-[node name="DefenseIndicator" type="Node2D"]
+[node name="DefenseIndicator" type="Node2D" unique_id=1464755244]
 visible = false
 script = ExtResource("1_1oxh2")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=474943468]
 offset_right = 40.0
 offset_bottom = 23.0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
